@@ -1,0 +1,35 @@
+{
+    "name": "vrok/symfony-addons",
+    "type": "library",
+    "description": "Symfony helper classes",
+    "keywords": ["symfony", "phpunit"],
+    "homepage": "https://vrok.de",
+    "license": "MIT",
+    "require": {
+        "php": "^7.4"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16.3",
+        "phpunit/phpunit": "^9.2.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Vrok\\SymfonyAddons\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Vrok\\SymfonyAddons\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "php-cs-fixer fix --dry-run --diff -v",
+        "cs-fix": "php-cs-fixer fix -v",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}
