@@ -3,6 +3,8 @@
 This is a library with additional classes for usage in combination with the
 Symfony framework.
 
+[![Build Status](https://travis-ci.org/j-schumann/symfony-addons.svg?branch=master)](https://travis-ci.org/j-schumann/symfony-addons)
+
 ## Mailer helpers
 ### Automatically set a sender address
 
