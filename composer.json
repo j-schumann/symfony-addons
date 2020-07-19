@@ -10,7 +10,9 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16.3",
-        "phpunit/phpunit": "^9.2.5"
+        "monolog/monolog": "2.1.0",
+        "phpunit/phpunit": "^9.2.5",
+        "symfony/mailer": "^5.1.2"
     },
     "autoload": {
         "psr-4": {
