@@ -4,6 +4,7 @@ This is a library with additional classes for usage in combination with the
 Symfony framework.
 
 [![Build Status](https://travis-ci.org/j-schumann/symfony-addons.svg?branch=master)](https://travis-ci.org/j-schumann/symfony-addons)
+[![Coverage Status](https://coveralls.io/repos/github/j-schumann/symfony-addons/badge.svg?branch=master)](https://coveralls.io/github/j-schumann/symfony-addons?branch=master)
 
 ## Mailer helpers
 ### Automatically set a sender address
