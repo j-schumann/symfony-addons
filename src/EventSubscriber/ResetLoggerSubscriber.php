@@ -67,7 +67,7 @@ class ResetLoggerSubscriber implements EventSubscriberInterface, LoggerAwareInte
      * After a message was processed flash any buffer handlers, we don't want
      * to wait till the next message to see the logs.
      */
-    public function flushLogger(WorkerMessageHandledEvent $e)
+    public function flushLogger()
     {
         // don't simply reset() the logger itself, this would cause the UID to
         // change too, which would separate log entries coming after this event
