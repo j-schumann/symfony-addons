@@ -10,7 +10,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16.3",
-        "monolog/monolog": "2.1.0",
+        "monolog/monolog": "2.1.1",
         "phpunit/phpunit": "^9.2.5",
         "symfony/mailer": "^5.1.2"
     },
