@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vrok\MonitoringBundle;
+namespace Vrok\SymfonyAddons;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
