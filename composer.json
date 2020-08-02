@@ -6,7 +6,8 @@
     "homepage": "https://vrok.de",
     "license": "MIT",
     "require": {
-        "php": "^7.4"
+        "php": "^7.4",
+        "symfony/framework-bundle":  "^5.1.3"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16.4",
