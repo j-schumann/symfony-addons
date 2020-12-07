@@ -63,7 +63,7 @@ class AutoSenderSubscriber implements EventSubscriberInterface
 
         $message->getHeaders()->add(
             new MailboxListHeader('From', [
-                Address::fromString($this->sender),
+                Address::create($this->sender),
             ])
         );
 
