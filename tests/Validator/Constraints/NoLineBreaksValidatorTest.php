@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints\RegexValidator;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\NoLineBreaks;
 
-class NoHtmlValidatorTest extends ConstraintValidatorTestCase
+class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
 {
     protected function createValidator()
     {
