@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\RegexValidator;
 
 /**
- * Checks that the value contains no line breaks (\n, \r, etc.)
+ * Checks that the value contains no line breaks (\n, \r, etc.).
  *
  * @Annotation
  */
