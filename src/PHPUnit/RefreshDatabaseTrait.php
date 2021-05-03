@@ -38,11 +38,6 @@ trait RefreshDatabaseTrait
     protected static $fixtures;
 
     /**
-     * @var ORMExecutor
-     */
-    protected static $executor;
-
-    /**
      * Called on each test that calls bootKernel() or uses createClient().
      */
     protected static function bootKernel(array $options = []): KernelInterface
@@ -120,5 +115,10 @@ trait RefreshDatabaseTrait
         // don't use a static Executor, it contains the EM which could be closed
         // through (expected) exceptions and would not work
         return new ORMExecutor($em, $purger);
+    }
+
+    protected static function fixtureCleanup()
+    {
+        static::$fixtures = null;
     }
 }
