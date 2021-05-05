@@ -30,7 +30,7 @@ class CronDailyCommand extends Command
     protected function configure(): void
     {
         $this->setDescription('Calls all event subscribers listening '
-            .'to the "cron.daily" event. To be called via crontab automatically.');
+            .'to the CronDailyEvent. To be called via crontab automatically.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

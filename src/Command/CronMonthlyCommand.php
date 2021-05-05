@@ -9,11 +9,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Vrok\SymfonyAddons\Event\CronHourlyEvent;
+use Vrok\SymfonyAddons\Event\CronMonthlyEvent;
 
-class CronHourlyCommand extends Command
+class CronMonthlyCommand extends Command
 {
-    protected static $defaultName = 'cron:hourly';
+    protected static $defaultName = 'cron:monthly';
 
     private LoggerInterface $logger;
 
@@ -30,13 +30,13 @@ class CronHourlyCommand extends Command
     protected function configure(): void
     {
         $this->setDescription('Calls all event subscribers listening '
-            .'to the CronHourlyEvent event. To be called via crontab automatically.');
+            .'to the CronMonthlyEvent. To be called via crontab automatically.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->logger->info('Running CronHourlyEvent');
-        $this->dispatcher->dispatch(new CronHourlyEvent());
+        $this->logger->info('Running CronMonthlyEvent');
+        $this->dispatcher->dispatch(new CronMonthlyEvent());
 
         return 0;
     }
