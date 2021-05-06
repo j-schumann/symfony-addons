@@ -12,5 +12,8 @@
         <service id="vrok.symfony_addons.cron_hourly_command" class="Vrok\SymfonyAddons\Command\CronHourlyCommand">
             <tag name="console.command" command="cron:hourly" />
         </service>
+        <service id="vrok.symfony_addons.cron_monthly_command" class="Vrok\SymfonyAddons\Command\CronMonthlyCommand">
+            <tag name="console.command" command="cron:monthly" />
+        </service>
     </services>
 </container>
