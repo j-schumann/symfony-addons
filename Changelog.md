@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2021-05-06
+### Fixed
+- CronMonthlyCommand not available
+
 ## [1.4.0] - 2021-05-05
 ### Added
 - CronMonthlyEvent + command
