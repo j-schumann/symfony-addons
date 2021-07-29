@@ -56,7 +56,16 @@ trait RefreshDatabaseTrait
         // now load any fixtures configured for "test" (or overwritten groups)
         $fixtures = static::getFixtures($container);
         if (count($fixtures)) {
-            static::getExecutor($container)->execute($fixtures, false);
+            $executor = static::getExecutor($container);
+
+            // fix for PHP8: purge separately as execute() would wrap the TRUNCATE
+            // in a transaction which is auto-committed by MySQL when DDL queries
+            // are executed which throws an exception in the entitymanager
+            // ("There is no active transaction", @see https://github.com/doctrine/migrations/issues/1104)
+            // because he does not check if a transaction is still open before
+            // calling commit().
+            $executor->purge();
+            $executor->execute($fixtures, true);
         }
 
         return $kernel;
