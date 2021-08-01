@@ -58,7 +58,7 @@ jobs:
 
       - name: Upload test artifacts
         if: always()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: phpunit-logs-php${{ matrix.php }}
           path: build/logs/phpunit
