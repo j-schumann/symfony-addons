@@ -20,7 +20,7 @@ trait AuthenticatedClientTrait
         // boots the kernel, initializes static::$container
         $client = static::createClient();
 
-        $token = static::getJWT(static::$container, $findUserBy);
+        $token = static::getJWT(static::getContainer(), $findUserBy);
         $client->setDefaultOptions([
             'headers' => [
                 'Authorization' => sprintf('Bearer %s', $token),

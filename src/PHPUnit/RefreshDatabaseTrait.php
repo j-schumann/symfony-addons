@@ -126,7 +126,7 @@ trait RefreshDatabaseTrait
         return new ORMExecutor($em, $purger);
     }
 
-    protected static function fixtureCleanup()
+    protected static function fixtureCleanup(): void
     {
         static::$fixtures = null;
     }

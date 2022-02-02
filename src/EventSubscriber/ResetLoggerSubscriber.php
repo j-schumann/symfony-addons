@@ -26,7 +26,7 @@ class ResetLoggerSubscriber implements EventSubscriberInterface, LoggerAwareInte
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             // after a new message is received, before handling: reset the UID
