@@ -11,7 +11,9 @@ use Symfony\Component\Validator\Constraints\RegexValidator;
  * Checks that the value contains no line breaks (\n, \r, etc.).
  *
  * @Annotation
+ * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
+#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD)]
 class NoLineBreaks extends Regex
 {
     public $match = false;
