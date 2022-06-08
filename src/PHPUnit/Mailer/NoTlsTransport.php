@@ -19,9 +19,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class NoTlsTransport extends EsmtpTransport
 {
-    private $authenticators = [];
-    private $username = '';
-    private $password = '';
+    private array $authenticators = [];
+    private string $username = '';
+    private string $password = '';
+    private array $capabilities;
 
     public function __construct(string $host = 'localhost', int $port = 0, bool $tls = null, EventDispatcherInterface $dispatcher = null, LoggerInterface $logger = null)
     {
@@ -46,14 +47,14 @@ class NoTlsTransport extends EsmtpTransport
             return;
         }
 
-        $capabilities = $this->getCapabilities($response);
+        $this->capabilities = $this->parseCapabilities($response);
 
-        if (\array_key_exists('AUTH', $capabilities)) {
-            $this->handleAuth($capabilities['AUTH']);
+        if (\array_key_exists('AUTH', $this->capabilities)) {
+            $this->handleAuth($this->capabilities['AUTH']);
         }
     }
 
-    private function getCapabilities(string $ehloResponse): array
+    private function parseCapabilities(string $ehloResponse): array
     {
         $capabilities = [];
         $lines = explode("\r\n", trim($ehloResponse));
