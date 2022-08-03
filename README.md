@@ -216,3 +216,7 @@ class MyEventSubscriber implements EventSubscriberInterface
     }
 }
 ```
+
+## Upgrade ToDo
+* When updating for PHP >= 8 && symfony >= 6, add `#[AsCommand(name: 'cron:daily')]` etc.
+  to the commands and remove the `$defaultName`.
