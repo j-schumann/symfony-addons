@@ -21,7 +21,7 @@ class PasswordStrengthValidator extends ConstraintValidator
     public function validate($value, Constraint $constraint)
     {
         if (!$constraint instanceof PasswordStrength) {
-            throw new UnexpectedTypeException($constraint, NoHtml::class);
+            throw new UnexpectedTypeException($constraint, PasswordStrength::class);
         }
 
         if (null === $value) {
