@@ -220,3 +220,5 @@ class MyEventSubscriber implements EventSubscriberInterface
 ## Upgrade ToDo
 * When updating for PHP >= 8 && symfony >= 6, add `#[AsCommand(name: 'cron:daily')]` etc.
   to the commands and remove the `$defaultName`.
+* Remove NoTlsTransport: Most servers require TLS, just disable certificate validation
+  in tests with ?verify_peer=0 in the MAILER_DSN
