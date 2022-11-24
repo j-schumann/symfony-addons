@@ -13,7 +13,7 @@
         "api-platform/core": "^2.6.8",
         "friendsofphp/php-cs-fixer": "^3.5.0",
         "monolog/monolog": "2.5.0",
-        "phpunit/phpunit": "^9.5.13",
+        "phpunit/phpunit": "^9.5.25",
         "roave/security-advisories": "dev-latest",
         "symfony/mailer": "^5.4.0|^6.0.0",
         "symfony/validator": "^5.4.0|^6.0.0"

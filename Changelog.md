@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2022-11-24
+### Added
+- ApiPlatformTestCase
+
 ## [1.7.0] - 2022-06-09
 ### Added
 - AtLeastOneOfValidator
