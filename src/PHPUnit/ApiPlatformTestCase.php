@@ -10,6 +10,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * Helper class that contains often used functionality to simplify testing
  * API endpoints.
+ *
+ * Requires symfony/browser-kit + symfony/http-client
  */
 abstract class ApiPlatformTestCase extends ApiTestCase
 {

@@ -28,6 +28,20 @@ trait RefreshDatabaseTrait
     protected static $fixtureGroups = ['test'];
 
     /**
+     * @var string Defaults to "purge", can be overwritten by setting the ENV
+     * DB_CLEANUP_METHOD (e.g. in phpunit.xml.dist).
+     *
+     * "purge" will update the DB schema once and afterwards only purges
+     * all tables, may require Vrok\DoctrineAddons\DBAL\Platforms\{Mariadb|PostgreSQL}TestPlatform
+     * to disable foreign keys / cascade purge before running.
+     *
+     * "dropSchema" will drop all tables (and indizes) and recreate them, use
+     * this for databases that do not support disabling foreign keys like
+     * MS SqlServer.
+     */
+    protected static $cleanupMethod = "purge";
+
+    /**
      * @var bool Flag whether db schema was updated/checked or not
      */
     protected static $schemaUpdated = false;
@@ -47,10 +61,20 @@ trait RefreshDatabaseTrait
         $kernel = parent::bootKernel($options);
         $container = static::$container ?? static::$kernel->getContainer();
 
-        // only required on the first test: make sure the db schema is up to date
-        if (!static::$schemaUpdated) {
+        // @todo implement "dropDB"?
+        static::$cleanupMethod = getenv('DB_CLEANUP_METHOD') === "dropSchema"
+            ? "dropSchema"
+            : "purge";
+
+        if ("purge" === self::$cleanupMethod) {
+            // only required on the first test: make sure the db schema is up to date
+            if (!static::$schemaUpdated) {
+                static::updateSchema($container);
+                static::$schemaUpdated = true;
+            }
+        }
+        else {
             static::updateSchema($container);
-            static::$schemaUpdated = true;
         }
 
         // now load any fixtures configured for "test" (or overwritten groups)
@@ -58,15 +82,17 @@ trait RefreshDatabaseTrait
 
         $executor = static::getExecutor($container);
 
-        // Purge even when no fixtures are defined, e.g. for tests that require
-        // an empty database, like import tests.
-        // fix for PHP8: purge separately as execute() would wrap the TRUNCATE
-        // in a transaction which is auto-committed by MySQL when DDL queries
-        // are executed which throws an exception in the entitymanager
-        // ("There is no active transaction", @see https://github.com/doctrine/migrations/issues/1104)
-        // because he does not check if a transaction is still open before
-        // calling commit().
-        $executor->purge();
+        if ("purge" === self::$cleanupMethod) {
+            // Purge even when no fixtures are defined, e.g. for tests that require
+            // an empty database, like import tests.
+            // fix for PHP8: purge separately as execute() would wrap the TRUNCATE
+            // in a transaction which is auto-committed by MySQL when DDL queries
+            // are executed which throws an exception in the entitymanager
+            // ("There is no active transaction", @see https://github.com/doctrine/migrations/issues/1104)
+            // because he does not check if a transaction is still open before
+            // calling commit().
+            $executor->purge();
+        }
 
         if (count($fixtures)) {
             $executor->execute($fixtures, true);
@@ -96,6 +122,11 @@ trait RefreshDatabaseTrait
         }
 
         $schemaTool = new SchemaTool($em);
+
+        if ("dropSchema" === static::$cleanupMethod) {
+            $schemaTool->dropDatabase();
+        }
+
         $schemaTool->updateSchema($metadatas, false);
     }
 
