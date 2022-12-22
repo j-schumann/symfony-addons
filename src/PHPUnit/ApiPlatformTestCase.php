@@ -10,8 +10,6 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * Helper class that contains often used functionality to simplify testing
  * API endpoints.
- *
- * Requires symfony/browser-kit + symfony/http-client
  */
 abstract class ApiPlatformTestCase extends ApiTestCase
 {
@@ -58,6 +56,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                 e.g. [User::class, [email => 'test@test.de']]
      *                 tries to find a User by the given conditions and
      *                 retrieves its IRI, it is then used as URI
+     * basicAuth:      if given, sets the given credentials [username, password]
+     *                 as HTTP basic authentication header
      * email:          if given, tries to find a User with that email and sends
      *                 the request authenticated as this user
      * method:         HTTP method for the request, defaults to GET
@@ -81,9 +81,16 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      */
     protected function testOperation(array $params): ResponseInterface
     {
-        $client = isset($params['email'])
-            ? static::createAuthenticatedClient(['email' => $params['email']])
-            : static::createClient();
+        $client = null;
+        if (isset($params['basicAuth'])) {
+            $client = static::createClient([], ['auth_basic' => $params['basicAuth']]);
+        }
+        elseif (isset($params['email'])) {
+            $client = static::createAuthenticatedClient(['email' => $params['email']]);
+        }
+        else {
+            $client = static::createClient();
+        }
 
         // called after createClient as this forces the kernel boot which in
         // turn refreshes the database
