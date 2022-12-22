@@ -9,18 +9,19 @@ use Symfony\Component\Validator\Constraints\RegexValidator;
 
 /**
  * Checks that the value contains no line breaks (\n, \r, etc.).
- *
- * @Annotation
- * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD)]
 class NoLineBreaks extends Regex
 {
-    public $match = false;
-    public $message = 'This value contains line breaks.';
-
     public function __construct($options = null)
     {
+	if (!isset($options['match'])) {
+	    $options['match'] = false;
+        }
+	if (!isset($options['message'])) {
+	    $options['message'] = 'This value contains line breaks.';
+        }
+
         // matches any linebreak characters, including Unicode line/paragraph
         // separators, @see https://stackoverflow.com/a/18992691/1341762
         $options['pattern'] = '/\R/u';

@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2022-12-22
+### Fixed
+- misc. deprecations 
+
+### Removed
+- support for PHP7.* + 8.0.*
+- support for Symfony 5
+- support for validator annotations, use attributes instead
+
 ## [1.9.0] - 2022-12-22
 ### Added
 - allow BasicAuth in ApiPlatformTestCase
