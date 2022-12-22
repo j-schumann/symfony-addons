@@ -5,25 +5,20 @@ declare(strict_types=1);
 namespace Vrok\SymfonyAddons\Command;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Vrok\SymfonyAddons\Event\CronMonthlyEvent;
 
+#[AsCommand('cron:monthly')]
 class CronMonthlyCommand extends Command
 {
-    protected static $defaultName = 'cron:monthly';
-
-    private LoggerInterface $logger;
-
-    private EventDispatcherInterface $dispatcher;
-
-    public function __construct(LoggerInterface $logger, EventDispatcherInterface $dispatcher)
-    {
-        $this->logger = $logger;
-        $this->dispatcher = $dispatcher;
-
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
         parent::__construct();
     }
 

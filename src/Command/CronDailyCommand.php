@@ -12,19 +12,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Vrok\SymfonyAddons\Event\CronDailyEvent;
 
+#[AsCommand('cron:daily')]
 class CronDailyCommand extends Command
 {
-    protected static $defaultName = 'cron:daily';
-
-    private LoggerInterface $logger;
-
-    private EventDispatcherInterface $dispatcher;
-
-    public function __construct(LoggerInterface $logger, EventDispatcherInterface $dispatcher)
-    {
-        $this->logger = $logger;
-        $this->dispatcher = $dispatcher;
-
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
         parent::__construct();
     }
 

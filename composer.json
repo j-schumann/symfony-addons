@@ -6,17 +6,17 @@
     "homepage": "https://vrok.de",
     "license": "MIT",
     "require": {
-        "php": "^7.4|^8.0",
-        "symfony/framework-bundle":  "^5.4.0|^6.0.4"
+        "php": "^8.0",
+        "symfony/framework-bundle":  "^6.0.4"
     },
     "require-dev": {
-        "api-platform/core": "^2.6.8",
+        "api-platform/core": "^2.7.5",
         "friendsofphp/php-cs-fixer": "^3.5.0",
-        "monolog/monolog": "2.5.0",
-        "phpunit/phpunit": "^9.5.25",
+        "monolog/monolog": "^3.2.0",
+        "phpunit/phpunit": "^9.5.27",
         "roave/security-advisories": "dev-latest",
-        "symfony/mailer": "^5.4.0|^6.0.0",
-        "symfony/validator": "^5.4.0|^6.0.0"
+        "symfony/mailer": "^6.0.0",
+        "symfony/validator": "^6.0.0"
     },
     "autoload": {
         "psr-4": {
