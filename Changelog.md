@@ -8,12 +8,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - misc. deprecations 
 
 ### Added
-- support for ApiPlatform ^3.0
+- support for ApiPlatform 3
 
 ### Removed
 - support for PHP7.* + 8.0.*  
   (8.0 removed for Monolog ^3.0)
 - support for Symfony 5
+- support for ApiPlatform 2
 - support for validator annotations, use attributes instead
 
 ## [1.9.0] - 2022-12-22

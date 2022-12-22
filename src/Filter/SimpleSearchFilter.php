@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Filter;
 
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Core\Exception\InvalidArgumentException;
+use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Exception\InvalidArgumentException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
@@ -20,7 +20,7 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
  *
  * @todo UnitTests w/ Mariadb + Postgres
  */
-class SimpleSearchFilter extends AbstractContextAwareFilter
+class SimpleSearchFilter extends AbstractFilter
 {
     /**
      * Add configuration parameter

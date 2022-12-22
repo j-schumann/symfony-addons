@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\PHPUnit;
 
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
+use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\User;
 use Psr\Container\ContainerInterface;
 use RuntimeException;

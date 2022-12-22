@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Filter;
 
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Core\Exception\InvalidArgumentException;
+use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Exception\InvalidArgumentException;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -18,7 +18,7 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
-class JsonExistsFilter extends AbstractContextAwareFilter
+class JsonExistsFilter extends AbstractFilter
 {
     /**
      * {@inheritdoc}
