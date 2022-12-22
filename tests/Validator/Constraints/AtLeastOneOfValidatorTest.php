@@ -81,7 +81,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
-            new Length(null, 2, null, null,null,null, 'minMessage'),
+            new Length(min: 2, minMessage: 'minMessage'),
         ]);
 
         $validator = Validation::createValidator();
@@ -97,8 +97,8 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $constraint = new AtLeastOneOf([
             new Blank(),
             new Sequentially([
-                new Length(null, 2, null, null,null,null, 'minMessage'),
-                new Length(null, null, 3, null,null,null, null, 'maxMessage'),
+                new Length(min: 2, minMessage: 'minMessage'),
+                new Length(max: 3, maxMessage: 'maxMessage'),
             ])
         ]);
 
@@ -115,8 +115,8 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $constraint = new AtLeastOneOf([
             new Blank(),
             new All([
-                new Length(null, 2, null, null,null,null, 'minMessage'),
-                new Length(null, null, 3, null,null,null, null, 'maxMessage'),
+                new Length(min: 2, minMessage: 'minMessage'),
+                new Length(max: 3, maxMessage: 'maxMessage'),
             ])
         ]);
 
@@ -133,7 +133,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
-            new Length(null, 2, null, null,null,null, 'minMessage'),
+            new Length(min: 2, minMessage: 'minMessage'),
         ]);
 
         $validator = Validation::createValidator();
@@ -151,8 +151,8 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $constraint = new AtLeastOneOf([
             new Blank(),
             new Sequentially([
-                new Length(null, 2, null, null,null,null, 'minMessage'),
-                new Length(null, null, 3, null,null,null, null, 'maxMessage'),
+                new Length(min: 2, minMessage: 'minMessage'),
+                new Length(max: 3, maxMessage: 'maxMessage'),
             ])
         ]);
 
@@ -172,8 +172,8 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $constraint = new AtLeastOneOf([
             new Blank(),
             new All([
-                new Length(null, 2, null, null,null,null, 'minMessage'),
-                new Length(null, null, 3, null,null,null, null, 'maxMessage'),
+                new Length(min: 2, minMessage: 'minMessage'),
+                new Length(max: 3, maxMessage: 'maxMessage'),
             ])
         ]);
 
