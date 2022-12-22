@@ -10,7 +10,7 @@
         "symfony/framework-bundle":  "^6.0.4"
     },
     "require-dev": {
-        "api-platform/core": "^2.7.5",
+        "api-platform/core": "^2.7.5|^3.0.8",
         "friendsofphp/php-cs-fixer": "^3.5.0",
         "monolog/monolog": "^3.2.0",
         "phpunit/phpunit": "^9.5.27",

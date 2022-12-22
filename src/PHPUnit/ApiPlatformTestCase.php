@@ -7,11 +7,22 @@ namespace Vrok\SymfonyAddons\PHPUnit;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
+
+// @todo remove whit support for ApiPlatform < 3.0
+if (class_exists('ApiPlatform\Symfony\Bundle\Test\ApiTestCase')) {
+    abstract class BaseTestCase extends \ApiPlatform\Symfony\Bundle\Test\ApiTestCase
+    { }
+}
+else {
+    abstract class BaseTestCase extends \ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase
+    { }
+}
+
 /**
  * Helper class that contains often used functionality to simplify testing
  * API endpoints.
  */
-abstract class ApiPlatformTestCase extends ApiTestCase
+abstract class ApiPlatformTestCase extends BaseTestCase
 {
     use AuthenticatedClientTrait;
     use RefreshDatabaseTrait;
