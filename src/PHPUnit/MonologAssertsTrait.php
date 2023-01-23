@@ -29,7 +29,7 @@ trait MonologAssertsTrait
         /** @var \Monolog\Logger $logger */
         $logger = static::getContainer()->get(LoggerInterface::class);
 
-        foreach($logger->getHandlers() as $handler) {
+        foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $logs = $handler->getRecords();
                 self::assertTrue($handler->hasRecordThatContains($message, $level));

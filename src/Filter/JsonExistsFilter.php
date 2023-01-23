@@ -104,4 +104,3 @@ class JsonExistsFilter extends AbstractFilter
         return $description;
     }
 }
-

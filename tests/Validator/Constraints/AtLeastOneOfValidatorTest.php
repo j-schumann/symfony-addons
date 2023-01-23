@@ -99,7 +99,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
             new Sequentially([
                 new Length(min: 2, minMessage: 'minMessage'),
                 new Length(max: 3, maxMessage: 'maxMessage'),
-            ])
+            ]),
         ]);
 
         $validator = Validation::createValidator();
@@ -117,14 +117,13 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
             new All([
                 new Length(min: 2, minMessage: 'minMessage'),
                 new Length(max: 3, maxMessage: 'maxMessage'),
-            ])
+            ]),
         ]);
 
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
         $this->assertCount(0, $violations);
     }
-
 
     /**
      * @dataProvider getInvalid
@@ -153,7 +152,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
             new Sequentially([
                 new Length(min: 2, minMessage: 'minMessage'),
                 new Length(max: 3, maxMessage: 'maxMessage'),
-            ])
+            ]),
         ]);
 
         $validator = Validation::createValidator();
@@ -162,7 +161,6 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $this->assertCount(1, $violations);
         $this->assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
-
 
     /**
      * @dataProvider getInvalidAll
@@ -174,7 +172,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
             new All([
                 new Length(min: 2, minMessage: 'minMessage'),
                 new Length(max: 3, maxMessage: 'maxMessage'),
-            ])
+            ]),
         ]);
 
         $validator = Validation::createValidator();

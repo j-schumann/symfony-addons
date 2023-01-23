@@ -7,7 +7,6 @@ namespace Vrok\SymfonyAddons\PHPUnit;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\User;
 use Psr\Container\ContainerInterface;
-use RuntimeException;
 
 trait AuthenticatedClientTrait
 {
@@ -38,7 +37,7 @@ trait AuthenticatedClientTrait
         $em = $container->get('doctrine.orm.entity_manager');
         $user = $em->getRepository(User::class)->findOneBy($findUserBy);
         if (!$user) {
-            throw new RuntimeException('User specified for JWT authentication was not found, please check your test database/fixtures!');
+            throw new \RuntimeException('User specified for JWT authentication was not found, please check your test database/fixtures!');
         }
 
         $jwtManager = $container->get('lexik_jwt_authentication.jwt_manager');

@@ -28,17 +28,17 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
     public function getInvalid()
     {
         return [
-            [" asd", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            ["asd  ", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
+            [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
+            ['asd  ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
             ["\tasd", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
             ["asd\t", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            [" asd", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // THSP leading
-            ["asd ", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // THSP trailing
-            [" asd", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // NQSP
-            [" asd", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // MQSP
-            ["asd ", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // ENSP
-            ["asd ", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // EMSP
-            ["asd ", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // 3/MSP
+            [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // THSP leading
+            ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // THSP trailing
+            [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // NQSP
+            [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // MQSP
+            ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // ENSP
+            ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // EMSP
+            ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // 3/MSP
         ];
     }
 

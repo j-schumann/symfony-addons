@@ -84,11 +84,9 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         $client = null;
         if (isset($params['basicAuth'])) {
             $client = static::createClient([], ['auth_basic' => $params['basicAuth']]);
-        }
-        elseif (isset($params['email'])) {
+        } elseif (isset($params['email'])) {
             $client = static::createAuthenticatedClient(['email' => $params['email']]);
-        }
-        else {
+        } else {
             $client = static::createClient();
         }
 

@@ -8,7 +8,6 @@ use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
-use LogicException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -29,7 +28,7 @@ trait RefreshDatabaseTrait
 
     /**
      * @var string Defaults to "purge", can be overwritten by setting the ENV
-     * DB_CLEANUP_METHOD (e.g. in phpunit.xml.dist).
+     *             DB_CLEANUP_METHOD (e.g. in phpunit.xml.dist).
      *
      * "purge" will update the DB schema once and afterwards only purges
      * all tables, may require Vrok\DoctrineAddons\DBAL\Platforms\{Mariadb|PostgreSQL}TestPlatform
@@ -39,7 +38,7 @@ trait RefreshDatabaseTrait
      * this for databases that do not support disabling foreign keys like
      * MS SqlServer.
      */
-    protected static $cleanupMethod = "purge";
+    protected static $cleanupMethod = 'purge';
 
     /**
      * @var bool Flag whether db schema was updated/checked or not
@@ -62,18 +61,17 @@ trait RefreshDatabaseTrait
         $container = static::$container ?? static::$kernel->getContainer();
 
         // @todo implement "dropDB"?
-        static::$cleanupMethod = getenv('DB_CLEANUP_METHOD') === "dropSchema"
-            ? "dropSchema"
-            : "purge";
+        static::$cleanupMethod = 'dropSchema' === getenv('DB_CLEANUP_METHOD')
+            ? 'dropSchema'
+            : 'purge';
 
-        if ("purge" === self::$cleanupMethod) {
+        if ('purge' === self::$cleanupMethod) {
             // only required on the first test: make sure the db schema is up to date
             if (!static::$schemaUpdated) {
                 static::updateSchema($container);
                 static::$schemaUpdated = true;
             }
-        }
-        else {
+        } else {
             static::updateSchema($container);
         }
 
@@ -82,7 +80,7 @@ trait RefreshDatabaseTrait
 
         $executor = static::getExecutor($container);
 
-        if ("purge" === self::$cleanupMethod) {
+        if ('purge' === self::$cleanupMethod) {
             // Purge even when no fixtures are defined, e.g. for tests that require
             // an empty database, like import tests.
             // fix for PHP8: purge separately as execute() would wrap the TRUNCATE
@@ -104,7 +102,7 @@ trait RefreshDatabaseTrait
     protected static function ensureKernelTestCase(): void
     {
         if (!is_a(static::class, KernelTestCase::class, true)) {
-            throw new LogicException(sprintf('The test class must extend "%s" to use "%s".', KernelTestCase::class, static::class));
+            throw new \LogicException(sprintf('The test class must extend "%s" to use "%s".', KernelTestCase::class, static::class));
         }
     }
 
@@ -123,7 +121,7 @@ trait RefreshDatabaseTrait
 
         $schemaTool = new SchemaTool($em);
 
-        if ("dropSchema" === static::$cleanupMethod) {
+        if ('dropSchema' === static::$cleanupMethod) {
             $schemaTool->dropDatabase();
         }
 
