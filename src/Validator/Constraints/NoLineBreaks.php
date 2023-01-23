@@ -15,11 +15,11 @@ class NoLineBreaks extends Regex
 {
     public function __construct($options = null)
     {
-	if (!isset($options['match'])) {
-	    $options['match'] = false;
+        if (!isset($options['match'])) {
+            $options['match'] = false;
         }
-	if (!isset($options['message'])) {
-	    $options['message'] = 'This value contains line breaks.';
+        if (!isset($options['message'])) {
+            $options['message'] = 'This value contains line breaks.';
         }
 
         // matches any linebreak characters, including Unicode line/paragraph

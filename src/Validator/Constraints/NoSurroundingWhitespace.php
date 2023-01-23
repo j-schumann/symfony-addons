@@ -15,11 +15,11 @@ class NoSurroundingWhitespace extends Regex
 {
     public function __construct($options = null)
     {
-	if (!isset($options['match'])) {
-	    $options['match'] = true;
+        if (!isset($options['match'])) {
+            $options['match'] = true;
         }
-	if (!isset($options['message'])) {
-	    $options['message'] = 'This value contains leading/trailing whitespace.';
+        if (!isset($options['message'])) {
+            $options['message'] = 'This value contains leading/trailing whitespace.';
         }
 
         // matches string without leading/trailing whitespace characters
