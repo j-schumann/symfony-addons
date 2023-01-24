@@ -10,12 +10,12 @@ use Vrok\SymfonyAddons\Validator\Constraints\NoLineBreaks;
 
 class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
 {
-    protected function createValidator()
+    protected function createValidator(): RegexValidator
     {
         return new RegexValidator();
     }
 
-    public function getValid()
+    public function getValid(): array
     {
         return [
             ["test\tstring"], // tab
@@ -26,7 +26,7 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalid()
+    public function getInvalid(): array
     {
         return [
             ["new\nline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
@@ -43,7 +43,7 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function testNullIsValid()
+    public function testNullIsValid(): void
     {
         $constraint = new NoLineBreaks();
 
@@ -52,7 +52,7 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
-    public function testEmptyStringIsValid()
+    public function testEmptyStringIsValid(): void
     {
         $constraint = new NoLineBreaks();
 
@@ -61,7 +61,7 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
-    public function testExpectsStringCompatibleType()
+    public function testExpectsStringCompatibleType(): void
     {
         $this->expectException('Symfony\Component\Validator\Exception\UnexpectedValueException');
         $constraint = new NoLineBreaks();
@@ -71,7 +71,7 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getValid
      */
-    public function testValid($value)
+    public function testValid($value): void
     {
         $constraint = new NoLineBreaks();
 
@@ -83,7 +83,7 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getInvalid
      */
-    public function testInvalid($value, $code)
+    public function testInvalid($value, $code): void
     {
         $constraint = new NoLineBreaks();
 

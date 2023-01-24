@@ -34,7 +34,7 @@ trait RefreshDatabaseTrait
      * all tables, may require Vrok\DoctrineAddons\DBAL\Platforms\{Mariadb|PostgreSQL}TestPlatform
      * to disable foreign keys / cascade purge before running.
      *
-     * "dropSchema" will drop all tables (and indizes) and recreate them, use
+     * "dropSchema" will drop all tables (and indices) and recreate them, use
      * this for databases that do not support disabling foreign keys like
      * MS SqlServer.
      */

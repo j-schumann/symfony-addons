@@ -6,6 +6,7 @@ namespace Vrok\SymfonyAddons\PHPUnit;
 
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -15,7 +16,7 @@ trait MonologAssertsTrait
 {
     public static function prepareLogger()
     {
-        /** @var \Monolog\Logger $logger */
+        /** @var Logger $logger */
         $logger = static::getContainer()->get(LoggerInterface::class);
         $logger->pushHandler(new TestHandler());
     }
@@ -26,13 +27,12 @@ trait MonologAssertsTrait
      */
     public static function assertLoggerHasMessage(string $message, Level $level): void
     {
-        /** @var \Monolog\Logger $logger */
+        /** @var Logger $logger */
         $logger = static::getContainer()->get(LoggerInterface::class);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
-                $logs = $handler->getRecords();
-                self::assertTrue($handler->hasRecordThatContains($message, $level));
+                self::assertTrue($handler->hasRecordThatContains($message, $level), 'Logger has no message with the given level that contains the given string!');
 
                 return;
             }

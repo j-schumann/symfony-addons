@@ -18,6 +18,8 @@
         "phpunit/phpunit": "^9.5.28",
         "roave/security-advisories": "dev-latest",
         "symfony/mailer": "^6.2.0",
+        "symfony/monolog-bundle": "^3.8.0",
+        "symfony/phpunit-bridge": "^6.1",
         "symfony/validator": "^6.2.0",
         "symfony/yaml": "^6.2.0",
         "vrok/doctrine-addons": "^2.6.1"

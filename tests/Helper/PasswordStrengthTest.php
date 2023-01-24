@@ -9,7 +9,7 @@ use Vrok\SymfonyAddons\Helper\PasswordStrength;
 
 class PasswordStrengthTest extends TestCase
 {
-    public function getValues()
+    public function getValues(): array
     {
         return [
             ['', -6.0],
@@ -49,7 +49,7 @@ class PasswordStrengthTest extends TestCase
         self::assertSame($defaults, $pwStrength->getThresholds());
     }
 
-    public function testSetThresholds()
+    public function testSetThresholds(): void
     {
         $pwStrength = new PasswordStrength();
         $pwStrength->setThresholds([PasswordStrength::RATING_GOOD  => 28]);
@@ -64,7 +64,7 @@ class PasswordStrengthTest extends TestCase
         self::assertSame($modified, $pwStrength->getThresholds());
     }
 
-    public function testGetRating()
+    public function testGetRating(): void
     {
         $pwStrength = new PasswordStrength();
         self::assertSame(PasswordStrength::RATING_WEAK, $pwStrength->getRating(15));
@@ -73,7 +73,7 @@ class PasswordStrengthTest extends TestCase
         self::assertSame(PasswordStrength::RATING_GREAT, $pwStrength->getRating(30));
     }
 
-    public function testRatePassword()
+    public function testRatePassword(): void
     {
         $pwStrength = new PasswordStrength();
         self::assertSame(PasswordStrength::RATING_BAD, $pwStrength->ratePassword('123'));

@@ -10,12 +10,12 @@ use Vrok\SymfonyAddons\Validator\Constraints\PasswordStrengthValidator;
 
 class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
 {
-    protected function createValidator()
+    protected function createValidator(): PasswordStrengthValidator
     {
         return new PasswordStrengthValidator();
     }
 
-    public function getValid()
+    public function getValid(): array
     {
         return [
             ['password of multiple words'],
@@ -23,7 +23,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalid()
+    public function getInvalid(): array
     {
         return [
             ['1234567890'],
@@ -31,7 +31,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function testNullIsValid()
+    public function testNullIsValid(): void
     {
         $constraint = new PasswordStrength();
 
@@ -40,14 +40,14 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
-    public function testExpectsStringCompatibleType()
+    public function testExpectsStringCompatibleType(): void
     {
         $this->expectException('Symfony\Component\Validator\Exception\UnexpectedValueException');
         $constraint = new PasswordStrength();
         $this->validator->validate(new \stdClass(), $constraint);
     }
 
-    public function testEmptyStringIsInvalid()
+    public function testEmptyStringIsInvalid(): void
     {
         $constraint = new PasswordStrength();
 
@@ -60,7 +60,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getValid
      */
-    public function testValid($value)
+    public function testValid($value): void
     {
         $constraint = new PasswordStrength();
 
@@ -72,7 +72,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getInvalid
      */
-    public function testInvalid($value)
+    public function testInvalid($value): void
     {
         $constraint = new PasswordStrength();
 

@@ -15,6 +15,7 @@
       <directory>src</directory>
     </include>
   </coverage>
+
   <php>
     <ini name="display_errors" value="1"/>
     <ini name="display_startup_errors" value="1"/>
@@ -25,6 +26,11 @@
     <server name="SYMFONY_PHPUNIT_REMOVE" value="symfony/yaml" />
     <env name="APP_ENV" value="test" />
   </php>
+
+  <listeners>
+    <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
+  </listeners>
+
   <testsuites>
     <testsuite name="SymfonyAddons Test Suite">
       <directory>tests</directory>

@@ -22,14 +22,8 @@ use Symfony\Component\Mime\Message;
  */
 class AutoSenderSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var string
-     */
-    private $sender;
-
-    public function __construct(string $sender)
+    public function __construct(private readonly string $sender)
     {
-        $this->sender = $sender;
     }
 
     /**
@@ -42,7 +36,7 @@ class AutoSenderSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onMessage(MessageEvent $event)
+    public function onMessage(MessageEvent $event): void
     {
         if ($event->isQueued()) {
             // nothing to do, mail will be queued by the symfony/mailer which
@@ -68,7 +62,5 @@ class AutoSenderSubscriber implements EventSubscriberInterface
         );
 
         $event->setMessage($message);
-
-        return $message;
     }
 }

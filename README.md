@@ -49,7 +49,9 @@ config/services.yaml:
         tags:
             - { name: monolog.logger, channel: app }
 ```
+
 ## Validators
+
 ### AtLeastOneOf
 Works as Symfony's own AtLeastOneOf constraint, but instead of returning a message like
 `This value should satisfy at least ...` it returns the message of the last failed validation.
@@ -80,21 +82,11 @@ Allows to set a `minStrength` to vary the requirements.
 See `Vrok\SymfonyAddons\Helper\PasswordStrength` for details on the calculation.
 
 ## PHPUnit helpers
-### Using the NoTLS mail transport
-
-Add the factory in your services_test.yaml
-```yaml
-    Vrok\SymfonyAddons\PHPUnit\Mailer\NoTlsTransportFactory:
-        tags: ['mailer.transport_factory']
-```
-
-Use the `notls` schema in your env.test[.local]
-```yaml
-MAILER_DSN=notls://{user}:{passwd}@{host}:25
-``` 
 
 ### Using the RefreshDatabaseTrait
 
+(Re-)Creates the DB schema for each test, removes existing data and fills the tables
+with predefined fixtures.
 Install `doctrine/doctrine-fixtures-bundle` and create fixtures,
 the trait uses the _test_ group per default.
 
@@ -131,9 +123,14 @@ Optionally define which fixtures to use for this test class:
     protected static $fixtureGroups = ['test', 'other'];
 ```
 
+Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values
+are _purge_ and _dropSchema_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
+
 ### Using the AuthenticatedClientTrait
 
 For use with an APIPlatform project with `lexik/jwt-authentication-bundle`.
+Creates a JWT for the user given by its unique email, username etc. and adds it
+to the test client's headers.
 
 Include the trait in your testcase and call `createAuthenticatedClient`:
  ```php
@@ -159,7 +156,7 @@ class ApiTest extends ApiTestCase
 
 ### Using the MonologAssertsTrait
 
-For use with an symfony project using the monolog-bundle.
+For use with an Symfony project using the monolog-bundle.
 
 Include the trait in your testcase and call `prepareLogger` before triggering the
 action that should create logs and use `assertLoggerHasMessage` afterwards to check
@@ -197,7 +194,7 @@ bin/console cron:daily
 bin/console cron:monthly
 ```
 
-When these are called they trigger an event (`CronHourlyEvent`, `CronDailyEvent`,
+When these are called, they trigger an event (`CronHourlyEvent`, `CronDailyEvent`,
 `CronMonthlyEvent`) that can be used by one ore more event listeners/subscribers to do
 maintenance, push messages to the messenger etc.
 It is your responsibility to execute these commands via crontab correctly!
@@ -220,16 +217,58 @@ class MyEventSubscriber implements EventSubscriberInterface
 ## ApiPlatform Filters
 
 ### SimpleSearchFilter
-                CAST: Vrok\DoctrineAddons\ORM\Query\AST\CastFunction
 
-## JsonExistsFilter
+Selects entities where the search term is found (case insensitive) in at least
+one of the specified properties. All specified properties type must be string.
 
-Filters entities by their jsonb (Postgres-only) fields, if they contain
-* the search parameter, using the ? operator
+```php
+#[ApiFilter(
+    filterClass: SimpleSearchFilter::class,
+    properties: [
+        'description',
+        'name',
+        'slug',
+    ],
+    arguments: ['searchParameterName' => 'pattern']
+)]
+```
 
+Requires CAST as defined Doctrine function, e.g. by `vrok/doctrine-addons`:
+```yaml
+doctrine:
+  orm:
+    dql:
+      string_functions:
+        CAST: Vrok\DoctrineAddons\ORM\Query\AST\CastFunction
+```
 
-## Upgrade ToDo
-* When updating for PHP >= 8 && symfony >= 6, add `#[AsCommand(name: 'cron:daily')]` etc.
-  to the commands and remove the `$defaultName`.
-* Remove NoTlsTransport: Most servers require TLS, just disable certificate validation
-  in tests with ?verify_peer=0 in the MAILER_DSN
+### JsonExistsFilter
+
+Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter,
+using the `?` operator. For example for filtering Users by their role, to prevent accidental
+matching with overlapping role names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as
+text with `WHERE roles LIKE '%ROLE_ADMIN%'`.
+
+```php
+#[ApiFilter(filterClass: JsonExistsFilter::class, properties: ['roles'])]
+```
+
+Requires JSON_CONTAINS_TEXT as defined Doctrine function, provided by `vrok/doctrine-addons`:
+```yaml
+doctrine:
+  orm:
+    dql:
+      string_functions:
+        JSON_CONTAINS_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsTextFunction
+```
+
+## Developer Doc
+### composer.json dev
+* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait
+* _symfony/yaml_ is required for loading the test config
+* _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
+
+### Open ToDos
+* tests for `ApiPlatformTestCase::testOperation`, `AuthenticatedClientTrait`, 
+  `RefreshDatabaseTrait`
+* tests for the ApiPlatform filters w/ a real database, for Postgres and MariaDB 

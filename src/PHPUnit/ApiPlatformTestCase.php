@@ -81,10 +81,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      */
     protected function testOperation(array $params): ResponseInterface
     {
-        $client = null;
-        if (isset($params['basicAuth'])) {
-            $client = static::createClient([], ['auth_basic' => $params['basicAuth']]);
-        } elseif (isset($params['email'])) {
+        if (isset($params['email'])) {
             $client = static::createAuthenticatedClient(['email' => $params['email']]);
         } else {
             $client = static::createClient();
@@ -122,7 +119,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             || isset($params['forbiddenKeys'])
         ) {
             $dataset = $response->toArray(false);
-            self::assertArrayHasNestedKeys(
+            self::assertDatasetHasKeys(
                 $params['requiredKeys'] ?? [], $dataset);
             self::assertDatasetNotHasKeys(
                 $params['forbiddenKeys'] ?? [], $dataset);
@@ -153,13 +150,13 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * @param array  $array    the dataset to verify
      * @param string $parent   auto-set when called recursively
      */
-    public static function assertArrayHasNestedKeys(array $expected, array $array, string $parent = ''): void
+    public static function assertDatasetHasKeys(array $expected, array $array, string $parent = ''): void
     {
         foreach ($expected as $index => $value) {
             if (is_array($value)) {
                 self::assertArrayHasKey($index, $array, "Dataset does not have key {$parent}[$index]!");
                 self::assertIsArray($array[$index], "Key {$parent}[$index] is expected to be an array!");
-                self::assertArrayHasNestedKeys($value, $array[$index], "{$parent}[$index]");
+                self::assertDatasetHasKeys($value, $array[$index], "{$parent}[$index]");
             } else {
                 self::assertArrayHasKey($value, $array, "Dataset does not have key {$parent}[$value]!");
             }
@@ -183,7 +180,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                 if (!isset($array[$index])) {
                     continue;
                 }
-                self::assertIsArray($array[$index], "Key {$parent}[$index] is expected to be an array!");
+                self::assertIsArray($array[$index], "Key {$parent}[$index] is expected to be an array or null!");
                 self::assertDatasetNotHasKeys($value, $array[$index], "{$parent}[$index]");
             } else {
                 self::assertArrayNotHasKey($value, $array, "Dataset should not have key {$parent}[$value]!");

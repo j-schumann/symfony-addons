@@ -12,7 +12,7 @@ use Vrok\SymfonyAddons\EventSubscriber\AutoSenderSubscriber;
 
 class AutoSenderSubscriberTest extends TestCase
 {
-    public function testRegistersEvent()
+    public function testRegistersEvent(): void
     {
         $events = AutoSenderSubscriber::getSubscribedEvents();
         $this->assertIsArray($events);
@@ -20,7 +20,7 @@ class AutoSenderSubscriberTest extends TestCase
         $this->assertSame('onMessage', $events[MessageEvent::class]);
     }
 
-    public function testAddsSenderAddress()
+    public function testAddsSenderAddress(): void
     {
         $subscriber = new AutoSenderSubscriber('Sender <test@domain.tld>');
         $email = (new Email())
@@ -40,7 +40,7 @@ class AutoSenderSubscriberTest extends TestCase
         $this->assertSame('Sender', $from[0]->getName());
     }
 
-    public function testKeepsExistingSender()
+    public function testKeepsExistingSender(): void
     {
         $subscriber = new AutoSenderSubscriber('Sender <test@domain.tld>');
         $email = (new Email())

@@ -3,19 +3,27 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2022-12-22
+## [2.0.0] - 2022-01-24
 ### Fixed
-- misc. deprecations 
+- misc. deprecations
 
 ### Added
 - support for ApiPlatform 3
+- tests for ApiPlatform Filters
+- improved docs for filters, traits etc.
+
+### Changed
+- `assertArrayHasNestedKeys` renamed to `assertDatasetHasKeys`
 
 ### Removed
-- support for PHP7.* + 8.0.*  
-  (8.0 removed for Monolog ^3.0)
+- support for `basicAuth` from `ApiPlatformTestCase::testOperation` params, use
+  `['requestOptions']['auth_basic']` instead, it's the default/existing way
+- support for PHP7 + 8.0 + 8.1 (e.g. Monolog ^3.0 requires ^8.1)
 - support for Symfony 5
 - support for ApiPlatform 2
 - support for validator annotations, use attributes instead
+- `NoTlsTransport`: Most servers require TLS, just disable certificate validation
+  in tests with `?verify_peer=0` in the MAILER_DSN
 
 ## [1.9.0] - 2022-12-22
 ### Added

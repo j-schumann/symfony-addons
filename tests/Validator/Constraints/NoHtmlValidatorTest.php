@@ -10,12 +10,12 @@ use Vrok\SymfonyAddons\Validator\Constraints\NoHtmlValidator;
 
 class NoHtmlValidatorTest extends ConstraintValidatorTestCase
 {
-    protected function createValidator()
+    protected function createValidator(): NoHtmlValidator
     {
         return new NoHtmlValidator();
     }
 
-    public function getValid()
+    public function getValid(): array
     {
         return [
             ['teststring'],
@@ -30,7 +30,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalid()
+    public function getInvalid(): array
     {
         return [
             ['This is <b>bold</b>'],
@@ -42,7 +42,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function testNullIsValid()
+    public function testNullIsValid(): void
     {
         $constraint = new NoHtml();
 
@@ -51,7 +51,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
-    public function testEmptyStringIsValid()
+    public function testEmptyStringIsValid(): void
     {
         $constraint = new NoHtml();
 
@@ -60,7 +60,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
-    public function testExpectsStringCompatibleType()
+    public function testExpectsStringCompatibleType(): void
     {
         $this->expectException('Symfony\Component\Validator\Exception\UnexpectedValueException');
         $constraint = new NoHtml();
@@ -70,7 +70,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getValid
      */
-    public function testValid($value)
+    public function testValid($value): void
     {
         $constraint = new NoHtml();
 
@@ -82,7 +82,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getInvalid
      */
-    public function testInvalid($value)
+    public function testInvalid($value): void
     {
         $constraint = new NoHtml();
 

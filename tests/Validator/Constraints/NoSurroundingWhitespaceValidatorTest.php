@@ -10,12 +10,12 @@ use Vrok\SymfonyAddons\Validator\Constraints\NoSurroundingWhitespace;
 
 class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
 {
-    protected function createValidator()
+    protected function createValidator(): RegexValidator
     {
         return new RegexValidator();
     }
 
-    public function getValid()
+    public function getValid(): array
     {
         return [
             ["test\tstring"], // tab inside
@@ -25,7 +25,7 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalid()
+    public function getInvalid(): array
     {
         return [
             [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
@@ -42,7 +42,7 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function testNullIsValid()
+    public function testNullIsValid(): void
     {
         $constraint = new NoSurroundingWhitespace();
 
@@ -51,7 +51,7 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
-    public function testEmptyStringIsValid()
+    public function testEmptyStringIsValid(): void
     {
         $constraint = new NoSurroundingWhitespace();
 
@@ -60,7 +60,7 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
-    public function testExpectsStringCompatibleType()
+    public function testExpectsStringCompatibleType(): void
     {
         $this->expectException('Symfony\Component\Validator\Exception\UnexpectedValueException');
         $constraint = new NoSurroundingWhitespace();
@@ -70,7 +70,7 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getValid
      */
-    public function testValid($value)
+    public function testValid($value): void
     {
         $constraint = new NoSurroundingWhitespace();
 
@@ -82,7 +82,7 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getInvalid
      */
-    public function testInvalid($value, $code)
+    public function testInvalid($value, $code): void
     {
         $constraint = new NoSurroundingWhitespace();
 

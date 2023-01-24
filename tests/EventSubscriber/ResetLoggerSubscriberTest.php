@@ -30,7 +30,7 @@ class ResetLoggerSubscriberTest extends TestCase
         $this->stubLogger->pushProcessor($this->stubProcessor);
     }
 
-    public function testRegistersEvents()
+    public function testRegistersEvents(): void
     {
         $events = ResetLoggerSubscriber::getSubscribedEvents();
         $this->assertIsArray($events);
@@ -39,7 +39,7 @@ class ResetLoggerSubscriberTest extends TestCase
         $this->assertArrayHasKey(WorkerMessageFailedEvent::class, $events);
     }
 
-    public function testResetsUidForApp()
+    public function testResetsUidForApp(): void
     {
         $this->createLogger();
         $this->stubProcessor->expects($this->once())
@@ -51,7 +51,7 @@ class ResetLoggerSubscriberTest extends TestCase
         $subscriber->resetLogger();
     }
 
-    public function testKeepsUidForOthers()
+    public function testKeepsUidForOthers(): void
     {
         $this->createLogger('fake');
         $this->stubProcessor->expects($this->never())
@@ -63,7 +63,7 @@ class ResetLoggerSubscriberTest extends TestCase
         $subscriber->resetLogger();
     }
 
-    public function testFlushesBuffer()
+    public function testFlushesBuffer(): void
     {
         $this->createLogger();
         $this->stubHandler->expects($this->once())

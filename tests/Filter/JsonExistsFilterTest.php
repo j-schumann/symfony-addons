@@ -1,8 +1,11 @@
 <?php
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 declare(strict_types=1);
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
+use ApiPlatform\Metadata\Get;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
@@ -42,7 +45,7 @@ class JsonExistsFilterTest extends KernelTestCase
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
             ->createQueryBuilder('o');
 
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new \ApiPlatform\Metadata\Get(), [
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
             'filters' => [
                 'jsonColumn' => 'testVal',
             ],

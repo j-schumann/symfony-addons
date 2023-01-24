@@ -16,12 +16,12 @@ use Vrok\SymfonyAddons\Validator\Constraints\AtLeastOneOfValidator;
 
 class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
 {
-    protected function createValidator()
+    protected function createValidator(): AtLeastOneOfValidator
     {
         return new AtLeastOneOfValidator();
     }
 
-    public function getValid()
+    public function getValid(): array
     {
         return [
             [null],
@@ -30,7 +30,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalid()
+    public function getInvalid(): array
     {
         return [
             [' '],
@@ -38,7 +38,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getValidSequentially()
+    public function getValidSequentially(): array
     {
         return [
             [null],
@@ -47,7 +47,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalidSequentially()
+    public function getInvalidSequentially(): array
     {
         return [
             [' ', 'minMessage'],
@@ -56,7 +56,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getValidAll()
+    public function getValidAll(): array
     {
         return [
             [null],
@@ -65,7 +65,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalidAll()
+    public function getInvalidAll(): array
     {
         return [
             [[' '], 'minMessage'],
@@ -77,7 +77,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getValid
      */
-    public function testValid($value)
+    public function testValid($value): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -92,7 +92,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getValidSequentially
      */
-    public function testValidSequentially($value)
+    public function testValidSequentially($value): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -110,7 +110,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getValidAll
      */
-    public function testValidAll($value)
+    public function testValidAll($value): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -128,7 +128,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getInvalid
      */
-    public function testInvalid($value)
+    public function testInvalid($value): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -145,7 +145,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getInvalidSequentially
      */
-    public function testInvalidSequentially($value, $message)
+    public function testInvalidSequentially($value, $message): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -165,7 +165,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     /**
      * @dataProvider getInvalidAll
      */
-    public function testInvalidAll($value, $message)
+    public function testInvalidAll($value, $message): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
