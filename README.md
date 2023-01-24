@@ -217,6 +217,17 @@ class MyEventSubscriber implements EventSubscriberInterface
 }
 ```
 
+## ApiPlatform Filters
+
+### SimpleSearchFilter
+                CAST: Vrok\DoctrineAddons\ORM\Query\AST\CastFunction
+
+## JsonExistsFilter
+
+Filters entities by their jsonb (Postgres-only) fields, if they contain
+* the search parameter, using the ? operator
+
+
 ## Upgrade ToDo
 * When updating for PHP >= 8 && symfony >= 6, add `#[AsCommand(name: 'cron:daily')]` etc.
   to the commands and remove the `$defaultName`.

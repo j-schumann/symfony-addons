@@ -1,0 +1,22 @@
+parameters:
+  env(DATABASE_URL): sqlite:///%kernel.project_dir%/var/data.db
+
+doctrine:
+  dbal:
+    driver: 'pdo_sqlite'
+    charset: 'UTF8'
+    url: '%env(resolve:DATABASE_URL)%'
+
+  orm:
+    auto_generate_proxy_classes: '%kernel.debug%'
+    mappings:
+      Fixtures:
+        is_bundle: false
+        dir: '../../'
+        prefix: 'Vrok\SymfonyAddons\Tests\Fixtures'
+        alias: Fixtures
+        type: attribute
+    dql:
+      string_functions:
+        CAST: Vrok\DoctrineAddons\ORM\Query\AST\CastFunction
+        JSON_CONTAINS_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsTextFunction

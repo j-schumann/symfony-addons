@@ -10,13 +10,17 @@
         "symfony/framework-bundle":  "^6.2.0"
     },
     "require-dev": {
-        "api-platform/core": "^3.0.10",
+        "api-platform/core": "^3.1.0",
+        "doctrine/doctrine-bundle": "^2.8.2",
+        "doctrine/orm": "^2.14.1",
         "friendsofphp/php-cs-fixer": "^3.13.2",
         "monolog/monolog": "^3.2.0",
         "phpunit/phpunit": "^9.5.28",
         "roave/security-advisories": "dev-latest",
         "symfony/mailer": "^6.2.0",
-        "symfony/validator": "^6.2.0"
+        "symfony/validator": "^6.2.0",
+        "symfony/yaml": "^6.2.0",
+        "vrok/doctrine-addons": "^2.6.1"
     },
     "autoload": {
         "psr-4": {

@@ -3,6 +3,7 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
          backupGlobals="false"
+         bootstrap="tests/Fixtures/app/bootstrap.php"
          colors="true"
          executionOrder="defects"
          stopOnFailure="false"
@@ -18,6 +19,11 @@
     <ini name="display_errors" value="1"/>
     <ini name="display_startup_errors" value="1"/>
     <ini name="error_reporting" value="-1"/>
+    <server name="KERNEL_DIR" value="tests/Fixtures/app/" />
+    <server name="KERNEL_CLASS" value="AppKernel" />
+    <server name="SYMFONY_PHPUNIT_DIR" value="vendor/bin/.phpunit" />
+    <server name="SYMFONY_PHPUNIT_REMOVE" value="symfony/yaml" />
+    <env name="APP_ENV" value="test" />
   </php>
   <testsuites>
     <testsuite name="SymfonyAddons Test Suite">
