@@ -22,7 +22,7 @@
         "symfony/phpunit-bridge": "^6.1",
         "symfony/validator": "^6.2.0",
         "symfony/yaml": "^6.2.0",
-        "vrok/doctrine-addons": "^2.6.1"
+        "vrok/doctrine-addons": "^2.6.2"
     },
     "autoload": {
         "psr-4": {
