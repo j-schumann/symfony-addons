@@ -271,4 +271,5 @@ doctrine:
 ### Open ToDos
 * tests for `ApiPlatformTestCase::testOperation`, `AuthenticatedClientTrait`, 
   `RefreshDatabaseTrait`
-* tests for the ApiPlatform filters w/ a real database, for Postgres and MariaDB 
+* tests for the ApiPlatform filters w/ a real database, for Postgres and MariaDB
+* tests for the Bundle, simplify resources/services.xml
