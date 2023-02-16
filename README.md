@@ -69,10 +69,10 @@ the validated string.
 Detects unicode linebreaks, see `NoLineBreaksValidatorTest` for details.
 
 ### NoSurroundingWhitespace
-This validator raises a violation if it detects trailing or leading whitespace in
-the validated string.  
-Uses a regex looking for `\s`, see `NoSurroundingWhitespaceValidatorTest` for details on
-detected characters.
+This validator raises a violation if it detects trailing or leading whitespace or
+newline characters in the validated string. Linebreaks and spaces are valid within the string.  
+Uses a regex looking for `\s` and `\R`, see `NoSurroundingWhitespaceValidatorTest` 
+for details on detected characters.
 
 ### PasswordStrength
 This validator evaluates the strength of a given password string by determining its entropy
