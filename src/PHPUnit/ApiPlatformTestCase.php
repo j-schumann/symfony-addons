@@ -56,12 +56,11 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                 e.g. [User::class, [email => 'test@test.de']]
      *                 tries to find a User by the given conditions and
      *                 retrieves its IRI, it is then used as URI
-     * basicAuth:      if given, sets the given credentials [username, password]
-     *                 as HTTP basic authentication header
      * email:          if given, tries to find a User with that email and sends
-     *                 the request authenticated as this user
+     *                 the request authenticated as this user with lexikJWT
      * method:         HTTP method for the request, defaults to GET
-     * requestOptions: options for the HTTP client, e.g. query parameters
+     * requestOptions: options for the HTTP client, e.g. query parameters or
+     *                 basic auth
      * responseCode:   if set asserts that the received status code matches
      * contentType:    if set asserts that the received content type header matches
      * json:           if set assumes that the returned content is JSON and
