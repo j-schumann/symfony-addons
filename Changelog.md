@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.1] - 2023-02-16
+### Fixed
+- NoSurroundingWhitespace failed with linebreaks within the string
+
+### Changed
+- NoSurroundingWhitespace now also prohibits leading/trailing linebreaks
+
 ## [1.9.0] - 2022-12-22
 ### Added
 - allow BasicAuth in ApiPlatformTestCase
