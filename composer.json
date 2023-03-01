@@ -15,7 +15,7 @@
         "doctrine/orm": "^2.14.1",
         "friendsofphp/php-cs-fixer": "^3.13.2",
         "monolog/monolog": "^3.2.0",
-        "phpunit/phpunit": "^9.5.28",
+        "phpunit/phpunit": "^10.0.0",
         "roave/security-advisories": "dev-latest",
         "symfony/mailer": "^6.2.0",
         "symfony/monolog-bundle": "^3.8.0",
