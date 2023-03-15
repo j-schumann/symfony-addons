@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\PHPUnit;
 
+use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -96,10 +97,17 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             $params['uri'] = $this->findIriBy($params['iri'][0], $params['iri'][1]);
         }
 
+        $params['method'] ??= 'GET';
+        $params['requestOptions'] ??= [];
+
+        if ('PATCH' === $params['method']) {
+            $params['requestOptions']['headers']['content-type'] ??= 'application/merge-patch+json';
+        }
+
         $response = $client->request(
-            $params['method'] ?? 'GET',
+            $params['method'],
             $params['uri'],
-            $params['requestOptions'] ?? [],
+            $params['requestOptions'],
         );
 
         if (isset($params['responseCode'])) {
@@ -185,5 +193,13 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                 self::assertArrayNotHasKey($value, $array, "Dataset should not have key {$parent}[$value]!");
             }
         }
+    }
+
+    protected function getIriFromResource(object $item): string
+    {
+        /** @var IriConverterInterface $iriConverter */
+        $iriConverter = static::getContainer()->get('api_platform.iri_converter');
+
+        return $iriConverter->getIriFromResource($item);
     }
 }
