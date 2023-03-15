@@ -36,7 +36,9 @@ class AtLeastOneOfValidator extends ConstraintValidator
                 return;
             }
 
-            if ($item instanceof All || $item instanceof Collection) {
+            if ($constraint->message) {
+                $lastMessage = $constraint->message;
+            } elseif ($item instanceof All || $item instanceof Collection) {
                 $lastMessage = $constraint->messageCollection;
             } else {
                 $lastMessage = $violations->get(\count($violations) - 1)->getMessage();
