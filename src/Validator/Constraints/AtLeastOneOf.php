@@ -14,9 +14,9 @@ use Symfony\Component\Validator\Constraints\AtLeastOneOf as BaseAtLeastOneOf;
 class AtLeastOneOf extends BaseAtLeastOneOf
 {
     public function __construct(
-        mixed $constraints = null,
+        $constraints = null,
         array $groups = null,
-        mixed $payload = null,
+        $payload = null,
         string $message = null,
         string $messageCollection = null
     ) {
