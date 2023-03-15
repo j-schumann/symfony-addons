@@ -9,4 +9,16 @@ use Symfony\Component\Validator\Constraints\AtLeastOneOf as BaseAtLeastOneOf;
 #[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 class AtLeastOneOf extends BaseAtLeastOneOf
 {
+    public function __construct(
+        mixed $constraints = null,
+        array $groups = null,
+        mixed $payload = null,
+        string $message = null,
+        string $messageCollection = null
+    ) {
+        parent::__construct($constraints, $groups, $payload, $message, $messageCollection);
+
+        // explicitely allow null / default to null:
+        $this->message = $message;
+    }
 }

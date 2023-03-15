@@ -181,4 +181,22 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $this->assertCount(1, $violations);
         $this->assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
+
+    public function testCustomMessage(): void
+    {
+        $constraint = new AtLeastOneOf(
+            constraints: [
+                new Blank(),
+                new Length(min: 2, minMessage: 'minMessage'),
+            ],
+            message: 'customMessage'
+        );
+
+        $value = '1';
+        $validator = Validation::createValidator();
+        $violations = $validator->validate($value, $constraint);
+
+        $this->assertCount(1, $violations);
+        $this->assertEquals(new ConstraintViolation('customMessage', 'customMessage', [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+    }
 }
