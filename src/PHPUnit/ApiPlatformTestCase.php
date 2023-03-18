@@ -133,7 +133,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         }
 
         if (isset($params['schemaClass'])) {
-            if (isset($params['iri'])) {
+            if (isset($params['iri']) || $params['method'] !== 'GET') {
                 self::assertMatchesResourceItemJsonSchema($params['schemaClass']);
             } else {
                 self::assertMatchesResourceCollectionJsonSchema($params['schemaClass']);
