@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - tbd
+### Fixed
+- ApiPlatformTestCase: selection of the correct schema to compare to
+
 ## [2.1.0] - 2023-03-15
 ### Added
 - AtLeastOneOf constraint supports a custom message if set
