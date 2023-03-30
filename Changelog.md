@@ -3,7 +3,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.1] - tbd
+## [2.2.0] - 2023-03-30
+### Added
+- ApiPlatformTestCase: assert number of sent emails, dispatched messages,
+- ApiPlatformTestCase: checking for specific log entries & dispatched messages
+
 ### Fixed
 - ApiPlatformTestCase: selection of the correct schema to compare to
 

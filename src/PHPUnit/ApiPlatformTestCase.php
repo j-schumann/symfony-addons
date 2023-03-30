@@ -15,6 +15,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 abstract class ApiPlatformTestCase extends ApiTestCase
 {
     use AuthenticatedClientTrait;
+    use MonologAssertsTrait;
     use RefreshDatabaseTrait;
 
     protected const UNAUTHENTICATED_RESPONSE = [
@@ -52,32 +53,41 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * The params *must* contain either 'iri' or 'uri', all other settings are
      * optional.
      *
-     * uri:            the endpoint to call, e.g. '/tenants'
-     * iri:            [classname, [field => value]],
-     *                 e.g. [User::class, [email => 'test@test.de']]
-     *                 tries to find a User by the given conditions and
-     *                 retrieves its IRI, it is then used as URI
-     * email:          if given, tries to find a User with that email and sends
-     *                 the request authenticated as this user with lexikJWT
-     * method:         HTTP method for the request, defaults to GET
-     * requestOptions: options for the HTTP client, e.g. query parameters or
-     *                 basic auth
-     * responseCode:   if set asserts that the received status code matches
-     * contentType:    if set asserts that the received content type header matches
-     * json:           if set assumes that the returned content is JSON and
-     *                 contains the given array as subset
-     * requiredKeys:   if set asserts the dataset contains the list of keys.
-     *                 Used for elements where the value is not known in advance,
-     *                 e.g. ID, slug, timestamps. Can be nested:
-     *                 ['hydra:member'][0]['id', '@id']
-     * forbiddenKeys:  like requiredKeys, but the dataset may not contain those
-     * schemaClass:    if set asserts that the received response matches the JSON
-     *                 schema for the given class
-     * prepare:        callback($containerInterface, &$params) that prepares the
-     *                 environment, e.g. creating / deleting entities.
-     *                 It is called after the kernel is booted & the database was
-     *                 refreshed. Can be used to update the parameters, e.g. with
-     *                 IDs/IRIs from the DB.
+     * uri:                the endpoint to call, e.g. '/tenants'
+     * iri:                [classname, [field => value]],
+     *                     e.g. [User::class, [email => 'test@test.de']]
+     *                     tries to find an entity by the given conditions and
+     *                     retrieves its IRI, it is then used as URI
+     * prepare:            callback($containerInterface, &$params) that prepares the
+     *                     environment, e.g. creating / deleting entities.
+     *                     It is called after the kernel is booted & the database was
+     *                     refreshed. Can be used to update the parameters, e.g. with
+     *                     IDs/IRIs from the DB.
+     * email:              if given, tries to find a User with that email and sends
+     *                     the request authenticated as this user with lexikJWT
+     * method:             HTTP method for the request, defaults to GET
+     * requestOptions:     options for the HTTP client, e.g. query parameters or
+     *                     basic auth
+     * responseCode:       asserts that the received status code matches
+     * contentType:        asserts that the received content type header matches
+     * json:               asserts that the returned content is JSON and
+     *                     contains the given array as subset
+     * requiredKeys:       asserts the dataset contains the list of keys.
+     *                     Used for elements where the value is not known in advance,
+     *                     e.g. ID, slug, timestamps. Can be nested:
+     *                     ['hydra:member'][0]['id', '@id']
+     * forbiddenKeys:      like requiredKeys, but the dataset may not contain those
+     * schemaClass:        asserts that the received response matches the JSON
+     *                     schema for the given class
+     * createdLogs:        array of ["log message", LogLevel] entries, asserts the
+     *                     messages to be present in the monolog handlers after the
+     *                     operation ran
+     * emailCount:         asserts this number of emails to be sent via the
+     *                     mailer after the operation was executed
+     * messageCount:       asserts this number of messages to be dispatched
+     *                     to the message bus
+     * dispatchedMessages: array of message classes, asserts that at least one instance
+     *                     of each given class has been dispatched to the message bus
      */
     protected function testOperation(array $params): ResponseInterface
     {
@@ -95,6 +105,10 @@ abstract class ApiPlatformTestCase extends ApiTestCase
 
         if (isset($params['iri'])) {
             $params['uri'] = $this->findIriBy($params['iri'][0], $params['iri'][1]);
+        }
+
+        if (isset($params['createdLogs'])) {
+            $this->prepareLogger();
         }
 
         $params['method'] ??= 'GET';
@@ -137,6 +151,41 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                 self::assertMatchesResourceItemJsonSchema($params['schemaClass']);
             } else {
                 self::assertMatchesResourceCollectionJsonSchema($params['schemaClass']);
+            }
+        }
+
+        if (isset($params['createdLogs'])) {
+            foreach($params['createdLogs'] as $createdLog) {
+                self::assertLoggerHasMessage($createdLog[0], $createdLog[1]);
+            }
+        }
+
+        if (isset($params['emailCount'])) {
+            self::assertEmailCount($params['emailCount']);
+        }
+
+        if (isset($params['messageCount'])
+            || isset($params['dispatchedMessages'])
+        ) {
+            $messenger = static::getContainer()->get('messenger.default_bus');
+            $messages = $messenger->getDispatchedMessages();
+
+            if (isset($params['messageCount'])) {
+                $expected = $params['messageCount'];
+                $found = count($messages);
+                self::assertSame($expected, $found,
+                    "Expected $expected messages to be dispatched, found $found");
+            }
+
+            if (isset($params['dispatchedMessages'])) {
+                foreach($params['dispatchedMessages'] as $messageClass) {
+                    $filtered = array_filter(
+                        $messages,
+                        static fn ($ele) => is_a($ele['message'], $messageClass)
+                    );
+                    self::assertGreaterThan(0, count($filtered),
+                        "The expected '$messageClass' was not dispatched");
+                }
             }
         }
 
