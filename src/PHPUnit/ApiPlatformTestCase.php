@@ -140,6 +140,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             || isset($params['forbiddenKeys'])
         ) {
             $dataset = $response->toArray(false);
+
             self::assertDatasetHasKeys(
                 $params['requiredKeys'] ?? [], $dataset);
             self::assertDatasetNotHasKeys(
@@ -178,13 +179,40 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             }
 
             if (isset($params['dispatchedMessages'])) {
-                foreach($params['dispatchedMessages'] as $messageClass) {
+                foreach($params['dispatchedMessages'] as $message) {
+                    $messageCallback = null;
+
+                    if (is_array($message)
+                        && count($message) === 2
+                        && is_string($message[0])
+                        && is_callable($message[1])
+                    ) {
+                        $messageClass = $message[0];
+                        $messageCallback = $message[1];
+                    }
+                    elseif (is_string($message)) {
+                        $messageClass = $message;
+                    }
+                    else {
+                        $error = 'Entries of "dispatchedMessages" must either be a string representing '
+                            .'the FQN of the message class or an array with two elements: '
+                            .'first the message class FQN and second a callable that will be called '
+                            .'with the message object for inspection and the API response data';
+                        throw new \InvalidArgumentException($error);
+                    }
+
                     $filtered = array_filter(
                         $messages,
                         static fn ($ele) => is_a($ele['message'], $messageClass)
                     );
                     self::assertGreaterThan(0, count($filtered),
                         "The expected '$messageClass' was not dispatched");
+
+                    if ($messageCallback) {
+                        foreach ($filtered as $message) {
+                            $messageCallback($message['message'], $response->toArray(false));
+                        }
+                    }
                 }
             }
         }

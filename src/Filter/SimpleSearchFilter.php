@@ -72,7 +72,7 @@ class SimpleSearchFilter extends AbstractFilter
                 'property' => implode(', ', array_keys($props)),
                 'type'     => 'string',
                 'required' => false,
-                'swagger'  => [
+                'openapi'  => [
                     'description' => 'Selects entities where each search term is found somewhere in at least one of the specified properties',
                 ],
             ],
