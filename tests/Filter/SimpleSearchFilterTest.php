@@ -29,7 +29,7 @@ class SimpleSearchFilterTest extends KernelTestCase
                 'property' => 'id, jsonColumn',
                 'type'     => 'string',
                 'required' => false,
-                'swagger'  => [
+                'openapi'  => [
                     'description' => 'Selects entities where each search term is found somewhere in at least one of the specified properties',
                 ],
             ],
@@ -50,7 +50,7 @@ class SimpleSearchFilterTest extends KernelTestCase
                 'property' => 'id, jsonColumn',
                 'type'     => 'string',
                 'required' => false,
-                'swagger'  => [
+                'openapi'  => [
                     'description' => 'Selects entities where each search term is found somewhere in at least one of the specified properties',
                 ],
             ],
