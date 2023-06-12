@@ -3,9 +3,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.3.0] - tbd
+## [2.3.0] - 2023-06-12
 ### Added
 - ApiPlatformTestCase: dispatched messages can be inspected with a callback
+- QueryBuilderHelper: simplify parameter & join handling, e.g. for 
+  ApiPlatform QueryExtensions
 
 ### Fixed
 - SimpleSearchFilter: usage of deprecated option w/ ApiPlatform 3
