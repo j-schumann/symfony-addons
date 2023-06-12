@@ -273,3 +273,6 @@ doctrine:
   `RefreshDatabaseTrait`
 * tests for the ApiPlatform filters w/ a real database, for Postgres and MariaDB
 * tests for the Bundle, simplify resources/services.xml
+* tests for QueryBuilderHelper
+* compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper
+* fix tests NoSurroundingWhitespace for new symfony versions that include the pattern
