@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
@@ -86,17 +87,12 @@ class SimpleSearchFilterTest extends KernelTestCase
         $param = $qb->getParameter('pattern_p1');
         self::assertSame('%testval%', $param->getValue());
 
-        $this->assertStringContainsString(
-            'WHERE (LOWER(o.jsonColumn) LIKE :pattern_p1)',
-            (string) $qb
-        );
+        $platform = $doctrine->getManager()->getConnection()->getDatabasePlatform();
 
-        // this should not be necessary, the correct translation into SQL should
-        // be tested where LOWER and CAST are defined:
-        $this->assertStringContainsString(
-            'WHERE (LOWER(t0_.jsonColumn) LIKE ?)',
-            $qb->getQuery()->getSQL()
-        );
+        $dql = $platform instanceof PostgreSQLPlatform
+            ? "LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)"
+            : 'WHERE (LOWER(o.jsonColumn) LIKE :pattern_p1)';
+        $this->assertStringContainsString($dql, (string) $qb);
     }
 
     public function testApplyFilterWithMultipleFields(): void
@@ -124,17 +120,12 @@ class SimpleSearchFilterTest extends KernelTestCase
         $param = $qb->getParameter('pattern_p1');
         self::assertSame('%testval%', $param->getValue());
 
-        $this->assertStringContainsString(
-            'WHERE (LOWER(o.id) LIKE :pattern_p1 OR LOWER(o.jsonColumn) LIKE :pattern_p1)',
-            (string) $qb
-        );
+        $platform = $doctrine->getManager()->getConnection()->getDatabasePlatform();
 
-        // this should not be necessary, the correct translation into SQL should
-        // be tested where LOWER and CAST are defined:
-        $this->assertStringContainsString(
-            'WHERE (LOWER(t0_.id) LIKE ? OR LOWER(t0_.jsonColumn) LIKE ?)',
-            $qb->getQuery()->getSQL()
-        );
+        $dql = $platform instanceof PostgreSQLPlatform
+            ? "WHERE (LOWER(o.id) LIKE :pattern_p1 OR LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)"
+            : 'WHERE (LOWER(o.id) LIKE :pattern_p1 OR LOWER(o.jsonColumn) LIKE :pattern_p1)';
+        $this->assertStringContainsString($dql, (string) $qb);
     }
 
     public function testSearchInTextColumn(): void
