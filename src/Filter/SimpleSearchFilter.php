@@ -8,6 +8,7 @@ use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Operation;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
@@ -42,15 +43,28 @@ class SimpleSearchFilter extends AbstractFilter
         $this->addWhere($queryBuilder, $value, $queryNameGenerator->generateParameterName($property));
     }
 
-    private function addWhere($queryBuilder, $value, $parameterName)
+    private function addWhere(QueryBuilder $queryBuilder, $value, $parameterName)
     {
         $alias = $queryBuilder->getRootAliases()[0];
+
+        $em =  $queryBuilder->getEntityManager();
+        $platform = $em->getConnection()->getDatabasePlatform();
+        $from = $queryBuilder->getRootEntities()[0];
+        $metaData = $em->getClassMetadata($from);
 
         // Build OR expression
         $orExp = $queryBuilder->expr()->orX();
         foreach ($this->getProperties() as $prop => $_) {
-            // @todo is the CAST required for Postgres?
-            $orExp->add($queryBuilder->expr()->like("LOWER(CAST($alias.$prop, 'text'))", ":$parameterName"));
+            // special handling for JSON fields on Postgres
+            if ($platform instanceof PostgreSQLPlatform) {
+                $fieldMeta = $metaData->getFieldMapping($prop);
+                if ('json' === $fieldMeta['type']) {
+                    $orExp->add($queryBuilder->expr()->like("LOWER(CAST($alias.$prop, 'text'))", ":$parameterName"));
+                    continue;
+                }
+            }
+
+            $orExp->add($queryBuilder->expr()->like("LOWER($alias.$prop)", ":$parameterName"));
         }
 
         $queryBuilder
@@ -61,7 +75,7 @@ class SimpleSearchFilter extends AbstractFilter
     public function getDescription(string $resourceClass): array
     {
         $props = $this->getProperties();
-        if (null===$props) {
+        if (null === $props) {
             throw new InvalidArgumentException('Properties must be specified');
         }
 

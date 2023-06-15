@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Vrok\SymfonyAddons\Tests\PHPUnit;
+
 use PHPUnit\Framework\AssertionFailedError;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
@@ -17,7 +19,7 @@ class ApiPlatformTestCaseTest extends KernelTestCase
             'simple' => 1,
             'nested' => [
                 'value' => 2,
-                'deep' => [
+                'deep'  => [
                     'value' => 3,
                 ],
                 'empty' => null,

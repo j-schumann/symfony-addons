@@ -4,14 +4,19 @@
 
 declare(strict_types=1);
 
+namespace Vrok\SymfonyAddons\Tests\Filter;
+
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
-use Vrok\SymfonyAddons\Tests\Fixtures\TestEntity;
+use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 /**
  * @group SimpleSearchFilter
+ * @group database
  */
 class SimpleSearchFilterTest extends KernelTestCase
 {
@@ -82,14 +87,14 @@ class SimpleSearchFilterTest extends KernelTestCase
         self::assertSame('%testval%', $param->getValue());
 
         $this->assertStringContainsString(
-            "WHERE (LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)",
+            'WHERE (LOWER(o.jsonColumn) LIKE :pattern_p1)',
             (string) $qb
         );
 
         // this should not be necessary, the correct translation into SQL should
         // be tested where LOWER and CAST are defined:
         $this->assertStringContainsString(
-            'WHERE (LOWER(CAST(t0_.jsonColumn as text)) LIKE ?)',
+            'WHERE (LOWER(t0_.jsonColumn) LIKE ?)',
             $qb->getQuery()->getSQL()
         );
     }
@@ -120,15 +125,156 @@ class SimpleSearchFilterTest extends KernelTestCase
         self::assertSame('%testval%', $param->getValue());
 
         $this->assertStringContainsString(
-            "WHERE (LOWER(CAST(o.id, 'text')) LIKE :pattern_p1 OR LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)",
+            'WHERE (LOWER(o.id) LIKE :pattern_p1 OR LOWER(o.jsonColumn) LIKE :pattern_p1)',
             (string) $qb
         );
 
         // this should not be necessary, the correct translation into SQL should
         // be tested where LOWER and CAST are defined:
         $this->assertStringContainsString(
-            'WHERE (LOWER(CAST(t0_.id as text)) LIKE ? OR LOWER(CAST(t0_.jsonColumn as text)) LIKE ?)',
+            'WHERE (LOWER(t0_.id) LIKE ? OR LOWER(t0_.jsonColumn) LIKE ?)',
             $qb->getQuery()->getSQL()
         );
+    }
+
+    public function testSearchInTextColumn(): void
+    {
+        $this->setupSchema();
+
+        /** @var ManagerRegistry $doctrine */
+        $doctrine =  static::getContainer()->get('doctrine');
+        $em = $doctrine->getManager();
+
+        $rec1 = new TestEntity();
+        $rec1->textColumn = 'record EINS text';
+        $rec1->varcharColumn = 'record EINS varchar';
+        $em->persist($rec1);
+
+        $rec2 = new TestEntity();
+        $rec2->textColumn = 'record ZWEI text';
+        $rec2->varcharColumn = 'record ZWEI varchar';
+        $em->persist($rec2);
+        $em->flush();
+
+        $filter = new SimpleSearchFilter(
+            $doctrine,
+            null,
+            ['textColumn' => null, 'varcharColumn' => null],
+            null
+        );
+        $doctrine =  static::getContainer()->get('doctrine');
+        $queryNameGen = new QueryNameGenerator();
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new \ApiPlatform\Metadata\Get(), [
+            'filters' => [
+                'pattern' => 'eins TEXT',
+            ],
+        ]);
+
+        $result = $qb->getQuery()->getResult();
+        self::assertCount(1, $result);
+        self::assertInstanceOf(TestEntity::class, $result[0]);
+        self::assertSame('record EINS text', $result[0]->textColumn);
+    }
+
+    public function testSearchInVarcharColumn(): void
+    {
+        $this->setupSchema();
+
+        /** @var ManagerRegistry $doctrine */
+        $doctrine =  static::getContainer()->get('doctrine');
+        $em = $doctrine->getManager();
+
+        $rec1 = new TestEntity();
+        $rec1->textColumn = 'record EINS text';
+        $rec1->varcharColumn = 'record EINS varchar';
+        $em->persist($rec1);
+
+        $rec2 = new TestEntity();
+        $rec2->textColumn = 'record ZWEI text';
+        $rec2->varcharColumn = 'record ZWEI varchar';
+        $em->persist($rec2);
+        $em->flush();
+
+        $filter = new SimpleSearchFilter(
+            $doctrine,
+            null,
+            ['textColumn' => null, 'varcharColumn' => null],
+            null
+        );
+        $doctrine =  static::getContainer()->get('doctrine');
+        $queryNameGen = new QueryNameGenerator();
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new \ApiPlatform\Metadata\Get(), [
+            'filters' => [
+                'pattern' => 'zwei VAR',
+            ],
+        ]);
+
+        $result = $qb->getQuery()->getResult();
+        self::assertCount(1, $result);
+        self::assertInstanceOf(TestEntity::class, $result[0]);
+        self::assertSame('record ZWEI text', $result[0]->textColumn);
+    }
+
+    public function testSearchInJsonColumn(): void
+    {
+        $this->setupSchema();
+
+        /** @var ManagerRegistry $doctrine */
+        $doctrine =  static::getContainer()->get('doctrine');
+        $em = $doctrine->getManager();
+
+        $rec1 = new TestEntity();
+        $rec1->jsonColumn = ['record EINS json'];
+        $em->persist($rec1);
+
+        $rec2 = new TestEntity();
+        $rec2->jsonColumn = ['record ZWEI json'];
+        $em->persist($rec2);
+        $em->flush();
+
+        $filter = new SimpleSearchFilter(
+            $doctrine,
+            null,
+            ['jsonColumn' => null],
+            null
+        );
+        $doctrine =  static::getContainer()->get('doctrine');
+        $queryNameGen = new QueryNameGenerator();
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new \ApiPlatform\Metadata\Get(), [
+            'filters' => [
+                'pattern' => 'zwei JS',
+            ],
+        ]);
+
+        $result = $qb->getQuery()->getResult();
+        self::assertCount(1, $result);
+        self::assertInstanceOf(TestEntity::class, $result[0]);
+        self::assertSame(['record ZWEI json'], $result[0]->jsonColumn);
+    }
+
+    protected function setupSchema(): void
+    {
+        /** @var ManagerRegistry $doctrine */
+        $doctrine =  static::getContainer()->get('doctrine');
+        $em = $doctrine->getManager();
+
+        $tool = new SchemaTool($em);
+        $classes = [
+            $em->getClassMetadata(TestEntity::class),
+        ];
+        $tool->dropSchema($classes);
+        $tool->createSchema($classes);
     }
 }

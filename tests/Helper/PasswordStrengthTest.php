@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
+namespace Vrok\SymfonyAddons\Tests\Helper;
 
 use PHPUnit\Framework\TestCase;
 use Vrok\SymfonyAddons\Helper\PasswordStrength;
@@ -52,7 +52,7 @@ class PasswordStrengthTest extends TestCase
     public function testSetThresholds(): void
     {
         $pwStrength = new PasswordStrength();
-        $pwStrength->setThresholds([PasswordStrength::RATING_GOOD  => 28]);
+        $pwStrength->setThresholds([PasswordStrength::RATING_GOOD => 28]);
 
         $modified = [
             PasswordStrength::RATING_WEAK  => 15,

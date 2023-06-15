@@ -13,6 +13,7 @@
         "api-platform/core": "^3.1.12",
         "doctrine/annotations": "^2.0.1",
         "doctrine/doctrine-bundle": "^2.8.3",
+        "doctrine/doctrine-fixtures-bundle": "^3.4.2",
         "doctrine/orm": "^2.15.2",
         "friendsofphp/php-cs-fixer": "^3.17.0",
         "monolog/monolog": "^3.3.1",
@@ -20,9 +21,10 @@
         "roave/security-advisories": "dev-latest",
         "symfony/http-client": "^6.2",
         "symfony/mailer": "^6.2",
-        "symfony/messenger": "^6.2",
+        "symfony/doctrine-messenger": "^6.2",
         "symfony/monolog-bundle": "^3.8.0",
         "symfony/phpunit-bridge": "^6.2.3",
+        "symfony/security-bundle": "^6.2",
         "symfony/validator": "^6.2",
         "symfony/yaml": "^6.2",
         "vrok/doctrine-addons": "^2.6.2"
@@ -45,6 +47,7 @@
         "cs-check": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --dry-run --diff -v",
         "cs-fix": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -v",
         "test": "phpunit --colors=always",
+        "test-database": "phpunit --colors=always --group=database",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }
 }

@@ -7,22 +7,55 @@ on:
 env:
   COMPOSER_FLAGS: "--ansi --no-interaction --no-progress --prefer-dist"
   COMPOSER_UPDATE_FLAGS: ""
-
 jobs:
   phpunit:
     name: PHPUnit (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_USER: dbtest
+          POSTGRES_PASSWORD: dbtest
+          POSTGRES_DB: dbtest
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_USER: dbtest
+          MYSQL_PASSWORD: dbtest
+          MYSQL_DATABASE: dbtest
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
     strategy:
       matrix:
         php:
           - '8.2'
           - '8.3'
         dependencies: [lowest, highest]
+        database: [sqlite]
         include:
           - php: '8.2'
             dependencies: highest
             coverage: true
+          - php: '8.2'
+            database: mysql
+            dependencies: highest
+          - php: '8.2'
+            database: postgres
+            dependencies: highest
       fail-fast: false
     steps:
       - name: Checkout
@@ -60,6 +93,9 @@ jobs:
         run: "composer update ${{ env.COMPOSER_UPDATE_FLAGS }} ${{ env.COMPOSER_FLAGS }}"
 
       - name: Run PHPUnit tests
+        if: matrix.database == 'sqlite'
+        env:
+          DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
         run: |
           mkdir -p build/logs/phpunit
           if [ "$COVERAGE" = '1' ]; then
@@ -67,6 +103,20 @@ jobs:
           else
             vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
           fi
+
+      - name: Run tests on MySQL
+        if: matrix.database == 'mysql'
+        env:
+          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1/dbtest?serverVersion=8
+        run: |
+            vendor/bin/phpunit --group=database
+
+      - name: Run tests on Postgres
+        if: matrix.database == 'postgres'
+        env:
+          DATABASE_URL: pgsql://dbtest:dbtest@127.0.0.1:5432/dbtest?serverVersion=13
+        run: |
+          vendor/bin/phpunit --group=database
 
       - name: Upload test artifacts
         if: always()

@@ -1,5 +1,7 @@
 parameters:
-  env(DATABASE_URL): sqlite:///%kernel.project_dir%/var/data.db
+  #env(DATABASE_URL): sqlite:///%kernel.project_dir%/var/data.db
+  #env(DATABASE_URL): pgsql://db_test:db_test@pgsql/db_test
+  env(DATABASE_URL): mysql://db_test:db_test@mysql/db_test
 
 framework:
   messenger:
@@ -8,10 +10,11 @@ framework:
         dsn: 'doctrine://default'
         options:
           auto_setup: true
+  session:
+    handler_id: null
 
 doctrine:
   dbal:
-    driver: 'pdo_sqlite'
     charset: 'UTF8'
     url: '%env(resolve:DATABASE_URL)%'
 
@@ -20,8 +23,8 @@ doctrine:
     mappings:
       Fixtures:
         is_bundle: false
-        dir: '../../'
-        prefix: 'Vrok\SymfonyAddons\Tests\Fixtures'
+        dir: 'tests/Fixtures/Entity'
+        prefix: 'Vrok\SymfonyAddons\Tests\Fixtures\Entity'
         alias: Fixtures
         type: attribute
     dql:

@@ -43,9 +43,9 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     ];
 
     protected const CONSTRAINT_VIOLATION_RESPONSE = [
-        '@context'          => '/contexts/ConstraintViolationList',
-        '@type'             => 'ConstraintViolationList',
-        'hydra:title'       => 'An error occurred',
+        '@context'    => '/contexts/ConstraintViolationList',
+        '@type'       => 'ConstraintViolationList',
+        'hydra:title' => 'An error occurred',
         // 'hydra:description' varies
     ];
 

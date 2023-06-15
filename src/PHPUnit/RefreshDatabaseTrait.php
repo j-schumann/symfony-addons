@@ -58,7 +58,7 @@ trait RefreshDatabaseTrait
         static::ensureKernelTestCase();
 
         $kernel = parent::bootKernel($options);
-        $container = static::$container ?? static::$kernel->getContainer();
+        $container = static::getContainer();
 
         // @todo implement "dropDB"?
         static::$cleanupMethod = 'dropSchema' === getenv('DB_CLEANUP_METHOD')
@@ -111,8 +111,8 @@ trait RefreshDatabaseTrait
      */
     protected static function updateSchema(ContainerInterface $container): void
     {
+        /* @var EntityManagerInterface $em */
         $em = $container->get('doctrine.orm.entity_manager');
-        /* @var $em EntityManagerInterface */
 
         $metadatas = $em->getMetadataFactory()->getAllMetadata();
         if (empty($metadatas)) {

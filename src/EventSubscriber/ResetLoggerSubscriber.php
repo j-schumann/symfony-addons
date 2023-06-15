@@ -34,8 +34,8 @@ class ResetLoggerSubscriber implements EventSubscriberInterface, LoggerAwareInte
             // after the handling succeeded or failed: flush all BufferHandlers
             // so we can immediatly see log entries, not just when the worker
             // exits / the buffer limit is reached
-            WorkerMessageHandledEvent::class => 'flushLogger',
-            WorkerMessageFailedEvent::class => 'flushLogger',
+            WorkerMessageHandledEvent::class  => 'flushLogger',
+            WorkerMessageFailedEvent::class   => 'flushLogger',
         ];
     }
 

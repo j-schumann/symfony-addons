@@ -6,9 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [2.4.0] - TBD
 ### Fixed
 * AtLeastOneOf validator with All() constraint
+* SimpleSearchFilter for MariaDB/Mysql
 
 ### Updated
 * Tests, CS
+* database specific tests
 
 ### Removed
 * Support for Symfony < 6.2
