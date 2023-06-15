@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vrok\SymfonyAddons\Tests;
+namespace Vrok\SymfonyAddons\Tests\EventSubscriber;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mailer\Envelope;
