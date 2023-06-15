@@ -33,7 +33,6 @@ class SimpleSearchFilter extends AbstractFilter
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
 
-    /** {@inheritdoc} */
     protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
         if (null === $value || $property !== $this->searchParameterName) {
@@ -59,7 +58,6 @@ class SimpleSearchFilter extends AbstractFilter
             ->setParameter($parameterName, '%'.strtolower($value).'%');
     }
 
-    /** {@inheritdoc} */
     public function getDescription(string $resourceClass): array
     {
         $props = $this->getProperties();

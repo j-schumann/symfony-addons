@@ -108,7 +108,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         }
 
         if (isset($params['createdLogs'])) {
-            $this->prepareLogger();
+            self::prepareLogger();
         }
 
         $params['method'] ??= 'GET';
@@ -148,7 +148,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         }
 
         if (isset($params['schemaClass'])) {
-            if (isset($params['iri']) || $params['method'] !== 'GET') {
+            if (isset($params['iri']) || 'GET' !== $params['method']) {
                 self::assertMatchesResourceItemJsonSchema($params['schemaClass']);
             } else {
                 self::assertMatchesResourceCollectionJsonSchema($params['schemaClass']);
@@ -156,7 +156,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         }
 
         if (isset($params['createdLogs'])) {
-            foreach($params['createdLogs'] as $createdLog) {
+            foreach ($params['createdLogs'] as $createdLog) {
                 self::assertLoggerHasMessage($createdLog[0], $createdLog[1]);
             }
         }
@@ -179,21 +179,19 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             }
 
             if (isset($params['dispatchedMessages'])) {
-                foreach($params['dispatchedMessages'] as $message) {
+                foreach ($params['dispatchedMessages'] as $message) {
                     $messageCallback = null;
 
                     if (is_array($message)
-                        && count($message) === 2
+                        && 2 === count($message)
                         && is_string($message[0])
                         && is_callable($message[1])
                     ) {
                         $messageClass = $message[0];
                         $messageCallback = $message[1];
-                    }
-                    elseif (is_string($message)) {
+                    } elseif (is_string($message)) {
                         $messageClass = $message;
-                    }
-                    else {
+                    } else {
                         $error = 'Entries of "dispatchedMessages" must either be a string representing '
                             .'the FQN of the message class or an array with two elements: '
                             .'first the message class FQN and second a callable that will be called '
@@ -209,8 +207,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                         "The expected '$messageClass' was not dispatched");
 
                     if ($messageCallback) {
-                        foreach ($filtered as $message) {
-                            $messageCallback($message['message'], $response->toArray(false));
+                        foreach ($filtered as $msg) {
+                            $messageCallback($msg['message'], $response->toArray(false));
                         }
                     }
                 }

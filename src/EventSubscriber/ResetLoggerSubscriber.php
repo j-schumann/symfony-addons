@@ -23,9 +23,6 @@ class ResetLoggerSubscriber implements EventSubscriberInterface, LoggerAwareInte
 {
     use LoggerAwareTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedEvents(): array
     {
         return [

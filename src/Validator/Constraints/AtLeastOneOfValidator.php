@@ -14,10 +14,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  */
 class AtLeastOneOfValidator extends ConstraintValidator
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         if (!$constraint instanceof AtLeastOneOf) {
             throw new UnexpectedTypeException($constraint, AtLeastOneOf::class);
@@ -36,13 +33,8 @@ class AtLeastOneOfValidator extends ConstraintValidator
                 return;
             }
 
-            if ($constraint->message) {
-                $lastMessage = $constraint->message;
-            } elseif ($item instanceof All || $item instanceof Collection) {
-                $lastMessage = $constraint->messageCollection;
-            } else {
-                $lastMessage = $violations->get(\count($violations) - 1)->getMessage();
-            }
+            $lastMessage = $constraint->message
+                ?: $violations->get(\count($violations) - 1)->getMessage();
         }
 
         $this->context->buildViolation($lastMessage)

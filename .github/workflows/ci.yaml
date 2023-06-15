@@ -33,7 +33,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: pecl, composer
-          extensions: intl, json, mbstring, pdo_mysql
+          extensions: intl, json, mbstring, pdo_mysql, pdo_pgsql
           coverage: pcov
           ini-values: memory_limit=-1
 

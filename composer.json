@@ -7,21 +7,23 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "symfony/framework-bundle":  "^6.2.0"
+        "symfony/framework-bundle":  "^6.1"
     },
     "require-dev": {
-        "api-platform/core": "^3.1.0",
-        "doctrine/doctrine-bundle": "^2.8.2",
-        "doctrine/orm": "^2.14.1",
-        "friendsofphp/php-cs-fixer": "^3.13.2",
-        "monolog/monolog": "^3.2.0",
-        "phpunit/phpunit": "^9.5.28",
+        "api-platform/core": "^3.1.12",
+        "doctrine/doctrine-bundle": "^2.8.3",
+        "doctrine/orm": "^2.15.2",
+        "friendsofphp/php-cs-fixer": "^3.17.0",
+        "monolog/monolog": "^3.3.1",
+        "phpunit/phpunit": "^9.6.9",
         "roave/security-advisories": "dev-latest",
-        "symfony/mailer": "^6.2.0",
+        "symfony/http-client": "^6.1",
+        "symfony/mailer": "^6.1",
+        "symfony/messenger": "^6.1",
         "symfony/monolog-bundle": "^3.8.0",
         "symfony/phpunit-bridge": "^6.1",
-        "symfony/validator": "^6.2.0",
-        "symfony/yaml": "^6.2.0",
+        "symfony/validator": "^6.1",
+        "symfony/yaml": "^6.1",
         "vrok/doctrine-addons": "^2.6.2"
     },
     "autoload": {

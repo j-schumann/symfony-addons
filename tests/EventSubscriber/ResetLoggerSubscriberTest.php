@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Vrok\SymfonyAddons\Tests;
+namespace Vrok\SymfonyAddons\Tests\EventSubscriber;
 
 use Monolog\Handler\BufferHandler;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
@@ -16,8 +17,8 @@ use Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber;
 class ResetLoggerSubscriberTest extends TestCase
 {
     protected Logger $stubLogger;
-    protected BufferHandler $stubHandler;
-    protected UidProcessor $stubProcessor;
+    protected BufferHandler|Stub $stubHandler;
+    protected UidProcessor|Stub $stubProcessor;
 
     protected function createLogger($name = 'app'): void
     {

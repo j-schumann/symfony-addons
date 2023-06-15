@@ -15,10 +15,7 @@ use Vrok\SymfonyAddons\Helper\PasswordStrength as StrengthCalculator;
  */
 class PasswordStrengthValidator extends ConstraintValidator
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         if (!$constraint instanceof PasswordStrength) {
             throw new UnexpectedTypeException($constraint, PasswordStrength::class);

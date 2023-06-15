@@ -8,6 +8,7 @@ use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Operation;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -21,14 +22,11 @@ use Doctrine\ORM\QueryBuilder;
  */
 class JsonExistsFilter extends AbstractFilter
 {
-    /**
-     * {@inheritdoc}
-     */
     protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
         if (
-            !$this->isPropertyEnabled($property, $resourceClass) ||
-            !$this->isPropertyMapped($property, $resourceClass)
+            !$this->isPropertyEnabled($property, $resourceClass)
+            || !$this->isPropertyMapped($property, $resourceClass)
         ) {
             return;
         }
@@ -42,7 +40,7 @@ class JsonExistsFilter extends AbstractFilter
         $field = $property;
 
         if ($this->isPropertyNested($property, $resourceClass)) {
-            [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator, $resourceClass);
+            [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::LEFT_JOIN);
         }
 
         $valueParameter = $queryNameGenerator->generateParameterName($field);
@@ -73,9 +71,6 @@ class JsonExistsFilter extends AbstractFilter
         return $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDescription(string $resourceClass): array
     {
         $description = [];

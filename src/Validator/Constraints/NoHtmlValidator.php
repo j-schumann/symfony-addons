@@ -14,10 +14,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
  */
 class NoHtmlValidator extends ConstraintValidator
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         if (!$constraint instanceof NoHtml) {
             throw new UnexpectedTypeException($constraint, NoHtml::class);

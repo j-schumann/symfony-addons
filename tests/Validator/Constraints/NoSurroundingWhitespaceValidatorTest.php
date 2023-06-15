@@ -113,9 +113,16 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
 
         $this->validator->validate($value, $constraint);
 
-        $this->buildViolation($constraint->message)
+        $violation = $this->buildViolation($constraint->message)
             ->setParameter('{{ value }}', '"'.$value.'"')
-            ->setCode($code)
-            ->assertRaised();
+            ->setCode($code);
+
+        // symfony/validator 6.3 added a new parameter ...
+        $version = \Composer\InstalledVersions::getVersion('symfony/validator');
+        if (\Composer\Semver\Comparator::greaterThanOrEqualTo($version, '6.3')) {
+            $violation->setParameter('{{ pattern }}', $constraint->pattern);
+        }
+
+        $violation->assertRaised();
     }
 }
