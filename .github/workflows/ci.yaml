@@ -40,6 +40,22 @@ jobs:
           --health-retries=3
         ports:
           - 3306:3306
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_USER: dbtest
+          MARIADB_PASSWORD: dbtest
+          MARIADB_DATABASE: dbtest
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
+          MARIADB_MYSQL_LOCALHOST_USER: 1
+          MARIADB_MYSQL_LOCALHOST_GRANTS: USAGE
+        options: >-
+          --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
     strategy:
       matrix:
         php:
@@ -51,6 +67,9 @@ jobs:
           - php: '8.2'
             dependencies: highest
             coverage: true
+          - php: '8.2'
+            database: mariadb
+            dependencies: highest
           - php: '8.2'
             database: mysql
             dependencies: highest
@@ -105,10 +124,17 @@ jobs:
             vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
           fi
 
+      - name: Run tests on MariaDB
+        if: matrix.database == 'mariadb'
+        env:
+          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1/dbtest?serverVersion=mariadb-11.0
+        run: |
+          vendor/bin/phpunit --group=database
+
       - name: Run tests on MySQL
         if: matrix.database == 'mysql'
         env:
-          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1/dbtest?serverVersion=8
+          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1/dbtest?serverVersion=8.0
         run: |
             vendor/bin/phpunit --group=database
 
