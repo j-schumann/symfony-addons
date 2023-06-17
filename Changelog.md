@@ -3,10 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.4.0] - TBD
+## [2.4.0] - 2023-06-17
 ### Fixed
 * AtLeastOneOf validator with All() constraint
-* SimpleSearchFilter for MariaDB/Mysql
+* SimpleSearchFilter without CAST, tested w/ MariaDB/Mysql/Postgres
 
 ### Updated
 * Tests, CS
