@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Vrok\SymfonyAddons\Tests\PHPUnit;
+
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\Logger;

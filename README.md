@@ -156,7 +156,8 @@ class ApiTest extends ApiTestCase
 
 ### Using the MonologAssertsTrait
 
-For use with an Symfony project using the monolog-bundle.
+For use with an Symfony project using the monolog-bundle.  
+Requires `monolog/monolog` of v3.0 or higher.
 
 Include the trait in your testcase and call `prepareLogger` before triggering the
 action that should create logs and use `assertLoggerHasMessage` afterwards to check
@@ -184,6 +185,8 @@ class LoggerTest extends KernelTestCase
  ```
 
 ## Workflow helpers
+
+Require `symfony/workflow`.
 
 ### PropertyMarkingStore
 
@@ -332,7 +335,8 @@ simply returns all POST parameters and uploaded files together.
 
 ## Twig Extensions
 
-Adding this bundle to the `bundles.php` registers the new extension:
+Adding this bundle to the `bundles.php` together with the `symfony/twig-bundle`
+registers the new extension:
 ```php
     Vrok\SymfonyAddons\VrokSymfonyAddonsBundle::class => ['all' => true],
 ```
@@ -359,12 +363,14 @@ Outputs: 9.34 MiB
 * _symfony/mailer_ is required for tests of the AutoSenderSubscriber
 * _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
 * _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and ResetLoggerSubscriber
+* _symfony/phpunit-bridge_ must be at least v6.2.3 to prevent"Call to undefined method Doctrine\Common\Annotations\AnnotationRegistry::registerLoader()" 
 * _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
 * _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore
+* _monolog/monolog_ must be at least v3 for `Monolog\Level`
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
 * tests for `ApiPlatformTestCase::testOperation`, `AuthenticatedClientTrait`, 
-  `RefreshDatabaseTrait`
+  `RefreshDatabaseTrait` -> requires doctrine/fixtures-bundle
 * tests for QueryBuilderHelper
 * compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper
