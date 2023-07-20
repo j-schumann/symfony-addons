@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Tests\Command;
 
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Vrok\SymfonyAddons\Command\CronDailyCommand;
 use Vrok\SymfonyAddons\Event\CronDailyEvent;
 
-class CronDailyCommandTest extends TestCase
+class CronDailyCommandTest extends KernelTestCase
 {
     public function testTriggersEventAndCreatesLog(): void
     {
@@ -30,5 +31,11 @@ class CronDailyCommandTest extends TestCase
         $commandTester->execute([]);
 
         $this->assertSame(0, $commandTester->getStatusCode());
+    }
+
+    public function testService(): void
+    {
+        $application = new Application(static::bootKernel());
+        self::assertTrue($application->has('cron:daily'));
     }
 }

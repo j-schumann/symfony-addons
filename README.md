@@ -53,7 +53,7 @@ config/services.yaml:
 ## Validators
 
 ### AtLeastOneOf
-Works as Symfony's own AtLeastOneOf constraint, but instead of returning a message like
+Works like Symfony's own AtLeastOneOf constraint, but instead of returning a message like
 `This value should satisfy at least ...` it returns the message of the last failed validation.
 Can be used for obviously optional form fields where only simple messages should be
 displayed when `AtLeastOne` is used with `Blank` as first constraint.  
@@ -183,6 +183,62 @@ class LoggerTest extends KernelTestCase
 }
  ```
 
+## Workflow helpers
+
+### PropertyMarkingStore
+
+Can be used instead of the default `MethodMarkingStore`, for entities 
+& properties without Setter/Getter.
+
+workflow.yaml:
+```yaml
+framework:
+  workflows:
+    application_state:
+      type: state_machine
+      marking_store:
+        # We need to use a service as there is no option to register a new "type"
+        service: workflow.application.marking_store
+``` 
+
+services.yaml:
+```yaml
+    # When using the "service" option, all other settings like "property: state"
+    # are ignored in the workflow.yaml -> That's why we need a service definition
+    # with the correct arguments.
+    workflow.application.marking_store:
+      class: Vrok\SymfonyAddons\Workflow\PropertyMarkingStore
+      arguments: [true, 'state']
+``` 
+
+### WorkflowHelper
+
+Allows to get an array of available transitions and their blockers,
+can be used to show the user what transitions are possible from the current
+state and/or why a transition is currently blocked.
+
+```php
+    public function __invoke(
+        Entity $data
+        WorkflowInterface $entityStateMachine,
+    ): array
+    {
+      $result = $data->toArray();
+      
+      $result['transitions'] = WorkflowHelper::getTransitionList($data, $entityStateMachine);
+      
+      return $result;
+    }
+```
+
+```
+'publish' => [
+    'blockers' => [
+        TransitionBlocker::UNKNOWN => 'Title is empty!',
+    ],
+],
+```
+
 ## Cron events
 Adding this bundle to the `bundles.php` registers three new CLI commands:
 ```php
@@ -262,16 +318,53 @@ doctrine:
         JSON_CONTAINS_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsTextFunction
 ```
 
+## MultipartDecoder
+
+Adding this bundle to the `bundles.php` registers the MultipartDecoder
+to allow handling of file uploads with additional data (e.g. in ApiPlatform):
+
+```php
+    Vrok\SymfonyAddons\VrokSymfonyAddonsBundle::class => ['all' => true],
+```
+
+The decoder is automatically called for `multipart/form-data` requests and
+simply returns all POST parameters and uploaded files together.
+
+## Twig Extensions
+
+Adding this bundle to the `bundles.php` registers the new extension:
+```php
+    Vrok\SymfonyAddons\VrokSymfonyAddonsBundle::class => ['all' => true],
+```
+
+### FormatBytes
+
+Converts bytes to human-readable notation (supports up to TiB).  
+This extension is auto-registered.  
+In your Twig template:
+```
+  {{ attachment.filesize|formatBytes }}
+```
+
+Outputs: 9.34 MiB
+
 ## Developer Doc
+### composer.json require
+
+* _symfony/yaml_ is required for loading the bundle & test config
+
 ### composer.json dev
-* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait
-* _symfony/yaml_ is required for loading the test config
+
+* _symfony/browser-kit_ is required for tests of the MultipartDecoder
+* _symfony/mailer_ is required for tests of the AutoSenderSubscriber
+* _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
+* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and ResetLoggerSubscriber
+* _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
+* _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
 * tests for `ApiPlatformTestCase::testOperation`, `AuthenticatedClientTrait`, 
   `RefreshDatabaseTrait`
-* tests for the Bundle, simplify resources/services.xml
 * tests for QueryBuilderHelper
 * compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper
-* fix tests NoSurroundingWhitespace for new symfony versions that include the pattern

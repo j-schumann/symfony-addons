@@ -23,4 +23,16 @@ class TestEntity
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     public string $varcharColumn = '';
+
+    // region Workflow tests
+    public function setState(string $state): void
+    {
+        $this->varcharColumn = $state;
+    }
+
+    public function getState(): string
+    {
+        return $this->varcharColumn;
+    }
+    // endregion
 }

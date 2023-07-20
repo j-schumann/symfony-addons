@@ -13,6 +13,27 @@ framework:
   session:
     handler_id: null
 
+  workflows:
+    demo:
+      type: 'state_machine'
+      marking_store:
+        type: method
+        property: state
+      supports:
+        - Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity
+      initial_marking: draft
+      places:
+        - draft
+        - reviewed
+        - published
+      transitions:
+        review:
+          from: draft
+          to: reviewed
+        publish:
+          from: reviewed
+          to: published
+
 doctrine:
   dbal:
     charset: 'UTF8'

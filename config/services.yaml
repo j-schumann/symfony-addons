@@ -1,0 +1,25 @@
+services:
+  vrok.symfony_addons.cron_daily_command:
+    class: Vrok\SymfonyAddons\Command\CronDailyCommand
+    arguments: ['@Psr\Log\LoggerInterface', '@Symfony\Component\EventDispatcher\EventDispatcherInterface']
+    tags:
+      - { name: 'console.command', command: 'cron:daily' }
+  vrok.symfony_addons.cron_hourly_command:
+    class: Vrok\SymfonyAddons\Command\CronHourlyCommand
+    arguments: ['@Psr\Log\LoggerInterface', '@Symfony\Component\EventDispatcher\EventDispatcherInterface']
+    tags:
+      - { name: 'console.command', command: 'cron:hourly' }
+  vrok.symfony_addons.cron_monthly_command:
+    class: Vrok\SymfonyAddons\Command\CronMonthlyCommand
+    arguments: ['@Psr\Log\LoggerInterface', '@Symfony\Component\EventDispatcher\EventDispatcherInterface']
+    tags:
+      - { name: 'console.command', command: 'cron:monthly' }
+
+  Vrok\SymfonyAddons\Encoder\MultipartDecoder:
+    arguments: ['@request_stack']
+    tags:
+      - { name: 'serializer.encoder' }
+
+  Vrok\SymfonyAddons\Twig\Extension\FormatBytesExtension:
+    tags:
+      - { name: 'twig.extension' }

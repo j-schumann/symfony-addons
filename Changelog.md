@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2023-07-20
+### Added
+* `PropertyMarkingStore`, `WorkflowHelper` for use with Symfony workflows 
+* `FormatBytesExtension` for Twig
+* `MultipartDecoder` for file uploads (with ApiPlatform)
+
+## Updated
+* Bundle structure to new best practices
+
 ## [2.4.0] - 2023-06-17
 ### Fixed
 * AtLeastOneOf validator with All() constraint
