@@ -698,6 +698,9 @@ Outputs: 9.34 MiB
 
 ### composer.json dev
 
+* _doctrine/data-fixtures_ is automatically installed by the doctrine-fixtures bundle,
+  but we need to pin the minimal version as the versions before 1.5.2 are not
+  compatible with DBAL < 3 (@see https://github.com/doctrine/data-fixtures/pull/370)
 * _doctrine/doctrine-fixtures-bundle_ is required for tests of the ApiPlatformTestCase
 * _symfony/browser-kit_ is required for tests of the MultipartDecoder
 * _symfony/mailer_ is required for tests of the AutoSenderSubscriber
@@ -710,8 +713,7 @@ Outputs: 9.34 MiB
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
-* tests for `AuthenticatedClientTrait`, 
-  `RefreshDatabaseTrait`
+* tests for `AuthenticatedClientTrait`, `RefreshDatabaseTrait`
 * `ApiPlatformTestCase` should no longer use `AuthenticatedClientTrait` but
   use its own getJWT() and make the User class configurable like the fixtures.
 * tests for QueryBuilderHelper
