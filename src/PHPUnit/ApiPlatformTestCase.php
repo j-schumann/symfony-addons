@@ -6,6 +6,8 @@ namespace Vrok\SymfonyAddons\PHPUnit;
 
 use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Symfony\Bundle\Test\Client;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
@@ -49,6 +51,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         // 'hydra:description' varies
     ];
 
+    protected static ?Client $httpClient = null;
+
     /**
      * The params *must* contain either 'iri' or 'uri', all other settings are
      * optional.
@@ -68,6 +72,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * method:             HTTP method for the request, defaults to GET
      * requestOptions:     options for the HTTP client, e.g. query parameters or
      *                     basic auth
+     * files:              array of files to upload
      * responseCode:       asserts that the received status code matches
      * contentType:        asserts that the received content type header matches
      * json:               asserts that the returned content is JSON and
@@ -88,13 +93,32 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                     to the message bus
      * dispatchedMessages: array of message classes, asserts that at least one instance
      *                     of each given class has been dispatched to the message bus
+     * skipRefresh:        if true the database will not be refreshed before
+     *                     the operation, to allow calling testOperation()
+     *                     multiple times after each other in one testcase
      */
     protected function testOperation(array $params): ResponseInterface
     {
+        // in some cases we want two testOperations to be executed in one
+        // testcase after each other, without refreshing the database. But
+        // we cannot separate booting the kernel / refreshing from creating
+        // the TestClient because of all the private methods and client properties
+        // in ApiTestCase. So we have to keep our own reference to the client
+        // to be able to re-use it, to keep the assertion methods working
+        if (self::$httpClient && ($params['skipRefresh'] ?? false)) {
+            $client = self::$httpClient;
+        }
+        else {
+            $client = static::$httpClient = static::createClient();
+        }
+
         if (isset($params['email'])) {
-            $client = static::createAuthenticatedClient(['email' => $params['email']]);
-        } else {
-            $client = static::createClient();
+            $token = static::getJWT(static::getContainer(), ['email' => $params['email']]);
+            $client->setDefaultOptions([
+                'headers' => [
+                    'Authorization' => sprintf('Bearer %s', $token),
+                ],
+            ]);
         }
 
         // called after createClient as this forces the kernel boot which in
@@ -113,6 +137,20 @@ abstract class ApiPlatformTestCase extends ApiTestCase
 
         $params['method'] ??= 'GET';
         $params['requestOptions'] ??= [];
+
+        if (isset($params['files'])) {
+            $params['requestOptions']['extra']['files'] ??= [];
+            $params['requestOptions']['headers']['content-type'] ??= 'multipart/form-data';
+
+            foreach ($params['files'] as $key => $fileData) {
+                $params['requestOptions']['extra']['files'][$key] =
+                    static::prepareUploadedFile(
+                        $fileData['path'],
+                        $fileData['originalName'],
+                        $fileData['mimeType'],
+                    );
+            }
+        }
 
         if ('PATCH' === $params['method']) {
             $params['requestOptions']['headers']['content-type'] ??= 'application/merge-patch+json';
@@ -216,6 +254,31 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         }
 
         return $response;
+    }
+
+    /**
+     * Creates a copy of the file given via $path and returns a UploadedFile
+     * to be given to testOperation() / the kernelBrowser to unit test
+     * file uploads.
+     */
+    public static function prepareUploadedFile(
+        string $path,
+        string $originalName,
+        string $mimeType
+    ): UploadedFile
+    {
+        // don't directly use the given file as the upload handler will
+        // most probably move or delete the received file -> copy to temp file
+        $filename = tempnam(sys_get_temp_dir(), __METHOD__);
+        copy($path, $filename);
+
+        return new UploadedFile(
+            $filename,
+            $originalName,
+            $mimeType,
+            null,
+            true
+        );
     }
 
     public static function tearDownAfterClass(): void

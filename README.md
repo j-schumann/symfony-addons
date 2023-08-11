@@ -83,6 +83,342 @@ See `Vrok\SymfonyAddons\Helper\PasswordStrength` for details on the calculation.
 
 ## PHPUnit helpers
 
+### Using the ApiPlatformTestCase
+
+This class is used to test ApiPlatform endpoints by specifying input data
+and verifying the response data. It combines the traits documented below
+to refresh the database before each test, optionally create authenticated
+requests and check for created logs / sent emails / dispatched messages.
+It allows to easily check for expected response content, allowed or forbidden
+keys in the data or to verify against a given schema.
+
+```php
+<?php
+
+use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
+
+class AuthApiTest extends ApiPlatformTestCase
+{
+    public function testAuthRequiresPassword(): void
+    {
+        $this->testOperation([
+            'uri'            => '/authentication_token',
+            'method'         => 'POST',
+            'requestOptions' => ['json' => ['username' => 'fakeuser']],
+            'responseCode'   => 400,
+            'contentType'    => 'application/json',
+            'json'           => [
+                'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
+                'title'  => 'An error occurred',
+                'detail' => 'The key "password" must be provided.',
+            ],
+        ]);
+    }
+}
+```
+
+<table>
+<tr>
+<th>Option</th>
+<th>Usage</th>
+<th>Example</th>
+</tr>
+
+<tr>
+<td>skipRefresh</td>
+<td>
+ if set & true the database will not be refreshed before the request,
+ to allow using two calls to `testOperation` in one testcase, e.g. uploading
+ & deleting a file with two requests
+</td>
+<td>
+
+`'skipRefresh' => true`
+
+</td>
+</tr>
+
+<tr>
+<td>prepare</td>
+<td>Callable, to be executed _after_ the kernel was booted and the DB refreshed, but _before_ the request is made</td>
+<td>
+
+```php
+'prepare' => static function (ContainerInterface $container, array &$params): void {
+      $em = $container->get('doctrine')->getManager();
+
+      $log = new ActionLog();
+      $log->action = ActionLog::FAILED_LOGIN;
+      $log->ipAddress = '127.0.0.1';
+      $em->persist($log);
+      $em->flush();
+
+      $params['requestOptions']['query']['id'] = $log->id; 
+}
+```
+
+</td>
+</tr>
+
+<tr>
+<td>uri</td>
+<td>
+ the URI / endpoint to call
+</td>
+<td>
+
+`'uri' => '/users'`
+
+</td>
+</tr>
+
+<tr>
+<td>iri</td>
+<td>
+
+an array of `[classname, [field => value]]` that is used to fetch a record
+from the database, determine its IRI, which is then used as URI for the request
+
+</td>
+<td>
+
+`'iri' => [User::class, [email => 'test@test.de']]`
+
+</td>
+</tr>
+
+<tr>
+<td>email</td>
+<td>
+if given, tries to find a User with that email and sends
+the request authenticated as this user with lexikJWT bundle 
+</td>
+<td>
+
+`'email' => 'test@test.de'`
+
+</td>
+</tr>
+
+<tr>
+<td>method</td>
+<td>
+
+HTTP method for the request, defaults to GET. If PATCH is used, the content-type
+header is automatically set to `application/merge-patch+json` (if not already
+specified)
+
+</td>
+<td>
+
+`'method' => 'POST'`
+
+</td>
+</tr>
+
+<tr>
+<td>requestOptions</td>
+<td>
+options for the HTTP client, e.g. query parameters or basic auth
+</td>
+<td>
+
+```php
+'requestOptions' => [
+  'json' => [
+    'username' => 'Peter',
+    'email'    => 'peter@example.com',
+  ],
+  
+  // or:
+  'query' =>  [
+    'order' => ['createdAt' => 'asc'],
+  ],
+  
+  // or:
+  'headers' => ['content-type' => 'application/json'],
+]
+```
+
+</td>
+</tr>
+
+<tr>
+<td>files</td>
+<td>
+
+An array of one or more files to upload. The files will be copied to a temp file,
+and wrapped in an `UploadedFile`, so the tested application can move/delete it
+as it needs to. If this option is used, the content-type header is automatically
+set to `multipart/form-data` (if not already specified)
+
+</td>
+<td>
+
+```php
+'files' => [
+  'picture' => [
+    'path'         => '/path/to/file.png',
+    'originalName' => 'mypicture.png',
+    'mimeType'     => 'image/png',
+  ]
+]
+```
+
+</td>
+</tr>
+
+<tr>
+<td>responseCode</td>
+<td>
+asserts that the received status code matches
+</td>
+<td>
+
+`'responseCode' => 201`
+
+</td>
+</tr>
+
+<tr>
+<td>contentType</td>
+<td>
+asserts that the received content type header matches
+</td>
+<td>
+
+`'contentType' => 'application/ld+json; charset=utf-8'`
+
+</td>
+</tr>
+
+<tr>
+<td>json</td>
+<td>
+asserts that the returned content is JSON and contains the given array as subset
+</td>
+<td>
+
+```php
+'json' => [
+  'username' => 'Peter',
+  'email'    => 'peter@example.com',
+]
+```
+
+</td>
+</tr>
+
+<tr>
+<td>requiredKeys</td>
+<td>
+asserts the dataset contains the list of keys. Used for elements where the value 
+is not known in advance, e.g. ID, slug, timestamps. Can be nested.
+</td>
+<td>
+
+```php
+'requiredKeys' => ['hydra:member'][0]['id', '@id']
+```
+
+</td>
+</tr>
+
+<tr>
+<td>forbiddenKeys</td>
+<td>
+like requiredKeys, but the dataset may not contain those
+</td>
+<td>
+
+```php
+'forbiddenKeys' => ['hydra:member'][0]['password', 'salt']
+```
+
+</td>
+</tr>
+
+<tr>
+<td>schemaClass</td>
+<td>
+Asserts that the received response matches the JSON schema for the given class.
+If the `iri` parameter is used or the request method is *not* GET, the item
+schema is used. Else the collection schema is used.
+</td>
+<td>
+
+```php
+'schemaClass' => User::class,
+```
+
+</td>
+</tr>
+
+<tr>
+<td>createdLogs</td>
+<td>
+array of entries, asserts the messages to be present (with the correct log level)
+in the monolog handlers after the operation ran
+</td>
+<td>
+
+```php
+'createdLogs'    => [
+  ['Failed to validate the provider', Level::Error],
+],
+```
+
+</td>
+</tr>
+
+<tr>
+<td>emailCount</td>
+<td>
+asserts this number of emails to be sent via the mailer after the operation was executed
+</td>
+<td>
+
+```php
+ 'emailCount' => 2,
+```
+
+</td>
+</tr>
+
+<tr>
+<td>messageCount</td>
+<td>
+asserts this number of messages to be dispatched to the message bus
+</td>
+<td>
+
+```php
+ 'messageCount' => 2,
+```
+
+</td>
+</tr>
+
+<tr>
+<td>dispatchedMessages</td>
+<td>
+array of message classes, asserts that at least one instance of each given class 
+has been dispatched to the message bus
+</td>
+<td>
+
+```php
+'dispatchedMessages' => [
+  TenantCreatedMessage::class,
+],
+```
+
+</td>
+</tr>
+
+</table>
+
+
 ### Using the RefreshDatabaseTrait
 
 (Re-)Creates the DB schema for each test, removes existing data and fills the tables
@@ -372,5 +708,7 @@ Outputs: 9.34 MiB
 ### Open ToDos
 * tests for `ApiPlatformTestCase::testOperation`, `AuthenticatedClientTrait`, 
   `RefreshDatabaseTrait` -> requires doctrine/fixtures-bundle
+* `ApiPlatformTestCase` should no longer use `AuthenticatedClientTrait` but
+  use its own getJWT() and make the User class configurable like the fixtures.
 * tests for QueryBuilderHelper
 * compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper

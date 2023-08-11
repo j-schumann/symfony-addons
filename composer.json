@@ -19,6 +19,7 @@
         "phpunit/phpunit": "^9.6.10",
         "roave/security-advisories": "dev-latest",
         "symfony/browser-kit": "^6.2",
+        "symfony/http-client": "^6.2",
         "symfony/mailer": "^6.2",
         "symfony/doctrine-messenger": "^6.2",
         "symfony/monolog-bundle": "^3.8.0",
