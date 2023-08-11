@@ -107,8 +107,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         // to be able to re-use it, to keep the assertion methods working
         if (self::$httpClient && ($params['skipRefresh'] ?? false)) {
             $client = self::$httpClient;
-        }
-        else {
+        } else {
             $client = static::$httpClient = static::createClient();
         }
 
@@ -265,8 +264,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         string $path,
         string $originalName,
         string $mimeType
-    ): UploadedFile
-    {
+    ): UploadedFile {
         // don't directly use the given file as the upload handler will
         // most probably move or delete the received file -> copy to temp file
         $filename = tempnam(sys_get_temp_dir(), __METHOD__);

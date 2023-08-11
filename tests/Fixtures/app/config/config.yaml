@@ -44,7 +44,7 @@ doctrine:
     mappings:
       Fixtures:
         is_bundle: false
-        dir: 'tests/Fixtures/Entity'
+        dir: '%kernel.project_dir%/../Entity'
         prefix: 'Vrok\SymfonyAddons\Tests\Fixtures\Entity'
         alias: Fixtures
         type: attribute

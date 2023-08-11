@@ -92,6 +92,9 @@ requests and check for created logs / sent emails / dispatched messages.
 It allows to easily check for expected response content, allowed or forbidden
 keys in the data or to verify against a given schema.
 
+Requires "symfony/browser-kit" & "symfony/http-client" to be installed
+(and of cause ApiPlatform).
+
 ```php
 <?php
 
@@ -695,6 +698,7 @@ Outputs: 9.34 MiB
 
 ### composer.json dev
 
+* _doctrine/doctrine-fixtures-bundle_ is required for tests of the ApiPlatformTestCase
 * _symfony/browser-kit_ is required for tests of the MultipartDecoder
 * _symfony/mailer_ is required for tests of the AutoSenderSubscriber
 * _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
@@ -706,8 +710,8 @@ Outputs: 9.34 MiB
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
-* tests for `ApiPlatformTestCase::testOperation`, `AuthenticatedClientTrait`, 
-  `RefreshDatabaseTrait` -> requires doctrine/fixtures-bundle
+* tests for `AuthenticatedClientTrait`, 
+  `RefreshDatabaseTrait`
 * `ApiPlatformTestCase` should no longer use `AuthenticatedClientTrait` but
   use its own getJWT() and make the User class configurable like the fixtures.
 * tests for QueryBuilderHelper

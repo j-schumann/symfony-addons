@@ -1,9 +1,12 @@
-<?php /** @noinspection PhpIllegalPsrClassPathInspection */
+<?php
+
+/** @noinspection PhpIllegalPsrClassPathInspection */
 
 declare(strict_types=1);
 
 use ApiPlatform\Symfony\Bundle\ApiPlatformBundle;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\MonologBundle\MonologBundle;
@@ -12,6 +15,7 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Session\SessionFactory;
 use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 class AppKernel extends Kernel
 {
@@ -22,6 +26,7 @@ class AppKernel extends Kernel
         $bundles = [
             new FrameworkBundle(),
             new DoctrineBundle(),
+            new DoctrineFixturesBundle(),
             new MonologBundle(),
             new TwigBundle(),
             new ApiPlatformBundle(),
@@ -56,5 +61,10 @@ class AppKernel extends Kernel
             'router'               => ['utf8' => true],
             'http_method_override' => false,
         ]);
+    }
+
+    protected function configureRoutes(RoutingConfigurator $routes): void
+    {
+        $routes->import(__DIR__.'/config/routes.yaml');
     }
 }

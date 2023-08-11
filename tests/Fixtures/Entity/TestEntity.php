@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Tests\Fixtures\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ApiResource]
 #[ORM\Entity]
 class TestEntity
 {

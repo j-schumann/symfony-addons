@@ -112,6 +112,4 @@ class ApiPlatformTestCaseTest extends KernelTestCase
         $this->expectExceptionMessage($msg);
         ApiPlatformTestCase::assertDatasetNotHasKeys($keys, $data);
     }
-
-    // @todo test testOperation?
 }
