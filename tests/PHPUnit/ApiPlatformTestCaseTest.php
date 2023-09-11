@@ -13,7 +13,7 @@ use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
  */
 class ApiPlatformTestCaseTest extends KernelTestCase
 {
-    protected function hasKeysSuccessProvider(): array
+    public static function hasKeysSuccessProvider(): array
     {
         $data = [
             'simple' => 1,
@@ -42,7 +42,7 @@ class ApiPlatformTestCaseTest extends KernelTestCase
         ApiPlatformTestCase::assertDatasetHasKeys($keys, $data);
     }
 
-    protected function hasKeysThrowsProvider(): array
+    public static function hasKeysThrowsProvider(): array
     {
         return [
             // key not found
@@ -69,7 +69,7 @@ class ApiPlatformTestCaseTest extends KernelTestCase
         ApiPlatformTestCase::assertDatasetHasKeys($keys, $data);
     }
 
-    protected function notHasKeysSuccessProvider(): array
+    public static function notHasKeysSuccessProvider(): array
     {
         return [
             [['irrelevant' => 1], ['simple']],
@@ -89,7 +89,7 @@ class ApiPlatformTestCaseTest extends KernelTestCase
         ApiPlatformTestCase::assertDatasetNotHasKeys($keys, $data);
     }
 
-    protected function notHasKeysThrowsProvider(): array
+    public static function notHasKeysThrowsProvider(): array
     {
         return [
             [['fail1' => true], ['fail1'], 'Dataset should not have key [fail1]!'],

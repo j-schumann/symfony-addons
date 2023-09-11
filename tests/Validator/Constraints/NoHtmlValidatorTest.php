@@ -15,7 +15,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         return new NoHtmlValidator();
     }
 
-    public function getValid(): array
+    public static function getValid(): array
     {
         return [
             ['teststring'],
@@ -30,7 +30,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalid(): array
+    public static function getInvalid(): array
     {
         return [
             ['This is <b>bold</b>'],

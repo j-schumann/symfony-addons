@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2023-09-11
+### Added
+* `ArrayUtil` class with `mergeValues` to merge 2 or more arrays and keep
+  all values instead of skipping/overwriting and not produce duplicates
+
 ## [2.6.0] - 2023-08-11
 ### Added
 * ApiPlatformTestCase now supports file uploads

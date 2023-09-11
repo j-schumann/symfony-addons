@@ -15,7 +15,7 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
         return new RegexValidator();
     }
 
-    public function getValid(): array
+    public static function getValid(): array
     {
         return [
             ["test\tstring"], // tab inside
@@ -35,7 +35,7 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalid(): array
+    public static function getInvalid(): array
     {
         return [
             // whitespace character at the beginning or end:

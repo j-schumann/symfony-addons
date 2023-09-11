@@ -125,7 +125,7 @@ trait RefreshDatabaseTrait
             $schemaTool->dropDatabase();
         }
 
-        $schemaTool->updateSchema($metadatas, false);
+        $schemaTool->updateSchema($metadatas);
     }
 
     /**

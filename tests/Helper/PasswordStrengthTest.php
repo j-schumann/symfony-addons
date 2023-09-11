@@ -9,7 +9,7 @@ use Vrok\SymfonyAddons\Helper\PasswordStrength;
 
 class PasswordStrengthTest extends TestCase
 {
-    public function getValues(): array
+    public static function getValues(): array
     {
         return [
             ['', -6.0],

@@ -15,7 +15,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         return new PasswordStrengthValidator();
     }
 
-    public function getValid(): array
+    public static function getValid(): array
     {
         return [
             ['password of multiple words'],
@@ -23,7 +23,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalid(): array
+    public static function getInvalid(): array
     {
         return [
             ['1234567890'],

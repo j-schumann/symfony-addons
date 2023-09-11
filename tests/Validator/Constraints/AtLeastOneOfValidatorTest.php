@@ -21,7 +21,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         return new AtLeastOneOfValidator();
     }
 
-    public function getValid(): array
+    public static function getValid(): array
     {
         return [
             [null],
@@ -30,7 +30,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalid(): array
+    public static function getInvalid(): array
     {
         return [
             [' '],
@@ -38,7 +38,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getValidSequentially(): array
+    public static function getValidSequentially(): array
     {
         return [
             [null],
@@ -47,7 +47,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalidSequentially(): array
+    public static function getInvalidSequentially(): array
     {
         return [
             [' ', 'minMessage'],
@@ -56,7 +56,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getValidAll(): array
+    public static function getValidAll(): array
     {
         return [
             [null],
@@ -65,7 +65,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalidAll(): array
+    public static function getInvalidAll(): array
     {
         return [
             [[' '], 'minMessage'],

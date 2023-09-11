@@ -15,7 +15,7 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         return new RegexValidator();
     }
 
-    public function getValid(): array
+    public static function getValid(): array
     {
         return [
             ["test\tstring"], // tab
@@ -26,7 +26,7 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    public function getInvalid(): array
+    public static function getInvalid(): array
     {
         return [
             ["new\nline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
