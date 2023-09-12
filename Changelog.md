@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2023-09-12
+### Added
+- `ArrayUtil` class with `mergeValues` to merge 2 or more arrays and keep all
+  values instead of skipping/overwriting and not produce duplicates
+
+### Changed
+- Add incompatiblity with symfony/validator >= 6.3: This version added
+  new parameters to the constraint violations and changed the parameters
+  of some constraints -> use vrok/symfony-addons >= 2
+
 ## [1.10.0] - 2023-03-15
 ### Added
 - AtLeastOneOf constraint supports a custom message if set

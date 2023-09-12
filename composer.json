@@ -11,12 +11,15 @@
     },
     "require-dev": {
         "api-platform/core": "^2.6.8",
-        "friendsofphp/php-cs-fixer": "^3.5.0",
+        "friendsofphp/php-cs-fixer": "^3.26.1",
         "monolog/monolog": "2.5.0",
-        "phpunit/phpunit": "^9.5.25",
+        "phpunit/phpunit": "^9.6.11",
         "roave/security-advisories": "dev-latest",
         "symfony/mailer": "^5.4.0|^6.0.0",
-        "symfony/validator": "^5.4.0|^6.0.0"
+        "symfony/validator": ">=5.4.0, <6.3.0"
+    },
+    "conflict": {
+        "symfony/validator": ">=6.3.0"
     },
     "autoload": {
         "psr-4": {
