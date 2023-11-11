@@ -20,11 +20,13 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     use MonologAssertsTrait;
     use RefreshDatabaseTrait;
 
+    // currently (2023-11-11) returned with ApiPlatform 3.1 + 3.2
     protected const UNAUTHENTICATED_RESPONSE = [
         'code'    => 401,
         'message' => 'JWT Token not found',
     ];
 
+    // region Hydra results returned by ApiPlatform <= 3.1
     protected const ERROR_RESPONSE = [
         '@context'    => '/contexts/Error',
         '@type'       => 'hydra:Error',
@@ -50,6 +52,112 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'hydra:title' => 'An error occurred',
         // 'hydra:description' varies
     ];
+    // endregion
+
+    // region constants for ApiPlatform >= 3.2
+    // this should be returned for RFC 7807 compliant errors
+    public const PROBLEM_CONTENT_TYPE = 'application/problem+json; charset=utf-8';
+
+    public const PROBLEM_400 = [
+        // 'detail' => 'The key "username" must be provided.', // varies
+        'status' => 400,
+        'title'  => 'An error occurred',
+        'type'   => '/errors/400',
+    ];
+    public const PROBLEM_403 = [
+        // 'detail' => 'Filter "locked" is forbidden for non-admins!', // varies
+        'status' => 403,
+        'title'  => 'An error occurred',
+        'type'   => '/errors/403',
+    ];
+    public const PROBLEM_ACCESS_DENIED = [
+        'detail' => 'Access Denied.',
+        'status' => 403,
+        'title'  => 'An error occurred',
+        'type'   => '/errors/403',
+    ];
+    public const PROBLEM_404 = [
+        // 'detail' => 'No route found for "GET http://localhost/proposals"', // varies
+        'status' => 404,
+        'title'  => 'An error occurred',
+        'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
+    ];
+    public const PROBLEM_NOT_FOUND = [
+        'detail' => 'Not Found',
+        'status' => 404,
+        'title'  => 'An error occurred',
+        'type'   => '/errors/404',
+    ];
+    public const PROBLEM_405 = [
+        // 'detail' => 'No route found for "PATCH http://localhost/verifications/1": Method Not Allowed (Allow: GET)', // varies
+        'status' => 405,
+        'title'  => 'An error occurred',
+        'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
+    ];
+    public const PROBLEM_422 = [
+        // 'detail' => 'description: validate.general.tooShort', // varies
+        'status'     => 422,
+        'title'      => 'An error occurred',
+        // 'type' => '/validation_errors/9ff3fdc4-b214-49db-8718-39c315e33d45', // varies
+        'violations' => [
+            // varying list of violations:
+            // [
+            //    'propertyPath' => 'description',
+            //    'message' => 'validate.general.tooShort',
+            //    'code' => '9ff3fdc4-b214-49db-8718-39c315e33d45',
+            // ],
+        ],
+    ];
+    public const PROBLEM_500 = [
+        // 'detail' => 'detail' => 'platform.noDefaultRatePlan', // varies
+        'status' => 500,
+        'title'  => 'An error occurred',
+        'type'   => '/errors/500',
+    ];
+
+    public const HYDRA_PROBLEM_400 = [
+        '@id'         => '/errors/400',
+        '@type'       => 'hydra:Error',
+        // 'hydra:description' => '"name" is required', // varies
+        'hydra:title' => 'An error occurred',
+    ] + self::PROBLEM_400;
+    public const HYDRA_PROBLEM_403 = [
+        '@id'               => '/errors/403',
+        '@type'             => 'hydra:Error',
+        'hydra:description' => '@todo',
+        'hydra:title'       => 'An error occurred',
+    ] + self::PROBLEM_403;
+    public const HYDRA_PROBLEM_ACCESS_DENIED = [
+        '@id'               => '/errors/403',
+        '@type'             => 'hydra:Error',
+        'hydra:description' => 'Access Denied.',
+        'hydra:title'       => 'An error occurred',
+    ] + self::PROBLEM_ACCESS_DENIED;
+    public const HYDRA_PROBLEM_404 = [
+        '@id'               => '/errors/404',
+        '@type'             => 'hydra:Error',
+        'hydra:description' => '@todo',
+        'hydra:title'       => 'An error occurred',
+    ] + self::PROBLEM_404;
+    public const HYDRA_PROBLEM_NOT_FOUND = [
+        '@id'               => '/errors/404',
+        '@type'             => 'hydra:Error',
+        'hydra:description' => 'Not Found',
+        'hydra:title'       => 'An error occurred',
+        ] + self::PROBLEM_NOT_FOUND;
+    public const HYDRA_PROBLEM_422 = [
+        // '@id' => '/validation_errors/9ff3fdc4-b214-49db-8718-39c315e33d45', // varies
+        '@type'       => 'ConstraintViolationList',
+        // 'hydra:description' => 'description: validate.general.tooShort', // varies
+        'hydra:title' => 'An error occurred',
+    ] + self::PROBLEM_422;
+    public const HYDRA_PROBLEM_500 = [
+        '@id'               => '/errors/500',
+        '@type'             => 'hydra:Error',
+        'hydra:description' => 'Not Found',
+        'hydra:title'       => 'An error occurred',
+    ] + self::PROBLEM_500;
+    // endregion
 
     protected static ?Client $httpClient = null;
 
@@ -331,11 +439,13 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         }
     }
 
-    protected function getIriFromResource(object $item): string
+    // @todo exists in the parent ApiTestCase since ?. Cannot overwrite a
+    // non-static method with a static one -> we would need a new name
+    protected function getIriFromResource(object $resource): string
     {
         /** @var IriConverterInterface $iriConverter */
         $iriConverter = static::getContainer()->get('api_platform.iri_converter');
 
-        return $iriConverter->getIriFromResource($item);
+        return $iriConverter->getIriFromResource($resource);
     }
 }
