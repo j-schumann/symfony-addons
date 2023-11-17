@@ -204,6 +204,23 @@ the request authenticated as this user with lexikJWT bundle
 </tr>
 
 <tr>
+<td>postFormAuth</td>
+<td>
+if given (and 'email' is set) the JWT from Lexik is sent as 'application/x-www-form-urlencoded'
+request in a form field.<br />
+This is used for download endpoints where the browser should present the user
+with the file to download instead of loading it into memory via Javascript.
+(As we don't want to supply the token via GET to prevent security issues and
+as we cannot set a cookie.)
+</td>
+<td>
+
+`'postFormAuth' => 'bearer'`
+
+</td>
+</tr>
+
+<tr>
 <td>method</td>
 <td>
 
@@ -662,15 +679,41 @@ doctrine:
 
 ## MultipartDecoder
 
-Adding this bundle to the `bundles.php` registers the MultipartDecoder
+Adding this bundle to the `bundles.php` registers the `MultipartDecoder`
 to allow handling of file uploads with additional data (e.g. in ApiPlatform):
 
 ```php
     Vrok\SymfonyAddons\VrokSymfonyAddonsBundle::class => ['all' => true],
 ```
 
-The decoder is automatically called for `multipart/form-data` requests and
-simply returns all POST parameters and uploaded files together.
+The decoder is automatically called for `multipart` requests and
+simply returns all POST parameters and uploaded files together. To enable
+this add the `multipart` format to your `config\api_platform.yaml`:
+
+```yaml
+api_platform:
+    formats:
+        multipart: ['multipart/form-data']
+```
+
+## FormDecoder
+
+Adding this bundle to the `bundles.php` registers the `FormDecoder`
+to allow handling HTML form data in ApiPlatform:
+
+```php
+    Vrok\SymfonyAddons\VrokSymfonyAddonsBundle::class => ['all' => true],
+```
+
+The decoder is automatically called for `form` requests and
+simply returns all POST parameters. To enable this add the `form` format to your
+`config\api_platform.yaml`:
+
+```yaml
+api_platform:
+    formats:
+      form: ['application/x-www-form-urlencoded']
+```
 
 ## Twig Extensions
 

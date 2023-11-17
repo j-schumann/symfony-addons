@@ -177,6 +177,9 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                     IDs/IRIs from the DB.
      * email:              if given, tries to find a User with that email and sends
      *                     the request authenticated as this user with lexikJWT
+     * postFormAuth:       if given together with 'email', sends the JWT as
+     *                     'application/x-www-form-urlencoded' request in the
+     *                     given field name
      * method:             HTTP method for the request, defaults to GET
      * requestOptions:     options for the HTTP client, e.g. query parameters or
      *                     basic auth
@@ -221,11 +224,25 @@ abstract class ApiPlatformTestCase extends ApiTestCase
 
         if (isset($params['email'])) {
             $token = static::getJWT(static::getContainer(), ['email' => $params['email']]);
-            $client->setDefaultOptions([
-                'headers' => [
-                    'Authorization' => sprintf('Bearer %s', $token),
-                ],
-            ]);
+
+            if ($params['postFormAuth'] ?? false) {
+                $client->setDefaultOptions([
+                    'headers' => [
+                        'content-type' => 'application/x-www-form-urlencoded',
+                    ],
+                    'extra'   => [
+                        'parameters' => [
+                            $params['postFormAuth'] => $token,
+                        ],
+                    ],
+                ]);
+            } else {
+                $client->setDefaultOptions([
+                    'headers' => [
+                        'Authorization' => sprintf('Bearer %s', $token),
+                    ],
+                ]);
+            }
         }
 
         // called after createClient as this forces the kernel boot which in

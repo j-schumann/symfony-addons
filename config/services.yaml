@@ -15,6 +15,11 @@ services:
     tags:
       - { name: 'console.command', command: 'cron:monthly' }
 
+  Vrok\SymfonyAddons\Encoder\FormDecoder:
+    arguments: ['@request_stack']
+    tags:
+      - { name: 'serializer.encoder' }
+
   Vrok\SymfonyAddons\Encoder\MultipartDecoder:
     arguments: ['@request_stack']
     tags:
