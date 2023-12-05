@@ -8,6 +8,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * ApiPlatformTestCase now has constants for RFC 7807 problem responses
 * ApiPlatformTestCase::testOperation now has a 'postFormAuth' option
 * `FormDecoder` to decode 'application/x-www-form-urlencoded' requests
+* Support Symfony 7
+
+### Updated
+* Setting the `message` for the `AtLeastOneOf` constraint to the empty string
+  now behaves the same as `NULL` previously, meaning if the message is empty
+  the last failing constraints message is returned.
 
 ## [2.7.0] - 2023-09-11
 ### Added

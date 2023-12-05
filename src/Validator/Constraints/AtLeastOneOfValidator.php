@@ -33,8 +33,9 @@ class AtLeastOneOfValidator extends ConstraintValidator
                 return;
             }
 
-            $lastMessage = $constraint->message
-                ?: $violations->get(\count($violations) - 1)->getMessage();
+            $lastMessage = $constraint->message === ''
+                ? $violations->get(\count($violations) - 1)->getMessage()
+                : $constraint->message;
         }
 
         $this->context->buildViolation($lastMessage)

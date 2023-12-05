@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 30
     services:
       mariadb:
-        image: mariadb:11.1.2
+        image: mariadb:11.2.2
         env:
           MARIADB_USER: dbtest
           MARIADB_PASSWORD: dbtest
@@ -44,7 +44,7 @@ jobs:
         ports:
           - 3307:3306
       postgres:
-        image: postgres:13
+        image: postgres:16
         ports:
           - "5432:5432"
         env:
@@ -61,19 +61,20 @@ jobs:
         php:
           - '8.2'
           - '8.3'
+          - '8.4'
         dependencies: [lowest, highest]
         database: [sqlite]
         include:
-          - php: '8.2'
+          - php: '8.3'
             dependencies: highest
             coverage: true
-          - php: '8.2'
+          - php: '8.3'
             database: mariadb
             dependencies: highest
-          - php: '8.2'
+          - php: '8.3'
             database: mysql
             dependencies: highest
-          - php: '8.2'
+          - php: '8.3'
             database: postgres
             dependencies: highest
       fail-fast: false

@@ -50,8 +50,8 @@ class AppKernel extends Kernel
         $container->prependExtensionConfig('framework', [
             'property_access'      => ['enabled' => true],
             'secret'               => 'symfony.vrok',
-            'validation'           => ['enable_annotations' => true],
-            'serializer'           => ['enable_annotations' => true],
+            'validation'           => [],
+            'serializer'           => [],
             'test'                 => null,
             'session'              => class_exists(SessionFactory::class) ? ['storage_factory_id' => 'session.storage.factory.mock_file'] : ['storage_id' => 'session.storage.mock_file'],
             'profiler'             => [

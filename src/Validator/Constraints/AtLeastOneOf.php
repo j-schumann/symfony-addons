@@ -13,12 +13,17 @@ class AtLeastOneOf extends BaseAtLeastOneOf
         mixed $constraints = null,
         array $groups = null,
         mixed $payload = null,
-        string $message = null,
+        string $message = '',
         string $messageCollection = null
     ) {
-        parent::__construct($constraints, $groups, $payload, $message, $messageCollection);
-
-        // explicitely allow null / default to null:
-        $this->message = $message;
+        parent::__construct(
+            $constraints,
+            $groups,
+            $payload,
+            // previously (SF <= 6.4) this value could be NULL -> automatically
+            // convert to empty string now
+            $message ?? '',
+            $messageCollection
+        );
     }
 }
