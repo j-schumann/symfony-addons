@@ -15,6 +15,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   now behaves the same as `NULL` previously, meaning if the message is empty
   the last failing constraints message is returned.
 
+### Removed
+* Support for Symfony 6.2
+
 ## [2.7.0] - 2023-09-11
 ### Added
 * `ArrayUtil` class with `mergeValues` to merge 2 or more arrays and keep
