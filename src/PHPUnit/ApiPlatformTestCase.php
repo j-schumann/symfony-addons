@@ -89,10 +89,10 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'type'   => '/errors/404',
     ];
     public const PROBLEM_405 = [
-        // 'detail' => 'No route found for "PATCH http://localhost/verifications/1": Method Not Allowed (Allow: GET)', // varies
+        // 'detail' => 'No route found for "PATCH [...]": Method Not Allowed (Allow: GET)', // varies
         'status' => 405,
         'title'  => 'An error occurred',
-        'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
+        // 'type'   => 'https://tools.ietf.org/html/rfc2616#section-10', // varies
     ];
     public const PROBLEM_422 = [
         // 'detail' => 'description: validate.general.tooShort', // varies
@@ -136,8 +136,9 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     public const HYDRA_PROBLEM_404 = [
         '@id'               => '/errors/404',
         '@type'             => 'hydra:Error',
-        'hydra:description' => '@todo',
+        // 'hydra:description' => 'This route does not aim to be called.', // varies
         'hydra:title'       => 'An error occurred',
+        'type'              => '/errors/404',
     ] + self::PROBLEM_404;
     public const HYDRA_PROBLEM_NOT_FOUND = [
         '@id'               => '/errors/404',
@@ -145,6 +146,13 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'hydra:description' => 'Not Found',
         'hydra:title'       => 'An error occurred',
         ] + self::PROBLEM_NOT_FOUND;
+    public const HYDRA_PROBLEM_405 = [
+        '@id'               => '/errors/405',
+        '@type'             => 'hydra:Error',
+        // 'hydra:description' => 'No route found for "GET [...]": Method Not Allowed (Allow: POST)', // varies
+        'hydra:title'       => 'An error occurred',
+        'type'              => '/errors/405',
+    ] + self::PROBLEM_405;
     public const HYDRA_PROBLEM_422 = [
         // '@id' => '/validation_errors/9ff3fdc4-b214-49db-8718-39c315e33d45', // varies
         '@type'       => 'ConstraintViolationList',
