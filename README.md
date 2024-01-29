@@ -17,8 +17,8 @@ doesn't allow us to set a sender name.
 config/services.yaml:
 ```yaml
     Vrok\SymfonyAddons\EventSubscriber\AutoSenderSubscriber:
-        arguments:
-            $sender: "%env(MAILER_SENDER)%"
+      arguments:
+        $sender: "%env(MAILER_SENDER)%"
 ```
 
 .env[.local]:
@@ -38,16 +38,16 @@ config/services.yaml:
     # add a UID to the context, same UID for each HTTP request or console command
     # and with the event subscriber also for each message 
     Monolog\Processor\UidProcessor:
-        tags:
-            - { name: monolog.processor, handler: logstash }
+      tags:
+        - { name: monolog.processor, handler: logstash }
 
     # resets the UID when a message is received, flushed a buffer after a
     # message was handled. Add this multiple times if you want to flush more
     # channels, e.g. messenger
     app.event.reset_app_logger:
-        class: Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber
-        tags:
-            - { name: monolog.logger, channel: app }
+      class: Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber
+      tags:
+        - { name: monolog.logger, channel: app }
 ```
 
 ## Validators
@@ -57,21 +57,21 @@ Works like Symfony's own AtLeastOneOf constraint, but instead of returning a mes
 `This value should satisfy at least ...` it returns the message of the last failed validation.
 Can be used for obviously optional form fields where only simple messages should be
 displayed when `AtLeastOne` is used with `Blank` as first constraint.  
-See `AtLeastOneOfValidatorTest` for examples. 
+See `AtLeastOneOfValidatorTest` for examples.
 
 ### NoHtml
 This validator tries to detect if a string contains HTML, to allow only plain text.  
 See `NoHtmlValidatorTest` for examples of allowed / forbidden values.
 
 ### NoLineBreak
-This validator raises a violation if it detects one or more linebreak characters in 
+This validator raises a violation if it detects one or more linebreak characters in
 the validated string.  
 Detects unicode linebreaks, see `NoLineBreaksValidatorTest` for details.
 
 ### NoSurroundingWhitespace
 This validator raises a violation if it detects trailing or leading whitespace or
 newline characters in the validated string. Linebreaks and spaces are valid within the string.  
-Uses a regex looking for `\s` and `\R`, see `NoSurroundingWhitespaceValidatorTest` 
+Uses a regex looking for `\s` and `\R`, see `NoSurroundingWhitespaceValidatorTest`
 for details on detected characters.
 
 ### PasswordStrength
@@ -512,12 +512,12 @@ class ApiTest extends ApiTestCase
 
 ### Using the MonologAssertsTrait
 
-For use with an Symfony project using the monolog-bundle.  
+For use with a Symfony project using the monolog-bundle.  
 Requires `monolog/monolog` of v3.0 or higher.
 
 Include the trait in your testcase and call `prepareLogger` before triggering the
-action that should create logs and use `assertLoggerHasMessage` afterwards to check
-if a log record was created with the given message & severity:
+action that should create logs and use `assertLoggerHasMessage` afterward to check
+if a log record was created with the given message, severity and (optionally) context:
  ```php
 use Monolog\Level;
 use Psr\Log\LoggerInterface;
@@ -533,9 +533,9 @@ class LoggerTest extends KernelTestCase
         self::prepareLogger();
 
         $logger = static::getContainer()->get(LoggerInterface::class);
-        $logger->error('Failed to do something');
+        $logger->error('Failed to do something', ['status' => 1]);
         
-        self::assertLoggerHasMessage('Failed to do something', Level::Error);
+        self::assertLoggerHasMessage('Failed to do something', Level::Error, ['status' => 1]);
     }
 }
  ```
@@ -546,7 +546,7 @@ Require `symfony/workflow`.
 
 ### PropertyMarkingStore
 
-Can be used instead of the default `MethodMarkingStore`, for entities 
+Can be used instead of the default `MethodMarkingStore`, for entities
 & properties without Setter/Getter.
 
 workflow.yaml:
@@ -692,8 +692,8 @@ this add the `multipart` format to your `config\api_platform.yaml`:
 
 ```yaml
 api_platform:
-    formats:
-        multipart: ['multipart/form-data']
+  formats:
+    multipart: ['multipart/form-data']
 ```
 
 ## FormDecoder
@@ -711,8 +711,8 @@ simply returns all POST parameters. To enable this add the `form` format to your
 
 ```yaml
 api_platform:
-    formats:
-      form: ['application/x-www-form-urlencoded']
+  formats:
+    form: ['application/x-www-form-urlencoded']
 ```
 
 ## Twig Extensions
@@ -749,7 +749,7 @@ Outputs: 9.34 MiB
 * _symfony/mailer_ is required for tests of the AutoSenderSubscriber
 * _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
 * _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and ResetLoggerSubscriber
-* _symfony/phpunit-bridge_ must be at least v6.2.3 to prevent"Call to undefined method Doctrine\Common\Annotations\AnnotationRegistry::registerLoader()" 
+* _symfony/phpunit-bridge_ must be at least v6.2.3 to prevent"Call to undefined method Doctrine\Common\Annotations\AnnotationRegistry::registerLoader()"
 * _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
 * _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore
 * _monolog/monolog_ must be at least v3 for `Monolog\Level`

@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * Setting the `message` for the `AtLeastOneOf` constraint to the empty string
   now behaves the same as `NULL` previously, meaning if the message is empty
   the last failing constraints message is returned.
+* `assertLoggerHasMessage` optionally checks for given context of log messages
 
 ### Removed
 * Support for Symfony 6.2
@@ -33,7 +34,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [2.5.0] - 2023-07-20
 ### Added
-* `PropertyMarkingStore`, `WorkflowHelper` for use with Symfony workflows 
+* `PropertyMarkingStore`, `WorkflowHelper` for use with Symfony workflows
 * `FormatBytesExtension` for Twig
 * `MultipartDecoder` for file uploads (with ApiPlatform)
 
@@ -55,7 +56,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [2.3.0] - 2023-06-12
 ### Added
 - ApiPlatformTestCase: dispatched messages can be inspected with a callback
-- QueryBuilderHelper: simplify parameter & join handling, e.g. for 
+- QueryBuilderHelper: simplify parameter & join handling, e.g. for
   ApiPlatform QueryExtensions
 
 ### Fixed

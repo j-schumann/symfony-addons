@@ -25,14 +25,18 @@ trait MonologAssertsTrait
      * Asserts that the Logger service (monolog) has a log record with the given level
      * that contains the given message.
      */
-    public static function assertLoggerHasMessage(string $message, Level $level): void
+    public static function assertLoggerHasMessage(string $message, Level $level, array $context = null): void
     {
         /** @var Logger $logger */
         $logger = static::getContainer()->get(LoggerInterface::class);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
-                self::assertTrue($handler->hasRecordThatContains($message, $level), 'Logger has no message with the given level that contains the given string!');
+                $record = ['message' => $message];
+                if (null !== $context) {
+                    $record += ['context' => $context];
+                }
+                self::assertTrue($handler->hasRecord($record, $level), 'Logger has no message with the given level that contains the given string and the given context!');
 
                 return;
             }

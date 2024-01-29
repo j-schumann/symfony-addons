@@ -52,6 +52,28 @@ class MonologAssertsTraitTest extends KernelTestCase
         self::assertLoggerHasMessage('my debug message', Level::Debug);
     }
 
+    public function testHasMessagePassesWithContextCheck(): void
+    {
+        static::prepareLogger();
+
+        /** @var Logger $logger */
+        $logger = static::getContainer()->get(LoggerInterface::class);
+        $logger->debug('my debug message', ['data' => 'some data']);
+
+        self::assertLoggerHasMessage('my debug message', Level::Debug, ['data' => 'some data']);
+    }
+
+    public function testHasMessagePassesWithoutContextCheck(): void
+    {
+        static::prepareLogger();
+
+        /** @var Logger $logger */
+        $logger = static::getContainer()->get(LoggerInterface::class);
+        $logger->debug('my debug message', ['data' => 'some data']);
+
+        self::assertLoggerHasMessage('my debug message', Level::Debug);
+    }
+
     public function testHasMessageThrows(): void
     {
         static::prepareLogger();
@@ -61,7 +83,7 @@ class MonologAssertsTraitTest extends KernelTestCase
         $logger->debug('my test message');
 
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Logger has no message with the given level that contains the given string!');
+        $this->expectExceptionMessage('Logger has no message with the given level that contains the given string and the given context!');
         self::assertLoggerHasMessage('my debug message', Level::Debug);
     }
 
@@ -74,8 +96,21 @@ class MonologAssertsTraitTest extends KernelTestCase
         $logger->debug('my debug message');
 
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Logger has no message with the given level that contains the given string!');
+        $this->expectExceptionMessage('Logger has no message with the given level that contains the given string and the given context!');
         self::assertLoggerHasMessage('my debug message', Level::Error);
+    }
+
+    public function testHasMessageRespectsContext(): void
+    {
+        static::prepareLogger();
+
+        /** @var Logger $logger */
+        $logger = static::getContainer()->get(LoggerInterface::class);
+        $logger->debug('my debug message', ['data' => 'some data']);
+
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage('Logger has no message with the given level that contains the given string and the given context!');
+        self::assertLoggerHasMessage('my debug message', Level::Debug, ['status' => 1]);
     }
 
     public function testHasMessageRequiresTestHandler(): void
