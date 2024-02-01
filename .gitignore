@@ -13,7 +13,7 @@ composer.lock
 ###< friendsofphp/php-cs-fixer ###
 
 ###> phpunit/phpunit ###
-.phpunit.result.cache
+.phpunit.cache
 clover.xml
 phpunit.xml
 ###< phpunit/phpunit ###

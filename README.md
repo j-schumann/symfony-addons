@@ -749,7 +749,8 @@ Outputs: 9.34 MiB
 * _symfony/mailer_ is required for tests of the AutoSenderSubscriber
 * _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
 * _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and ResetLoggerSubscriber
-* _symfony/phpunit-bridge_ must be at least v6.2.3 to prevent"Call to undefined method Doctrine\Common\Annotations\AnnotationRegistry::registerLoader()" 
+* _symfony/phpunit-bridge_ must be at least v6.2.3 to prevent"Call to undefined method Doctrine\Common\Annotations\AnnotationRegistry::registerLoader()"
+* _symfony/string_ is required for API Platform's inflector
 * _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
 * _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore
 * _monolog/monolog_ must be at least v3 for `Monolog\Level`
