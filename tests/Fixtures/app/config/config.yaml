@@ -4,6 +4,10 @@ parameters:
   #env(DATABASE_URL): mysql://db_test:db_test@mysql/db_test
 
 framework:
+  handle_all_throwables: true
+  php_errors:
+    log: false
+
   messenger:
     transports:
       async:
@@ -12,6 +16,10 @@ framework:
           auto_setup: true
   session:
     handler_id: null
+    cookie_secure: auto
+    cookie_samesite: lax
+  validation:
+    email_validation_mode: html5
 
   workflows:
     demo:
