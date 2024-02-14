@@ -11,10 +11,10 @@ class AtLeastOneOf extends BaseAtLeastOneOf
 {
     public function __construct(
         mixed $constraints = null,
-        array $groups = null,
+        ?array $groups = null,
         mixed $payload = null,
         string $message = '',
-        string $messageCollection = null
+        ?string $messageCollection = null
     ) {
         parent::__construct(
             $constraints,

@@ -33,6 +33,6 @@ class CronDailyCommand extends Command
         $this->logger->info('Running CronDailyEvent');
         $this->dispatcher->dispatch(new CronDailyEvent());
 
-        return 0;
+        return self::SUCCESS;
     }
 }

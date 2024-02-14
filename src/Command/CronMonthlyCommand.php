@@ -33,6 +33,6 @@ class CronMonthlyCommand extends Command
         $this->logger->info('Running CronMonthlyEvent');
         $this->dispatcher->dispatch(new CronMonthlyEvent());
 
-        return 0;
+        return self::SUCCESS;
     }
 }

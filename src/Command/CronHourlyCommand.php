@@ -33,6 +33,6 @@ class CronHourlyCommand extends Command
         $this->logger->info('Running CronHourlyEvent');
         $this->dispatcher->dispatch(new CronHourlyEvent());
 
-        return 0;
+        return self::SUCCESS;
     }
 }
