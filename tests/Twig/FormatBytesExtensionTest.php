@@ -9,9 +9,6 @@ use Twig\Environment;
 use Twig\TwigFilter;
 use Vrok\SymfonyAddons\Twig\Extension\FormatBytesExtension;
 
-/**
- * @group FormatBytesExtension
- */
 class FormatBytesExtensionTest extends KernelTestCase
 {
     public function testFormatBytes(): void

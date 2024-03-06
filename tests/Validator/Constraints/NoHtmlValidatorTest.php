@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\NoHtml;
 use Vrok\SymfonyAddons\Validator\Constraints\NoHtmlValidator;
@@ -67,9 +68,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         $this->validator->validate(new \stdClass(), $constraint);
     }
 
-    /**
-     * @dataProvider getValid
-     */
+    #[DataProvider('getValid')]
     public function testValid($value): void
     {
         $constraint = new NoHtml();
@@ -79,9 +78,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
-    /**
-     * @dataProvider getInvalid
-     */
+    #[DataProvider('getInvalid')]
     public function testInvalid($value): void
     {
         $constraint = new NoHtml();

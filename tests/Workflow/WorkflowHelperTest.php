@@ -12,9 +12,6 @@ use Symfony\Component\Workflow\TransitionBlocker;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 use Vrok\SymfonyAddons\Workflow\WorkflowHelper;
 
-/**
- * @group WorkflowHelper
- */
 class WorkflowHelperTest extends KernelTestCase
 {
     public function testGetTransitionList(): void

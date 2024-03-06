@@ -11,14 +11,12 @@ use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
-/**
- * @group SimpleSearchFilter
- * @group database
- */
+#[Group('database')]
 class SimpleSearchFilterTest extends KernelTestCase
 {
     public function testGetDescription(): void

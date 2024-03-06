@@ -12,9 +12,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\MonologAssertsTrait;
 
-/**
- * @group MonologAssertsTrait
- */
 class MonologAssertsTraitTest extends KernelTestCase
 {
     use MonologAssertsTrait;

@@ -11,9 +11,6 @@ use Symfony\Component\HttpKernel\HttpKernelBrowser;
 use Symfony\Component\Serializer\Serializer;
 use Vrok\SymfonyAddons\Encoder\FormDecoder;
 
-/**
- * @group FormDecoder
- */
 class FormDecoderTest extends KernelTestCase
 {
     public function testDecoder(): void

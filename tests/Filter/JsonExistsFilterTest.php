@@ -9,13 +9,12 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Get;
 use Doctrine\ORM\QueryBuilder;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
-/**
- * @group JsonExistsFilter
- */
+#[Group('database')]
 class JsonExistsFilterTest extends KernelTestCase
 {
     public function testGetDescription(): void

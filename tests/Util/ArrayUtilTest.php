@@ -7,9 +7,6 @@ namespace Vrok\SymfonyAddons\Tests\Util;
 use PHPUnit\Framework\TestCase;
 use Vrok\SymfonyAddons\Util\ArrayUtil;
 
-/**
- * @group ArrayUtil
- */
 class ArrayUtilTest extends TestCase
 {
     protected const A = ['a', 'b', 's' => ['d', 'e']];

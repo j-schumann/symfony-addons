@@ -16,12 +16,12 @@ class CronMonthlyCommandTest extends KernelTestCase
 {
     public function testTriggersEventAndCreatesLog(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
             ->method('info')
             ->with('Running CronMonthlyEvent');
 
-        $dispatcher = $this->createStub(EventDispatcherInterface::class);
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects($this->once())
             ->method('dispatch')
             ->with(new CronMonthlyEvent());

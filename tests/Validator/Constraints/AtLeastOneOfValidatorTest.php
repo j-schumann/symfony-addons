@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\Length;
@@ -74,9 +75,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         ];
     }
 
-    /**
-     * @dataProvider getValid
-     */
+    #[DataProvider('getValid')]
     public function testValid($value): void
     {
         $constraint = new AtLeastOneOf([
@@ -89,9 +88,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $this->assertCount(0, $violations);
     }
 
-    /**
-     * @dataProvider getValidSequentially
-     */
+    #[DataProvider('getValidSequentially')]
     public function testValidSequentially($value): void
     {
         $constraint = new AtLeastOneOf([
@@ -107,9 +104,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $this->assertCount(0, $violations);
     }
 
-    /**
-     * @dataProvider getValidAll
-     */
+    #[DataProvider('getValidAll')]
     public function testValidAll($value): void
     {
         $constraint = new AtLeastOneOf([
@@ -125,9 +120,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $this->assertCount(0, $violations);
     }
 
-    /**
-     * @dataProvider getInvalid
-     */
+    #[DataProvider('getInvalid')]
     public function testInvalid($value): void
     {
         $constraint = new AtLeastOneOf([
@@ -142,9 +135,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $this->assertEquals(new ConstraintViolation('minMessage', 'minMessage', [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
-    /**
-     * @dataProvider getInvalidSequentially
-     */
+    #[DataProvider('getInvalidSequentially')]
     public function testInvalidSequentially($value, $message): void
     {
         $constraint = new AtLeastOneOf([
@@ -162,9 +153,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $this->assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
-    /**
-     * @dataProvider getInvalidAll
-     */
+    #[DataProvider('getInvalidAll')]
     public function testInvalidAll($value, $message): void
     {
         $constraint = new AtLeastOneOf([
