@@ -60,10 +60,10 @@ class JsonExistsFilterTest extends KernelTestCase
             (string) $qb
         );
 
-        // this should not be necessary, that JSON_CONTAINS_TEXT results in the
+        // @todo this should not be necessary, that JSON_CONTAINS_TEXT results in the
         // correct SQL should be tested in vrok/doctrine-addons:
         $this->assertStringContainsString(
-            'WHERE (t0_.jsonColumn ?? ?) = 1',
+            'WHERE (t0_.jsonColumn ?? ?) = true',
             $qb->getQuery()->getSQL()
         );
     }
