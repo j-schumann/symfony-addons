@@ -109,7 +109,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         ],
     ];
     public const PROBLEM_500 = [
-        // 'detail' => 'detail' => 'platform.noDefaultRatePlan', // varies
+        // 'detail' => 'platform.noDefaultRatePlan', // varies
         'status' => 500,
         'title'  => 'An error occurred',
         'type'   => '/errors/500',
@@ -160,9 +160,9 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'hydra:title' => 'An error occurred',
     ] + self::PROBLEM_422;
     public const HYDRA_PROBLEM_500 = [
-        '@id'               => '/errors/500',
+        // '@id'               => '/errors/500', // varies
         '@type'             => 'hydra:Error',
-        'hydra:description' => 'Not Found',
+        // 'hydra:description' => 'platform.noDefaultRatePlan', // varies
         'hydra:title'       => 'An error occurred',
     ] + self::PROBLEM_500;
     // endregion
