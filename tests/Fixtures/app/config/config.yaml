@@ -49,6 +49,8 @@ doctrine:
 
   orm:
     auto_generate_proxy_classes: '%kernel.debug%'
+    controller_resolver:
+      auto_mapping: false
     enable_lazy_ghost_objects: true
     mappings:
       Fixtures:
@@ -64,6 +66,7 @@ doctrine:
 
 api_platform:
   keep_legacy_inflector: false
+  use_symfony_listeners: false
   formats:
     json: [ 'application/json' ]
     jsonld: [ 'application/ld+json' ]

@@ -42,6 +42,7 @@ class JsonExistsFilterTest extends KernelTestCase
         $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null], null);
         $doctrine =  static::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
+
         /** @var QueryBuilder $qb */
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
             ->createQueryBuilder('o');
@@ -58,13 +59,6 @@ class JsonExistsFilterTest extends KernelTestCase
         $this->assertStringContainsString(
             'WHERE JSON_CONTAINS_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
             (string) $qb
-        );
-
-        // @todo this should not be necessary, that JSON_CONTAINS_TEXT results in the
-        // correct SQL should be tested in vrok/doctrine-addons:
-        $this->assertStringContainsString(
-            'WHERE (t0_.jsonColumn ?? ?) = true',
-            $qb->getQuery()->getSQL()
         );
     }
 }
