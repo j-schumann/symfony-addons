@@ -422,14 +422,21 @@ asserts this number of messages to be dispatched to the message bus
 <tr>
 <td>dispatchedMessages</td>
 <td>
-array of message classes, asserts that at least one instance of each given class 
-has been dispatched to the message bus
+Array of message classes, asserts that at least one instance of each given class 
+has been dispatched to the message bus. An Element can also be an array of
+[FQCN, callable], in that case the callback is called for each matching message
+with that message as first parameter and the JSON response as second parameter,
+to trigger additional assertions for the message.
 </td>
 <td>
 
 ```php
 'dispatchedMessages' => [
   TenantCreatedMessage::class,
+
+  [TenantCreatedMessage::class, function (object $message, array $data): void {
+      self::assertSame($data['id'], $message->tenantId);
+  }]
 ],
 ```
 

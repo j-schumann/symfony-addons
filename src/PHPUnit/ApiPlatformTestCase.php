@@ -124,7 +124,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     public const HYDRA_PROBLEM_403 = [
         '@id'               => '/errors/403',
         '@type'             => 'hydra:Error',
-        'hydra:description' => '@todo',
+        // 'hydra:description' => '', // varies
         'hydra:title'       => 'An error occurred',
     ] + self::PROBLEM_403;
     public const HYDRA_PROBLEM_ACCESS_DENIED = [
@@ -211,7 +211,11 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * messageCount:       asserts this number of messages to be dispatched
      *                     to the message bus
      * dispatchedMessages: array of message classes, asserts that at least one instance
-     *                     of each given class has been dispatched to the message bus
+     *                     of each given class has been dispatched to the message bus.
+     *                     Instead of class names the elements can be an array of
+     *                     [classname, callable]. This callback will be called
+     *                     (for each matching message) with the message as first
+     *                     parameter and the returned JSON as second parameter.
      * skipRefresh:        if true the database will not be refreshed before
      *                     the operation, to allow calling testOperation()
      *                     multiple times after each other in one testcase
