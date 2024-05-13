@@ -27,7 +27,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
             ['12 > 11'],
             ['11 < 12 and 13 > 11'],
             ['What is?>'],
-             // [' close <3 heart, and 13 > 12'], fails but should be valid
+            // [' close <3 heart, and 13 > 12'], fails but should be valid
         ];
     }
 
