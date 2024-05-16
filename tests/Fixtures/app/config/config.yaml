@@ -62,6 +62,7 @@ doctrine:
     dql:
       string_functions:
         CAST: Vrok\DoctrineAddons\ORM\Query\AST\CastFunction
+        CONTAINS: Vrok\DoctrineAddons\ORM\Query\AST\ContainsFunction
         JSON_CONTAINS_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsTextFunction
 
 api_platform:

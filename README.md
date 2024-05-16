@@ -664,6 +664,24 @@ doctrine:
         CAST: Vrok\DoctrineAddons\ORM\Query\AST\CastFunction
 ```
 
+### ContainsFilter
+
+Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter,
+using the `@>` operator. For example for filtering for numbers in an array.
+
+```php
+#[ApiFilter(filterClass: ContainsFilter::class, properties: ['numbers'])]
+```
+
+Requires CONTAINS as defined Doctrine function, provided by `vrok/doctrine-addons`:
+```yaml
+doctrine:
+  orm:
+    dql:
+      string_functions:
+        CONTAINS: Vrok\DoctrineAddons\ORM\Query\AST\ContainsFunction
+```
+
 ### JsonExistsFilter
 
 Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter,
