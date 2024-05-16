@@ -422,14 +422,21 @@ asserts this number of messages to be dispatched to the message bus
 <tr>
 <td>dispatchedMessages</td>
 <td>
-array of message classes, asserts that at least one instance of each given class 
-has been dispatched to the message bus
+Array of message classes, asserts that at least one instance of each given class 
+has been dispatched to the message bus. An Element can also be an array of
+[FQCN, callable], in that case the callback is called for each matching message
+with that message as first parameter and the JSON response as second parameter,
+to trigger additional assertions for the message.
 </td>
 <td>
 
 ```php
 'dispatchedMessages' => [
   TenantCreatedMessage::class,
+
+  [TenantCreatedMessage::class, function (object $message, array $data): void {
+      self::assertSame($data['id'], $message->tenantId);
+  }]
 ],
 ```
 
@@ -657,6 +664,24 @@ doctrine:
         CAST: Vrok\DoctrineAddons\ORM\Query\AST\CastFunction
 ```
 
+### ContainsFilter
+
+Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter,
+using the `@>` operator. For example for filtering for numbers in an array.
+
+```php
+#[ApiFilter(filterClass: ContainsFilter::class, properties: ['numbers'])]
+```
+
+Requires CONTAINS as defined Doctrine function, provided by `vrok/doctrine-addons`:
+```yaml
+doctrine:
+  orm:
+    dql:
+      string_functions:
+        CONTAINS: Vrok\DoctrineAddons\ORM\Query\AST\ContainsFunction
+```
+
 ### JsonExistsFilter
 
 Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter,
@@ -749,7 +774,8 @@ Outputs: 9.34 MiB
 * _symfony/mailer_ is required for tests of the AutoSenderSubscriber
 * _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
 * _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and ResetLoggerSubscriber
-* _symfony/phpunit-bridge_ must be at least v6.2.3 to prevent"Call to undefined method Doctrine\Common\Annotations\AnnotationRegistry::registerLoader()" 
+* _symfony/phpunit-bridge_ must be at least v6.2.3 to prevent"Call to undefined method Doctrine\Common\Annotations\AnnotationRegistry::registerLoader()"
+* _symfony/string_ is required for API Platform's inflector
 * _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
 * _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore
 * _monolog/monolog_ must be at least v3 for `Monolog\Level`
