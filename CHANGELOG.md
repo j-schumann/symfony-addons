@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2024-05-16
+### Added
+* ContainsFilter for filtering by JSON elements
+
+## [2.8.1] - 2024-03-29
+### Fixed
+* compatibility w/ ApiPlatform >= 3.2.19
+
 ## [2.8.0] - 2024-01-30
 ### Added
 * ApiPlatformTestCase now has constants for RFC 7807 problem responses
