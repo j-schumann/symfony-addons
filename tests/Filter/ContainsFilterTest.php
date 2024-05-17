@@ -61,4 +61,32 @@ class ContainsFilterTest extends KernelTestCase
             (string) $qb
         );
     }
+
+    public function testApplyFilterForArray(): void
+    {
+        $doctrine =  static::getContainer()->get('doctrine');
+        $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null], null);
+        $doctrine =  static::getContainer()->get('doctrine');
+        $queryNameGen = new QueryNameGenerator();
+
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
+            'filters' => [
+                'jsonColumn' => ['testVal', 'otherVal'],
+            ],
+        ]);
+
+        $param = $qb->getParameter('jsonColumn_p1');
+        self::assertSame('testVal', $param->getValue());
+        $param = $qb->getParameter('jsonColumn_p2');
+        self::assertSame('otherVal', $param->getValue());
+
+        $this->assertStringContainsString(
+            'WHERE CONTAINS(o.jsonColumn, :jsonColumn_p1) = true AND CONTAINS(o.jsonColumn, :jsonColumn_p2) = true',
+            (string) $qb
+        );
+    }
 }

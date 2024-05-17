@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0] - 2024-05-17
+### Added
+* ContainsFilter allows multiple values
+
 ## [2.9.0] - 2024-05-16
 ### Added
 * ContainsFilter for filtering by JSON elements

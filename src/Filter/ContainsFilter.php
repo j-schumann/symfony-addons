@@ -42,23 +42,21 @@ class ContainsFilter extends AbstractFilter
             [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::LEFT_JOIN);
         }
 
-        $valueParameter = $queryNameGenerator->generateParameterName($field);
+        // @todo very primitive handling of multiple values, is there a better
+        // way in Postgres, e.g. to give the array directly to the @> operator?
+        // Also, is it possible to filter for Records that "contain one of" the
+        // given values instead of "contains all the values"?
+        foreach ((array)$value as $singleValue) {
+            $valueParameter = $queryNameGenerator->generateParameterName($field);
 
-        $queryBuilder
-            ->andWhere(sprintf('CONTAINS(%s.%s, :%s) = true', $alias, $field, $valueParameter))
-            ->setParameter($valueParameter, $value);
+            $queryBuilder
+                ->andWhere(sprintf('CONTAINS(%s.%s, :%s) = true', $alias, $field, $valueParameter))
+                ->setParameter($valueParameter, $singleValue);
+        }
     }
 
-    protected function normalizeValue($value, string $property): mixed
+    protected function normalizeValue(mixed $value, string $property): mixed
     {
-        if (\is_array($value)) {
-            $this->getLogger()->notice('Invalid filter ignored', [
-                'exception' => new InvalidArgumentException(sprintf('Invalid value for "%s" property', $property)),
-            ]);
-
-            return null;
-        }
-
         if (null === $value) {
             $this->getLogger()->notice('Invalid filter ignored', [
                 'exception' => new InvalidArgumentException(sprintf('A value is required for %1$s', $property)),
