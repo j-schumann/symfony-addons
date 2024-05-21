@@ -3,6 +3,12 @@ parameters:
   #env(DATABASE_URL): pgsql://db_test:db_test@pgsql/db_test
   #env(DATABASE_URL): mysql://db_test:db_test@mysql/db_test
 
+api_platform:
+  keep_legacy_inflector: false
+  #use_symfony_listeners: false # requires APIP ^3.3
+  formats:
+    jsonld: ['application/ld+json']
+
 framework:
   messenger:
     transports:
@@ -41,6 +47,9 @@ doctrine:
 
   orm:
     auto_generate_proxy_classes: '%kernel.debug%'
+    controller_resolver:
+      auto_mapping: false
+    #enable_lazy_ghost_objects: true # requires doctrine/persistence ^3.1 & doctrine-bundle ^2.8
     mappings:
       Fixtures:
         is_bundle: false
