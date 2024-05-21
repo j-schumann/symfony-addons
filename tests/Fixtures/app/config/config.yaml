@@ -47,8 +47,8 @@ doctrine:
 
   orm:
     auto_generate_proxy_classes: '%kernel.debug%'
-    controller_resolver:
-      auto_mapping: false
+    #controller_resolver: # requires doctrine-bundle ^2.8 (?)
+    #  auto_mapping: false
     #enable_lazy_ghost_objects: true # requires doctrine/persistence ^3.1 & doctrine-bundle ^2.8
     mappings:
       Fixtures:
