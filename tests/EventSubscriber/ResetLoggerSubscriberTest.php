@@ -24,10 +24,10 @@ class ResetLoggerSubscriberTest extends TestCase
     {
         $this->stubLogger = new Logger($name);
 
-        $this->stubHandler = $this->createStub(BufferHandler::class);
+        $this->stubHandler = $this->createMock(BufferHandler::class);
         $this->stubLogger->pushHandler($this->stubHandler);
 
-        $this->stubProcessor = $this->createStub(UidProcessor::class);
+        $this->stubProcessor = $this->createMock(UidProcessor::class);
         $this->stubLogger->pushProcessor($this->stubProcessor);
     }
 
