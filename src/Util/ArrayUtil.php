@@ -20,6 +20,10 @@ class ArrayUtil
      * 4) array_replace_recursive goes by keys, if the key is present in $a and
      *    $b, the value from $a is overwritten
      *
+     * This function is meant to be used for example with
+     * ApiPlatformTestCase::assertDatasetHasKeys, so we can combine different
+     * lists of (nested) keys that should be present in a response.
+     *
      * @param ...$args 2 or more arrays to merge
      */
     public static function mergeValues(array ...$args): array
