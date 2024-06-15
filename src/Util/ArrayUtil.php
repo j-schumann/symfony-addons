@@ -9,6 +9,7 @@ class ArrayUtil
     /**
      * This is used to merge arrays with regard to keeping values unique and
      * ignoring numeric keys (also meaning numeric keys are not preserved).
+     * Nested, equal arrays on different keys are still kept.
      *
      * Reason:
      * 1) a + $b goes by keys, if the key is already present in $a, the value
@@ -26,18 +27,38 @@ class ArrayUtil
         $merged = array_merge_recursive(...$args);
 
         // array_merge_recursive is the closest to what we want to achieve,
-        // we just need to deduplicate values
-        $fixMerge = static function (array $merged) use (&$fixMerge) {
-            foreach ($merged as $k => $v) {
+        // we just need to deduplicate values.
+        // We cannot use array_unique($merged, SORT_REGULAR) as this would also
+        // remove equal arrays on different keys, but we want to keep those.
+        $deduplicate = static function (array $list) use (&$deduplicate) {
+            $values = [];
+            $deduplicated = [];
+            foreach ($list as $k => $v) {
                 if (is_array($v)) {
-                    $merged[$k] = $fixMerge($v);
+                    $deduplicated[$k] = $deduplicate($v);
+                    continue;
                 }
+
+                if (isset($values[$v])) {
+                    continue;
+                }
+
+                $deduplicated[$k] = $v;
+                $values[$v] = true;
             }
 
-            // using SORT_REGULAR allows it to work with nested arrays
-            return array_unique($merged, SORT_REGULAR);
+            return $deduplicated;
         };
 
-        return $fixMerge($merged);
+        return $deduplicate($merged);
+    }
+
+    /**
+     * Returns true if the given array has duplicate values, else false.
+     */
+    public static function hasDuplicates(array $array): bool
+    {
+        // SORT_REGULAR allows to compare object/arrays
+        return count($array) !== count(array_unique($array, SORT_REGULAR));
     }
 }
