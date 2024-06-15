@@ -71,6 +71,17 @@ class ArrayUtilTest extends TestCase
             self::assertArrayHasKey($key, $result);
             self::assertSame(self::A, $result[$key]);
         }
+
+        $result2 = ArrayUtil::mergeValues(
+            ['key1' => ['a' => self::A]],
+            ['key1' => ['a' => self::A, 'b' => self::A]],
+        );
+
+        self::assertArrayHasKey('key1', $result2);
+        self::assertArrayHasKey('a', $result2['key1']);
+        self::assertSame(self::A, $result2['key1']['a']);
+        self::assertArrayHasKey('b', $result2['key1']);
+        self::assertSame(self::A, $result2['key1']['b']);
     }
 
     public function testMergeValuesExpectsArrayAsFirstParam(): void
