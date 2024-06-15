@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\PasswordStrength;
 use Vrok\SymfonyAddons\Validator\Constraints\PasswordStrengthValidator;
@@ -57,9 +58,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
             ->assertRaised();
     }
 
-    /**
-     * @dataProvider getValid
-     */
+    #[DataProvider('getValid')]
     public function testValid($value): void
     {
         $constraint = new PasswordStrength();
@@ -69,9 +68,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
-    /**
-     * @dataProvider getInvalid
-     */
+    #[DataProvider('getInvalid')]
     public function testInvalid($value): void
     {
         $constraint = new PasswordStrength();

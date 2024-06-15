@@ -134,24 +134,24 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'hydra:title'       => 'An error occurred',
     ] + self::PROBLEM_ACCESS_DENIED;
     public const HYDRA_PROBLEM_404 = [
-        '@id'               => '/errors/404',
-        '@type'             => 'hydra:Error',
+        '@id'         => '/errors/404',
+        '@type'       => 'hydra:Error',
         // 'hydra:description' => 'This route does not aim to be called.', // varies
-        'hydra:title'       => 'An error occurred',
-        'type'              => '/errors/404',
+        'hydra:title' => 'An error occurred',
+        'type'        => '/errors/404',
     ] + self::PROBLEM_404;
     public const HYDRA_PROBLEM_NOT_FOUND = [
         '@id'               => '/errors/404',
         '@type'             => 'hydra:Error',
         'hydra:description' => 'Not Found',
         'hydra:title'       => 'An error occurred',
-        ] + self::PROBLEM_NOT_FOUND;
+    ] + self::PROBLEM_NOT_FOUND;
     public const HYDRA_PROBLEM_405 = [
-        '@id'               => '/errors/405',
-        '@type'             => 'hydra:Error',
+        '@id'         => '/errors/405',
+        '@type'       => 'hydra:Error',
         // 'hydra:description' => 'No route found for "GET [...]": Method Not Allowed (Allow: POST)', // varies
-        'hydra:title'       => 'An error occurred',
-        'type'              => '/errors/405',
+        'hydra:title' => 'An error occurred',
+        'type'        => '/errors/405',
     ] + self::PROBLEM_405;
     public const HYDRA_PROBLEM_422 = [
         // '@id' => '/validation_errors/9ff3fdc4-b214-49db-8718-39c315e33d45', // varies
@@ -161,9 +161,9 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     ] + self::PROBLEM_422;
     public const HYDRA_PROBLEM_500 = [
         // '@id'               => '/errors/500', // varies
-        '@type'             => 'hydra:Error',
+        '@type'       => 'hydra:Error',
         // 'hydra:description' => 'platform.noDefaultRatePlan', // varies
-        'hydra:title'       => 'An error occurred',
+        'hydra:title' => 'An error occurred',
     ] + self::PROBLEM_500;
     // endregion
 

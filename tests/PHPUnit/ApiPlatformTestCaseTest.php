@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
 use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 
@@ -34,9 +35,7 @@ class ApiPlatformTestCaseTest extends KernelTestCase
         ];
     }
 
-    /**
-     * @dataProvider hasKeysSuccessProvider
-     */
+    #[DataProvider('hasKeysSuccessProvider')]
     public function testAssertDatasetHasKeysPasses(array $data, array $keys): void
     {
         ApiPlatformTestCase::assertDatasetHasKeys($keys, $data);
@@ -59,9 +58,7 @@ class ApiPlatformTestCaseTest extends KernelTestCase
         ];
     }
 
-    /**
-     * @dataProvider hasKeysThrowsProvider
-     */
+    #[DataProvider('hasKeysThrowsProvider')]
     public function testAssertDatasetHasKeysThrows(array $data, array $keys, string $msg): void
     {
         $this->expectException(AssertionFailedError::class);
@@ -81,9 +78,7 @@ class ApiPlatformTestCaseTest extends KernelTestCase
         ];
     }
 
-    /**
-     * @dataProvider notHasKeysSuccessProvider
-     */
+    #[DataProvider('notHasKeysSuccessProvider')]
     public function testAssertDatasetNotHasKeysPasses(array $data, array $keys): void
     {
         ApiPlatformTestCase::assertDatasetNotHasKeys($keys, $data);
@@ -103,9 +98,7 @@ class ApiPlatformTestCaseTest extends KernelTestCase
         ];
     }
 
-    /**
-     * @dataProvider notHasKeysThrowsProvider
-     */
+    #[DataProvider('notHasKeysThrowsProvider')]
     public function testAssertDatasetNotHasKeysThrows(array $data, array $keys, string $msg): void
     {
         $this->expectException(AssertionFailedError::class);

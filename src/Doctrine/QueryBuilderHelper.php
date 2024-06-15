@@ -33,7 +33,7 @@ class QueryBuilderHelper
      * Adds a simple AND condition ($alias.$field = $param) to the where clause.
      * If no alias is given, the current root alias is used.
      */
-    public function andWhereFieldEquals(string $field, mixed $param, string $alias = null): void
+    public function andWhereFieldEquals(string $field, mixed $param, ?string $alias = null): void
     {
         $paramName = $this->prepareParameter($field, $param);
         $alias ??= $this->getRootAlias();
@@ -44,7 +44,7 @@ class QueryBuilderHelper
      * Adds a simple AND condition ($alias.$field != $param) to the where clause.
      * If no alias is given, the current root alias is used.
      */
-    public function andWhereFieldNotEquals(string $field, mixed $param, string $alias = null): void
+    public function andWhereFieldNotEquals(string $field, mixed $param, ?string $alias = null): void
     {
         $paramName = $this->prepareParameter($field, $param);
         $alias ??= $this->getRootAlias();
@@ -55,7 +55,7 @@ class QueryBuilderHelper
      * Adds a simple AND condition ($alias.$field IN ($param)) to the where clause.
      * If no alias is given, the current root alias is used.
      */
-    public function andWhereFieldIn(string $field, array $param, string $alias = null): void
+    public function andWhereFieldIn(string $field, array $param, ?string $alias = null): void
     {
         $paramName = $this->prepareParameter($field, $param);
         $alias ??= $this->getRootAlias();

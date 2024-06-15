@@ -21,8 +21,15 @@ use Doctrine\ORM\QueryBuilder;
  */
 class ContainsFilter extends AbstractFilter
 {
-    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = []
+    ): void {
         if (
             !$this->isPropertyEnabled($property, $resourceClass)
             || !$this->isPropertyMapped($property, $resourceClass)
@@ -46,7 +53,7 @@ class ContainsFilter extends AbstractFilter
         // way in Postgres, e.g. to give the array directly to the @> operator?
         // Also, is it possible to filter for Records that "contain one of" the
         // given values instead of "contains all the values"?
-        foreach ((array)$value as $singleValue) {
+        foreach ((array) $value as $singleValue) {
             $valueParameter = $queryNameGenerator->generateParameterName($field);
 
             $queryBuilder

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Tests\Util;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Vrok\SymfonyAddons\Util\ArrayUtil;
 
@@ -62,6 +63,19 @@ class ArrayUtilTest extends TestCase
         self::assertContains('g', $result['a']);
     }
 
+    public function testMergeValuesWithEqualNestedArraysOnDifferentKeys()
+    {
+        $result = ArrayUtil::mergeValues(
+            ['key1' => self::A],
+            [0 => self::A]
+        );
+
+        foreach (['key1', 0] as $key) {
+            self::assertArrayHasKey($key, $result);
+            self::assertSame(self::A, $result[$key]);
+        }
+    }
+
     public function testMergeValuesExpectsArrayAsFirstParam(): void
     {
         $this->expectException(\TypeError::class);
@@ -72,5 +86,49 @@ class ArrayUtilTest extends TestCase
     {
         $this->expectException(\TypeError::class);
         ArrayUtil::mergeValues(self::B, 'a', self::C);
+    }
+
+    #[DataProvider('provideNonDuplicates')]
+    public function testHasDuplicatesReturnsFalseCorrectly($value): void
+    {
+        self::assertFalse(ArrayUtil::hasDuplicates($value));
+    }
+
+    #[DataProvider('provideDuplicates')]
+    public function testHasDuplicatesDetectsDuplicatesCorrectly($value): void
+    {
+        self::assertTrue(ArrayUtil::hasDuplicates($value));
+    }
+
+    public function testHasDuplicatesExpectsArrayAsFirstParam(): void
+    {
+        $this->expectException(\TypeError::class);
+        ArrayUtil::hasDuplicates('a');
+    }
+
+    public static function provideNonDuplicates(): array
+    {
+        return [
+            [['a', 1, 'b']],
+            [[new \DateTimeImmutable(), new \DateTimeImmutable()]],
+            [[['a'], ['b']]],
+            [[[1 => 'a'], [2 => 'a']]],
+        ];
+    }
+
+    public static function provideDuplicates(): array
+    {
+        $dt = new \DateTimeImmutable();
+
+        return [
+            [['a', 1, 'a']],
+            [[1, 'a', 1]],
+            [[['a'], ['a']]],
+            [[$dt, 'a', $dt]],
+
+            // @todo ambiguous, with strict types this should *not* be detected
+            // as duplicates but SORT_REGULAR reports it
+            [['a', 1, '1']],
+        ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Tests\Helper;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Vrok\SymfonyAddons\Helper\PasswordStrength;
 
@@ -25,9 +26,7 @@ class PasswordStrengthTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getValues
-     */
+    #[DataProvider('getValues')]
     public function testGetStrength($value, $strength): void
     {
         $pwStrength = new PasswordStrength();
