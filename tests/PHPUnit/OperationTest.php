@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
+use Monolog\Level;
 use PHPUnit\Framework\AssertionFailedError;
+use Symfony\Component\BrowserKit\Response;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 
 /**
@@ -83,18 +86,48 @@ class OperationTest extends ApiPlatformTestCase
         ]);
     }
 
-    /* @todo requires mailer enabled in the kernel
-    public function testTestOperationChecksMessageCount(): void
+    public function testTestOperationDetectsDispatchedEvents(): void
+    {
+        $response = $this->testOperation([
+            'uri'         => '/test',
+            'dispatchedEvents' => ['kernel.terminate'],
+        ]);
+
+        self::assertInstanceOf(ResponseInterface::class, $response);
+    }
+
+    public function testTestOperationDetectsNotDispatchedEvents(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Expected 1 messages to be dispatched, found 0');
+        $this->expectExceptionMessage("Expected event 'failedEvent' was not dispatched");
 
         $this->testOperation([
             'uri'         => '/test',
-            'messageCount' => 1,
+            'dispatchedEvents' => ['failedEvent'],
         ]);
     }
-    */
+
+    public function testTestOperationChecksCreatedLogs(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage('Logger has no message with the given level that contains the given string!');
+
+        $this->testOperation([
+            'uri'         => '/test',
+            'createdLogs' => [['not found', Level::Error]],
+        ]);
+    }
+
+    public function testTestOperationChecksEmailCount(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage('Failed asserting that the Transport has sent "1" emails (0 sent).');
+
+        $this->testOperation([
+            'uri'         => '/test',
+            'emailCount' => 1,
+        ]);
+    }
 
     public function testTestOperationChecksMessageCount(): void
     {

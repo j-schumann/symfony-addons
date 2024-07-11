@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.12.0] - 2024-07-11
+### Added
+* ApiPlatformTestCase::testOperation now has a 'dispatchedEvents' option
+
 ## [2.11.0] - 2024-06-15
 ### Added
 * ArrayUtils::hasDuplicates
