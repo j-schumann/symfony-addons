@@ -30,7 +30,7 @@ jobs:
         ports:
           - 3306:3306
       mysql:
-        image: mysql:8
+        image: mysql:9
         env:
           MYSQL_USER: dbtest
           MYSQL_PASSWORD: dbtest
