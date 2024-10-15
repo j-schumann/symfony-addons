@@ -443,6 +443,24 @@ to trigger additional assertions for the message.
 </td>
 </tr>
 
+<tr>
+<td>dispatchedEvents</td>
+<td>
+Array of event names (may be class names), asserts that at least one instance of
+each given event has been dispatched to Symfony's EventDispatcher.
+</td>
+<td>
+
+```php
+'dispatchedEvents' => [
+  'kernel.response',
+  ProjectPreCreateEvent::class,
+],
+```
+
+</td>
+</tr>
+
 </table>
 
 

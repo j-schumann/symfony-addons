@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.0] - tbd
+## [2.13.0] - tbd
 ### Updated
 * config loading
 * Tests for PHPUnit 11
@@ -15,6 +15,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Removed
 * support for Symfony <= 6
 * support for Doctrine ORM <= 2
+
+## [2.12.0] - 2024-07-11
+### Added
+* ApiPlatformTestCase::testOperation now has a 'dispatchedEvents' option
 
 ## [2.11.0] - 2024-06-15
 ### Added

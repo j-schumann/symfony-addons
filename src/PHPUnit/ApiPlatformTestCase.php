@@ -7,8 +7,11 @@ namespace Vrok\SymfonyAddons\PHPUnit;
 use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use function PHPUnit\Framework\assertTrue;
 
 /**
  * Helper class that contains often used functionality to simplify testing
@@ -216,6 +219,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                     [classname, callable]. This callback will be called
      *                     (for each matching message) with the message as first
      *                     parameter and the returned JSON as second parameter.
+     * dispatchedEvents:   array of event names, asserts that at least one
+     *                     instance of each given event has been dispatched
      * skipRefresh:        if true the database will not be refreshed before
      *                     the operation, to allow calling testOperation()
      *                     multiple times after each other in one testcase
@@ -337,6 +342,24 @@ abstract class ApiPlatformTestCase extends ApiTestCase
 
         if (isset($params['emailCount'])) {
             self::assertEmailCount($params['emailCount']);
+        }
+
+        if (isset($params['dispatchedEvents'])) {
+            /** @var TraceableEventDispatcher $dispatcher */
+            $dispatcher = static::getContainer()
+                ->get(EventDispatcherInterface::class);
+
+            foreach ($params['dispatchedEvents'] as $eventName) {
+                $found = false;
+                foreach ($dispatcher->getCalledListeners() as $calledListener) {
+                    if ($calledListener['event'] === $eventName) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                self::assertTrue($found, "Expected event '$eventName' was not dispatched");
+            }
         }
 
         if (isset($params['messageCount'])
