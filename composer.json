@@ -7,8 +7,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "symfony/framework-bundle":  "^6.3.0|^7.0.0",
-        "symfony/yaml": "^6.3.0|^7.0.0"
+        "symfony/framework-bundle":  "^7.0.0",
+        "symfony/yaml": "^7.0.0"
     },
     "require-dev": {
         "api-platform/core": "^3.4.3|^4.0.0",
