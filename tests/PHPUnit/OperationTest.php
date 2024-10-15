@@ -21,11 +21,11 @@ class OperationTest extends ApiPlatformTestCase
         $this->testOperation([
             'uri'           => '/test',
             'responseCode'  => 404,
-            'contentType'   => 'application/ld+json',
+            'contentType'   => ApiPlatformTestCase::PROBLEM_CONTENT_TYPE,
             'json'          => [
-                'hydra:description' => 'No route found for "GET http://localhost/test"',
+                'detail' => 'No route found for "GET http://localhost/test"',
             ],
-            'requiredKeys'  => ['@context'],
+            'requiredKeys'  => ['detail', 'status', 'title', 'type'],
             'forbiddenKeys' => ['hydra:member'],
             'messageCount'  => 0,
         ]);
@@ -78,11 +78,11 @@ class OperationTest extends ApiPlatformTestCase
     public function testTestOperationChecksForbiddenKeys(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Dataset should not have key [hydra:description]!');
+        $this->expectExceptionMessage('Dataset should not have key [detail]!');
 
         $this->testOperation([
             'uri'           => '/test',
-            'forbiddenKeys' => ['hydra:description'],
+            'forbiddenKeys' => ['detail'],
         ]);
     }
 

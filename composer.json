@@ -11,7 +11,7 @@
         "symfony/yaml": "^6.3.0|^7.0.0"
     },
     "require-dev": {
-        "api-platform/core": "^3.3.0|^4.0.0",
+        "api-platform/core": "^3.4.3|^4.0.0",
         "doctrine/doctrine-bundle": "^2.12.0",
         "doctrine/data-fixtures": "^1.5.3",
         "doctrine/persistence": "^3.1.0",
@@ -19,7 +19,8 @@
         "doctrine/orm": "^3.0.0",
         "friendsofphp/php-cs-fixer": "^3.64.0",
         "monolog/monolog": "^3.0.0",
-        "phpunit/phpunit": "^11.1.3",
+        "phpunit/phpunit": "^11.4.1",
+        "rector/rector": "^1.2.7",
         "roave/security-advisories": "dev-latest",
         "symfony/browser-kit": "^7.0.0",
         "symfony/http-client": "^7.0.0",
@@ -30,7 +31,7 @@
         "symfony/twig-bundle": "^7.0.0",
         "symfony/validator": "^7.0.0",
         "symfony/workflow": "^7.0.0",
-        "vrok/doctrine-addons": "dev-develop"
+        "vrok/doctrine-addons": "^2.13.0"
     },
     "autoload": {
         "psr-4": {
