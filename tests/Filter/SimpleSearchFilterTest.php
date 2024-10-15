@@ -28,7 +28,7 @@ class SimpleSearchFilterTest extends KernelTestCase
             null
         );
 
-        $this->assertEquals([
+        self::assertEquals([
             'pattern' => [
                 'property' => 'id, jsonColumn',
                 'type'     => 'string',
@@ -49,7 +49,7 @@ class SimpleSearchFilterTest extends KernelTestCase
             null,
             'searchFor'
         );
-        $this->assertEquals([
+        self::assertEquals([
             'searchFor' => [
                 'property' => 'id, jsonColumn',
                 'type'     => 'string',
@@ -90,7 +90,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $dql = $platform instanceof PostgreSQLPlatform
             ? "LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)"
             : 'WHERE (LOWER(o.jsonColumn) LIKE :pattern_p1)';
-        $this->assertStringContainsString($dql, (string) $qb);
+        self::assertStringContainsString($dql, (string) $qb);
     }
 
     public function testApplyFilterWithMultipleFields(): void
@@ -123,7 +123,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $dql = $platform instanceof PostgreSQLPlatform
             ? "WHERE (LOWER(o.id) LIKE :pattern_p1 OR LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)"
             : 'WHERE (LOWER(o.id) LIKE :pattern_p1 OR LOWER(o.jsonColumn) LIKE :pattern_p1)';
-        $this->assertStringContainsString($dql, (string) $qb);
+        self::assertStringContainsString($dql, (string) $qb);
     }
 
     public function testSearchInTextColumn(): void

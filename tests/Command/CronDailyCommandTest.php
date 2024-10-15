@@ -30,7 +30,7 @@ class CronDailyCommandTest extends KernelTestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
 
-        $this->assertSame(
+        self::assertSame(
             CronDailyCommand::SUCCESS,
             $commandTester->getStatusCode()
         );

@@ -22,7 +22,7 @@ class JsonExistsFilterTest extends KernelTestCase
         $doctrine =  static::getContainer()->get('doctrine');
         $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null], null);
 
-        $this->assertEquals([
+        self::assertEquals([
             'jsonColumn'   => [
                 'property' => 'jsonColumn',
                 'type'     => 'string',
@@ -56,9 +56,6 @@ class JsonExistsFilterTest extends KernelTestCase
         $param = $qb->getParameter('jsonColumn_p1');
         self::assertSame('testVal', $param->getValue());
 
-        $this->assertStringContainsString(
-            'WHERE JSON_CONTAINS_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
-        );
+        self::assertStringContainsString('WHERE JSON_CONTAINS_TEXT(o.jsonColumn, :jsonColumn_p1) = true', (string) $qb);
     }
 }

@@ -34,10 +34,10 @@ class ResetLoggerSubscriberTest extends TestCase
     public function testRegistersEvents(): void
     {
         $events = ResetLoggerSubscriber::getSubscribedEvents();
-        $this->assertIsArray($events);
-        $this->assertArrayHasKey(WorkerMessageReceivedEvent::class, $events);
-        $this->assertArrayHasKey(WorkerMessageHandledEvent::class, $events);
-        $this->assertArrayHasKey(WorkerMessageFailedEvent::class, $events);
+        self::assertIsArray($events);
+        self::assertArrayHasKey(WorkerMessageReceivedEvent::class, $events);
+        self::assertArrayHasKey(WorkerMessageHandledEvent::class, $events);
+        self::assertArrayHasKey(WorkerMessageFailedEvent::class, $events);
     }
 
     public function testResetsUidForApp(): void

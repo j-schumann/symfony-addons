@@ -6,6 +6,7 @@ namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Constraints\RegexValidator;
+use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\NoLineBreaks;
 
@@ -16,32 +17,28 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         return new RegexValidator();
     }
 
-    public static function getValid(): array
+    public static function getValid(): \Iterator
     {
-        return [
-            ["test\tstring"], // tab
-            ['0 d'], // tab
-            [' test '], // spaces
-            ['1119<br>0231'],
-            ['1684<br />5312'],
-        ];
+        yield ["test\tstring"]; // tab
+        yield ['0 d']; // tab
+        yield [' test ']; // spaces
+        yield ['1119<br>0231'];
+        yield ['1684<br />5312'];
     }
 
-    public static function getInvalid(): array
+    public static function getInvalid(): \Iterator
     {
-        return [
-            ["new\nline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            ["new\rline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            ["new\r\nline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            ["new\fline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            ["\nnewline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            ["newline\n", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            ["new\x0bline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // vertical tab
-            ["new\xc2\x85line", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // NEL, Next Line
-            ["test\vspace", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // vertical space
-            ["new\xe2\x80\xa8line", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // Unicode LS
-            ["new\xe2\x80\xa9line", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // Unicode PS
-        ];
+        yield ["new\nline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
+        yield ["new\rline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
+        yield ["new\r\nline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
+        yield ["new\fline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
+        yield ["\nnewline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
+        yield ["newline\n", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
+        yield ["new\x0bline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical tab
+        yield ["new\xc2\x85line", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // NEL, Next Line
+        yield ["test\vspace", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical space
+        yield ["new\xe2\x80\xa8line", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode LS
+        yield ["new\xe2\x80\xa9line", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode PS
     }
 
     public function testNullIsValid(): void
@@ -64,13 +61,13 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
 
     public function testExpectsStringCompatibleType(): void
     {
-        $this->expectException('Symfony\Component\Validator\Exception\UnexpectedValueException');
+        $this->expectException(UnexpectedValueException::class);
         $constraint = new NoLineBreaks();
         $this->validator->validate(new \stdClass(), $constraint);
     }
 
     #[DataProvider('getValid')]
-    public function testValid($value): void
+    public function testValid(string $value): void
     {
         $constraint = new NoLineBreaks();
 
@@ -80,7 +77,7 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
     }
 
     #[DataProvider('getInvalid')]
-    public function testInvalid($value, $code): void
+    public function testInvalid(string $value, string $code): void
     {
         $constraint = new NoLineBreaks();
 

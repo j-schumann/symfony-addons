@@ -34,7 +34,7 @@ class ArrayUtil
         // we just need to deduplicate values.
         // We cannot use array_unique($merged, SORT_REGULAR) as this would also
         // remove equal arrays on different keys, but we want to keep those.
-        $deduplicate = static function (array $list) use (&$deduplicate) {
+        $deduplicate = static function (array $list) use (&$deduplicate): array {
             $values = [];
             $deduplicated = [];
             foreach ($list as $k => $v) {

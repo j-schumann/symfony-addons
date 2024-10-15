@@ -45,7 +45,7 @@ class ResetLoggerSubscriber implements EventSubscriberInterface, LoggerAwareInte
      * processor is used for all handlers, we don't want to reset the ID twice
      * and possibly split messages between the IDs.
      */
-    public function resetLogger()
+    public function resetLogger(): void
     {
         if ('app' !== $this->logger->getName()) {
             return;
@@ -64,7 +64,7 @@ class ResetLoggerSubscriber implements EventSubscriberInterface, LoggerAwareInte
      * After a message was processed flash any buffer handlers, we don't want
      * to wait till the next message to see the logs.
      */
-    public function flushLogger()
+    public function flushLogger(): void
     {
         // don't simply reset() the logger itself, this would cause the UID to
         // change too, which would separate log entries coming after this event

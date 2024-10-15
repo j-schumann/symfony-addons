@@ -13,7 +13,7 @@ class PasswordStrength extends Constraint
 
     protected float $minStrength = 25;
 
-    public function __construct($options = null, ?array $groups = null, $payload = null)
+    public function __construct(mixed $options = null, ?array $groups = null, mixed $payload = null)
     {
         parent::__construct($options, $groups, $payload);
 

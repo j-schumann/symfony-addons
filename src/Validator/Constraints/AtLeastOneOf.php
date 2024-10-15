@@ -14,7 +14,7 @@ class AtLeastOneOf extends BaseAtLeastOneOf
         ?array $groups = null,
         mixed $payload = null,
         string $message = '',
-        ?string $messageCollection = null
+        ?string $messageCollection = null,
     ) {
         parent::__construct(
             $constraints,

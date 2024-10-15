@@ -21,10 +21,10 @@ class FormDecoderTest extends KernelTestCase
             ->getMock();
 
         $mockedClient
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('doRequest')
             ->with($this->callback(
-                function ($request) {
+                function ($request): true {
                     $stack = new RequestStack();
                     $stack->push($request);
 

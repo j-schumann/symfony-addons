@@ -23,10 +23,10 @@ class MultipartDecoderTest extends KernelTestCase
             ->getMock();
 
         $mockedClient
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('doRequest')
             ->with($this->callback(
-                function ($request) {
+                function ($request): true {
                     $stack = new RequestStack();
                     $stack->push($request);
 
@@ -84,7 +84,7 @@ class MultipartDecoderTest extends KernelTestCase
         ?string $mimeType,
         string $url,
         string $method = 'POST',
-        array $params = []
+        array $params = [],
     ): void {
         $uploadedFile = null;
 

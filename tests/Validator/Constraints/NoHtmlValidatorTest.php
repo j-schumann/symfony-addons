@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\NoHtml;
 use Vrok\SymfonyAddons\Validator\Constraints\NoHtmlValidator;
@@ -16,31 +17,27 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         return new NoHtmlValidator();
     }
 
-    public static function getValid(): array
+    public static function getValid(): \Iterator
     {
-        return [
-            ['teststring'],
-            ['0'],
-            [' test '],
-            ['11 < 12'],
-            // ['is 11<12 ?'], fails but should be valid
-            ['12 > 11'],
-            ['11 < 12 and 13 > 11'],
-            ['What is?>'],
-            // [' close <3 heart, and 13 > 12'], fails but should be valid
-        ];
+        yield ['teststring'];
+        yield ['0'];
+        yield [' test '];
+        yield ['11 < 12'];
+        // ['is 11<12 ?'], fails but should be valid
+        yield ['12 > 11'];
+        yield ['11 < 12 and 13 > 11'];
+        yield ['What is?>'];
+        // [' close <3 heart, and 13 > 12'], fails but should be valid
     }
 
-    public static function getInvalid(): array
+    public static function getInvalid(): \Iterator
     {
-        return [
-            ['This is <b>bold</b>'],
-            ['1119<br>0231'],
-            ['1684<br />5312'],
-            ['1996 <? echo 1; ?> test'],
-            ['1684 <?php echo 2;?> test'],
-            ['this is not valid <a script tag>abc</a>'],
-        ];
+        yield ['This is <b>bold</b>'];
+        yield ['1119<br>0231'];
+        yield ['1684<br />5312'];
+        yield ['1996 <? echo 1; ?> test'];
+        yield ['1684 <?php echo 2;?> test'];
+        yield ['this is not valid <a script tag>abc</a>'];
     }
 
     public function testNullIsValid(): void
@@ -63,13 +60,13 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
 
     public function testExpectsStringCompatibleType(): void
     {
-        $this->expectException('Symfony\Component\Validator\Exception\UnexpectedValueException');
+        $this->expectException(UnexpectedValueException::class);
         $constraint = new NoHtml();
         $this->validator->validate(new \stdClass(), $constraint);
     }
 
     #[DataProvider('getValid')]
-    public function testValid($value): void
+    public function testValid(string $value): void
     {
         $constraint = new NoHtml();
 
@@ -79,7 +76,7 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
     }
 
     #[DataProvider('getInvalid')]
-    public function testInvalid($value): void
+    public function testInvalid(string $value): void
     {
         $constraint = new NoHtml();
 

@@ -16,20 +16,16 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         return new PasswordStrengthValidator();
     }
 
-    public static function getValid(): array
+    public static function getValid(): \Iterator
     {
-        return [
-            ['password of multiple words'],
-            ['l0ngPa$$w0rd'],
-        ];
+        yield ['password of multiple words'];
+        yield ['l0ngPa$$w0rd'];
     }
 
-    public static function getInvalid(): array
+    public static function getInvalid(): \Iterator
     {
-        return [
-            ['1234567890'],
-            ['aaaaaaaaaaa'],
-        ];
+        yield ['1234567890'];
+        yield ['aaaaaaaaaaa'];
     }
 
     public function testNullIsValid(): void
@@ -43,7 +39,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
 
     public function testExpectsStringCompatibleType(): void
     {
-        $this->expectException('Symfony\Component\Validator\Exception\UnexpectedValueException');
+        $this->expectException(\Symfony\Component\Validator\Exception\UnexpectedValueException::class);
         $constraint = new PasswordStrength();
         $this->validator->validate(new \stdClass(), $constraint);
     }
@@ -59,7 +55,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
     }
 
     #[DataProvider('getValid')]
-    public function testValid($value): void
+    public function testValid(string $value): void
     {
         $constraint = new PasswordStrength();
 
@@ -69,7 +65,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
     }
 
     #[DataProvider('getInvalid')]
-    public function testInvalid($value): void
+    public function testInvalid(string $value): void
     {
         $constraint = new PasswordStrength();
 

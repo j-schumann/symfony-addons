@@ -22,7 +22,7 @@ class ContainsFilterTest extends KernelTestCase
         $doctrine =  static::getContainer()->get('doctrine');
         $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null], null);
 
-        $this->assertEquals([
+        self::assertEquals([
             'jsonColumn'   => [
                 'property' => 'jsonColumn',
                 'type'     => 'mixed',
@@ -56,7 +56,7 @@ class ContainsFilterTest extends KernelTestCase
         $param = $qb->getParameter('jsonColumn_p1');
         self::assertSame('testVal', $param->getValue());
 
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             'WHERE CONTAINS(o.jsonColumn, :jsonColumn_p1) = true',
             (string) $qb
         );
@@ -84,7 +84,7 @@ class ContainsFilterTest extends KernelTestCase
         $param = $qb->getParameter('jsonColumn_p2');
         self::assertSame('otherVal', $param->getValue());
 
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             'WHERE CONTAINS(o.jsonColumn, :jsonColumn_p1) = true AND CONTAINS(o.jsonColumn, :jsonColumn_p2) = true',
             (string) $qb
         );

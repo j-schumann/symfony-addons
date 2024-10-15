@@ -6,7 +6,6 @@ namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
 use Monolog\Level;
 use PHPUnit\Framework\AssertionFailedError;
-use Symfony\Component\BrowserKit\Response;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 
@@ -89,7 +88,7 @@ class OperationTest extends ApiPlatformTestCase
     public function testTestOperationDetectsDispatchedEvents(): void
     {
         $response = $this->testOperation([
-            'uri'         => '/test',
+            'uri'              => '/test',
             'dispatchedEvents' => ['kernel.terminate'],
         ]);
 
@@ -102,7 +101,7 @@ class OperationTest extends ApiPlatformTestCase
         $this->expectExceptionMessage("Expected event 'failedEvent' was not dispatched");
 
         $this->testOperation([
-            'uri'         => '/test',
+            'uri'              => '/test',
             'dispatchedEvents' => ['failedEvent'],
         ]);
     }
@@ -124,7 +123,7 @@ class OperationTest extends ApiPlatformTestCase
         $this->expectExceptionMessage('Failed asserting that the Transport has sent "1" emails (0 sent).');
 
         $this->testOperation([
-            'uri'         => '/test',
+            'uri'        => '/test',
             'emailCount' => 1,
         ]);
     }

@@ -13,7 +13,7 @@ class VrokSymfonyAddonsBundle extends AbstractBundle
     public function loadExtension(
         array $config,
         ContainerConfigurator $container,
-        ContainerBuilder $builder
+        ContainerBuilder $builder,
     ): void {
         $container->import(__DIR__.'/../config/services.yaml');
     }

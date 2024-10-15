@@ -34,7 +34,7 @@ class WorkflowHelperTest extends KernelTestCase
         $dispatcher = static::getContainer()->get(EventDispatcherInterface::class);
         $dispatcher->addListener(
             'workflow.demo.guard.review',
-            static function (GuardEvent $event) {
+            static function (GuardEvent $event): void {
                 $event->addTransitionBlocker(new TransitionBlocker(
                     'transitionIsBlocked',
                     'guardFail'
@@ -63,7 +63,7 @@ class WorkflowHelperTest extends KernelTestCase
         $dispatcher = static::getContainer()->get(EventDispatcherInterface::class);
         $dispatcher->addListener(
             'workflow.demo.guard.review',
-            static function (GuardEvent $event) {
+            static function (GuardEvent $event): void {
                 $event->setBlocked(true, 'review failed');
             }
         );

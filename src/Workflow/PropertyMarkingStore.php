@@ -12,7 +12,7 @@ class PropertyMarkingStore implements MarkingStoreInterface
 {
     public function __construct(
         private readonly bool $singleState = false,
-        private readonly string $property = 'marking'
+        private readonly string $property = 'marking',
     ) {
     }
 

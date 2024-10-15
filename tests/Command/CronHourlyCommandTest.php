@@ -30,7 +30,7 @@ class CronHourlyCommandTest extends KernelTestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
 
-        $this->assertSame(
+        self::assertSame(
             CronHourlyCommand::SUCCESS,
             $commandTester->getStatusCode()
         );

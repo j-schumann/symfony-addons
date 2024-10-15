@@ -6,7 +6,7 @@ namespace Vrok\SymfonyAddons\Filter;
 
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Exception\InvalidArgumentException;
+use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Operation;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\QueryBuilder;
@@ -43,7 +43,7 @@ class SimpleSearchFilter extends AbstractFilter
         $this->addWhere($queryBuilder, $value, $queryNameGenerator->generateParameterName($property));
     }
 
-    private function addWhere(QueryBuilder $queryBuilder, $value, $parameterName)
+    private function addWhere(QueryBuilder $queryBuilder, $value, string $parameterName): void
     {
         $alias = $queryBuilder->getRootAliases()[0];
 
@@ -69,7 +69,7 @@ class SimpleSearchFilter extends AbstractFilter
 
         $queryBuilder
             ->andWhere("($orExp)")
-            ->setParameter($parameterName, '%'.strtolower($value).'%');
+            ->setParameter($parameterName, '%'.strtolower((string) $value).'%');
     }
 
     public function getDescription(string $resourceClass): array

@@ -22,61 +22,49 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         return new AtLeastOneOfValidator();
     }
 
-    public static function getValid(): array
+    public static function getValid(): \Iterator
     {
-        return [
-            [null],
-            [''],
-            ['12'],
-        ];
+        yield [null];
+        yield [''];
+        yield ['12'];
     }
 
-    public static function getInvalid(): array
+    public static function getInvalid(): \Iterator
     {
-        return [
-            [' '],
-            ['1'],
-        ];
+        yield [' '];
+        yield ['1'];
     }
 
-    public static function getValidSequentially(): array
+    public static function getValidSequentially(): \Iterator
     {
-        return [
-            [null],
-            [''],
-            ['123'],
-        ];
+        yield [null];
+        yield [''];
+        yield ['123'];
     }
 
-    public static function getInvalidSequentially(): array
+    public static function getInvalidSequentially(): \Iterator
     {
-        return [
-            [' ', 'minMessage'],
-            ['1', 'minMessage'],
-            ['1234', 'maxMessage'],
-        ];
+        yield [' ', 'minMessage'];
+        yield ['1', 'minMessage'];
+        yield ['1234', 'maxMessage'];
     }
 
-    public static function getValidAll(): array
+    public static function getValidAll(): \Iterator
     {
-        return [
-            [null],
-            [[]],
-            [['123']],
-        ];
+        yield [null];
+        yield [[]];
+        yield [['123']];
     }
 
-    public static function getInvalidAll(): array
+    public static function getInvalidAll(): \Iterator
     {
-        return [
-            [[' '], 'minMessage'],
-            [['1'], 'minMessage'],
-            [['1234'], 'maxMessage'],
-        ];
+        yield [[' '], 'minMessage'];
+        yield [['1'], 'minMessage'];
+        yield [['1234'], 'maxMessage'];
     }
 
     #[DataProvider('getValid')]
-    public function testValid($value): void
+    public function testValid(?string $value): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -85,11 +73,11 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
 
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
-        $this->assertCount(0, $violations);
+        self::assertCount(0, $violations);
     }
 
     #[DataProvider('getValidSequentially')]
-    public function testValidSequentially($value): void
+    public function testValidSequentially(?string $value): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -101,11 +89,11 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
 
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
-        $this->assertCount(0, $violations);
+        self::assertCount(0, $violations);
     }
 
     #[DataProvider('getValidAll')]
-    public function testValidAll($value): void
+    public function testValidAll(?array $value): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -117,11 +105,11 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
 
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
-        $this->assertCount(0, $violations);
+        self::assertCount(0, $violations);
     }
 
     #[DataProvider('getInvalid')]
-    public function testInvalid($value): void
+    public function testInvalid(string $value): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -131,12 +119,12 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
 
-        $this->assertCount(1, $violations);
-        $this->assertEquals(new ConstraintViolation('minMessage', 'minMessage', [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertCount(1, $violations);
+        self::assertEquals(new ConstraintViolation('minMessage', 'minMessage', [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
     #[DataProvider('getInvalidSequentially')]
-    public function testInvalidSequentially($value, $message): void
+    public function testInvalidSequentially(string $value, string $message): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -149,12 +137,12 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
 
-        $this->assertCount(1, $violations);
-        $this->assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertCount(1, $violations);
+        self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
     #[DataProvider('getInvalidAll')]
-    public function testInvalidAll($value, $message): void
+    public function testInvalidAll(array $value, string $message): void
     {
         $constraint = new AtLeastOneOf([
             new Blank(),
@@ -167,8 +155,8 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
 
-        $this->assertCount(1, $violations);
-        $this->assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertCount(1, $violations);
+        self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
     public function testCustomMessage(): void
@@ -185,7 +173,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
 
-        $this->assertCount(1, $violations);
-        $this->assertEquals(new ConstraintViolation('customMessage', 'customMessage', [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertCount(1, $violations);
+        self::assertEquals(new ConstraintViolation('customMessage', 'customMessage', [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 }

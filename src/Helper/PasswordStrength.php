@@ -140,7 +140,7 @@ class PasswordStrength
         }
 
         // bonus if pw consists of 4 or more separate words
-        if (count(explode(' ', preg_replace('/\s+/', ' ', $password))) > 3) {
+        if (count(explode(' ', (string) preg_replace('/\s+/', ' ', $password))) > 3) {
             ++$extrabits;
         }
 

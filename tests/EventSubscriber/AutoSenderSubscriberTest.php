@@ -15,9 +15,9 @@ class AutoSenderSubscriberTest extends TestCase
     public function testRegistersEvent(): void
     {
         $events = AutoSenderSubscriber::getSubscribedEvents();
-        $this->assertIsArray($events);
-        $this->assertArrayHasKey(MessageEvent::class, $events);
-        $this->assertSame('onMessage', $events[MessageEvent::class]);
+        self::assertIsArray($events);
+        self::assertArrayHasKey(MessageEvent::class, $events);
+        self::assertSame('onMessage', $events[MessageEvent::class]);
     }
 
     public function testAddsSenderAddress(): void
@@ -32,12 +32,12 @@ class AutoSenderSubscriberTest extends TestCase
 
         $subscriber->onMessage($event);
 
-        $this->assertNotNull($email->getFrom());
+        self::assertNotNull($email->getFrom());
         $from = $email->getFrom();
-        $this->assertIsArray($from);
-        $this->assertCount(1, $from);
-        $this->assertSame('test@domain.tld', $from[0]->getAddress());
-        $this->assertSame('Sender', $from[0]->getName());
+        self::assertIsArray($from);
+        self::assertCount(1, $from);
+        self::assertSame('test@domain.tld', $from[0]->getAddress());
+        self::assertSame('Sender', $from[0]->getName());
     }
 
     public function testKeepsExistingSender(): void
@@ -53,11 +53,11 @@ class AutoSenderSubscriberTest extends TestCase
 
         $subscriber->onMessage($event);
 
-        $this->assertNotNull($email->getFrom());
+        self::assertNotNull($email->getFrom());
         $from = $email->getFrom();
-        $this->assertIsArray($from);
-        $this->assertCount(1, $from);
-        $this->assertSame('sender@domain.tld', $from[0]->getAddress());
-        $this->assertSame('', $from[0]->getName());
+        self::assertIsArray($from);
+        self::assertCount(1, $from);
+        self::assertSame('sender@domain.tld', $from[0]->getAddress());
+        self::assertSame('', $from[0]->getName());
     }
 }

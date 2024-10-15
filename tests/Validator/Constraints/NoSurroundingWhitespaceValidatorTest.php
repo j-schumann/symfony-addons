@@ -6,6 +6,7 @@ namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Constraints\RegexValidator;
+use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\NoSurroundingWhitespace;
 
@@ -16,56 +17,52 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
         return new RegexValidator();
     }
 
-    public static function getValid(): array
+    public static function getValid(): \Iterator
     {
-        return [
-            ["test\tstring"], // tab inside
-            ['.0 d'], // space inside
-            ['*tes t'],
-            ['_as d@'],
+        yield ["test\tstring"]; // tab inside
+        yield ['.0 d']; // space inside
+        yield ['*tes t'];
+        yield ['_as d@'];
 
-            // make sure linebreaks within the string are allowed:
-            ["valid\nmultiline"],
-            ["valid\n space multiline"],
-            ["valid\r\nwindows multiline"],
-            ["new\x0bline"], // vertical tab
-            ["new\xc2\x85line"], // NEL, Next Line
-            ["test\vspace"], // vertical space
-            ["new\xe2\x80\xa8line"], // Unicode LS
-            ["new\xe2\x80\xa9line"], // Unicode PS
-        ];
+        // make sure linebreaks within the string are allowed:
+        yield ["valid\nmultiline"];
+        yield ["valid\n space multiline"];
+        yield ["valid\r\nwindows multiline"];
+        yield ["new\x0bline"]; // vertical tab
+        yield ["new\xc2\x85line"]; // NEL, Next Line
+        yield ["test\vspace"]; // vertical space
+        yield ["new\xe2\x80\xa8line"];// Unicode LS
+        yield ["new\xe2\x80\xa9line"]; // Unicode PS
     }
 
-    public static function getInvalid(): array
+    public static function getInvalid(): \Iterator
     {
-        return [
-            // whitespace character at the beginning or end:
-            [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            ['asd  ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            ["\tasd", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            ["asd\t", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'],
-            [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // THSP leading
-            ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // THSP trailing
-            [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // NQSP
-            [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // MQSP
-            ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // ENSP
-            ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // EMSP
-            ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // 3/MSP
+        // whitespace character at the beginning or end:
+        yield [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
+        yield ['asd  ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
+        yield ["\tasd", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
+        yield ["asd\t", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
+        yield [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // THSP leading
+        yield ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // THSP trailing
+        yield [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // NQSP
+        yield [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // MQSP
+        yield ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // ENSP
+        yield ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // EMSP
+        yield ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // 3/MSP
 
-            // leading/trailing newline characters:
-            ["a\nb\n", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // trailing newline
-            ["\na\nb", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // leading newline
-            ["new\x0b", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // vertical tab
-            ["\x0btest", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // vertical tab
-            ["new\xc2\x85", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // NEL, Next Line
-            ["\xc2\x85test", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // NEL, Next Line
-            ["test\v", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // vertical space
-            ["\vtest", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // vertical space
-            ["new\xe2\x80\xa8", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // Unicode LS
-            ["\xe2\x80\xa8test", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // Unicode LS
-            ["new\xe2\x80\xa9", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // Unicode PS
-            ["\xe2\x80\xa9test", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'], // Unicode PS
-        ];
+        // leading/trailing newline characters:
+        yield ["a\nb\n", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // trailing newline
+        yield ["\na\nb", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // leading newline
+        yield ["new\x0b", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical tab
+        yield ["\x0btest", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical tab
+        yield ["new\xc2\x85", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // NEL, Next Line
+        yield ["\xc2\x85test", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // NEL, Next Line
+        yield ["test\v", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical space
+        yield ["\vtest", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical space
+        yield ["new\xe2\x80\xa8", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode LS
+        yield ["\xe2\x80\xa8test", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode LS
+        yield ["new\xe2\x80\xa9", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode PS
+        yield ["\xe2\x80\xa9test", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode PS
     }
 
     public function testNullIsValid(): void
@@ -88,13 +85,13 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
 
     public function testExpectsStringCompatibleType(): void
     {
-        $this->expectException('Symfony\Component\Validator\Exception\UnexpectedValueException');
+        $this->expectException(UnexpectedValueException::class);
         $constraint = new NoSurroundingWhitespace();
         $this->validator->validate(new \stdClass(), $constraint);
     }
 
     #[DataProvider('getValid')]
-    public function testValid($value): void
+    public function testValid(string $value): void
     {
         $constraint = new NoSurroundingWhitespace();
 
@@ -104,7 +101,7 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
     }
 
     #[DataProvider('getInvalid')]
-    public function testInvalid($value, $code): void
+    public function testInvalid(string $value, string $code): void
     {
         $constraint = new NoSurroundingWhitespace();
 

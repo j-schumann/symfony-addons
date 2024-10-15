@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\PHPUnit;
 
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use function PHPUnit\Framework\assertTrue;
 
 /**
  * Helper class that contains often used functionality to simplify testing
@@ -423,7 +422,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     public static function prepareUploadedFile(
         string $path,
         string $originalName,
-        string $mimeType
+        string $mimeType,
     ): UploadedFile {
         // don't directly use the given file as the upload handler will
         // most probably move or delete the received file -> copy to temp file

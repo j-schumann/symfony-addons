@@ -60,7 +60,7 @@ class ArrayUtilTest extends TestCase
         self::assertContains('g', $result['a']);
     }
 
-    public function testMergeValuesWithEqualNestedArraysOnDifferentKeys()
+    public function testMergeValuesWithEqualNestedArraysOnDifferentKeys(): void
     {
         $result = ArrayUtil::mergeValues(
             ['key1' => self::A],
@@ -97,13 +97,13 @@ class ArrayUtilTest extends TestCase
     }
 
     #[DataProvider('provideNonDuplicates')]
-    public function testHasDuplicatesReturnsFalseCorrectly($value): void
+    public function testHasDuplicatesReturnsFalseCorrectly(array $value): void
     {
         self::assertFalse(ArrayUtil::hasDuplicates($value));
     }
 
     #[DataProvider('provideDuplicates')]
-    public function testHasDuplicatesDetectsDuplicatesCorrectly($value): void
+    public function testHasDuplicatesDetectsDuplicatesCorrectly(array $value): void
     {
         self::assertTrue(ArrayUtil::hasDuplicates($value));
     }
@@ -114,29 +114,23 @@ class ArrayUtilTest extends TestCase
         ArrayUtil::hasDuplicates('a');
     }
 
-    public static function provideNonDuplicates(): array
+    public static function provideNonDuplicates(): \Iterator
     {
-        return [
-            [['a', 1, 'b']],
-            [[new \DateTimeImmutable(), new \DateTimeImmutable()]],
-            [[['a'], ['b']]],
-            [[[1 => 'a'], [2 => 'a']]],
-        ];
+        yield [['a', 1, 'b']];
+        yield [[new \DateTimeImmutable(), new \DateTimeImmutable()]];
+        yield [[['a'], ['b']]];
+        yield [[[1 => 'a'], [2 => 'a']]];
     }
 
-    public static function provideDuplicates(): array
+    public static function provideDuplicates(): \Iterator
     {
         $dt = new \DateTimeImmutable();
-
-        return [
-            [['a', 1, 'a']],
-            [[1, 'a', 1]],
-            [[['a'], ['a']]],
-            [[$dt, 'a', $dt]],
-
-            // @todo ambiguous, with strict types this should *not* be detected
-            // as duplicates but SORT_REGULAR reports it
-            [['a', 1, '1']],
-        ];
+        yield [['a', 1, 'a']];
+        yield [[1, 'a', 1]];
+        yield [[['a'], ['a']]];
+        yield [[$dt, 'a', $dt]];
+        // @todo ambiguous, with strict types this should *not* be detected
+        // as duplicates but SORT_REGULAR reports it
+        yield [['a', 1, '1']];
     }
 }

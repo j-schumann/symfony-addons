@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints\RegexValidator;
 #[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD)]
 class NoLineBreaks extends Regex
 {
-    public function __construct($options = null)
+    public function __construct(string|array|null $options = null)
     {
         if (!isset($options['match'])) {
             $options['match'] = false;

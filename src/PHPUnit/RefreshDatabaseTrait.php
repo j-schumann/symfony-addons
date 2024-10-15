@@ -24,7 +24,7 @@ trait RefreshDatabaseTrait
     /**
      * @var array fixture group(s) to apply
      */
-    protected static $fixtureGroups = ['test'];
+    protected static array $fixtureGroups = ['test'];
 
     /**
      * @var string Defaults to "purge", can be overwritten by setting the ENV
@@ -38,17 +38,14 @@ trait RefreshDatabaseTrait
      * this for databases that do not support disabling foreign keys like
      * MS SqlServer.
      */
-    protected static $cleanupMethod = 'purge';
+    protected static string $cleanupMethod = 'purge';
 
     /**
      * @var bool Flag whether db schema was updated/checked or not
      */
-    protected static $schemaUpdated = false;
+    protected static bool $schemaUpdated = false;
 
-    /**
-     * @var array
-     */
-    protected static $fixtures;
+    protected static ?array $fixtures = null;
 
     /**
      * Called on each test that calls bootKernel() or uses createClient().
@@ -92,7 +89,7 @@ trait RefreshDatabaseTrait
             $executor->purge();
         }
 
-        if (count($fixtures)) {
+        if ([] !== $fixtures) {
             $executor->execute($fixtures, true);
         }
 
@@ -133,7 +130,7 @@ trait RefreshDatabaseTrait
      */
     protected static function getFixtures(ContainerInterface $container): array
     {
-        if (empty(static::$fixtureGroups)) {
+        if ([] === static::$fixtureGroups) {
             // the fixture loader returns all possible fixtures if called
             // with an empty array -> catch here
             return [];

@@ -10,24 +10,22 @@ use Vrok\SymfonyAddons\Helper\PasswordStrength;
 
 class PasswordStrengthTest extends TestCase
 {
-    public static function getValues(): array
+    public static function getValues(): \Iterator
     {
-        return [
-            ['', -6.0],
-            ['11112222', 7.9375],
-            ['1234567890', 16.0],
-            ['password', 17.5],
-            ['p4ssw0rd', 18.5],
-            ['PassWord', 19.5],
-            ['pa$$word', 19.5],
-            ['P4$$w0rd', 22.5],
-            ['longerP4$$w0rd', 31.25],
-            ['only some irrelevant words', 39.40625],
-        ];
+        yield ['', -6.0];
+        yield ['11112222', 7.9375];
+        yield ['1234567890', 16.0];
+        yield ['password', 17.5];
+        yield ['p4ssw0rd', 18.5];
+        yield ['PassWord', 19.5];
+        yield ['pa$$word', 19.5];
+        yield ['P4$$w0rd', 22.5];
+        yield ['longerP4$$w0rd', 31.25];
+        yield ['only some irrelevant words', 39.40625];
     }
 
     #[DataProvider('getValues')]
-    public function testGetStrength($value, $strength): void
+    public function testGetStrength(string $value, float $strength): void
     {
         $pwStrength = new PasswordStrength();
         $calculated = $pwStrength->getStrength($value);

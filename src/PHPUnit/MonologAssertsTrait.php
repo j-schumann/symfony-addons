@@ -14,7 +14,7 @@ use Psr\Log\LoggerInterface;
  */
 trait MonologAssertsTrait
 {
-    public static function prepareLogger()
+    public static function prepareLogger(): void
     {
         /** @var Logger $logger */
         $logger = static::getContainer()->get(LoggerInterface::class);
