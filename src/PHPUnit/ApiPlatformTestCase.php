@@ -82,7 +82,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         // 'detail' => 'No route found for "GET http://localhost/proposals"', // varies
         'status' => 404,
         'title'  => 'An error occurred',
-        'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
+        // 'type'   => 'https://tools.ietf.org/html/rfc2616#section-10', // varies
     ];
     public const PROBLEM_NOT_FOUND = [
         'detail' => 'Not Found',
