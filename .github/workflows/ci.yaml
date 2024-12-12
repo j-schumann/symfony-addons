@@ -63,19 +63,20 @@ jobs:
           - '8.2'
           - '8.3'
           - '8.4'
+          - '8.5'
         dependencies: [lowest, highest]
         database: [sqlite]
         include:
-          - php: '8.3'
+          - php: '8.4'
             dependencies: highest
             coverage: true
-          - php: '8.3'
+          - php: '8.4'
             database: mariadb
             dependencies: highest
-          - php: '8.3'
+          - php: '8.4'
             database: mysql
             dependencies: highest
-          - php: '8.3'
+          - php: '8.4'
             database: postgres
             dependencies: highest
       fail-fast: false # continue the other jobs if one fails
