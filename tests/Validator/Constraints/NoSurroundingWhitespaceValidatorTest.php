@@ -31,7 +31,7 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
         yield ["new\x0bline"]; // vertical tab
         yield ["new\xc2\x85line"]; // NEL, Next Line
         yield ["test\vspace"]; // vertical space
-        yield ["new\xe2\x80\xa8line"];// Unicode LS
+        yield ["new\xe2\x80\xa8line"]; // Unicode LS
         yield ["new\xe2\x80\xa9line"]; // Unicode PS
     }
 

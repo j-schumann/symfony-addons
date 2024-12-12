@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
+use ApiPlatform\Metadata\Get;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -14,6 +15,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
+use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 #[Group('database')]
@@ -76,7 +78,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
             ->createQueryBuilder('o');
 
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new \ApiPlatform\Metadata\Get(), [
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
             'filters' => [
                 'pattern' => 'testVal',
             ],
@@ -108,7 +110,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
             ->createQueryBuilder('o');
 
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new \ApiPlatform\Metadata\Get(), [
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
             'filters' => [
                 'pattern' => 'testVal',
             ],
@@ -157,7 +159,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
             ->createQueryBuilder('o');
 
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new \ApiPlatform\Metadata\Get(), [
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
             'filters' => [
                 'pattern' => 'eins TEXT',
             ],
@@ -200,7 +202,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
             ->createQueryBuilder('o');
 
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new \ApiPlatform\Metadata\Get(), [
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
             'filters' => [
                 'pattern' => 'zwei VAR',
             ],
@@ -241,7 +243,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
             ->createQueryBuilder('o');
 
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new \ApiPlatform\Metadata\Get(), [
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
             'filters' => [
                 'pattern' => 'zwei JS',
             ],
@@ -253,6 +255,61 @@ class SimpleSearchFilterTest extends KernelTestCase
         self::assertSame(['record ZWEI json'], $result[0]->jsonColumn);
     }
 
+    public function testSearchInAssociation(): void
+    {
+        $this->setupSchema();
+
+        /** @var ManagerRegistry $doctrine */
+        $doctrine =  static::getContainer()->get('doctrine');
+        $em = $doctrine->getManager();
+
+        $rec1 = new TestEntity();
+        $rec1->textColumn = 'record EINS text';
+        $rec1->varcharColumn = 'record EINS varchar';
+        $em->persist($rec1);
+
+        $child1 = new Child();
+        $child1->varcharColumn = 'child EINS varchar';
+        $child1->testEntity = $rec1;
+        $rec1->children->add($child1);
+
+        $rec2 = new TestEntity();
+        $rec2->textColumn = 'record ZWEI text';
+        $rec2->varcharColumn = 'record ZWEI varchar';
+        $em->persist($rec2);
+
+        $child2 = new Child();
+        $child2->varcharColumn = 'child ZWEI varchar';
+        $child2->testEntity = $rec2;
+        $rec2->children->add($child2);
+
+        $em->flush();
+        $em->clear();
+
+        $filter = new SimpleSearchFilter(
+            $doctrine,
+            null,
+            ['children.varcharColumn' => null],
+            null
+        );
+        $doctrine =  static::getContainer()->get('doctrine');
+        $queryNameGen = new QueryNameGenerator();
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
+            'filters' => [
+                'pattern' => 'ILD zwei',
+            ],
+        ]);
+
+        $result = $qb->getQuery()->getResult();
+        self::assertCount(1, $result);
+        self::assertInstanceOf(TestEntity::class, $result[0]);
+        self::assertSame('record ZWEI text', $result[0]->textColumn);
+    }
+
     protected function setupSchema(): void
     {
         /** @var ManagerRegistry $doctrine */
@@ -262,6 +319,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $tool = new SchemaTool($em);
         $classes = [
             $em->getClassMetadata(TestEntity::class),
+            $em->getClassMetadata(Child::class),
         ];
         $tool->dropSchema($classes);
         $tool->createSchema($classes);

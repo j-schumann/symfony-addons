@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Vrok\SymfonyAddons\Tests\Fixtures\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -26,6 +28,14 @@ class TestEntity
     #[ORM\Column(type: Types::STRING, length: 255)]
     public string $varcharColumn = '';
 
+    #[ORM\OneToMany(
+        targetEntity: Child::class,
+        mappedBy: 'testEntity',
+        cascade: ['persist', 'remove'],
+        orphanRemoval: true,
+    )]
+    public Collection $children;
+
     // region Workflow tests
     public function setState(string $state): void
     {
@@ -37,4 +47,9 @@ class TestEntity
         return $this->varcharColumn;
     }
     // endregion
+
+    public function __construct()
+    {
+        $this->children = new ArrayCollection();
+    }
 }

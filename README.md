@@ -659,7 +659,9 @@ class MyEventSubscriber implements EventSubscriberInterface
 ### SimpleSearchFilter
 
 Selects entities where the search term is found (case insensitive) in at least
-one of the specified properties. All specified properties type must be string.
+one of the specified properties. The properties can also be of relations, e.g.
+`child.name`. All specified properties must be string types (varchar, text etc.)
+or JSON fields (Postgres only), in that case the JSON is cast to string first.
 
 ```php
 #[ApiFilter(
@@ -668,6 +670,8 @@ one of the specified properties. All specified properties type must be string.
         'description',
         'name',
         'slug',
+        'parent.title',
+        'children.content',
     ],
     arguments: ['searchParameterName' => 'pattern']
 )]
