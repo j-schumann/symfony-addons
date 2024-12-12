@@ -28,6 +28,9 @@ class TestEntity
     #[ORM\Column(type: Types::STRING, length: 255)]
     public string $varcharColumn = '';
 
+    /**
+     * @var Collection<int, Child>|Child[]
+     */
     #[ORM\OneToMany(
         targetEntity: Child::class,
         mappedBy: 'testEntity',
