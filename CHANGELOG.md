@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 * SimpleSearchFilter can search in relations
 
+## [2.13.1] - 2024-10-16
+### Fixed
+* APIP error constant
+
 ## [2.13.0] - 2024-10-15
 ### Updated
 * config loading
