@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.15.0] - 2025-02-12
+### Updated
+* ApiPlatformTestCase now throws an error when unsupported parameters
+  are supplied, to allow spotting skipped tests e.g. because of typos.
+
 ## [2.14.0] - 2024-12-12
 ### Added
 * SimpleSearchFilter can search in relations

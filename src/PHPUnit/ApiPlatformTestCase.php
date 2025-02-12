@@ -169,6 +169,28 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     ] + self::PROBLEM_500;
     // endregion
 
+    public const SUPPORTED_OPERATION_PARAMS = [
+        'contentType',
+        'createdLogs',
+        'dispatchedEvents',
+        'email',
+        'emailCount',
+        'files',
+        'forbiddenKeys',
+        'iri',
+        'json',
+        'messageCount',
+        'method',
+        'postFormAuth',
+        'prepare',
+        'requestOptions',
+        'requiredKeys',
+        'responseCode',
+        'schemaClass',
+        'skipRefresh',
+        'uri',
+    ];
+
     protected static ?Client $httpClient = null;
 
     /**
@@ -226,6 +248,12 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      */
     protected function testOperation(array $params): ResponseInterface
     {
+        $invalidKeys = array_diff(array_keys($params), self::SUPPORTED_OPERATION_PARAMS);
+        if ([] !== $invalidKeys) {
+            $keys = implode('", "', $invalidKeys);
+            throw new \LogicException("Got unsupported parameter(s): \"$keys\" - maybe a typo?");
+        }
+
         // in some cases we want two testOperations to be executed in one
         // testcase after each other, without refreshing the database. But
         // we cannot separate booting the kernel / refreshing from creating
