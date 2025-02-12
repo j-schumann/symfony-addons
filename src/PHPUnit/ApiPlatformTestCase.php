@@ -173,6 +173,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'contentType',
         'createdLogs',
         'dispatchedEvents',
+        'dispatchedMessages',
         'email',
         'emailCount',
         'files',
