@@ -73,7 +73,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
 
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
-        self::assertCount(0, $violations);
+        self::assertSame(0, $violations->count());
     }
 
     #[DataProvider('getValidSequentially')]
@@ -89,7 +89,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
 
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
-        self::assertCount(0, $violations);
+        self::assertSame(0, $violations->count());
     }
 
     #[DataProvider('getValidAll')]
@@ -105,7 +105,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
 
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
-        self::assertCount(0, $violations);
+        self::assertSame(0, $violations->count());
     }
 
     #[DataProvider('getInvalid')]
@@ -119,7 +119,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
 
-        self::assertCount(1, $violations);
+        self::assertSame(1, $violations->count());
         self::assertEquals(new ConstraintViolation('minMessage', 'minMessage', [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
@@ -137,7 +137,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
 
-        self::assertCount(1, $violations);
+        self::assertSame(1, $violations->count());
         self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
@@ -155,7 +155,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
 
-        self::assertCount(1, $violations);
+        self::assertSame(1, $violations->count());
         self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
@@ -173,7 +173,7 @@ class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $validator = Validation::createValidator();
         $violations = $validator->validate($value, $constraint);
 
-        self::assertCount(1, $violations);
+        self::assertSame(1, $violations->count());
         self::assertEquals(new ConstraintViolation('customMessage', 'customMessage', [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 }
