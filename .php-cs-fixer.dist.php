@@ -7,9 +7,13 @@ $finder = PhpCsFixer\Finder::create()
 
 $config = new PhpCsFixer\Config();
 return $config
+    ->setRiskyAllowed(true)
     ->setRules([
         // keep close to the Symfony standard
         '@Symfony'               => true,
+        '@Symfony:risky'                 => true,
+
+        'attribute_empty_parentheses'    => true,
 
         // but force alignment of keys/values in array definitions
         'binary_operator_spaces' => [

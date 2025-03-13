@@ -53,7 +53,7 @@ class JsonExistsFilter extends AbstractFilter
         $valueParameter = $queryNameGenerator->generateParameterName($field);
 
         $queryBuilder
-            ->andWhere(sprintf('JSON_CONTAINS_TEXT(%s.%s, :%s) = true', $alias, $field, $valueParameter))
+            ->andWhere(\sprintf('JSON_CONTAINS_TEXT(%s.%s, :%s) = true', $alias, $field, $valueParameter))
             ->setParameter($valueParameter, $value);
     }
 
@@ -61,7 +61,7 @@ class JsonExistsFilter extends AbstractFilter
     {
         if (\is_array($value)) {
             $this->getLogger()->notice('Invalid filter ignored', [
-                'exception' => new InvalidArgumentException(sprintf('Invalid value for "%s" property', $property)),
+                'exception' => new InvalidArgumentException(\sprintf('Invalid value for "%s" property', $property)),
             ]);
 
             return null;
@@ -69,7 +69,7 @@ class JsonExistsFilter extends AbstractFilter
 
         if (null === $value) {
             $this->getLogger()->notice('Invalid filter ignored', [
-                'exception' => new InvalidArgumentException(sprintf('A value is required for %1$s', $property)),
+                'exception' => new InvalidArgumentException(\sprintf('A value is required for %1$s', $property)),
             ]);
 
             return null;

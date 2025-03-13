@@ -81,13 +81,13 @@ class PasswordStrength
      */
     public function getStrength(string $password): float
     {
-        $y = strlen($password);
+        $y = \strlen($password);
 
         // Variant on NIST rules to reduce long sequences of repeated characters
         $result = 0;
         $mult   = [];
         for ($i = 0; $i < $y; ++$i) {
-            $code = ord($password[$i]);
+            $code = \ord($password[$i]);
 
             if (!isset($mult[$code])) {
                 $mult[$code] = 1;
@@ -140,7 +140,7 @@ class PasswordStrength
         }
 
         // bonus if pw consists of 4 or more separate words
-        if (count(explode(' ', (string) preg_replace('/\s+/', ' ', $password))) > 3) {
+        if (\count(explode(' ', (string) preg_replace('/\s+/', ' ', $password))) > 3) {
             ++$extrabits;
         }
 

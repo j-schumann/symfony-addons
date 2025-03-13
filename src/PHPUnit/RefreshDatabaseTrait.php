@@ -99,7 +99,7 @@ trait RefreshDatabaseTrait
     protected static function ensureKernelTestCase(): void
     {
         if (!is_a(static::class, KernelTestCase::class, true)) {
-            throw new \LogicException(sprintf('The test class must extend "%s" to use "%s".', KernelTestCase::class, static::class));
+            throw new \LogicException(\sprintf('The test class must extend "%s" to use "%s".', KernelTestCase::class, static::class));
         }
     }
 
@@ -136,7 +136,7 @@ trait RefreshDatabaseTrait
             return [];
         }
 
-        if (is_array(static::$fixtures)) {
+        if (\is_array(static::$fixtures)) {
             return static::$fixtures;
         }
 

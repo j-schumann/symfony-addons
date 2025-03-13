@@ -27,7 +27,7 @@ class PropertyMarkingStore implements MarkingStoreInterface
         if ($this->singleState) {
             $marking = [(string) $marking => 1];
         } elseif (!\is_array($marking)) {
-            throw new LogicException(sprintf('The property "%s::%s" did not contain an array and the Workflow\'s Marking store is instantiated with $singleState=false.', get_debug_type($subject), $this->property));
+            throw new LogicException(\sprintf('The property "%s::%s" did not contain an array and the Workflow\'s Marking store is instantiated with $singleState=false.', get_debug_type($subject), $this->property));
         }
 
         return new Marking($marking);

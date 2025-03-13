@@ -57,7 +57,7 @@ class ContainsFilter extends AbstractFilter
             $valueParameter = $queryNameGenerator->generateParameterName($field);
 
             $queryBuilder
-                ->andWhere(sprintf('CONTAINS(%s.%s, :%s) = true', $alias, $field, $valueParameter))
+                ->andWhere(\sprintf('CONTAINS(%s.%s, :%s) = true', $alias, $field, $valueParameter))
                 ->setParameter($valueParameter, $singleValue);
         }
     }
@@ -66,7 +66,7 @@ class ContainsFilter extends AbstractFilter
     {
         if (null === $value) {
             $this->getLogger()->notice('Invalid filter ignored', [
-                'exception' => new InvalidArgumentException(sprintf('A value is required for %1$s', $property)),
+                'exception' => new InvalidArgumentException(\sprintf('A value is required for %1$s', $property)),
             ]);
 
             return null;

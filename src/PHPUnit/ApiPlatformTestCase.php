@@ -284,7 +284,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             } else {
                 $client->setDefaultOptions([
                     'headers' => [
-                        'Authorization' => sprintf('Bearer %s', $token),
+                        'Authorization' => \sprintf('Bearer %s', $token),
                     ],
                 ]);
             }
@@ -398,7 +398,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
 
             if (isset($params['messageCount'])) {
                 $expected = $params['messageCount'];
-                $found = count($messages);
+                $found = \count($messages);
                 self::assertSame($expected, $found,
                     "Expected $expected messages to be dispatched, found $found");
             }
@@ -407,14 +407,14 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                 foreach ($params['dispatchedMessages'] as $message) {
                     $messageCallback = null;
 
-                    if (is_array($message)
-                        && 2 === count($message)
-                        && is_string($message[0])
-                        && is_callable($message[1])
+                    if (\is_array($message)
+                        && 2 === \count($message)
+                        && \is_string($message[0])
+                        && \is_callable($message[1])
                     ) {
                         $messageClass = $message[0];
                         $messageCallback = $message[1];
-                    } elseif (is_string($message)) {
+                    } elseif (\is_string($message)) {
                         $messageClass = $message;
                     } else {
                         $error = 'Entries of "dispatchedMessages" must either be a string representing '
@@ -428,7 +428,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                         $messages,
                         static fn ($ele) => is_a($ele['message'], $messageClass)
                     );
-                    self::assertGreaterThan(0, count($filtered),
+                    self::assertGreaterThan(0, \count($filtered),
                         "The expected '$messageClass' was not dispatched");
 
                     if ($messageCallback) {
@@ -484,7 +484,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     public static function assertDatasetHasKeys(array $expected, array $array, string $parent = ''): void
     {
         foreach ($expected as $index => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 self::assertArrayHasKey($index, $array, "Dataset does not have key {$parent}[$index]!");
                 self::assertIsArray($array[$index], "Key {$parent}[$index] is expected to be an array!");
                 self::assertDatasetHasKeys($value, $array[$index], "{$parent}[$index]");
@@ -506,7 +506,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     public static function assertDatasetNotHasKeys(array $expected, array $array, string $parent = ''): void
     {
         foreach ($expected as $index => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 // the parent key does not exist / is null -> silently skip the child keys
                 if (!isset($array[$index])) {
                     continue;

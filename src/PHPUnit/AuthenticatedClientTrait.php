@@ -22,7 +22,7 @@ trait AuthenticatedClientTrait
         $token = static::getJWT(static::getContainer(), $findUserBy);
         $client->setDefaultOptions([
             'headers' => [
-                'Authorization' => sprintf('Bearer %s', $token),
+                'Authorization' => \sprintf('Bearer %s', $token),
             ],
         ]);
 

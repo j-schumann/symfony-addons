@@ -38,7 +38,7 @@ class ArrayUtil
             $values = [];
             $deduplicated = [];
             foreach ($list as $k => $v) {
-                if (is_array($v)) {
+                if (\is_array($v)) {
                     $deduplicated[$k] = $deduplicate($v);
                     continue;
                 }
@@ -63,6 +63,6 @@ class ArrayUtil
     public static function hasDuplicates(array $array): bool
     {
         // SORT_REGULAR allows to compare object/arrays
-        return count($array) !== count(array_unique($array, SORT_REGULAR));
+        return \count($array) !== \count(array_unique($array, \SORT_REGULAR));
     }
 }
