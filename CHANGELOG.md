@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.16.0] - TBD
+### Updated
+* The `NoHtml` constraint now has a custom error code and sets the "{{ value }}"
+  parameter.
+* The `PasswordStrength` constraint now has a custom error code.
+* The `NoHtml`, `NoLineBreaks` and `NoSurroundingWhitespace` constraints now
+  support options as single (named) arguments instead of only as array.
+
+### Deprecated
+* Giving options as array to the `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace`
+  and `PasswordStrength` constraints will be removed in v3, as this is deprecated in
+  Symfony 7.3, use named arguments instead.
+
+### Backwards incompatibility
+* If you previously used the `NoHtml` or `PasswordStrength` constraint by giving
+  options not as array (first argument) but as non-named arguments, e.g.
+  `new NoHtml(null, ['validationGrp'])` this will no longer work as the
+  argument order changed by allowing `message` (and `minStrength`) as arguments.
+* If you previously used the `NoLineBreaks` or `NoSurroundingWhitespace` 
+  constraint with the `match` option to invert the behavior this will no longer
+  work, it is now fixed to always match the constraint name.
+
 ## [2.15.0] - 2025-02-12
 ### Updated
 * ApiPlatformTestCase now throws an error when unsupported parameters

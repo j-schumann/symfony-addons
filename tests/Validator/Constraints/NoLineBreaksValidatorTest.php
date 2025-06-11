@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\RegexValidator;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
@@ -28,17 +29,17 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
 
     public static function getInvalid(): \Iterator
     {
-        yield ["new\nline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
-        yield ["new\rline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
-        yield ["new\r\nline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
-        yield ["new\fline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
-        yield ["\nnewline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
-        yield ["newline\n", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
-        yield ["new\x0bline", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical tab
-        yield ["new\xc2\x85line", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // NEL, Next Line
-        yield ["test\vspace", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical space
-        yield ["new\xe2\x80\xa8line", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode LS
-        yield ["new\xe2\x80\xa9line", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode PS
+        yield ["new\nline", Regex::REGEX_FAILED_ERROR];
+        yield ["new\rline", Regex::REGEX_FAILED_ERROR];
+        yield ["new\r\nline", Regex::REGEX_FAILED_ERROR];
+        yield ["new\fline", Regex::REGEX_FAILED_ERROR];
+        yield ["\nnewline", Regex::REGEX_FAILED_ERROR];
+        yield ["newline\n", Regex::REGEX_FAILED_ERROR];
+        yield ["new\x0bline", Regex::REGEX_FAILED_ERROR]; // vertical tab
+        yield ["new\xc2\x85line", Regex::REGEX_FAILED_ERROR]; // NEL, Next Line
+        yield ["test\vspace", Regex::REGEX_FAILED_ERROR]; // vertical space
+        yield ["new\xe2\x80\xa8line", Regex::REGEX_FAILED_ERROR]; // Unicode LS
+        yield ["new\xe2\x80\xa9line", Regex::REGEX_FAILED_ERROR]; // Unicode PS
     }
 
     public function testNullIsValid(): void
@@ -66,6 +67,38 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         $this->validator->validate(new \stdClass(), $constraint);
     }
 
+    public function testConstraintWithNamedArgument(): void
+    {
+        $constraint = new NoLineBreaks(message: 'myMessage');
+
+        $this->validator->validate("fail\nnow", $constraint);
+
+        $violation = $this->buildViolation('myMessage')
+            ->setParameter('{{ value }}', "\"fail\nnow\"")
+            ->setParameter('{{ pattern }}', $constraint->pattern)
+            ->setCode(Regex::REGEX_FAILED_ERROR);
+
+        $violation->assertRaised();
+    }
+
+    // @todo remove with SymfonyAddons 3.0
+    public function testConstraintWithOptions(): void
+    {
+        $constraint = new NoLineBreaks(['message' => 'myMessage']);
+
+        $this->validator->validate("fail\nnow", $constraint);
+
+        $violation = $this->buildViolation('myMessage')
+            ->setParameter('{{ value }}', "\"fail\nnow\"")
+            ->setParameter('{{ pattern }}', $constraint->pattern)
+            ->setCode(Regex::REGEX_FAILED_ERROR);
+
+        $violation->assertRaised();
+        $this->expectUserDeprecationMessage(
+            'Since symfony/validator 7.3: Passing an array of options to configure the "Vrok\SymfonyAddons\Validator\Constraints\NoLineBreaks" constraint is deprecated, use named arguments instead.'
+        );
+    }
+
     #[DataProvider('getValid')]
     public function testValid(string $value): void
     {
@@ -85,13 +118,8 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
 
         $violation = $this->buildViolation($constraint->message)
             ->setParameter('{{ value }}', '"'.$value.'"')
+            ->setParameter('{{ pattern }}', $constraint->pattern)
             ->setCode($code);
-
-        // symfony/validator 6.3 added a new parameter ...
-        $version = \Composer\InstalledVersions::getVersion('symfony/validator');
-        if (\Composer\Semver\Comparator::greaterThanOrEqualTo($version, '6.3')) {
-            $violation->setParameter('{{ pattern }}', $constraint->pattern);
-        }
 
         $violation->assertRaised();
     }

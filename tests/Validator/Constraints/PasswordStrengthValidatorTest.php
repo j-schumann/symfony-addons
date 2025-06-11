@@ -44,6 +44,45 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         $this->validator->validate(new \stdClass(), $constraint);
     }
 
+
+    public function testConstraintWithNamedArgument(): void
+    {
+        $constraint = new PasswordStrength(message: 'myMessage');
+
+        $this->validator->validate('fail', $constraint);
+
+        $violation = $this->buildViolation('myMessage')
+            ->setCode(PasswordStrength::PASSWORD_TOO_WEAK_ERROR);
+
+        $violation->assertRaised();
+    }
+
+    public function testConstraintWithMinStrengthOption(): void
+    {
+        $constraint = new PasswordStrength(minStrength: 12);
+
+        // "works" is exactly strength 12
+        $this->validator->validate('works', $constraint);
+
+        $this->assertNoViolation();
+    }
+
+    // @todo remove with SymfonyAddons 3.0
+    public function testConstraintWithOptions(): void
+    {
+        $constraint = new PasswordStrength(['message' => 'myMessage']);
+
+        $this->validator->validate('fail', $constraint);
+
+        $violation = $this->buildViolation('myMessage')
+            ->setCode(PasswordStrength::PASSWORD_TOO_WEAK_ERROR);
+
+        $violation->assertRaised();
+        $this->expectUserDeprecationMessage(
+            'Since symfony/validator 7.3: Passing an array of options to configure the "Vrok\SymfonyAddons\Validator\Constraints\PasswordStrength" constraint is deprecated, use named arguments instead.'
+        );
+    }
+
     public function testEmptyStringIsInvalid(): void
     {
         $constraint = new PasswordStrength();

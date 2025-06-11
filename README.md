@@ -804,6 +804,7 @@ Outputs: 9.34 MiB
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
+* v3: remove $options array argument from the Constraints, adjust the tests
 * tests for `AuthenticatedClientTrait`, `RefreshDatabaseTrait`
 * `ApiPlatformTestCase` should no longer use `AuthenticatedClientTrait` but
   use its own getJWT() and make the User class configurable like the fixtures.

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\RegexValidator;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
@@ -38,31 +39,31 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
     public static function getInvalid(): \Iterator
     {
         // whitespace character at the beginning or end:
-        yield [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
-        yield ['asd  ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
-        yield ["\tasd", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
-        yield ["asd\t", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3'];
-        yield [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // THSP leading
-        yield ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // THSP trailing
-        yield [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // NQSP
-        yield [' asd', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // MQSP
-        yield ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // ENSP
-        yield ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // EMSP
-        yield ['asd ', 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // 3/MSP
+        yield [' asd', Regex::REGEX_FAILED_ERROR];
+        yield ['asd  ', Regex::REGEX_FAILED_ERROR];
+        yield ["\tasd", Regex::REGEX_FAILED_ERROR];
+        yield ["asd\t", Regex::REGEX_FAILED_ERROR];
+        yield [' asd', Regex::REGEX_FAILED_ERROR]; // THSP leading
+        yield ['asd ', Regex::REGEX_FAILED_ERROR]; // THSP trailing
+        yield [' asd', Regex::REGEX_FAILED_ERROR]; // NQSP
+        yield [' asd', Regex::REGEX_FAILED_ERROR]; // MQSP
+        yield ['asd ', Regex::REGEX_FAILED_ERROR]; // ENSP
+        yield ['asd ', Regex::REGEX_FAILED_ERROR]; // EMSP
+        yield ['asd ', Regex::REGEX_FAILED_ERROR]; // 3/MSP
 
         // leading/trailing newline characters:
-        yield ["a\nb\n", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // trailing newline
-        yield ["\na\nb", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // leading newline
-        yield ["new\x0b", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical tab
-        yield ["\x0btest", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical tab
-        yield ["new\xc2\x85", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // NEL, Next Line
-        yield ["\xc2\x85test", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // NEL, Next Line
-        yield ["test\v", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical space
-        yield ["\vtest", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // vertical space
-        yield ["new\xe2\x80\xa8", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode LS
-        yield ["\xe2\x80\xa8test", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode LS
-        yield ["new\xe2\x80\xa9", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode PS
-        yield ["\xe2\x80\xa9test", 'de1e3db3-5ed4-4941-aae4-59f3667cc3a3']; // Unicode PS
+        yield ["a\nb\n", Regex::REGEX_FAILED_ERROR]; // trailing newline
+        yield ["\na\nb", Regex::REGEX_FAILED_ERROR]; // leading newline
+        yield ["new\x0b", Regex::REGEX_FAILED_ERROR]; // vertical tab
+        yield ["\x0btest", Regex::REGEX_FAILED_ERROR]; // vertical tab
+        yield ["new\xc2\x85", Regex::REGEX_FAILED_ERROR]; // NEL, Next Line
+        yield ["\xc2\x85test", Regex::REGEX_FAILED_ERROR]; // NEL, Next Line
+        yield ["test\v", Regex::REGEX_FAILED_ERROR]; // vertical space
+        yield ["\vtest", Regex::REGEX_FAILED_ERROR]; // vertical space
+        yield ["new\xe2\x80\xa8", Regex::REGEX_FAILED_ERROR]; // Unicode LS
+        yield ["\xe2\x80\xa8test", Regex::REGEX_FAILED_ERROR]; // Unicode LS
+        yield ["new\xe2\x80\xa9", Regex::REGEX_FAILED_ERROR]; // Unicode PS
+        yield ["\xe2\x80\xa9test", Regex::REGEX_FAILED_ERROR]; // Unicode PS
     }
 
     public function testNullIsValid(): void
@@ -88,6 +89,38 @@ class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
         $this->expectException(UnexpectedValueException::class);
         $constraint = new NoSurroundingWhitespace();
         $this->validator->validate(new \stdClass(), $constraint);
+    }
+
+    public function testConstraintWithNamedArgument(): void
+    {
+        $constraint = new NoSurroundingWhitespace(message: 'myMessage');
+
+        $this->validator->validate(' fail ', $constraint);
+
+        $violation = $this->buildViolation('myMessage')
+            ->setParameter('{{ value }}', '" fail "')
+            ->setParameter('{{ pattern }}', $constraint->pattern)
+            ->setCode(Regex::REGEX_FAILED_ERROR);
+
+        $violation->assertRaised();
+    }
+
+    // @todo remove with SymfonyAddons 3.0
+    public function testConstraintWithOptions(): void
+    {
+        $constraint = new NoSurroundingWhitespace(['message' => 'myMessage']);
+
+        $this->validator->validate(' fail ', $constraint);
+
+        $violation = $this->buildViolation('myMessage')
+            ->setParameter('{{ value }}', '" fail "')
+            ->setParameter('{{ pattern }}', $constraint->pattern)
+            ->setCode(Regex::REGEX_FAILED_ERROR);
+
+        $violation->assertRaised();
+        $this->expectUserDeprecationMessage(
+            'Since symfony/validator 7.3: Passing an array of options to configure the "Vrok\SymfonyAddons\Validator\Constraints\NoSurroundingWhitespace" constraint is deprecated, use named arguments instead.'
+        );
     }
 
     #[DataProvider('getValid')]
