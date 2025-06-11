@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\PasswordStrength;
 use Vrok\SymfonyAddons\Validator\Constraints\PasswordStrengthValidator;
@@ -39,11 +40,10 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
 
     public function testExpectsStringCompatibleType(): void
     {
-        $this->expectException(\Symfony\Component\Validator\Exception\UnexpectedValueException::class);
+        $this->expectException(UnexpectedValueException::class);
         $constraint = new PasswordStrength();
         $this->validator->validate(new \stdClass(), $constraint);
     }
-
 
     public function testConstraintWithNamedArgument(): void
     {
@@ -90,6 +90,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         $this->validator->validate('', $constraint);
 
         $this->buildViolation($constraint->message)
+            ->setCode(PasswordStrength::PASSWORD_TOO_WEAK_ERROR)
             ->assertRaised();
     }
 
@@ -111,6 +112,7 @@ class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         $this->validator->validate($value, $constraint);
 
         $this->buildViolation($constraint->message)
+            ->setCode(PasswordStrength::PASSWORD_TOO_WEAK_ERROR)
             ->assertRaised();
     }
 }
