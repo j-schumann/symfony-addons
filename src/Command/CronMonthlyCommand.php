@@ -12,7 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Vrok\SymfonyAddons\Event\CronMonthlyEvent;
 
-#[AsCommand('cron:monthly')]
+#[AsCommand(
+    name: 'cron:monthly',
+    description: 'Calls all event subscribers listening to the CronMonthlyEvent. To be called via crontab automatically.',
+)]
 class CronMonthlyCommand extends Command
 {
     public function __construct(
@@ -20,12 +23,6 @@ class CronMonthlyCommand extends Command
         private readonly EventDispatcherInterface $dispatcher)
     {
         parent::__construct();
-    }
-
-    protected function configure(): void
-    {
-        $this->setDescription('Calls all event subscribers listening '
-            .'to the CronMonthlyEvent. To be called via crontab automatically.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

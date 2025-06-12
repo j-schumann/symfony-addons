@@ -12,7 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Vrok\SymfonyAddons\Event\CronDailyEvent;
 
-#[AsCommand('cron:daily')]
+#[AsCommand(
+    name: 'cron:daily',
+    description: 'Calls all event subscribers listening to the CronDailyEvent. To be called via crontab automatically.',
+)]
 class CronDailyCommand extends Command
 {
     public function __construct(
@@ -20,12 +23,6 @@ class CronDailyCommand extends Command
         private readonly EventDispatcherInterface $dispatcher)
     {
         parent::__construct();
-    }
-
-    protected function configure(): void
-    {
-        $this->setDescription('Calls all event subscribers listening '
-            .'to the CronDailyEvent. To be called via crontab automatically.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
