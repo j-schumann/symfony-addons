@@ -128,20 +128,6 @@ class AuthApiTest extends ApiPlatformTestCase
 </tr>
 
 <tr>
-<td>skipRefresh</td>
-<td>
- if set & true the database will not be refreshed before the request,
- to allow using two calls to `testOperation` in one testcase, e.g. uploading
- & deleting a file with two requests
-</td>
-<td>
-
-`'skipRefresh' => true`
-
-</td>
-</tr>
-
-<tr>
 <td>prepare</td>
 <td>Callable, to be executed _after_ the kernel was booted and the DB refreshed, but _before_ the request is made</td>
 <td>
@@ -507,34 +493,6 @@ Optionally define which fixtures to use for this test class:
 Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values
 are _purge_ and _dropSchema_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
 
-### Using the AuthenticatedClientTrait
-
-For use with an APIPlatform project with `lexik/jwt-authentication-bundle`.
-Creates a JWT for the user given by its unique email, username etc. and adds it
-to the test client's headers.
-
-Include the trait in your testcase and call `createAuthenticatedClient`:
- ```php
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
-use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
-
-class ApiTest extends ApiTestCase
-{
-    use AuthenticatedClientTrait;
-
-    public function testAccess(): void
-    {
-        $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::ADMIN['email']
-        ]);
-
-        $iri = $this->findIriBy(User::class, ['id' => 1]);
-        $client->request('GET', $iri);
-        self::assertResponseIsSuccessful();
-    }
-}
- ```
-
 ### Using the MonologAssertsTrait
 
 For use with an Symfony project using the monolog-bundle.  
@@ -788,15 +746,11 @@ Outputs: 9.34 MiB
 
 ### composer.json dev
 
-* _doctrine/data-fixtures_ is automatically installed by the doctrine-fixtures bundle,
-  but we need to pin the minimal version as the versions before 1.5.2 are not
-  compatible with DBAL < 3 (@see https://github.com/doctrine/data-fixtures/pull/370)
 * _doctrine/doctrine-fixtures-bundle_ is required for tests of the ApiPlatformTestCase
 * _symfony/browser-kit_ is required for tests of the MultipartDecoder
 * _symfony/mailer_ is required for tests of the AutoSenderSubscriber
 * _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
 * _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and ResetLoggerSubscriber
-* _symfony/phpunit-bridge_ must be at least v6.2.3 to prevent"Call to undefined method Doctrine\Common\Annotations\AnnotationRegistry::registerLoader()"
 * _symfony/string_ is required for API Platform's inflector
 * _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
 * _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore
@@ -804,9 +758,6 @@ Outputs: 9.34 MiB
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
-* v3: remove $options array argument from the Constraints, adjust the tests
-* tests for `AuthenticatedClientTrait`, `RefreshDatabaseTrait`
-* `ApiPlatformTestCase` should no longer use `AuthenticatedClientTrait` but
-  use its own getJWT() and make the User class configurable like the fixtures.
+* tests for `RefreshDatabaseTrait`
 * tests for QueryBuilderHelper
 * compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper

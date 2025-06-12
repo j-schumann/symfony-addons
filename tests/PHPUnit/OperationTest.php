@@ -30,6 +30,21 @@ class OperationTest extends ApiPlatformTestCase
         ]);
     }
 
+    public function testTestOperationRejectsUnknownOptions(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Got unsupported parameter(s): "createdEvents" - maybe a typo?');
+
+        $this->testOperation([
+            'uri'           => '/test',
+            'responseCode'  => 404,
+            'contentType'   => ApiPlatformTestCase::PROBLEM_CONTENT_TYPE,
+
+            // unknown option:
+            'createdEvents' => [],
+        ]);
+    }
+
     public function testTestOperationChecksReturnCode(): void
     {
         $this->expectException(AssertionFailedError::class);

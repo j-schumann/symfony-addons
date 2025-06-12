@@ -78,23 +78,6 @@ class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         $violation->assertRaised();
     }
 
-    // @todo remove with SymfonyAddons 3.0
-    public function testConstraintWithOptions(): void
-    {
-        $constraint = new NoHtml(['message' => 'myMessage']);
-
-        $this->validator->validate('this<b>fails', $constraint);
-
-        $violation = $this->buildViolation('myMessage')
-            ->setParameter('{{ value }}', '"this<b>fails"')
-            ->setCode(NoHtml::CONTAINS_HTML_ERROR);
-
-        $violation->assertRaised();
-        $this->expectUserDeprecationMessage(
-            'Since symfony/validator 7.3: Passing an array of options to configure the "Vrok\SymfonyAddons\Validator\Constraints\NoHtml" constraint is deprecated, use named arguments instead.'
-        );
-    }
-
     #[DataProvider('getValid')]
     public function testValid(string $value): void
     {

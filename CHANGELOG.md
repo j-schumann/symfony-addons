@@ -5,16 +5,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [3.0.0] - TBD
 ### Changed
-* The `NoHtml` constraint now has a custom error code and sets the "{{ value }}"
-  parameter.
-* The `PasswordStrength` constraint now has a custom error code.
-* The `NoHtml`, `NoLineBreaks` and `NoSurroundingWhitespace` constraints now
-  support options as single (named) arguments instead of an array.
+* `ApiPlatformTestCase` no longer uses the `AuthenticatedClientTrait` but
+   its own `getJWT` and allows to customize the User class via the static
+   `$userClass`.
 
 ### Removed
-* Removed support for PHP <= 8.2, Symfony <= 7.1, ApiPlatform <= 4.0, 
-  DoctrineBundle <= 2, Doctrine DataFixtures <= 1, Doctrine Persistence <= 3, 
-  Doctrine FixturesBundle <= 3.
+* Removed support for PHP <= 8.2, Symfony <= 7.1, ApiPlatform <= 4.0, Doctrine
+  DataFixtures <= 1, Doctrine Persistence <= 3, Doctrine FixturesBundle <= 3
 * Giving options as array to the `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace`
   and `PasswordStrength` constraints was removed, as this is deprecated in
   Symfony 7.3, use named arguments instead.
@@ -31,7 +28,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   you still want to force a DB refresh between calls to `testOperation()` in a
   single test you have to call `static::bootKernel()` yourself.
 * Old ApiPlatformTestCase constants with (Hydra) error responses from APIP < 3.2
-  where removed.
+  were removed.
+* `AuthenticatedClientTrait` was removed
 
 ## [2.16.0] - 2025-06-12
 ### Changed

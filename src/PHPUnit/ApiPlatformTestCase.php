@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\PHPUnit;
 
-use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use ApiPlatform\Symfony\Bundle\Test\Client;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
@@ -18,13 +16,18 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  */
 abstract class ApiPlatformTestCase extends ApiTestCase
 {
-    use AuthenticatedClientTrait;
     use MonologAssertsTrait;
     use RefreshDatabaseTrait;
 
     protected static ?bool $alwaysBootKernel = false;
 
-    // region Constants for ApiPlatform >= 3.2
+    /**
+     * Used when getting a JWT for the authentication in testOperation().
+     * Set in your test classes accordingly.
+     */
+    protected static string $userClass = '\App\Entity\User';
+
+    // region JSON responses, for ApiPlatform >= 3.2
     protected const UNAUTHENTICATED_RESPONSE = [
         'code'    => 401,
         'message' => 'JWT Token not found',
@@ -225,7 +228,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         $client = static::createClient();
 
         if (isset($params['email'])) {
-            $token = static::getJWT(static::getContainer(), ['email' => $params['email']]);
+            $token = $this->getJWT(['email' => $params['email']]);
 
             if ($params['postFormAuth'] ?? false) {
                 $client->setDefaultOptions([
@@ -474,5 +477,21 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                 self::assertArrayNotHasKey($value, $array, "Dataset should not have key {$parent}[$value]!");
             }
         }
+    }
+
+    /**
+     * Generates a JWT for the user given by its identifying property, e.g. email.
+     */
+    protected function getJWT(array $findUserBy): string
+    {
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        $user = $em->getRepository(static::$userClass)->findOneBy($findUserBy);
+        if (!$user) {
+            throw new \RuntimeException('User specified for JWT authentication was not found, please check your test database/fixtures!');
+        }
+
+        $jwtManager = static::getContainer()->get('lexik_jwt_authentication.jwt_manager');
+
+        return $jwtManager->create($user);
     }
 }
