@@ -34,6 +34,8 @@ class NoHtmlValidator extends ConstraintValidator
         if ($length !== $strippedLength) {
             $this->context
                 ->buildViolation($constraint->message)
+                ->setParameter('{{ value }}', $this->formatValue($value))
+                ->setCode(NoHtml::CONTAINS_HTML_ERROR)
                 ->addViolation();
 
             return;

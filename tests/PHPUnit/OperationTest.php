@@ -89,7 +89,7 @@ class OperationTest extends ApiPlatformTestCase
     {
         $response = $this->testOperation([
             'uri'              => '/test',
-            'dispatchedEvents' => ['kernel.terminate'],
+            'dispatchedEvents' => ['kernel.request'],
         ]);
 
         self::assertInstanceOf(ResponseInterface::class, $response);

@@ -35,6 +35,7 @@ class PasswordStrengthValidator extends ConstraintValidator
         if ($strength < $constraint->getMinStrength()) {
             $this->context
                 ->buildViolation($constraint->message)
+                ->setCode(PasswordStrength::PASSWORD_TOO_WEAK_ERROR)
                 ->addViolation();
 
             return;
