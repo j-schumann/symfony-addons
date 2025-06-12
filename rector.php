@@ -10,6 +10,7 @@ use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
+use Rector\Symfony\Symfony73\Rector\Class_\GetFiltersToAsTwigFilterAttributeRector;
 use Rector\Symfony\Symfony73\Rector\Class_\InvokableCommandInputAttributeRector;
 use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
 use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
@@ -77,5 +78,8 @@ return RectorConfig::configure()
         // invokable. But cannot transform configured descriptions to attributes.
         // Also, invokables are not supported by the CommandTester.
         InvokableCommandInputAttributeRector::class,
+
+        // #[AsTwigFilter] is only available in SF 7.3+, we need to support 7.2
+        GetFiltersToAsTwigFilterAttributeRector::class,
     ])
 ;
