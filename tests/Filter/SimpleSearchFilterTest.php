@@ -9,6 +9,7 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Get;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
@@ -85,6 +86,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         ]);
 
         $param = $qb->getParameter('pattern_p1');
+        self::assertInstanceOf(Parameter::class, $param);
         self::assertSame('%testval%', $param->getValue());
 
         $platform = $doctrine->getManager()->getConnection()->getDatabasePlatform();
@@ -118,6 +120,7 @@ class SimpleSearchFilterTest extends KernelTestCase
 
         // lower-cased and wildcards added:
         $param = $qb->getParameter('pattern_p1');
+        self::assertInstanceOf(Parameter::class, $param);
         self::assertSame('%testval%', $param->getValue());
 
         $platform = $doctrine->getManager()->getConnection()->getDatabasePlatform();

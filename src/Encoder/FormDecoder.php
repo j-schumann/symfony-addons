@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Encoder\DecoderInterface;
  */
 class FormDecoder implements DecoderInterface
 {
-    final public const FORMAT = 'form';
+    final public const string FORMAT = 'form';
 
     public function __construct(private readonly RequestStack $requestStack)
     {

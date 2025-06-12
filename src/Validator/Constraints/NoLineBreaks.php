@@ -32,11 +32,13 @@ class NoLineBreaks extends Regex
         );
     }
 
+    #[\Override]
     public function getTargets(): string
     {
         return self::PROPERTY_CONSTRAINT;
     }
 
+    #[\Override]
     public function validatedBy(): string
     {
         return RegexValidator::class;

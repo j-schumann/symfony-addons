@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Encoder\DecoderInterface;
 // @see https://api-platform.com/docs/core/file-upload/#handling-the-multipart-deserialization
 class MultipartDecoder implements DecoderInterface
 {
-    final public const FORMAT = 'multipart';
+    final public const string FORMAT = 'multipart';
 
     public function __construct(private readonly RequestStack $requestStack)
     {
