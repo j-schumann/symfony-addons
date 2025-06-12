@@ -10,7 +10,7 @@ use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
-use Rector\Symfony\Set\SymfonySetList;
+use Rector\Symfony\Symfony73\Rector\Class_\InvokableCommandInputAttributeRector;
 use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
 use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
 
@@ -46,27 +46,17 @@ return RectorConfig::configure()
         // verify changes, some are unwanted!
         // SetList::DEAD_CODE,
 
-        DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         DoctrineSetList::DOCTRINE_CODE_QUALITY,
-        DoctrineSetList::DOCTRINE_DBAL_40,
-        DoctrineSetList::DOCTRINE_ORM_214,
-        DoctrineSetList::DOCTRINE_BUNDLE_210,
-        DoctrineSetList::GEDMO_ANNOTATIONS_TO_ATTRIBUTES,
 
         PHPUnitSetList::PHPUNIT_CODE_QUALITY,
-        PHPUnitSetList::PHPUNIT_100,
-        PHPUnitSetList::PHPUNIT_110,
         PHPUnitSetList::PHPUNIT_120,
-
-        SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
-        SymfonySetList::SYMFONY_CODE_QUALITY,
-        SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        SymfonySetList::SYMFONY_64,
     ])
     ->withRules([
         PreferPHPUnitSelfCallRector::class
     ])
     ->withSkip([
+        __DIR__ . '/tests/Fixtures/app',
+
         // mostly unnecessary as they are callbacks to array_filter etc.
         AddArrowFunctionReturnTypeRector::class,
 
@@ -82,5 +72,10 @@ return RectorConfig::configure()
 
         // adds references with @see to the tests to the entity classes etc.
         //AddSeeTestAnnotationRector::class,
+
+        // Changes commands to not inherit from Command but be a simple
+        // invokable. But cannot transform configured descriptions to attributes.
+        // Also, invokables are not supported by the CommandTester.
+        InvokableCommandInputAttributeRector::class,
     ])
 ;

@@ -36,7 +36,7 @@ class AppKernel extends Kernel
         return $bundles;
     }
 
-    #[\Override]
+    #[Override]
     public function getProjectDir(): string
     {
         return __DIR__;

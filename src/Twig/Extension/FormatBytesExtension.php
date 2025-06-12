@@ -6,7 +6,6 @@ namespace Vrok\SymfonyAddons\Twig\Extension;
 
 use Twig\Attribute\AsTwigFilter;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 
 class FormatBytesExtension extends AbstractExtension
 {

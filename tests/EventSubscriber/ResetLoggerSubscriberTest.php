@@ -8,7 +8,6 @@ use Monolog\Handler\BufferHandler;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
