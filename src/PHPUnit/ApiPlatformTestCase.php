@@ -22,41 +22,14 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     use MonologAssertsTrait;
     use RefreshDatabaseTrait;
 
-    // currently (2023-11-11) returned with ApiPlatform 3.1 + 3.2
+    protected static ?bool $alwaysBootKernel = false;
+
+    // region Constants for ApiPlatform >= 3.2
     protected const UNAUTHENTICATED_RESPONSE = [
         'code'    => 401,
         'message' => 'JWT Token not found',
     ];
 
-    // region Hydra results returned by ApiPlatform <= 3.1
-    protected const ERROR_RESPONSE = [
-        '@context'    => '/contexts/Error',
-        '@type'       => 'hydra:Error',
-        'hydra:title' => 'An error occurred',
-        // 'hydra:description' varies
-    ];
-
-    protected const UNAUTHORIZED_RESPONSE = self::ERROR_RESPONSE + [
-        'hydra:description' => 'Access Denied.',
-    ];
-
-    protected const NOT_FOUND_RESPONSE = self::ERROR_RESPONSE + [
-        'hydra:description' => 'Not Found',
-    ];
-
-    protected const ACCESS_BLOCKED_RESPONSE = self::ERROR_RESPONSE + [
-        'hydra:description' => 'failure.accessBlocked',
-    ];
-
-    protected const CONSTRAINT_VIOLATION_RESPONSE = [
-        '@context'    => '/contexts/ConstraintViolationList',
-        '@type'       => 'ConstraintViolationList',
-        'hydra:title' => 'An error occurred',
-        // 'hydra:description' varies
-    ];
-    // endregion
-
-    // region constants for ApiPlatform >= 3.2
     // this should be returned for RFC 7807 compliant errors
     public const PROBLEM_CONTENT_TYPE = 'application/problem+json; charset=utf-8';
 
@@ -173,6 +146,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'contentType',
         'createdLogs',
         'dispatchedEvents',
+        'dispatchedMessages',
         'email',
         'emailCount',
         'files',
@@ -187,11 +161,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'requiredKeys',
         'responseCode',
         'schemaClass',
-        'skipRefresh',
         'uri',
     ];
-
-    protected static ?Client $httpClient = null;
 
     /**
      * The params *must* contain either 'iri' or 'uri', all other settings are
@@ -242,9 +213,6 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                     parameter and the returned JSON as second parameter.
      * dispatchedEvents:   array of event names, asserts that at least one
      *                     instance of each given event has been dispatched
-     * skipRefresh:        if true the database will not be refreshed before
-     *                     the operation, to allow calling testOperation()
-     *                     multiple times after each other in one testcase
      */
     protected function testOperation(array $params): ResponseInterface
     {
@@ -254,17 +222,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             throw new \LogicException("Got unsupported parameter(s): \"$keys\" - maybe a typo?");
         }
 
-        // in some cases we want two testOperations to be executed in one
-        // testcase after each other, without refreshing the database. But
-        // we cannot separate booting the kernel / refreshing from creating
-        // the TestClient because of all the private methods and client properties
-        // in ApiTestCase. So we have to keep our own reference to the client
-        // to be able to re-use it, to keep the assertion methods working
-        if (self::$httpClient && ($params['skipRefresh'] ?? false)) {
-            $client = self::$httpClient;
-        } else {
-            $client = static::$httpClient = static::createClient();
-        }
+        $client = static::createClient();
 
         if (isset($params['email'])) {
             $token = static::getJWT(static::getContainer(), ['email' => $params['email']]);
@@ -516,15 +474,5 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                 self::assertArrayNotHasKey($value, $array, "Dataset should not have key {$parent}[$value]!");
             }
         }
-    }
-
-    // @todo exists in the parent ApiTestCase since ?. Cannot overwrite a
-    // non-static method with a static one -> we would need a new name
-    protected function getIriFromResource(object $resource): string
-    {
-        /** @var IriConverterInterface $iriConverter */
-        $iriConverter = static::getContainer()->get('api_platform.iri_converter');
-
-        return $iriConverter->getIriFromResource($resource);
     }
 }

@@ -3,20 +3,21 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.16.0] - TBD
-### Updated
+## [3.0.0] - TBD
+### Changed
 * The `NoHtml` constraint now has a custom error code and sets the "{{ value }}"
   parameter.
 * The `PasswordStrength` constraint now has a custom error code.
 * The `NoHtml`, `NoLineBreaks` and `NoSurroundingWhitespace` constraints now
-  support options as single (named) arguments instead of only as array.
+  support options as single (named) arguments instead of an array.
 
-### Deprecated
+### Removed
+* Removed support for PHP <= 8.2, Symfony <= 7.1, ApiPlatform <= 4.0, 
+  DoctrineBundle <= 2, Doctrine DataFixtures <= 1, Doctrine Persistence <= 3, 
+  Doctrine FixturesBundle <= 3.
 * Giving options as array to the `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace`
-  and `PasswordStrength` constraints will be removed in v3, as this is deprecated in
+  and `PasswordStrength` constraints was removed, as this is deprecated in
   Symfony 7.3, use named arguments instead.
-
-### Backwards incompatibility
 * If you previously used the `NoHtml` or `PasswordStrength` constraint by giving
   options not as array (first argument) but as non-named arguments, e.g.
   `new NoHtml(null, ['validationGrp'])` this will no longer work as the
@@ -24,9 +25,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * If you previously used the `NoLineBreaks` or `NoSurroundingWhitespace` 
   constraint with the `match` option to invert the behavior this will no longer
   work, it is now fixed to always match the constraint name.
+* The ApiPlatformTestCase no longer reboots the kernel on each call to
+  `testOperation()`, instead the kernel is only booted when required.  
+  The `skipRefresh` option was removed as this is now the default behavior. If
+  you still want to force a DB refresh between calls to `testOperation()` in a
+  single test you have to call `static::bootKernel()` yourself.
+* Old ApiPlatformTestCase constants with (Hydra) error responses from APIP < 3.2
+  where removed.
 
 ## [2.15.0] - 2025-02-12
-### Updated
+### Changed
 * ApiPlatformTestCase now throws an error when unsupported parameters
   are supplied, to allow spotting skipped tests e.g. because of typos.
 
@@ -39,7 +47,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * APIP error constant
 
 ## [2.13.0] - 2024-10-15
-### Updated
+### Changed
 * config loading
 * Tests for PHPUnit 11
 
