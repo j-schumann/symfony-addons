@@ -3,8 +3,8 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.16.0] - TBD
-### Updated
+## [2.16.0] - 2025-06-12
+### Changed
 * The `NoHtml` constraint now has a custom error code and sets the "{{ value }}"
   parameter.
 * The `PasswordStrength` constraint now has a custom error code.
@@ -15,6 +15,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * Giving options as array to the `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace`
   and `PasswordStrength` constraints will be removed in v3, as this is deprecated in
   Symfony 7.3, use named arguments instead.
+* Using the `skipRefresh` option for `ApiPlatformTestCase::testOperation`, this
+  will be the default behavior in 3.0 and the option will be removed.
+* Using the old error constants for APIP < 3.2 in `ApiPlatformTestCase`, they 
+  will be removed in 3.0.
 
 ### Backwards incompatibility
 * If you previously used the `NoHtml` or `PasswordStrength` constraint by giving
@@ -26,7 +30,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   work, it is now fixed to always match the constraint name.
 
 ## [2.15.0] - 2025-02-12
-### Updated
+### Changed
 * ApiPlatformTestCase now throws an error when unsupported parameters
   are supplied, to allow spotting skipped tests e.g. because of typos.
 
@@ -39,7 +43,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * APIP error constant
 
 ## [2.13.0] - 2024-10-15
-### Updated
+### Changed
 * config loading
 * Tests for PHPUnit 11
 
