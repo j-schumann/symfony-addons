@@ -37,30 +37,22 @@ foo([
     'b' => $b,
 ]);
 
-MyClass::staticMethod([
-    'x' => $x,
-    'y' => $y,
-]);
-
-$obj->instanceMethod([
-    'p' => $p,
-    'q' => $q,
-]);
+bar(['x' => $x, 'y' => $y]);
 CODE_SAMPLE
                     ,
                     <<<'CODE_SAMPLE'
-foo(a: $a, b: $b);
+foo(
+    a: $a,
+    b: $b,
+);
 
-MyClass::staticMethod(x: $x, y: $y);
-
-$obj->instanceMethod(p: $p, q: $q);
+bar(x: $x, y: $y);
 CODE_SAMPLE
                     ,
                     [
                         'targets' => [
-                            'foo',  // function call
-                            ['MyClass', 'staticMethod'],  // static method call
-                            ['MyClass', 'instanceMethod'],  // instance method call
+                            'foo',
+                            'bar',
                         ],
                     ]
                 ),
@@ -83,7 +75,7 @@ CODE_SAMPLE
         }
 
         // Check if there's exactly one argument and it's an array
-        if (count($node->args) !== 1) {
+        if (1 !== count($node->args)) {
             return null;
         }
 
@@ -99,14 +91,22 @@ CODE_SAMPLE
             return null;
         }
 
-        // Convert array items to named arguments
-        $namedArgs = $this->convertArrayItemsToNamedArgs($array);
+        // Check if the original array spans multiple lines
+        $isMultiline = $this->isArrayMultiline($array);
 
-        if ($namedArgs === []) {
+        // Convert array items to named arguments
+        $namedArgs = $this->convertArrayItemsToNamedArgs($array, $isMultiline);
+
+        if ([] === $namedArgs) {
             return null;
         }
 
         $node->args = $namedArgs;
+
+        // If the original array was multiline, preserve that formatting
+        if ($isMultiline) {
+            $this->makeArgumentsMultiline($node, $namedArgs);
+        }
 
         return $node;
     }
@@ -160,7 +160,7 @@ CODE_SAMPLE
         $methodName = $methodCall->name->toString();
 
         foreach ($this->targets as $target) {
-            if (is_array($target) && count($target) === 2) {
+            if (is_array($target) && 2 === count($target)) {
                 [, $targetMethod] = $target; // We can't reliably match class for instance methods
 
                 // For instance method calls, we can only match by method name
@@ -189,7 +189,7 @@ CODE_SAMPLE
         }
 
         foreach ($this->targets as $target) {
-            if (is_array($target) && count($target) === 2) {
+            if (is_array($target) && 2 === count($target)) {
                 [$targetClass, $targetMethod] = $target;
 
                 // For static calls, we can match both class and method exactly
@@ -210,7 +210,7 @@ CODE_SAMPLE
             }
 
             // If key is null, it's a numeric array
-            if ($item->key === null) {
+            if (null === $item->key) {
                 return false;
             }
 
@@ -223,10 +223,23 @@ CODE_SAMPLE
         return true;
     }
 
+    private function isArrayMultiline(Array_ $array): bool
+    {
+        $startLine = $array->getAttribute('startLine');
+        $endLine = $array->getAttribute('endLine');
+
+        // If we can't determine line numbers, assume single line
+        if (null === $startLine || null === $endLine) {
+            return false;
+        }
+
+        return $startLine !== $endLine;
+    }
+
     /**
      * @return Arg[]
      */
-    private function convertArrayItemsToNamedArgs(Array_ $array): array
+    private function convertArrayItemsToNamedArgs(Array_ $array, bool $isMultiline): array
     {
         $namedArgs = [];
 
@@ -236,15 +249,45 @@ CODE_SAMPLE
             }
 
             $paramName = $item->key->value;
-            $namedArgs[] = new Arg(
+            $arg = new Arg(
                 $item->value,
                 false, // byRef
                 false, // unpack
                 [],    // attributes
                 new Identifier($paramName) // name
             );
+
+            // If the original array was multiline, add formatting hints
+            if ($isMultiline) {
+                // Copy line attributes from the original array item to preserve formatting
+                if (null !== $item->getAttribute('startLine')) {
+                    $arg->setAttribute('startLine', $item->getAttribute('startLine'));
+                }
+                if (null !== $item->getAttribute('endLine')) {
+                    $arg->setAttribute('endLine', $item->getAttribute('endLine'));
+                }
+            }
+
+            $namedArgs[] = $arg;
         }
 
         return $namedArgs;
+    }
+
+    private function makeArgumentsMultiline(Node $node, array $namedArgs): void
+    {
+        // Set attributes to encourage multiline formatting
+        $node->setAttribute('kind', Array_::KIND_LONG);
+
+        // Add line break hints to each argument
+        foreach ($namedArgs as $index => $arg) {
+            // Set formatting attributes that encourage line breaks
+            $arg->setAttribute('comments', []);
+
+            // For all arguments except the last, encourage a trailing comma/newline
+            if ($index < count($namedArgs) - 1) {
+                $arg->setAttribute('trailingComma', true);
+            }
+        }
     }
 }

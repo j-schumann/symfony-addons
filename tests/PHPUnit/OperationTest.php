@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
-use http\Exception\RuntimeException;
 use Monolog\Level;
 use PHPUnit\Framework\AssertionFailedError;
 use Symfony\Contracts\HttpClient\ResponseInterface;

@@ -171,56 +171,56 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * The params *must* contain either 'iri' or 'uri', all other settings are
      * optional.
      *
-     * @param string $uri  the endpoint to call, e.g. '/tenants'
-     * @param string $iri  [classname, [field => value]],
-     *                     e.g. [User::class, [email => 'test@test.de']]
-     *                     tries to find an entity by the given conditions and
-     *                     retrieves its IRI, it is then used as URI
-     * @param callable $prepare callback($containerInterface, &$params) that prepares the
-     *                     environment, e.g. creating / deleting entities.
-     *                     It is called after the kernel is booted & the database was
-     *                     refreshed. Can be used to update the parameters, e.g. with
-     *                     IDs/IRIs from the DB.
-     * @param string $email if given, tries to find a User with that email and sends
-     *                     the request authenticated as this user with lexikJWT
-     * @param string $postFormAuth if given together with 'email', sends the JWT as
-     *                     'application/x-www-form-urlencoded' request in the
-     *                     given field name
-     * @param string $method HTTP method for the request, defaults to GET
-     * @param array $requestOptions options for the HTTP client, e.g. query parameters or
-     *                     basic auth
-     * @param array $files array of files to upload
-     * @param ?int $responseCode asserts that the received status code matches
-     * @param string $contentType asserts that the received content type header matches
-     * @param array $json asserts that the returned content is JSON and
-     *                     contains the given array as subset
-     * @param array $requiredKeys asserts the dataset contains the list of keys.
-     *                     Used for elements where the value is not known in advance,
-     *                     e.g. ID, slug, timestamps. Can be nested:
-     *                     ['hydra:member'][0]['id', '@id']
-     * @param array $forbiddenKeys like requiredKeys, but the dataset may not contain those
-     * @param string $schemaClass asserts that the received response matches the JSON
-     *                     schema for the given class
-     * @param array $createdLogs array of ["log message", LogLevel] entries, asserts the
-     *                     messages to be present in the monolog handlers after the
-     *                     operation ran
-     * @param ?int $emailCount asserts this number of emails to be sent via the
-     *                     mailer after the operation was executed
-     * @param ?int $messageCount asserts this number of messages to be dispatched
-     *                     to the message bus
-     * @param array $dispatchedMessages array of message classes, asserts that at least one instance
-     *                     of each given class has been dispatched to the message bus.
-     *                     Instead of class names the elements can be an array of
-     *                     [classname, callable]. This callback will be called
-     *                     (for each matching message) with the message as first
-     *                     parameter and the returned JSON as second parameter.
-     * @param array $dispatchedEvents array of event names, asserts that at least one
-     *                     instance of each given event has been dispatched
+     * @param string   $uri                the endpoint to call, e.g. '/tenants'
+     * @param string   $iri                [classname, [field => value]],
+     *                                     e.g. [User::class, [email => 'test@test.de']]
+     *                                     tries to find an entity by the given conditions and
+     *                                     retrieves its IRI, it is then used as URI
+     * @param callable $prepare            callback($containerInterface, &$params) that prepares the
+     *                                     environment, e.g. creating / deleting entities.
+     *                                     It is called after the kernel is booted & the database was
+     *                                     refreshed. Can be used to update the parameters, e.g. with
+     *                                     IDs/IRIs from the DB.
+     * @param string   $email              if given, tries to find a User with that email and sends
+     *                                     the request authenticated as this user with lexikJWT
+     * @param string   $postFormAuth       if given together with 'email', sends the JWT as
+     *                                     'application/x-www-form-urlencoded' request in the
+     *                                     given field name
+     * @param string   $method             HTTP method for the request, defaults to GET
+     * @param array    $requestOptions     options for the HTTP client, e.g. query parameters or
+     *                                     basic auth
+     * @param array    $files              array of files to upload
+     * @param ?int     $responseCode       asserts that the received status code matches
+     * @param string   $contentType        asserts that the received content type header matches
+     * @param array    $json               asserts that the returned content is JSON and
+     *                                     contains the given array as subset
+     * @param array    $requiredKeys       asserts the dataset contains the list of keys.
+     *                                     Used for elements where the value is not known in advance,
+     *                                     e.g. ID, slug, timestamps. Can be nested:
+     *                                     ['hydra:member'][0]['id', '@id']
+     * @param array    $forbiddenKeys      like requiredKeys, but the dataset may not contain those
+     * @param string   $schemaClass        asserts that the received response matches the JSON
+     *                                     schema for the given class
+     * @param array    $createdLogs        array of ["log message", LogLevel] entries, asserts the
+     *                                     messages to be present in the monolog handlers after the
+     *                                     operation ran
+     * @param ?int     $emailCount         asserts this number of emails to be sent via the
+     *                                     mailer after the operation was executed
+     * @param ?int     $messageCount       asserts this number of messages to be dispatched
+     *                                     to the message bus
+     * @param array    $dispatchedMessages array of message classes, asserts that at least one instance
+     *                                     of each given class has been dispatched to the message bus.
+     *                                     Instead of class names the elements can be an array of
+     *                                     [classname, callable]. This callback will be called
+     *                                     (for each matching message) with the message as first
+     *                                     parameter and the returned JSON as second parameter.
+     * @param array    $dispatchedEvents   array of event names, asserts that at least one
+     *                                     instance of each given event has been dispatched
      */
     protected function testOperation(
         string $uri = '',
         string $iri = '',
-        callable $prepare = null,
+        ?callable $prepare = null,
         string $email = '',
         string $postFormAuth = '',
         string $method = 'GET',
@@ -237,15 +237,14 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         ?int $messageCount = null,
         array $dispatchedMessages = [],
         array $dispatchedEvents = [],
-    ): ResponseInterface
-    {
+    ): ResponseInterface {
         // Save all arguments as an associative array, not only the provided
         // values as an indexed array like func_get_args() would.
         $params = get_defined_vars();
 
         $client = static::createClient();
 
-        if ($email) {
+        if ('' !== $email && '0' !== $email) {
             $token = $this->getJWT(['email' => $email]);
 
             if ('' !== $postFormAuth) {
@@ -275,7 +274,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             extract($params);
         }
 
-        if ($iri) {
+        if ('' !== $iri && '0' !== $iri) {
             $resolved = $this->findIriBy($iri[0], $iri[1]);
             if (!$resolved) {
                 throw new \RuntimeException('IRI could not be resolved with the given parameters!');
@@ -284,11 +283,11 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             $uri = $resolved;
         }
 
-        if ($createdLogs) {
+        if ([] !== $createdLogs) {
             self::prepareLogger();
         }
 
-        if ($files) {
+        if ([] !== $files) {
             $requestOptions['extra']['files'] ??= [];
             $requestOptions['headers']['content-type'] ??= 'multipart/form-data';
 
@@ -320,7 +319,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             self::assertResponseHeaderSame('content-type', $contentType);
         }
 
-        if ($json) {
+        if ([] !== $json) {
             self::assertJsonContains($json);
         }
 
@@ -339,7 +338,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             }
         }
 
-        if ($createdLogs) {
+        if ([] !== $createdLogs) {
             foreach ($createdLogs as $createdLog) {
                 self::assertLoggerHasMessage($createdLog[0], $createdLog[1]);
             }
@@ -349,7 +348,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             self::assertEmailCount($emailCount);
         }
 
-        if ($dispatchedEvents) {
+        if ([] !== $dispatchedEvents) {
             /** @var TraceableEventDispatcher $dispatcher */
             $dispatcher = static::getContainer()
                 ->get(EventDispatcherInterface::class);
@@ -383,7 +382,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                 );
             }
 
-            if ($dispatchedMessages) {
+            if ([] !== $dispatchedMessages) {
                 foreach ($dispatchedMessages as $message) {
                     $messageCallback = null;
 
@@ -464,9 +463,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     public static function assertDatasetHasKeys(
         array $expected,
         array $array,
-        string $parent = ''
-    ): void
-    {
+        string $parent = '',
+    ): void {
         foreach ($expected as $index => $value) {
             if (is_array($value)) {
                 self::assertArrayHasKey(
@@ -505,9 +503,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     public static function assertDatasetNotHasKeys(
         array $expected,
         array $array,
-        string $parent = ''
-    ): void
-    {
+        string $parent = '',
+    ): void {
         foreach ($expected as $index => $value) {
             if (is_array($value)) {
                 // the parent key does not exist / is null -> silently skip the child keys

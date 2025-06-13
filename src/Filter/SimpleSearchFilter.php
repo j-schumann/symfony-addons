@@ -35,7 +35,7 @@ class SimpleSearchFilter extends AbstractFilter
         ?LoggerInterface $logger = null,
         ?array $properties = null,
         ?NameConverterInterface $nameConverter = null,
-        private readonly string $searchParameterName = 'pattern'
+        private readonly string $searchParameterName = 'pattern',
     ) {
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
