@@ -407,8 +407,11 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                         $messages,
                         static fn ($ele) => is_a($ele['message'], $messageClass)
                     );
-                    self::assertGreaterThan(0, count($filtered),
-                        "The expected '$messageClass' was not dispatched");
+                    self::assertGreaterThan(
+                        0,
+                        count($filtered),
+                        "The expected '$messageClass' was not dispatched"
+                    );
 
                     if ($messageCallback) {
                         foreach ($filtered as $msg) {

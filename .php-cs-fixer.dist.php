@@ -7,6 +7,9 @@ $finder = PhpCsFixer\Finder::create()
 
 $config = new PhpCsFixer\Config();
 return $config
+    ->registerCustomFixers([
+        new Vrok\SymfonyAddons\PhpCsFixer\WrapMethodArgumentsFixer(),
+    ])
     ->setRules([
         // keep close to the Symfony standard
         '@Symfony'               => true,
@@ -17,6 +20,11 @@ return $config
                 '=>' => 'align_single_space_minimal_by_scope',
                 '='  => null,
             ],
+        ],
+
+        'VrokSymfonyAddons/method_argument_wrap' => [
+            'max_arguments' => 1,
+            'named_arguments_only' => true,
         ],
 
         // this would otherwise separate annotations

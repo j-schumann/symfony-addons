@@ -20,8 +20,8 @@ class CronMonthlyCommand extends Command
 {
     public function __construct(
         private readonly LoggerInterface $logger,
-        private readonly EventDispatcherInterface $dispatcher)
-    {
+        private readonly EventDispatcherInterface $dispatcher,
+    ) {
         parent::__construct();
     }
 
