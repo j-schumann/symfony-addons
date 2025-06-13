@@ -14,6 +14,8 @@ use Rector\Symfony\Symfony73\Rector\Class_\GetFiltersToAsTwigFilterAttributeRect
 use Rector\Symfony\Symfony73\Rector\Class_\InvokableCommandInputAttributeRector;
 use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
 use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
+use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
+use Vrok\SymfonyAddons\Rector\NamedArgumentsFromArrayRector;
 
 // @see https://getrector.com/blog/5-common-mistakes-in-rector-config-and-how-to-avoid-them
 return RectorConfig::configure()
@@ -53,7 +55,12 @@ return RectorConfig::configure()
         PHPUnitSetList::PHPUNIT_120,
     ])
     ->withRules([
-        PreferPHPUnitSelfCallRector::class
+        PreferPHPUnitSelfCallRector::class,
+    ])
+    ->withConfiguredRule(NamedArgumentsFromArrayRector::class, [
+        'targets' => [
+            [ApiPlatformTestCase::class, 'testOperation'],
+        ],
     ])
     ->withSkip([
         __DIR__ . '/tests/Fixtures/app',

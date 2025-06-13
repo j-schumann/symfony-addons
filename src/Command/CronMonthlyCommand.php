@@ -25,6 +25,7 @@ class CronMonthlyCommand extends Command
         parent::__construct();
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->logger->info('Running CronMonthlyEvent');

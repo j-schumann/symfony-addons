@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
+use http\Exception\RuntimeException;
 use Monolog\Level;
 use PHPUnit\Framework\AssertionFailedError;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -17,32 +18,43 @@ class OperationTest extends ApiPlatformTestCase
 {
     public function testTestOperationCanBeCalled(): void
     {
-        $this->testOperation([
-            'uri'           => '/test',
-            'responseCode'  => 404,
-            'contentType'   => ApiPlatformTestCase::PROBLEM_CONTENT_TYPE,
-            'json'          => [
+        $this->testOperation(
+            uri: '/test',
+            responseCode: 404,
+            contentType: ApiPlatformTestCase::PROBLEM_CONTENT_TYPE,
+            json: [
                 'detail' => 'No route found for "GET http://localhost/test"',
             ],
-            'requiredKeys'  => ['detail', 'status', 'title', 'type'],
-            'forbiddenKeys' => ['hydra:member'],
-            'messageCount'  => 0,
-        ]);
+            requiredKeys: ['detail', 'status', 'title', 'type'],
+            forbiddenKeys: ['hydra:member'],
+            messageCount: 0,
+        );
     }
 
-    public function testTestOperationRejectsUnknownOptions(): void
+    public function testTestOperationCallsPrepare(): void
     {
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Got unsupported parameter(s): "createdEvents" - maybe a typo?');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('I was called');
 
-        $this->testOperation([
-            'uri'           => '/test',
-            'responseCode'  => 404,
-            'contentType'   => ApiPlatformTestCase::PROBLEM_CONTENT_TYPE,
+        $this->testOperation(
+            uri: '/test',
+            prepare: static function () {
+                throw new \RuntimeException('I was called');
+            }
+        );
+    }
 
-            // unknown option:
-            'createdEvents' => [],
-        ]);
+    public function testTestOperationUsesPreparedParameters(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage('Failed asserting that the Response status code is 555.');
+
+        $this->testOperation(
+            uri: '/test',
+            prepare: static function ($container, array &$params) {
+                $params['responseCode'] = 555;
+            },
+        );
     }
 
     public function testTestOperationChecksReturnCode(): void
