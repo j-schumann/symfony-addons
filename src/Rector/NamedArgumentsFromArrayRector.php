@@ -95,7 +95,7 @@ CODE_SAMPLE
         $isMultiline = $this->isArrayMultiline($array);
 
         // Convert array items to named arguments
-        $namedArgs = $this->convertArrayItemsToNamedArgs($array, $isMultiline);
+        $namedArgs = $this->convertArrayItemsToNamedArgs($array);
 
         if ([] === $namedArgs) {
             return null;
@@ -103,9 +103,9 @@ CODE_SAMPLE
 
         $node->args = $namedArgs;
 
-        // If the original array was multiline, preserve that formatting
+        // If the original array was multiline, add formatting to make arguments multiline
         if ($isMultiline) {
-            $this->makeArgumentsMultiline($node, $namedArgs);
+            $this->makeCallMultiline($node);
         }
 
         return $node;
@@ -161,10 +161,8 @@ CODE_SAMPLE
 
         foreach ($this->targets as $target) {
             if (is_array($target) && 2 === count($target)) {
-                [, $targetMethod] = $target; // We can't reliably match class for instance methods
+                [, $targetMethod] = $target;
 
-                // For instance method calls, we can only match by method name
-                // since we can't determine the exact class of $obj in $obj->method() at compile time
                 if ($targetMethod === $methodName) {
                     return true;
                 }
@@ -182,7 +180,6 @@ CODE_SAMPLE
 
         $methodName = $staticCall->name->toString();
 
-        // Get class name
         $className = null;
         if ($staticCall->class instanceof Identifier) {
             $className = $staticCall->class->toString();
@@ -192,7 +189,6 @@ CODE_SAMPLE
             if (is_array($target) && 2 === count($target)) {
                 [$targetClass, $targetMethod] = $target;
 
-                // For static calls, we can match both class and method exactly
                 if ($targetClass === $className && $targetMethod === $methodName) {
                     return true;
                 }
@@ -209,12 +205,10 @@ CODE_SAMPLE
                 continue;
             }
 
-            // If key is null, it's a numeric array
             if (null === $item->key) {
                 return false;
             }
 
-            // We only support string keys for named arguments
             if (!$item->key instanceof String_) {
                 return false;
             }
@@ -228,7 +222,6 @@ CODE_SAMPLE
         $startLine = $array->getAttribute('startLine');
         $endLine = $array->getAttribute('endLine');
 
-        // If we can't determine line numbers, assume single line
         if (null === $startLine || null === $endLine) {
             return false;
         }
@@ -239,7 +232,7 @@ CODE_SAMPLE
     /**
      * @return Arg[]
      */
-    private function convertArrayItemsToNamedArgs(Array_ $array, bool $isMultiline): array
+    private function convertArrayItemsToNamedArgs(Array_ $array): array
     {
         $namedArgs = [];
 
@@ -249,45 +242,32 @@ CODE_SAMPLE
             }
 
             $paramName = $item->key->value;
-            $arg = new Arg(
+            $namedArgs[] = new Arg(
                 $item->value,
                 false, // byRef
                 false, // unpack
                 [],    // attributes
                 new Identifier($paramName) // name
             );
-
-            // If the original array was multiline, add formatting hints
-            if ($isMultiline) {
-                // Copy line attributes from the original array item to preserve formatting
-                if (null !== $item->getAttribute('startLine')) {
-                    $arg->setAttribute('startLine', $item->getAttribute('startLine'));
-                }
-                if (null !== $item->getAttribute('endLine')) {
-                    $arg->setAttribute('endLine', $item->getAttribute('endLine'));
-                }
-            }
-
-            $namedArgs[] = $arg;
         }
 
         return $namedArgs;
     }
 
-    private function makeArgumentsMultiline(Node $node, array $namedArgs): void
+    private function makeCallMultiline(Node $node): void
     {
-        // Set attributes to encourage multiline formatting
-        $node->setAttribute('kind', Array_::KIND_LONG);
+        // Set the original formatting attribute that tells the printer this was multiline
+        $node->setAttribute('origNode', null);
 
-        // Add line break hints to each argument
-        foreach ($namedArgs as $index => $arg) {
-            // Set formatting attributes that encourage line breaks
-            $arg->setAttribute('comments', []);
+        // Force each argument to be on its own line by setting startLine attributes
+        $currentLine = $node->getAttribute('startLine', 1);
 
-            // For all arguments except the last, encourage a trailing comma/newline
-            if ($index < count($namedArgs) - 1) {
-                $arg->setAttribute('trailingComma', true);
-            }
+        foreach ($node->args as $index => $arg) {
+            $arg->setAttribute('startLine', $currentLine + $index + 1);
+            $arg->setAttribute('endLine', $currentLine + $index + 1);
         }
+
+        // Update the end line of the node itself
+        $node->setAttribute('endLine', $currentLine + count($node->args) + 1);
     }
 }
