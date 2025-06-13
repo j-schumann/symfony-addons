@@ -23,7 +23,6 @@ class NoLineBreaks extends Regex
             // matches any linebreak characters, including Unicode line/paragraph
             // separators, @see https://stackoverflow.com/a/18992691/1341762
             pattern: '/\R/u',
-
             message: $message ?? 'This value contains line breaks.',
             match: false,
             normalizer: $normalizer,

@@ -24,7 +24,6 @@ class NoSurroundingWhitespace extends Regex
             // separators, @see https://stackoverflow.com/a/38935454/1341762.
             // We cannot use \R in the lookbehind: lookbehind assertion is not fixed length at offset 14
             pattern: '/^(?!(\R|\s)).*(?<!(\n|\r|\f|\x0b|\x85|\x{2028}|\x{2029}|\s))$/Dsu',
-
             message: $message ?? 'This value contains leading/trailing whitespace.',
             match: true,
             normalizer: $normalizer,
