@@ -58,7 +58,6 @@ return RectorConfig::configure()
         PreferPHPUnitSelfCallRector::class,
     ])
     ->withConfiguredRule(NamedArgumentsFromArrayRector::class, [
-        'always_multiline' => true,
         'targets' => [
             [ApiPlatformTestCase::class, 'testOperation'],
         ],
