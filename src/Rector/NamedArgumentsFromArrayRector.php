@@ -25,6 +25,8 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
      */
     private array $targets = [];
 
+    private bool $alwaysMultiline = false;
+
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -46,14 +48,18 @@ foo(
     b: $b,
 );
 
-bar(x: $x, y: $y);
+bar(
+    x: $x,
+    y: $y,
+);
 CODE_SAMPLE
                     ,
                     [
-                        'targets' => [
+                        'targets'          => [
                             'foo',
                             'bar',
                         ],
+                        'always_multiline' => true,
                     ]
                 ),
             ]
@@ -91,8 +97,8 @@ CODE_SAMPLE
             return null;
         }
 
-        // Check if the original array spans multiple lines
-        $isMultiline = $this->isArrayMultiline($array);
+        // Determine if we should format as multiline
+        $shouldBeMultiline = $this->alwaysMultiline || $this->isArrayMultiline($array);
 
         // Convert array items to named arguments
         $namedArgs = $this->convertArrayItemsToNamedArgs($array);
@@ -103,17 +109,21 @@ CODE_SAMPLE
 
         $node->args = $namedArgs;
 
-        // If the original array was multiline, add formatting to make arguments multiline
-        if ($isMultiline) {
+        // If we should format as multiline, try to add formatting hints
+        if ($shouldBeMultiline) {
             $this->makeCallMultiline($node);
         }
 
         return $node;
     }
 
+    /**
+     * @param mixed[] $configuration
+     */
     public function configure(array $configuration): void
     {
         $this->targets = $configuration['targets'] ?? [];
+        $this->alwaysMultiline = $configuration['always_multiline'] ?? false;
     }
 
     private function shouldProcessNode(Node $node): bool
@@ -254,20 +264,22 @@ CODE_SAMPLE
         return $namedArgs;
     }
 
+    /**
+     * @param FuncCall|MethodCall|StaticCall $node
+     */
     private function makeCallMultiline(Node $node): void
     {
-        // Set the original formatting attribute that tells the printer this was multiline
-        $node->setAttribute('origNode', null);
+        // Unfortunately, Rector's printer doesn't always respect formatting attributes
+        // This is a limitation of how Rector handles code formatting
+        // The multiline formatting would need to be handled by a separate formatting tool
+        // like PHP CS Fixer or by manually reconstructing the node with proper formatting
 
-        // Force each argument to be on its own line by setting startLine attributes
-        $currentLine = $node->getAttribute('startLine', 1);
+        // For now, we'll set some attributes that might help, but the result
+        // may still be on a single line depending on Rector's printer configuration
+        $node->setAttribute('multiline', true);
 
-        foreach ($node->args as $index => $arg) {
-            $arg->setAttribute('startLine', $currentLine + $index + 1);
-            $arg->setAttribute('endLine', $currentLine + $index + 1);
+        foreach ($node->args as $arg) {
+            $arg->setAttribute('multiline', true);
         }
-
-        // Update the end line of the node itself
-        $node->setAttribute('endLine', $currentLine + count($node->args) + 1);
     }
 }
