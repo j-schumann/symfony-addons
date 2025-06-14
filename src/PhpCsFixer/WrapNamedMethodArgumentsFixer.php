@@ -16,9 +16,9 @@ use PhpCsFixer\Tokenizer\Tokens;
 
 final class WrapNamedMethodArgumentsFixer implements FixerInterface, ConfigurableFixerInterface
 {
-    private const DEFAULT_MAX_ARGUMENTS = 3;
-    private const NESTING_OPEN_TOKENS = ['(', '[', '{'];
-    private const NESTING_CLOSE_TOKENS = [')', ']', '}'];
+    private const int DEFAULT_MAX_ARGUMENTS = 3;
+    private const array NESTING_OPEN_TOKENS = ['(', '[', '{'];
+    private const array NESTING_CLOSE_TOKENS = [')', ']', '}'];
 
     private int $maxArguments = self::DEFAULT_MAX_ARGUMENTS;
 
@@ -60,6 +60,9 @@ $this->method(arg1: $value1, arg2: $value2);',
         return true;
     }
 
+    /**
+     * @param Tokens<Token> $tokens
+     */
     public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isTokenKindFound(T_STRING);
@@ -73,7 +76,10 @@ $this->method(arg1: $value1, arg2: $value2);',
     public function getConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         return new FixerConfigurationResolver([
-            (new FixerOptionBuilder('max_arguments', 'Maximum number of arguments before formatting is applied.'))
+            (new FixerOptionBuilder(
+                'max_arguments',
+                'Maximum number of arguments before formatting is applied.'
+            ))
                 ->setAllowedTypes(['int'])
                 ->setDefault(self::DEFAULT_MAX_ARGUMENTS)
                 ->getOption(),
@@ -85,6 +91,9 @@ $this->method(arg1: $value1, arg2: $value2);',
         $this->maxArguments = $configuration['max_arguments'] ?? self::DEFAULT_MAX_ARGUMENTS;
     }
 
+    /**
+     * @param Tokens<Token> $tokens
+     */
     public function fix(\SplFileInfo $file, Tokens $tokens): void
     {
         for ($i = 0, $tokenCount = $tokens->count(); $i < $tokenCount; ++$i) {
@@ -93,11 +102,17 @@ $this->method(arg1: $value1, arg2: $value2);',
             }
 
             $openParenIndex = $tokens->getNextMeaningfulToken($i);
-            if (null === $openParenIndex || !$tokens[$openParenIndex]->equals('(')) {
+            if (
+                null === $openParenIndex
+                || !$tokens[$openParenIndex]->equals('(')
+            ) {
                 continue;
             }
 
-            $closeParenIndex = $tokens->findBlockEnd(Tokens::BLOCK_TYPE_PARENTHESIS_BRACE, $openParenIndex);
+            $closeParenIndex = $tokens->findBlockEnd(
+                Tokens::BLOCK_TYPE_PARENTHESIS_BRACE,
+                $openParenIndex
+            );
 
             if ($this->shouldFormatMethodCall($tokens, $openParenIndex, $closeParenIndex)) {
                 $indentation = $this->detectIndentation($tokens, $i);
@@ -106,20 +121,32 @@ $this->method(arg1: $value1, arg2: $value2);',
         }
     }
 
-    private function shouldFormatMethodCall(Tokens $tokens, int $openParenIndex, int $closeParenIndex): bool
-    {
+    /**
+     * @param Tokens<Token> $tokens
+     */
+    private function shouldFormatMethodCall(
+        Tokens $tokens,
+        int $openParenIndex,
+        int $closeParenIndex,
+    ): bool {
         $analysisResult = $this->analyzeArguments($tokens, $openParenIndex, $closeParenIndex);
 
         return $analysisResult['hasNamedArgs'] && $analysisResult['argumentCount'] > $this->maxArguments;
     }
 
+    /**
+     * @param Tokens<Token> $tokens
+     */
     private function detectIndentation(Tokens $tokens, int $functionNameIndex): array
     {
         // Find the start of the line containing the function call
         $lineStartIndex = $functionNameIndex;
         while ($lineStartIndex > 0) {
             $prevIndex = $lineStartIndex - 1;
-            if ($tokens[$prevIndex]->isWhitespace() && false !== strpos($tokens[$prevIndex]->getContent(), "\n")) {
+            if (
+                $tokens[$prevIndex]->isWhitespace()
+                && str_contains($tokens[$prevIndex]->getContent(), "\n")
+            ) {
                 break;
             }
             --$lineStartIndex;
@@ -143,6 +170,9 @@ $this->method(arg1: $value1, arg2: $value2);',
         ];
     }
 
+    /**
+     * @param Tokens<Token> $tokens
+     */
     private function detectIndentationUnit(Tokens $tokens): string
     {
         $indentations = [];
@@ -154,7 +184,7 @@ $this->method(arg1: $value1, arg2: $value2);',
             }
 
             $content = $tokens[$i]->getContent();
-            if (false === strpos($content, "\n")) {
+            if (!str_contains($content, "\n")) {
                 continue;
             }
 
@@ -166,7 +196,8 @@ $this->method(arg1: $value1, arg2: $value2);',
 
                 // Count leading spaces/tabs
                 $indent = '';
-                for ($j = 0; $j < \strlen($line); ++$j) {
+                $len = \strlen($line);
+                for ($j = 0; $j < $len; ++$j) {
                     if (' ' === $line[$j] || "\t" === $line[$j]) {
                         $indent .= $line[$j];
                     } else {
@@ -181,7 +212,7 @@ $this->method(arg1: $value1, arg2: $value2);',
         }
 
         // Analyze indentations to find the unit
-        if (empty($indentations)) {
+        if ([] === $indentations) {
             return '    '; // Default to 4 spaces
         }
 
@@ -196,7 +227,7 @@ $this->method(arg1: $value1, arg2: $value2);',
         $spaceCounts = array_map('strlen', $indentations);
         $spaceCounts = array_filter($spaceCounts, static fn ($count) => $count > 0);
 
-        if (empty($spaceCounts)) {
+        if ([] === $spaceCounts) {
             return '    '; // Default to 4 spaces
         }
 
@@ -205,8 +236,14 @@ $this->method(arg1: $value1, arg2: $value2);',
         return str_repeat(' ', $minSpaces);
     }
 
-    private function analyzeArguments(Tokens $tokens, int $openParenIndex, int $closeParenIndex): array
-    {
+    /**
+     * @param Tokens<Token> $tokens
+     */
+    private function analyzeArguments(
+        Tokens $tokens,
+        int $openParenIndex,
+        int $closeParenIndex,
+    ): array {
         $topLevelCommas = [];
         $nestingLevel = 0;
         $hasContent = false;
@@ -238,6 +275,9 @@ $this->method(arg1: $value1, arg2: $value2);',
         ];
     }
 
+    /**
+     * @param Tokens<Token> $tokens
+     */
     private function formatMethodCall(Tokens $tokens, int $openParenIndex, int $closeParenIndex, array $indentation): void
     {
         $analysisResult = $this->analyzeArguments($tokens, $openParenIndex, $closeParenIndex);
@@ -249,6 +289,9 @@ $this->method(arg1: $value1, arg2: $value2);',
         $this->addNewlineAfterOpeningParenthesis($tokens, $openParenIndex, $indentation['argument']);
     }
 
+    /**
+     * @param Tokens<Token> $tokens
+     */
     private function addNewlineBeforeClosingParenthesis(Tokens $tokens, int $closeParenIndex, string $baseIndent): void
     {
         $prevIndex = $tokens->getPrevMeaningfulToken($closeParenIndex);
@@ -263,6 +306,9 @@ $this->method(arg1: $value1, arg2: $value2);',
         }
     }
 
+    /**
+     * @param Tokens<Token> $tokens
+     */
     private function addNewlinesAfterCommas(Tokens $tokens, array $topLevelCommas, string $argumentIndent): void
     {
         foreach (array_reverse($topLevelCommas) as $commaIndex) {
@@ -275,6 +321,9 @@ $this->method(arg1: $value1, arg2: $value2);',
         }
     }
 
+    /**
+     * @param Tokens<Token> $tokens
+     */
     private function addNewlineAfterOpeningParenthesis(Tokens $tokens, int $openParenIndex, string $argumentIndent): void
     {
         $nextTokenIndex = $openParenIndex + 1;
@@ -285,11 +334,14 @@ $this->method(arg1: $value1, arg2: $value2);',
         }
     }
 
+    /**
+     * @param Tokens<Token> $tokens
+     */
     private function replaceWhitespaceWithNewline(Tokens $tokens, int $whitespaceIndex, string $indent): void
     {
         if ($tokens[$whitespaceIndex]->isWhitespace()) {
             $content = $tokens[$whitespaceIndex]->getContent();
-            if (false === strpos($content, "\n")) {
+            if (!str_contains($content, "\n")) {
                 $tokens[$whitespaceIndex] = new Token([T_WHITESPACE, "\n".$indent]);
             }
         }

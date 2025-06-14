@@ -78,9 +78,6 @@ return RectorConfig::configure()
         // @see https://discourse.laminas.dev/t/this-assert-vs-self-assert/448
         PreferPHPUnitThisCallRector::class,
 
-        // adds references with @see to the tests to the entity classes etc.
-        //AddSeeTestAnnotationRector::class,
-
         // Changes commands to not inherit from Command but be a simple
         // invokable. But cannot transform configured descriptions to attributes.
         // Also, invokables are not supported by the CommandTester.
