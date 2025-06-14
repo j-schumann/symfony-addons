@@ -171,16 +171,16 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * The params *must* contain either 'iri' or 'uri', all other settings are
      * optional.
      *
-     * @param string   $uri                the endpoint to call, e.g. '/tenants'
-     * @param string   $iri                [classname, [field => value]],
-     *                                     e.g. [User::class, [email => 'test@test.de']]
-     *                                     tries to find an entity by the given conditions and
-     *                                     retrieves its IRI, it is then used as URI
      * @param callable $prepare            callback($containerInterface, &$params) that prepares the
      *                                     environment, e.g. creating / deleting entities.
      *                                     It is called after the kernel is booted & the database was
      *                                     refreshed. Can be used to update the parameters, e.g. with
      *                                     IDs/IRIs from the DB.
+     * @param string   $uri                the endpoint to call, e.g. '/tenants'
+     * @param array    $iri                [classname, [field => value]],
+     *                                     e.g. [User::class, [email => 'test@test.de']]
+     *                                     tries to find an entity by the given conditions and
+     *                                     retrieves its IRI, it is then used as URI
      * @param string   $email              if given, tries to find a User with that email and sends
      *                                     the request authenticated as this user with lexikJWT
      * @param string   $postFormAuth       if given together with 'email', sends the JWT as
@@ -218,9 +218,9 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                                     instance of each given event has been dispatched
      */
     protected function testOperation(
+        ?callable $prepare = null,
         string $uri = '',
         array $iri = [],
-        ?callable $prepare = null,
         string $email = '',
         string $postFormAuth = '',
         string $method = 'GET',
