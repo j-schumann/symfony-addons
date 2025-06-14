@@ -131,7 +131,42 @@ $this->method(arg1: $value1, arg2: $value2);',
     ): bool {
         $analysisResult = $this->analyzeArguments($tokens, $openParenIndex, $closeParenIndex);
 
-        return $analysisResult['hasNamedArgs'] && $analysisResult['argumentCount'] > $this->maxArguments;
+        // Only format if we have named args and exceed the threshold
+        if (!$analysisResult['hasNamedArgs'] || $analysisResult['argumentCount'] <= $this->maxArguments) {
+            return false;
+        }
+
+        // Check if arguments are already on separate lines
+        if ($this->areArgumentsAlreadyFormatted($tokens, $openParenIndex, $closeParenIndex, $analysisResult['topLevelCommas'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function areArgumentsAlreadyFormatted(Tokens $tokens, int $openParenIndex, int $closeParenIndex, array $topLevelCommas): bool
+    {
+        // Check if there's a newline after the opening parenthesis
+        $nextIndex = $openParenIndex + 1;
+        if ($nextIndex < $closeParenIndex && $tokens[$nextIndex]->isWhitespace()) {
+            if (false !== strpos($tokens[$nextIndex]->getContent(), "\n")) {
+                // There's a newline after opening paren, likely already formatted
+                return true;
+            }
+        }
+
+        // Check if there are newlines after commas
+        foreach ($topLevelCommas as $commaIndex) {
+            $nextIndex = $commaIndex + 1;
+            if ($nextIndex < $closeParenIndex && $tokens[$nextIndex]->isWhitespace()) {
+                if (false !== strpos($tokens[$nextIndex]->getContent(), "\n")) {
+                    // Found newline after comma, likely already formatted
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
