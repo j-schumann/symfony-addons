@@ -219,7 +219,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      */
     protected function testOperation(
         string $uri = '',
-        string $iri = '',
+        array $iri = [],
         ?callable $prepare = null,
         string $email = '',
         string $postFormAuth = '',
@@ -244,7 +244,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
 
         $client = static::createClient();
 
-        if ('' !== $email && '0' !== $email) {
+        if ('' !== $email) {
             $token = $this->getJWT(['email' => $email]);
 
             if ('' !== $postFormAuth) {
@@ -274,7 +274,11 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             extract($params);
         }
 
-        if ('' !== $iri && '0' !== $iri) {
+        if ([] !== $iri) {
+            if ('' !== $uri) {
+                throw new \LogicException('Setting both $iri and $uri is not allowed because it serves no purpose.');
+            }
+
             $resolved = $this->findIriBy($iri[0], $iri[1]);
             if (!$resolved) {
                 throw new \RuntimeException('IRI could not be resolved with the given parameters!');
