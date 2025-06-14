@@ -93,14 +93,7 @@ class OperationTest extends ApiPlatformTestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage('Dataset should not have key [detail]!');
 
-        $this->testOperation(
-            uri: '/test',
-            forbiddenKeys: ['detail'],
-            requiredKeys: [
-                'success',
-                'error',
-            ]
-        );
+        $this->testOperation(uri: '/test', forbiddenKeys: ['detail']);
     }
 
     public function testTestOperationDetectsDispatchedEvents(): void
@@ -115,14 +108,7 @@ class OperationTest extends ApiPlatformTestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Expected event 'failedEvent' was not dispatched");
 
-        $this->testOperation(
-            uri: '/test',
-            requiredKeys: [
-                'success',
-                'error',
-            ],
-            dispatchedEvents: ['failedEvent']
-        );
+        $this->testOperation(uri: '/test', dispatchedEvents: ['failedEvent']);
     }
 
     public function testTestOperationChecksCreatedLogs(): void
