@@ -30,8 +30,13 @@ class SimpleSearchFilter extends AbstractFilter
      *
      * @param string $searchParameterName The parameter whose value this filter searches for
      */
-    public function __construct(ManagerRegistry $managerRegistry, ?LoggerInterface $logger = null, ?array $properties = null, ?NameConverterInterface $nameConverter = null, private readonly string $searchParameterName = 'pattern')
-    {
+    public function __construct(
+        ManagerRegistry $managerRegistry,
+        ?LoggerInterface $logger = null,
+        ?array $properties = null,
+        ?NameConverterInterface $nameConverter = null,
+        private readonly string $searchParameterName = 'pattern',
+    ) {
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
 
@@ -83,9 +88,15 @@ class SimpleSearchFilter extends AbstractFilter
             }
 
             // @todo refactor to deduplicate code
-            $associations = [];
             if ($this->isPropertyNested($prop, $resourceClass)) {
-                [$joinAlias, $field, $associations] = $this->addJoinsForNestedProperty($prop, $alias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::LEFT_JOIN);
+                [$joinAlias, $field, $associations] = $this->addJoinsForNestedProperty(
+                    $prop,
+                    $alias,
+                    $queryBuilder,
+                    $queryNameGenerator,
+                    $resourceClass,
+                    Join::LEFT_JOIN
+                );
 
                 $metadata = $this->getNestedMetadata($resourceClass, $associations);
 
@@ -93,12 +104,18 @@ class SimpleSearchFilter extends AbstractFilter
                 if ($platform instanceof PostgreSQLPlatform) {
                     $fieldMeta = $metadata->getFieldMapping($field);
                     if ('json' === $fieldMeta['type']) {
-                        $orExp->add($queryBuilder->expr()->like("LOWER(CAST($joinAlias.$field, 'text'))", ":$parameterName"));
+                        $orExp->add($queryBuilder->expr()->like(
+                            "LOWER(CAST($joinAlias.$field, 'text'))",
+                            ":$parameterName"
+                        ));
                         continue;
                     }
                 }
 
-                $orExp->add($queryBuilder->expr()->like("LOWER($joinAlias.$field)", ":$parameterName"));
+                $orExp->add($queryBuilder->expr()->like(
+                    "LOWER($joinAlias.$field)",
+                    ":$parameterName"
+                ));
                 continue;
             }
 
@@ -106,7 +123,10 @@ class SimpleSearchFilter extends AbstractFilter
             if ($platform instanceof PostgreSQLPlatform) {
                 $fieldMeta = $classMetadata->getFieldMapping($prop);
                 if ('json' === $fieldMeta['type']) {
-                    $orExp->add($queryBuilder->expr()->like("LOWER(CAST($alias.$prop, 'text'))", ":$parameterName"));
+                    $orExp->add($queryBuilder->expr()->like(
+                        "LOWER(CAST($alias.$prop, 'text'))",
+                        ":$parameterName"
+                    ));
                     continue;
                 }
             }

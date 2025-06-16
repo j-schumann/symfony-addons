@@ -10,21 +10,27 @@ use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
-use Rector\Symfony\Set\SymfonySetList;
+use Rector\Symfony\Symfony73\Rector\Class_\GetFiltersToAsTwigFilterAttributeRector;
+use Rector\Symfony\Symfony73\Rector\Class_\InvokableCommandInputAttributeRector;
 use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
 use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
+use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
+use Vrok\SymfonyAddons\Rector\NamedArgumentsFromArrayRector;
 
 // @see https://getrector.com/blog/5-common-mistakes-in-rector-config-and-how-to-avoid-them
-return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->paths([
+return RectorConfig::configure()
+    ->withPaths([
         __DIR__.'/src',
         __DIR__.'/tests',
-    ]);
-
-    $rectorConfig->parallel(200, 4);
-
-    // define sets of rules
-    $rectorConfig->sets([
+    ])
+    ->withParallel(200, 4)
+    ->withComposerBased(
+        twig: true,
+        doctrine: true,
+        phpunit: true,
+        symfony: true,
+    )
+    ->withSets([
         LevelSetList::UP_TO_PHP_84,
         SetList::CODE_QUALITY,
         SetList::TYPE_DECLARATION,
@@ -43,27 +49,22 @@ return static function (RectorConfig $rectorConfig): void {
         // verify changes, some are unwanted!
         // SetList::DEAD_CODE,
 
-        DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         DoctrineSetList::DOCTRINE_CODE_QUALITY,
-        DoctrineSetList::DOCTRINE_DBAL_40,
-        DoctrineSetList::DOCTRINE_ORM_214,
-        DoctrineSetList::DOCTRINE_BUNDLE_210,
-        DoctrineSetList::GEDMO_ANNOTATIONS_TO_ATTRIBUTES,
 
         PHPUnitSetList::PHPUNIT_CODE_QUALITY,
-        PHPUnitSetList::PHPUNIT_100,
+        PHPUnitSetList::PHPUNIT_120,
+    ])
+    ->withRules([
+        PreferPHPUnitSelfCallRector::class,
+    ])
+    ->withConfiguredRule(NamedArgumentsFromArrayRector::class, [
+        'targets' => [
+            [ApiPlatformTestCase::class, 'testOperation'],
+        ],
+    ])
+    ->withSkip([
+        __DIR__ . '/tests/Fixtures/app',
 
-        SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
-        SymfonySetList::SYMFONY_CODE_QUALITY,
-        SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        SymfonySetList::SYMFONY_64,
-    ]);
-
-    $rectorConfig->rules([
-        PreferPHPUnitSelfCallRector::class
-    ]);
-
-    $rectorConfig->skip([
         // mostly unnecessary as they are callbacks to array_filter etc.
         AddArrowFunctionReturnTypeRector::class,
 
@@ -77,7 +78,12 @@ return static function (RectorConfig $rectorConfig): void {
         // @see https://discourse.laminas.dev/t/this-assert-vs-self-assert/448
         PreferPHPUnitThisCallRector::class,
 
-        // adds references with @see to the tests to the entity classes etc.
-        //AddSeeTestAnnotationRector::class,
-    ]);
-};
+        // Changes commands to not inherit from Command but be a simple
+        // invokable. But cannot transform configured descriptions to attributes.
+        // Also, invokables are not supported by the CommandTester.
+        InvokableCommandInputAttributeRector::class,
+
+        // #[AsTwigFilter] is only available in SF 7.3+, we need to support 7.2
+        GetFiltersToAsTwigFilterAttributeRector::class,
+    ])
+;

@@ -9,16 +9,17 @@ use Twig\TwigFilter;
 
 class FormatBytesExtension extends AbstractExtension
 {
+    public function getName(): string
+    {
+        return 'format_bytes';
+    }
+
+    #[\Override]
     public function getFilters(): array
     {
         return [
             new TwigFilter('formatBytes', $this->formatBytes(...)),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'format_bytes';
     }
 
     public function formatBytes($bytes, $precision = 2): string

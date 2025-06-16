@@ -36,7 +36,7 @@ class AutoSenderSubscriber implements EventSubscriberInterface
     public function onMessage(MessageEvent $event): void
     {
         if ($event->isQueued()) {
-            // nothing to do, mail will be queued by the symfony/mailer which
+            // Nothing to do, mail will be queued by the symfony/mailer which
             // does not accept changing the message (cloned before).
             // But the message will need a FROM header to serialize for
             // symfony/messenger...

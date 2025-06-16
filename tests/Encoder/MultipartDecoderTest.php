@@ -46,7 +46,8 @@ class MultipartDecoderTest extends KernelTestCase
             ))
             ->willReturn(new Response());
 
-        $this->uploadFile($mockedClient,
+        $this->uploadFile(
+            $mockedClient,
             __FILE__,
             'normal.jpg',
             'image/jpg',

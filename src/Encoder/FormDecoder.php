@@ -11,11 +11,11 @@ use Symfony\Component\Serializer\Encoder\DecoderInterface;
  * Used to decode 'application/x-www-form-urlencoded' requests for usage in
  * ApiPlatform. The decoder is auto-registered as service.
  */
-class FormDecoder implements DecoderInterface
+readonly class FormDecoder implements DecoderInterface
 {
-    final public const FORMAT = 'form';
+    public const string FORMAT = 'form';
 
-    public function __construct(private readonly RequestStack $requestStack)
+    public function __construct(private RequestStack $requestStack)
     {
     }
 

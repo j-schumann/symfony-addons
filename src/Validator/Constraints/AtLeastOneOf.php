@@ -20,9 +20,7 @@ class AtLeastOneOf extends BaseAtLeastOneOf
             $constraints,
             $groups,
             $payload,
-            // previously (SF <= 6.4) this value could be NULL -> automatically
-            // convert to empty string now
-            $message ?? '',
+            $message,
             $messageCollection
         );
     }

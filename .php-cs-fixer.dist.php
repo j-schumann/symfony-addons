@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 $finder = PhpCsFixer\Finder::create()
     ->in(['src', 'tests'])
@@ -8,12 +11,23 @@ $finder = PhpCsFixer\Finder::create()
 $config = new PhpCsFixer\Config();
 return $config
     ->setRiskyAllowed(true)
+    ->registerCustomFixers([
+        new Vrok\SymfonyAddons\PhpCsFixer\WrapNamedMethodArgumentsFixer(),
+    ])
     ->setRules([
         // keep close to the Symfony standard
         '@Symfony'               => true,
         '@Symfony:risky'                 => true,
 
         'attribute_empty_parentheses'    => true,
+
+        "VrokSymfonyAddons/wrap_named_method_arguments" => [
+            'max_arguments' => 2,
+        ],
+
+        'method_argument_space' => [
+            'on_multiline' =>  'ensure_fully_multiline',
+        ],
 
         // but force alignment of keys/values in array definitions
         'binary_operator_spaces' => [

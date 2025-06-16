@@ -8,6 +8,7 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Get;
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -54,6 +55,7 @@ class ContainsFilterTest extends KernelTestCase
         ]);
 
         $param = $qb->getParameter('jsonColumn_p1');
+        self::assertInstanceOf(Parameter::class, $param);
         self::assertSame('testVal', $param->getValue());
 
         self::assertStringContainsString(
@@ -80,8 +82,10 @@ class ContainsFilterTest extends KernelTestCase
         ]);
 
         $param = $qb->getParameter('jsonColumn_p1');
+        self::assertInstanceOf(Parameter::class, $param);
         self::assertSame('testVal', $param->getValue());
         $param = $qb->getParameter('jsonColumn_p2');
+        self::assertInstanceOf(Parameter::class, $param);
         self::assertSame('otherVal', $param->getValue());
 
         self::assertStringContainsString(

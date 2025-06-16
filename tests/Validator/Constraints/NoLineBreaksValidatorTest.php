@@ -81,24 +81,6 @@ class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         $violation->assertRaised();
     }
 
-    // @todo remove with SymfonyAddons 3.0
-    public function testConstraintWithOptions(): void
-    {
-        $constraint = new NoLineBreaks(['message' => 'myMessage']);
-
-        $this->validator->validate("fail\nnow", $constraint);
-
-        $violation = $this->buildViolation('myMessage')
-            ->setParameter('{{ value }}', "\"fail\nnow\"")
-            ->setParameter('{{ pattern }}', $constraint->pattern)
-            ->setCode(Regex::REGEX_FAILED_ERROR);
-
-        $violation->assertRaised();
-        $this->expectUserDeprecationMessage(
-            'Since symfony/validator 7.3: Passing an array of options to configure the "Vrok\SymfonyAddons\Validator\Constraints\NoLineBreaks" constraint is deprecated, use named arguments instead.'
-        );
-    }
-
     #[DataProvider('getValid')]
     public function testValid(string $value): void
     {

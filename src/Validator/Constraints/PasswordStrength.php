@@ -16,30 +16,21 @@ class PasswordStrength extends Constraint
     ];
 
     public string $message = 'This password is not secure enough.';
-
-    protected float $minStrength = 25;
+    public float $minStrength = 25;
 
     public function __construct(
-        mixed $options = null,
         ?float $minStrength = null,
         ?string $message = null,
         ?array $groups = null,
-        mixed $payload = null
+        mixed $payload = null,
     ) {
-        // @todo remove $options with SymfonyAddons 3.0
-        if (\is_array($options)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-        } elseif (null !== $options) {
-            trigger_deprecation('vrok/symfony-addons', '2.16', 'Using options is deprecated, use named arguments instead.', static::class);
-        }
-
         parent::__construct(
-            groups: $groups ?? $options['groups'] ?? null,
-            payload: $payload ?? $options['payload'] ?? null,
+            groups: $groups,
+            payload: $payload,
         );
 
-        $this->minStrength = $minStrength ?? $options['minStrength'] ?? $this->minStrength;
-        $this->message = $message ?? $options['message'] ?? $this->message;
+        $this->minStrength = $minStrength ?? $this->minStrength;
+        $this->message = $message ?? $this->message;
     }
 
     public function getMinStrength(): float
