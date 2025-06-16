@@ -739,6 +739,104 @@ In your Twig template:
 
 Outputs: 9.34 MiB
 
+## Experimental / Additional Features
+### NamedArgumentsFromArrayRector
+This Rector allows migrating function calls that previously used an array of
+options (like `ApiPlatformTestCase#testOperation`) to use named arguments instead.
+
+This can be configured to target static functions, static class methods or instance
+methods.  
+Example for the `rector.php`:
+```php
+use Vrok\SymfonyAddons\Rector\NamedArgumentsFromArrayRector;
+
+return RectorConfig::configure()
+    ->withConfiguredRule(NamedArgumentsFromArrayRector::class, [
+        'targets' => [
+            [ApiPlatformTestCase::class, 'testOperation'],
+        ],
+    ])
+;
+```
+
+This converts
+
+```php
+$this->testOperation([
+    'uri' => '/test',
+    'requiredKeys' => [
+        'success',
+        'message',
+    ],
+    'dispatchedEvents' => ['failedEvent'],
+]);
+```
+
+to
+
+```php
+$this->testOperation(uri: '/test', requiredKeys: [
+    'success',
+    'message',
+], dispatchedEvents: ['failedEvent']);
+```
+
+Attention: This Rector is not yet unit-tested, please report any bugs you find!
+
+### WrapNamedMethodArgumentsFixer
+
+This Fixer for php-cs-fixer allows wrapping long lines of function calls with
+named arguments to contain one argument per line, respecting multiline argument
+values like arrays.  
+This can be used to improve readability, e.g. after using the `NamedArgumentsFromArrayRector`
+which puts multiple arguments on the same line.
+
+It allows configuring the maximum number of arguments to keep on a single
+line, each call with more named arguments will be wrapped.
+
+Register the Fixer in your `.php-cs-fixer.dist.php` and add a rule:
+```php
+return $config
+    ->registerCustomFixers([
+        new Vrok\SymfonyAddons\PhpCsFixer\WrapNamedMethodArgumentsFixer(),
+    ])
+    ->setRules([
+        "VrokSymfonyAddons/wrap_named_method_arguments" => [
+            'max_arguments' => 2,
+        ],
+
+        // your custom formatting rules:
+        '@Symfony'               => true,
+        [...]
+    ])
+;
+```
+
+This converts
+```php
+$this->testOperation(uri: '/test', requiredKeys: [
+    'success',
+    'message',
+], dispatchedEvents: ['failedEvent']);
+```
+
+to
+```php
+$this->testOperation(
+    uri: '/test',
+    requiredKeys: [
+        'success',
+        'message',
+    ],
+    dispatchedEvents: ['failedEvent']
+);
+```
+
+Attention: Formatting (indentation) is only fixed after the arguments were wrapped,
+by your specification of `method_argument_space` and `array_indentation` (or rulesets
+containing those, like `@Symfony`).  
+This fixer is not yet unit-tested, please report any bugs you find!
+
 ## Developer Doc
 ### composer.json require
 
@@ -760,4 +858,6 @@ Outputs: 9.34 MiB
 ### Open ToDos
 * tests for `RefreshDatabaseTrait`
 * tests for QueryBuilderHelper
+* tests for NamedArgumentsFromArrayRector
+* tests for WrapNamedMethodArgumentsFixer
 * compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper
