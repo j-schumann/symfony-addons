@@ -10,6 +10,10 @@
   default behavior and the option is no longer valid.
 * `ApiPlatformTestCase` no longer uses the `AuthenticatedClientTrait`, if you
   need the functionality, include it in your test class directly.
+* If you previously used an empty `files` array to get the "ContentType: multipart/form-data"
+  header with `testOperation()` you now have to specify this header manually.
+* Make sure you don't specify the `iri` and `uri` arguments together when calling
+  `testOperation()`, or by setting the other in the `prepare` callback.
 * Replace usages of the removed error constants from `ApiPlatformTestCase` with
   the new versions or your own values:
     * ERROR_RESPONSE

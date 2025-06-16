@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.0] - TBD
+## [3.0.0] - 2025-06-16
 ### Changed
 * `ApiPlatformTestCase` no longer uses the `AuthenticatedClientTrait` but
    its own `getJWT` and allows to customize the User class via the static
@@ -29,6 +29,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   single test you have to call `static::bootKernel()` yourself.
 * Old ApiPlatformTestCase constants with (Hydra) error responses from APIP < 3.2
   were removed.
+* Because the `files` argument of `testOperation` now defaults to an empty array,
+  the "ContentType: multipart/form-data" header is no longer added automatically.
+* Specifying both `iri` and `uri` as arguments for  `testOperation` now throws
+  an exception.
 * `AuthenticatedClientTrait` was removed
 
 ## [2.16.0] - 2025-06-12
