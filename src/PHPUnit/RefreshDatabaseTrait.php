@@ -68,7 +68,7 @@ trait RefreshDatabaseTrait
         $entityManager = $container->get('doctrine')->getManager();
         $executor = static::getExecutor($entityManager);
 
-        switch ($_ENV['DB_CLEANUP_METHOD']) {
+        switch ($_ENV['DB_CLEANUP_METHOD'] ?? 'purge') {
             case 'dropDatabase':
                 static::recreateDatabase($entityManager, true);
                 static::updateSchema($entityManager);
