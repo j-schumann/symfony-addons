@@ -56,7 +56,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    continue-on-error: ${{ matrix.php == '8.4' }} # don't mark the whole pipeline failed if one of those fails
+    continue-on-error: ${{ matrix.php == '8.5' }} # don't mark the whole pipeline failed if one of those fails
     strategy:
       matrix:
         php:
@@ -129,21 +129,21 @@ jobs:
       - name: Run tests on MariaDB
         if: matrix.database == 'mariadb'
         env:
-          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-11.0.2
+          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-11.4.7
         run: |
           vendor/bin/phpunit --group=database
 
       - name: Run tests on MySQL
         if: matrix.database == 'mysql'
         env:
-          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3307/dbtest?serverVersion=8.0
+          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3307/dbtest?serverVersion=9.0
         run: |
             vendor/bin/phpunit --group=database
 
       - name: Run tests on Postgres
         if: matrix.database == 'postgres'
         env:
-          DATABASE_URL: pgsql://dbtest:dbtest@127.0.0.1:5432/dbtest?serverVersion=13
+          DATABASE_URL: pgsql://dbtest:dbtest@127.0.0.1:5432/dbtest?serverVersion=17
         run: |
           vendor/bin/phpunit --group=database
 

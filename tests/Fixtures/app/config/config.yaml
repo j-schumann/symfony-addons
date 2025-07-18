@@ -16,6 +16,8 @@ framework:
         dsn: 'doctrine://default'
         options:
           auto_setup: true
+  profiler:
+    collect_serializer_data: true
   session:
     handler_id: null
     cookie_secure: auto
