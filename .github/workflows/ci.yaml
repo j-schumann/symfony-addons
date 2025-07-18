@@ -9,7 +9,7 @@ env:
   COMPOSER_UPDATE_FLAGS: ""
 jobs:
   phpunit:
-    name: PHPUnit (PHP ${{ matrix.php }})
+    name: PHPUnit (PHP ${{ matrix.php }}, db ${{ matrix.database }}, deps ${{ matrix.dependencies }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
