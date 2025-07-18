@@ -65,7 +65,7 @@ $this->method(arg1: $value1, arg2: $value2);',
      */
     public function isCandidate(Tokens $tokens): bool
     {
-        return $tokens->isTokenKindFound(T_STRING);
+        return $tokens->isTokenKindFound(\T_STRING);
     }
 
     public function isRisky(): bool
@@ -97,7 +97,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     public function fix(\SplFileInfo $file, Tokens $tokens): void
     {
         for ($i = 0, $tokenCount = $tokens->count(); $i < $tokenCount; ++$i) {
-            if (!$tokens[$i]->isGivenKind(T_STRING)) {
+            if (!$tokens[$i]->isGivenKind(\T_STRING)) {
                 continue;
             }
 
@@ -149,7 +149,7 @@ $this->method(arg1: $value1, arg2: $value2);',
         // Check if there's a newline after the opening parenthesis
         $nextIndex = $openParenIndex + 1;
         if ($nextIndex < $closeParenIndex && $tokens[$nextIndex]->isWhitespace()) {
-            if (false !== strpos($tokens[$nextIndex]->getContent(), "\n")) {
+            if (str_contains($tokens[$nextIndex]->getContent(), "\n")) {
                 // There's a newline after opening paren, likely already formatted
                 return true;
             }
@@ -159,7 +159,7 @@ $this->method(arg1: $value1, arg2: $value2);',
         foreach ($topLevelCommas as $commaIndex) {
             $nextIndex = $commaIndex + 1;
             if ($nextIndex < $closeParenIndex && $tokens[$nextIndex]->isWhitespace()) {
-                if (false !== strpos($tokens[$nextIndex]->getContent(), "\n")) {
+                if (str_contains($tokens[$nextIndex]->getContent(), "\n")) {
                     // Found newline after comma, likely already formatted
                     return true;
                 }
@@ -335,7 +335,7 @@ $this->method(arg1: $value1, arg2: $value2);',
         }
 
         if ($prevIndex + 1 === $closeParenIndex) {
-            $tokens->insertAt($closeParenIndex, new Token([T_WHITESPACE, "\n".$baseIndent]));
+            $tokens->insertAt($closeParenIndex, new Token([\T_WHITESPACE, "\n".$baseIndent]));
         } else {
             $this->replaceWhitespaceWithNewline($tokens, $prevIndex + 1, $baseIndent);
         }
@@ -349,9 +349,9 @@ $this->method(arg1: $value1, arg2: $value2);',
         foreach (array_reverse($topLevelCommas) as $commaIndex) {
             $nextTokenIndex = $commaIndex + 1;
             if ($nextTokenIndex < \count($tokens) && $tokens[$nextTokenIndex]->isWhitespace()) {
-                $tokens[$nextTokenIndex] = new Token([T_WHITESPACE, "\n".$argumentIndent]);
+                $tokens[$nextTokenIndex] = new Token([\T_WHITESPACE, "\n".$argumentIndent]);
             } else {
-                $tokens->insertAt($commaIndex + 1, new Token([T_WHITESPACE, "\n".$argumentIndent]));
+                $tokens->insertAt($commaIndex + 1, new Token([\T_WHITESPACE, "\n".$argumentIndent]));
             }
         }
     }
@@ -363,9 +363,9 @@ $this->method(arg1: $value1, arg2: $value2);',
     {
         $nextTokenIndex = $openParenIndex + 1;
         if ($nextTokenIndex < \count($tokens) && $tokens[$nextTokenIndex]->isWhitespace()) {
-            $tokens[$nextTokenIndex] = new Token([T_WHITESPACE, "\n".$argumentIndent]);
+            $tokens[$nextTokenIndex] = new Token([\T_WHITESPACE, "\n".$argumentIndent]);
         } else {
-            $tokens->insertAt($openParenIndex + 1, new Token([T_WHITESPACE, "\n".$argumentIndent]));
+            $tokens->insertAt($openParenIndex + 1, new Token([\T_WHITESPACE, "\n".$argumentIndent]));
         }
     }
 
@@ -377,7 +377,7 @@ $this->method(arg1: $value1, arg2: $value2);',
         if ($tokens[$whitespaceIndex]->isWhitespace()) {
             $content = $tokens[$whitespaceIndex]->getContent();
             if (!str_contains($content, "\n")) {
-                $tokens[$whitespaceIndex] = new Token([T_WHITESPACE, "\n".$indent]);
+                $tokens[$whitespaceIndex] = new Token([\T_WHITESPACE, "\n".$indent]);
             }
         }
     }

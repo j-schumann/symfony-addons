@@ -83,7 +83,7 @@ CODE_SAMPLE
         }
 
         // Check if there's exactly one argument and it's an array
-        if (1 !== count($node->args)) {
+        if (1 !== \count($node->args)) {
             return null;
         }
 
@@ -146,7 +146,7 @@ CODE_SAMPLE
 
         foreach ($this->targets as $target) {
             // String targets are function calls
-            if (is_string($target) && $target === $functionName) {
+            if (\is_string($target) && $target === $functionName) {
                 return true;
             }
         }
@@ -163,7 +163,7 @@ CODE_SAMPLE
         $methodName = $methodCall->name->toString();
 
         foreach ($this->targets as $target) {
-            if (is_array($target) && 2 === count($target)) {
+            if (\is_array($target) && 2 === \count($target)) {
                 [, $targetMethod] = $target;
 
                 if ($targetMethod === $methodName) {
@@ -189,7 +189,7 @@ CODE_SAMPLE
         }
 
         foreach ($this->targets as $target) {
-            if (is_array($target) && 2 === count($target)) {
+            if (\is_array($target) && 2 === \count($target)) {
                 [$targetClass, $targetMethod] = $target;
 
                 if ($targetClass === $className && $targetMethod === $methodName) {

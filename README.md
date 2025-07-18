@@ -856,7 +856,6 @@ This fixer is not yet unit-tested, please report any bugs you find!
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
-* tests for `RefreshDatabaseTrait`
 * tests for QueryBuilderHelper
 * tests for NamedArgumentsFromArrayRector
 * tests for WrapNamedMethodArgumentsFixer

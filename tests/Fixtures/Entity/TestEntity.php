@@ -19,7 +19,7 @@ class TestEntity
     #[ORM\Column]
     public ?int $id = null;
 
-    #[ORM\Column(type: Types::JSON, options: ['jsonb' => true])]
+    #[ORM\Column(type: Types::JSON, options: ['JSONB' => true])]
     public array $jsonColumn = [];
 
     #[ORM\Column(type: Types::TEXT)]

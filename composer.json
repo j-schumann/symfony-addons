@@ -30,7 +30,8 @@
         "symfony/twig-bundle": "^7.2.0",
         "symfony/validator": "^7.2.0",
         "symfony/workflow": "^7.2.0",
-        "vrok/doctrine-addons": "^2.13.0"
+        "vrok/doctrine-addons": "^2.13.0",
+        "zalas/phpunit-globals": "4.0.1"
     },
     "autoload": {
         "psr-4": {
