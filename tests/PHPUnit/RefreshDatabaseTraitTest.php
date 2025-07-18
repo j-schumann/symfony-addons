@@ -14,6 +14,12 @@ class RefreshDatabaseTraitTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
+    /**
+     * This test is currently *not* in the "database" group as it would fail on
+     * MySQL/MariaDB with "1701 Cannot truncate a table referenced in a foreign
+     * key constraint". We would have to set up the MariaDbTestDriver from the
+     * DoctrineAddons conditionally, and this would also only work for MariaDB.
+     */
     #[Env('DB_CLEANUP_METHOD', 'purge')]
     public function testCleanupWithPurge(): void
     {
