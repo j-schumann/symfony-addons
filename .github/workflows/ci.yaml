@@ -153,7 +153,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phpunit-logs-php${{ matrix.php }}
+          name: phpunit-logs-php${{ matrix.php }}-${{ matrix.database }}-${{ matrix.dependencies }}deps
           path: build/logs/phpunit
         continue-on-error: true
 
