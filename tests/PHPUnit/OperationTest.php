@@ -36,10 +36,10 @@ class OperationTest extends ApiPlatformTestCase
         $this->expectExceptionMessage('I was called');
 
         $this->testOperation(
-            uri: '/test',
             prepare: static function (): void {
                 throw new \RuntimeException('I was called');
-            }
+            },
+            uri: '/test'
         );
     }
 
@@ -49,10 +49,10 @@ class OperationTest extends ApiPlatformTestCase
         $this->expectExceptionMessage('Failed asserting that the Response status code is 555.');
 
         $this->testOperation(
-            uri: '/test',
             prepare: static function ($container, array &$params): void {
                 $params['responseCode'] = 555;
             },
+            uri: '/test',
         );
     }
 

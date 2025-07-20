@@ -453,6 +453,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         );
     }
 
+    #[\Override]
     public static function tearDownAfterClass(): void
     {
         self::fixtureCleanup();

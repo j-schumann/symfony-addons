@@ -30,8 +30,8 @@ return RectorConfig::configure()
         phpunit: true,
         symfony: true,
     )
+    ->withPhpSets(php84: true)
     ->withSets([
-        LevelSetList::UP_TO_PHP_84,
         SetList::CODE_QUALITY,
         SetList::TYPE_DECLARATION,
 

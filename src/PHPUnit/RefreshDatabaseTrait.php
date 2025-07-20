@@ -213,7 +213,7 @@ trait RefreshDatabaseTrait
         bool $drop = false,
     ): void {
         $metadatas = $em->getMetadataFactory()->getAllMetadata();
-        if (empty($metadatas)) {
+        if ([] === $metadatas) {
             return;
         }
 

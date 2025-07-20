@@ -56,7 +56,9 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    continue-on-error: ${{ matrix.php == '8.5' }} # don't mark the whole pipeline failed if one of those fails
+    # don't mark the whole pipeline failed if one of those fails, there might
+    # be incompatibilities with upcoming PHP versions
+    continue-on-error: ${{ matrix.php == '8.5' }}
     strategy:
       matrix:
         php:
