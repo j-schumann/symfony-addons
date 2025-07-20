@@ -133,21 +133,21 @@ jobs:
         env:
           DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-11.4.7
         run: |
-          vendor/bin/phpunit --group=database
+          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
       - name: Run tests on MySQL
         if: matrix.database == 'mysql'
         env:
           DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3307/dbtest?serverVersion=9.0
         run: |
-            vendor/bin/phpunit --group=database
+            vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
       - name: Run tests on Postgres
         if: matrix.database == 'postgres'
         env:
           DATABASE_URL: pgsql://dbtest:dbtest@127.0.0.1:5432/dbtest?serverVersion=17
         run: |
-          vendor/bin/phpunit --group=database
+          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test artifacts
         if: always()
