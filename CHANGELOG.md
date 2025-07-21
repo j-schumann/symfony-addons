@@ -3,11 +3,17 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2025-07-21
+### Added
+* `RefreshDatabaseTrait` can now automatically create missing test database(s)
+* `RefreshDatabaseTrait` now supports `dropDatabase` as DB_CLEANUP_METHOD, test
+  in your setup if it is faster than `dropSchema`
+
 ## [3.0.0] - 2025-06-16
 ### Changed
 * `ApiPlatformTestCase` no longer uses the `AuthenticatedClientTrait` but
-   its own `getJWT` and allows to customize the User class via the static
-   `$userClass`.
+  its own `getJWT` and allows to customize the User class via the static
+  `$userClass`.
 
 ### Removed
 * Removed support for PHP <= 8.2, Symfony <= 7.1, ApiPlatform <= 4.0, Doctrine
