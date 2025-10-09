@@ -18,6 +18,9 @@ framework:
           auto_setup: true
   profiler:
     collect_serializer_data: true
+  # @todo Enable when minimum required symfony/framework is 7.3
+  #property_info:
+  #  with_constructor_extractor: false
   session:
     handler_id: null
     cookie_secure: auto

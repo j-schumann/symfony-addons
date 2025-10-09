@@ -24,7 +24,23 @@ class OperationTest extends ApiPlatformTestCase
             json: [
                 'detail' => 'No route found for "GET http://localhost/test"',
             ],
-            requiredKeys: ['detail', 'status', 'title', 'type'],
+            requiredKeys: [
+                'detail',
+                'status',
+                'type',
+
+                // ApiPlatform 4.2 is backwards incompatible (again):
+                // Before, "title" and "hydra:title" were both set, so old
+                // clients, depending on the "hydra" values worked and new ones
+                // that use only "detail"+"title". Now we only get either
+                // title or hydra:title
+                // @todo Change when api_platform.serializer.hydra_prefix is
+                //       set to false
+                'hydra:title',
+            ],
+
+            // @todo Change when api_platform.serializer.hydra_prefix is
+            //       set to false
             forbiddenKeys: ['hydra:member'],
             messageCount: 0,
         );
