@@ -12,7 +12,7 @@
     },
     "require-dev": {
         "api-platform/core": "^4.1.0",
-        "doctrine/doctrine-bundle": "^2.12.0",
+        "doctrine/doctrine-bundle": "^3.0.0",
         "doctrine/persistence": "^4.0.0",
         "doctrine/doctrine-fixtures-bundle": "^4.0.0",
         "doctrine/orm": "^3.0.0",
