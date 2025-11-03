@@ -151,7 +151,7 @@ jobs:
 
       - name: Upload test artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: phpunit-logs-php${{ matrix.php }}-${{ matrix.database }}-${{ matrix.dependencies }}deps
           path: build/logs/phpunit
