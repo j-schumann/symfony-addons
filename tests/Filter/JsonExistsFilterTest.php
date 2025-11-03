@@ -16,11 +16,11 @@ use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 #[Group('database')]
-class JsonExistsFilterTest extends KernelTestCase
+final class JsonExistsFilterTest extends KernelTestCase
 {
     public function testGetDescription(): void
     {
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null], null);
 
         self::assertEquals([
@@ -39,9 +39,9 @@ class JsonExistsFilterTest extends KernelTestCase
 
     public function testApplyFilter(): void
     {
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null], null);
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
 
         /** @var QueryBuilder $qb */

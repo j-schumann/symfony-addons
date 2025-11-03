@@ -10,7 +10,7 @@ use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 use Zalas\PHPUnit\Globals\Attribute\Env;
 
-class RefreshDatabaseTraitTest extends KernelTestCase
+final class RefreshDatabaseTraitTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
@@ -23,9 +23,9 @@ class RefreshDatabaseTraitTest extends KernelTestCase
     #[Env('DB_CLEANUP_METHOD', 'purge')]
     public function testCleanupWithPurge(): void
     {
-        static::bootKernel();
+        self::bootKernel();
 
-        $em = static::getContainer()->get('doctrine')->getManager();
+        $em = self::getContainer()->get('doctrine')->getManager();
         self::assertSame(0, $em->getRepository(TestEntity::class)->count());
 
         $record = new TestEntity();
@@ -33,8 +33,8 @@ class RefreshDatabaseTraitTest extends KernelTestCase
         $em->flush();
         self::assertSame(1, $em->getRepository(TestEntity::class)->count());
 
-        static::bootKernel();
-        $em = static::getContainer()->get('doctrine')->getManager();
+        self::bootKernel();
+        $em = self::getContainer()->get('doctrine')->getManager();
         self::assertSame(0, $em->getRepository(TestEntity::class)->count());
     }
 
@@ -42,9 +42,9 @@ class RefreshDatabaseTraitTest extends KernelTestCase
     #[Group('database')]
     public function testCleanupWithDropSchema(): void
     {
-        static::bootKernel();
+        self::bootKernel();
 
-        $em = static::getContainer()->get('doctrine')->getManager();
+        $em = self::getContainer()->get('doctrine')->getManager();
         self::assertSame(0, $em->getRepository(TestEntity::class)->count());
 
         $record = new TestEntity();
@@ -52,8 +52,8 @@ class RefreshDatabaseTraitTest extends KernelTestCase
         $em->flush();
         self::assertSame(1, $em->getRepository(TestEntity::class)->count());
 
-        static::bootKernel();
-        $em = static::getContainer()->get('doctrine')->getManager();
+        self::bootKernel();
+        $em = self::getContainer()->get('doctrine')->getManager();
         self::assertSame(0, $em->getRepository(TestEntity::class)->count());
     }
 
@@ -61,9 +61,9 @@ class RefreshDatabaseTraitTest extends KernelTestCase
     #[Group('database')]
     public function testCleanupWithDropDatabase(): void
     {
-        static::bootKernel();
+        self::bootKernel();
 
-        $em = static::getContainer()->get('doctrine')->getManager();
+        $em = self::getContainer()->get('doctrine')->getManager();
         self::assertSame(0, $em->getRepository(TestEntity::class)->count());
 
         $record = new TestEntity();
@@ -71,8 +71,8 @@ class RefreshDatabaseTraitTest extends KernelTestCase
         $em->flush();
         self::assertSame(1, $em->getRepository(TestEntity::class)->count());
 
-        static::bootKernel();
-        $em = static::getContainer()->get('doctrine')->getManager();
+        self::bootKernel();
+        $em = self::getContainer()->get('doctrine')->getManager();
         self::assertSame(0, $em->getRepository(TestEntity::class)->count());
     }
 }

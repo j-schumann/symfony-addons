@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Vrok\SymfonyAddons\Command\CronMonthlyCommand;
 use Vrok\SymfonyAddons\Event\CronMonthlyEvent;
 
-class CronMonthlyCommandTest extends KernelTestCase
+final class CronMonthlyCommandTest extends KernelTestCase
 {
     public function testTriggersEventAndCreatesLog(): void
     {
@@ -38,7 +38,7 @@ class CronMonthlyCommandTest extends KernelTestCase
 
     public function testService(): void
     {
-        $application = new Application(static::bootKernel());
+        $application = new Application(self::bootKernel());
         self::assertTrue($application->has('cron:monthly'));
     }
 }

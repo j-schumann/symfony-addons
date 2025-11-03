@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\NoHtml;
 use Vrok\SymfonyAddons\Validator\Constraints\NoHtmlValidator;
 
-class NoHtmlValidatorTest extends ConstraintValidatorTestCase
+final class NoHtmlValidatorTest extends ConstraintValidatorTestCase
 {
     protected function createValidator(): NoHtmlValidator
     {

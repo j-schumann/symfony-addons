@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Validation;
 use Vrok\SymfonyAddons\Validator\Constraints\AtLeastOneOf;
 use Vrok\SymfonyAddons\Validator\Constraints\AtLeastOneOfValidator;
 
-class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
+final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
 {
     protected function createValidator(): AtLeastOneOfValidator
     {

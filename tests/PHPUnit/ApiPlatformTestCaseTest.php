@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 
-class ApiPlatformTestCaseTest extends KernelTestCase
+final class ApiPlatformTestCaseTest extends KernelTestCase
 {
     public static function hasKeysSuccessProvider(): \Iterator
     {

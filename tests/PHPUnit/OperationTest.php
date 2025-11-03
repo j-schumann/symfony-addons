@@ -13,7 +13,7 @@ use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
  * To test the ApiPlatformTestCase we need a non-abstract class. So we directly
  * use the child class for our tests.
  */
-class OperationTest extends ApiPlatformTestCase
+final class OperationTest extends ApiPlatformTestCase
 {
     public function testTestOperationCanBeCalled(): void
     {

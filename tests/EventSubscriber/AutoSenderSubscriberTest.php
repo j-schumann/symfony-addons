@@ -10,7 +10,7 @@ use Symfony\Component\Mailer\Event\MessageEvent;
 use Symfony\Component\Mime\Email;
 use Vrok\SymfonyAddons\EventSubscriber\AutoSenderSubscriber;
 
-class AutoSenderSubscriberTest extends TestCase
+final class AutoSenderSubscriberTest extends TestCase
 {
     public function testRegistersEvent(): void
     {

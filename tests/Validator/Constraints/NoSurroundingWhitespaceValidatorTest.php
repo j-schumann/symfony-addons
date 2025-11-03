@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\NoSurroundingWhitespace;
 
-class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
+final class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
 {
     protected function createValidator(): RegexValidator
     {

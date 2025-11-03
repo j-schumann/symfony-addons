@@ -8,11 +8,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Vrok\SymfonyAddons\Util\ArrayUtil;
 
-class ArrayUtilTest extends TestCase
+final class ArrayUtilTest extends TestCase
 {
-    protected const A = ['a', 'b', 's' => ['d', 'e']];
-    protected const B = ['b', 'c', 's' => ['e', 'f']];
-    protected const C = [1 => '1', 'k' => 'v', 'a' => ['g']];
+    protected const array A = ['a', 'b', 's' => ['d', 'e']];
+    protected const array B = ['b', 'c', 's' => ['e', 'f']];
+    protected const array C = [1 => '1', 'k' => 'v', 'a' => ['g']];
 
     // We cannot / don't want to use assertSame or assertArraySubset
     // as the indexes change and we don't care about them (except for nested

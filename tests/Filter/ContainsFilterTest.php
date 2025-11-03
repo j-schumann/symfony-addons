@@ -16,11 +16,11 @@ use Vrok\SymfonyAddons\Filter\ContainsFilter;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 #[Group('database')]
-class ContainsFilterTest extends KernelTestCase
+final class ContainsFilterTest extends KernelTestCase
 {
     public function testGetDescription(): void
     {
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null], null);
 
         self::assertEquals([
@@ -39,9 +39,9 @@ class ContainsFilterTest extends KernelTestCase
 
     public function testApplyFilter(): void
     {
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null], null);
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
 
         /** @var QueryBuilder $qb */
@@ -66,9 +66,9 @@ class ContainsFilterTest extends KernelTestCase
 
     public function testApplyFilterForArray(): void
     {
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null], null);
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
 
         /** @var QueryBuilder $qb */

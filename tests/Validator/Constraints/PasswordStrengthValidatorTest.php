@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\PasswordStrength;
 use Vrok\SymfonyAddons\Validator\Constraints\PasswordStrengthValidator;
 
-class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
+final class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
 {
     protected function createValidator(): PasswordStrengthValidator
     {

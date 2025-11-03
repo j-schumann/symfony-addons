@@ -5,26 +5,27 @@ declare(strict_types=1);
 namespace Vrok\SymfonyAddons\Tests\Encoder;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelBrowser;
 use Symfony\Component\Serializer\Serializer;
 use Vrok\SymfonyAddons\Encoder\FormDecoder;
 
-class FormDecoderTest extends KernelTestCase
+final class FormDecoderTest extends KernelTestCase
 {
     public function testDecoder(): void
     {
         $mockedClient = $this->getMockBuilder(HttpKernelBrowser::class)
             ->onlyMethods(['doRequest'])
-            ->setConstructorArgs([static::bootKernel()])
+            ->setConstructorArgs([self::bootKernel()])
             ->getMock();
 
         $mockedClient
             ->expects($this->once())
             ->method('doRequest')
             ->with($this->callback(
-                function ($request): true {
+                function (Request $request): true {
                     $stack = new RequestStack();
                     $stack->push($request);
 
@@ -68,7 +69,7 @@ class FormDecoderTest extends KernelTestCase
     public function testService(): void
     {
         /** @var Serializer $serializer */
-        $serializer = static::getContainer()->get('serializer');
+        $serializer = self::getContainer()->get('serializer');
         self::assertTrue($serializer->supportsDecoding('form'));
     }
 }

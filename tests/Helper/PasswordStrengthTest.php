@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Vrok\SymfonyAddons\Helper\PasswordStrength;
 
-class PasswordStrengthTest extends TestCase
+final class PasswordStrengthTest extends TestCase
 {
     public static function getValues(): \Iterator
     {

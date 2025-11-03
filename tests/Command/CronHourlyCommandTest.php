@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Vrok\SymfonyAddons\Command\CronHourlyCommand;
 use Vrok\SymfonyAddons\Event\CronHourlyEvent;
 
-class CronHourlyCommandTest extends KernelTestCase
+final class CronHourlyCommandTest extends KernelTestCase
 {
     public function testTriggersEventAndCreatesLog(): void
     {
@@ -38,7 +38,7 @@ class CronHourlyCommandTest extends KernelTestCase
 
     public function testService(): void
     {
-        $application = new Application(static::bootKernel());
+        $application = new Application(self::bootKernel());
         self::assertTrue($application->has('cron:hourly'));
     }
 }

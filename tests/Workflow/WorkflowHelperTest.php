@@ -12,14 +12,14 @@ use Symfony\Component\Workflow\TransitionBlocker;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 use Vrok\SymfonyAddons\Workflow\WorkflowHelper;
 
-class WorkflowHelperTest extends KernelTestCase
+final class WorkflowHelperTest extends KernelTestCase
 {
     public function testGetTransitionList(): void
     {
         $subject = new TestEntity();
         $subject->varcharColumn = 'draft';
 
-        $workflow = static::getContainer()->get('state_machine.demo');
+        $workflow = self::getContainer()->get('state_machine.demo');
         $list = WorkflowHelper::getTransitionList($subject, $workflow);
 
         self::assertSame(['review' => ['blockers' => []]], $list);
@@ -31,7 +31,7 @@ class WorkflowHelperTest extends KernelTestCase
         $subject->varcharColumn = 'draft';
 
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get(EventDispatcherInterface::class);
+        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
         $dispatcher->addListener(
             'workflow.demo.guard.review',
             static function (GuardEvent $event): void {
@@ -42,7 +42,7 @@ class WorkflowHelperTest extends KernelTestCase
             }
         );
 
-        $workflow = static::getContainer()->get('state_machine.demo');
+        $workflow = self::getContainer()->get('state_machine.demo');
         $list = WorkflowHelper::getTransitionList($subject, $workflow);
 
         self::assertSame([
@@ -60,7 +60,7 @@ class WorkflowHelperTest extends KernelTestCase
         $subject->varcharColumn = 'draft';
 
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get(EventDispatcherInterface::class);
+        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
         $dispatcher->addListener(
             'workflow.demo.guard.review',
             static function (GuardEvent $event): void {
@@ -68,7 +68,7 @@ class WorkflowHelperTest extends KernelTestCase
             }
         );
 
-        $workflow = static::getContainer()->get('state_machine.demo');
+        $workflow = self::getContainer()->get('state_machine.demo');
         $list = WorkflowHelper::getTransitionList($subject, $workflow);
 
         self::assertSame([

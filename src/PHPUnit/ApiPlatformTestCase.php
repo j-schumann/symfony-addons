@@ -409,7 +409,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
 
                     $filtered = array_filter(
                         $messages,
-                        static fn ($ele) => is_a($ele['message'], $messageClass)
+                        static fn (array $ele) => is_a($ele['message'], $messageClass)
                     );
                     self::assertGreaterThan(
                         0,

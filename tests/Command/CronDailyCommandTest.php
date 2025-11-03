@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Vrok\SymfonyAddons\Command\CronDailyCommand;
 use Vrok\SymfonyAddons\Event\CronDailyEvent;
 
-class CronDailyCommandTest extends KernelTestCase
+final class CronDailyCommandTest extends KernelTestCase
 {
     public function testTriggersEventAndCreatesLog(): void
     {
@@ -38,7 +38,7 @@ class CronDailyCommandTest extends KernelTestCase
 
     public function testService(): void
     {
-        $application = new Application(static::bootKernel());
+        $application = new Application(self::bootKernel());
         self::assertTrue($application->has('cron:daily'));
     }
 }

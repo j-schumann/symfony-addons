@@ -140,6 +140,9 @@ $this->method(arg1: $value1, arg2: $value2);',
         return !$this->areArgumentsAlreadyFormatted($tokens, $openParenIndex, $closeParenIndex, $analysisResult['topLevelCommas']);
     }
 
+    /**
+     * @param Tokens<Token> $tokens
+     */
     private function areArgumentsAlreadyFormatted(Tokens $tokens, int $openParenIndex, int $closeParenIndex, array $topLevelCommas): bool
     {
         // Check if there's a newline after the opening parenthesis
@@ -251,7 +254,7 @@ $this->method(arg1: $value1, arg2: $value2);',
         }
 
         // Count spaces - find the smallest non-zero indentation
-        $spaceCounts = array_map('strlen', $indentations);
+        $spaceCounts = array_map(strlen(...), $indentations);
         $spaceCounts = array_filter($spaceCounts, static fn ($count) => $count > 0);
 
         if ([] === $spaceCounts) {

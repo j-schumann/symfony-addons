@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 use Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber;
 
-class ResetLoggerSubscriberTest extends TestCase
+final class ResetLoggerSubscriberTest extends TestCase
 {
     protected Logger $stubLogger;
     protected ?MockObject $stubHandler = null;

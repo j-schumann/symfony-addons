@@ -20,12 +20,12 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 #[Group('database')]
-class SimpleSearchFilterTest extends KernelTestCase
+final class SimpleSearchFilterTest extends KernelTestCase
 {
     public function testGetDescription(): void
     {
         $filter = new SimpleSearchFilter(
-            static::getContainer()->get('doctrine'),
+            self::getContainer()->get('doctrine'),
             null,
             ['id' => null, 'jsonColumn' => null],
             null
@@ -46,7 +46,7 @@ class SimpleSearchFilterTest extends KernelTestCase
     public function testAcceptsSearchParameterName(): void
     {
         $filter = new SimpleSearchFilter(
-            static::getContainer()->get('doctrine'),
+            self::getContainer()->get('doctrine'),
             null,
             ['id' => null, 'jsonColumn' => null],
             null,
@@ -66,14 +66,14 @@ class SimpleSearchFilterTest extends KernelTestCase
 
     public function testApplyFilter(): void
     {
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $filter = new SimpleSearchFilter(
             $doctrine,
             null,
             ['jsonColumn' => null],
             null
         );
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
         /** @var QueryBuilder $qb */
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
@@ -99,14 +99,14 @@ class SimpleSearchFilterTest extends KernelTestCase
 
     public function testApplyFilterWithMultipleFields(): void
     {
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $filter = new SimpleSearchFilter(
             $doctrine,
             null,
             ['id' => null, 'jsonColumn' => null],
             null
         );
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
         /** @var QueryBuilder $qb */
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
@@ -136,7 +136,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $this->setupSchema();
 
         /** @var ManagerRegistry $doctrine */
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $em = $doctrine->getManager();
 
         $rec1 = new TestEntity();
@@ -156,7 +156,7 @@ class SimpleSearchFilterTest extends KernelTestCase
             ['textColumn' => null, 'varcharColumn' => null],
             null
         );
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
         /** @var QueryBuilder $qb */
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
@@ -179,7 +179,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $this->setupSchema();
 
         /** @var ManagerRegistry $doctrine */
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $em = $doctrine->getManager();
 
         $rec1 = new TestEntity();
@@ -199,7 +199,7 @@ class SimpleSearchFilterTest extends KernelTestCase
             ['textColumn' => null, 'varcharColumn' => null],
             null
         );
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
         /** @var QueryBuilder $qb */
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
@@ -222,7 +222,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $this->setupSchema();
 
         /** @var ManagerRegistry $doctrine */
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $em = $doctrine->getManager();
 
         $rec1 = new TestEntity();
@@ -240,7 +240,7 @@ class SimpleSearchFilterTest extends KernelTestCase
             ['jsonColumn' => null],
             null
         );
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
         /** @var QueryBuilder $qb */
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
@@ -263,7 +263,7 @@ class SimpleSearchFilterTest extends KernelTestCase
         $this->setupSchema();
 
         /** @var ManagerRegistry $doctrine */
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $em = $doctrine->getManager();
 
         $rec1 = new TestEntity();
@@ -295,7 +295,7 @@ class SimpleSearchFilterTest extends KernelTestCase
             ['children.varcharColumn' => null],
             null
         );
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
         /** @var QueryBuilder $qb */
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
@@ -316,7 +316,7 @@ class SimpleSearchFilterTest extends KernelTestCase
     protected function setupSchema(): void
     {
         /** @var ManagerRegistry $doctrine */
-        $doctrine =  static::getContainer()->get('doctrine');
+        $doctrine =  self::getContainer()->get('doctrine');
         $em = $doctrine->getManager();
 
         $tool = new SchemaTool($em);

@@ -9,7 +9,7 @@ use Twig\Environment;
 use Twig\TwigFilter;
 use Vrok\SymfonyAddons\Twig\Extension\FormatBytesExtension;
 
-class FormatBytesExtensionTest extends KernelTestCase
+final class FormatBytesExtensionTest extends KernelTestCase
 {
     public function testFormatBytes(): void
     {
@@ -70,7 +70,7 @@ class FormatBytesExtensionTest extends KernelTestCase
     public function testService(): void
     {
         /** @var Environment $twig */
-        $twig = static::getContainer()->get('twig');
+        $twig = self::getContainer()->get('twig');
         self::assertTrue($twig->hasExtension(FormatBytesExtension::class));
     }
 }

@@ -10,7 +10,7 @@ use Symfony\Component\Workflow\Marking;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 use Vrok\SymfonyAddons\Workflow\PropertyMarkingStore;
 
-class PropertyMarkingStoreTest extends KernelTestCase
+final class PropertyMarkingStoreTest extends KernelTestCase
 {
     public function testGetNullMarking(): void
     {

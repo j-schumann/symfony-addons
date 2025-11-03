@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\NoLineBreaks;
 
-class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
+final class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
 {
     protected function createValidator(): RegexValidator
     {
