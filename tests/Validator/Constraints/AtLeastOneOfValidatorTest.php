@@ -6,6 +6,7 @@ namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf as AtLeastOneOfAlias;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\Sequentially;
@@ -120,7 +121,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(new ConstraintViolation('minMessage', 'minMessage', [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertEquals(new ConstraintViolation('minMessage', 'minMessage', [], $value, '', $value, null, AtLeastOneOfAlias::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
     #[DataProvider('getInvalidSequentially')]
@@ -138,7 +139,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOfAlias::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
     #[DataProvider('getInvalidAll')]
@@ -156,7 +157,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOfAlias::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
     public function testCustomMessage(): void
@@ -174,6 +175,6 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(new ConstraintViolation('customMessage', 'customMessage', [], $value, '', $value, null, AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertEquals(new ConstraintViolation('customMessage', 'customMessage', [], $value, '', $value, null, AtLeastOneOfAlias::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 }
