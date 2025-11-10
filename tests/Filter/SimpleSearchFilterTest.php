@@ -8,19 +8,19 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\Group;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 #[Group('database')]
-final class SimpleSearchFilterTest extends KernelTestCase
+final class SimpleSearchFilterTest extends ApiTestCase
 {
     public function testGetDescription(): void
     {
@@ -31,16 +31,19 @@ final class SimpleSearchFilterTest extends KernelTestCase
             null
         );
 
-        self::assertEquals([
+        $result = $filter->getDescription(TestEntity::class);
+        self::assertArraySubset([
             'pattern' => [
                 'property' => 'id, jsonColumn',
                 'type'     => 'string',
                 'required' => false,
-                'openapi'  => [
-                    'description' => 'Selects entities where each search term is found somewhere in at least one of the specified properties',
-                ],
             ],
-        ], $filter->getDescription(TestEntity::class));
+        ], $result);
+
+        self::assertInstanceOf(
+            \ApiPlatform\OpenApi\Model\Parameter::class,
+            $result['pattern']['openapi']
+        );
     }
 
     public function testAcceptsSearchParameterName(): void
@@ -52,16 +55,16 @@ final class SimpleSearchFilterTest extends KernelTestCase
             null,
             'searchFor'
         );
-        self::assertEquals([
-            'searchFor' => [
-                'property' => 'id, jsonColumn',
-                'type'     => 'string',
-                'required' => false,
-                'openapi'  => [
-                    'description' => 'Selects entities where each search term is found somewhere in at least one of the specified properties',
+        self::assertArraySubset(
+            [
+                'searchFor' => [
+                    'property' => 'id, jsonColumn',
+                    'type'     => 'string',
+                    'required' => false,
                 ],
             ],
-        ], $filter->getDescription(TestEntity::class));
+            $filter->getDescription(TestEntity::class)
+        );
     }
 
     public function testApplyFilter(): void

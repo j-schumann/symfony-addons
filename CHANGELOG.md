@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.1] - 2025-11-10
+### Changed
+* Fix APIP deprecation in filter description
+
 ## [3.2.0] - 2025-11-03
 ### Changed
 * Allow DoctrineBundle ^3

@@ -8,6 +8,7 @@ use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\OpenApi\Model\Parameter;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
@@ -151,9 +152,12 @@ class SimpleSearchFilter extends AbstractFilter
                 'property' => implode(', ', array_keys($props)),
                 'type'     => 'string',
                 'required' => false,
-                'openapi'  => [
-                    'description' => 'Selects entities where each search term is found somewhere in at least one of the specified properties',
-                ],
+                'openapi'  => new Parameter(
+                    $this->searchParameterName,
+                    'query',
+                    'Selects entities where each search term is found somewhere in at least one of the specified properties',
+                    false,
+                ),
             ],
         ];
     }
