@@ -26,7 +26,7 @@
         "symfony/mailer": "^7.4.0|8.0.0",
         "symfony/doctrine-bridge": "^7.4.0|8.0.0",
         "symfony/doctrine-messenger": "^7.4.0|8.0.0",
-        "symfony/monolog-bundle": "^3.8.0",
+        "symfony/monolog-bundle": "^3.8.0|^4.0.0",
         "symfony/string": "^7.4.0|8.0.0",
         "symfony/twig-bundle": "^7.4.0|8.0.0",
         "symfony/validator": "^7.4.0|8.0.0",
