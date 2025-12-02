@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2025-12-02
+### Added
+* support for Symfony 8
+
+### Removed
+* Remove support for Symfony < 7.4
+* Remove support for doctrine/doctrine-bundle < 3.1
+* Remove support for doctrine/orm < 3.4
+
 ## [3.2.1] - 2025-11-10
 ### Changed
 * Fix APIP deprecation in filter description

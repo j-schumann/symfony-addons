@@ -55,8 +55,6 @@ doctrine:
     url: '%env(resolve:DATABASE_URL)%'
 
   orm:
-    controller_resolver:
-      auto_mapping: false
     mappings:
       Fixtures:
         is_bundle: false
