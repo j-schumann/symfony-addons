@@ -17,12 +17,18 @@ final class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         return new PasswordStrengthValidator();
     }
 
+    /**
+     * @return \Iterator<array<int, string>>
+     */
     public static function getValid(): \Iterator
     {
         yield ['password of multiple words'];
         yield ['l0ngPa$$w0rd'];
     }
 
+    /**
+     * @return \Iterator<array<int, string>>
+     */
     public static function getInvalid(): \Iterator
     {
         yield ['1234567890'];

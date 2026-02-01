@@ -23,6 +23,9 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         return new AtLeastOneOfValidator();
     }
 
+    /**
+     * @return \Iterator<(array<int, null> | array<int, string>)>
+     */
     public static function getValid(): \Iterator
     {
         yield [null];
@@ -30,12 +33,18 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         yield ['12'];
     }
 
+    /**
+     * @return \Iterator<array<int, string>>
+     */
     public static function getInvalid(): \Iterator
     {
         yield [' '];
         yield ['1'];
     }
 
+    /**
+     * @return \Iterator<(array<int, null> | array<int, string>)>
+     */
     public static function getValidSequentially(): \Iterator
     {
         yield [null];
@@ -43,6 +52,9 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         yield ['123'];
     }
 
+    /**
+     * @return \Iterator<array<int, string>>
+     */
     public static function getInvalidSequentially(): \Iterator
     {
         yield [' ', 'minMessage'];
@@ -50,6 +62,9 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         yield ['1234', 'maxMessage'];
     }
 
+    /**
+     * @return \Iterator<array<int, (array<mixed> | null)>>
+     */
     public static function getValidAll(): \Iterator
     {
         yield [null];
@@ -57,6 +72,9 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         yield [['123']];
     }
 
+    /**
+     * @return \Iterator<(array<int, array<int, string>> | array<int, string>)>
+     */
     public static function getInvalidAll(): \Iterator
     {
         yield [[' '], 'minMessage'];
@@ -142,6 +160,9 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOfAlias::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
     }
 
+    /**
+     * @param string[] $value
+     */
     #[DataProvider('getInvalidAll')]
     public function testInvalidAll(array $value, string $message): void
     {

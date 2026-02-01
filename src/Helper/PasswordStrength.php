@@ -23,6 +23,8 @@ class PasswordStrength
 
     /**
      * Thresholds above which a password is rated OK/GOOD etc.
+     *
+     * @var array<string, int>
      */
     protected array $thresholds = [
         self::RATING_WEAK  => 15,
@@ -33,6 +35,8 @@ class PasswordStrength
 
     /**
      * Returns the current threshold settings.
+     *
+     * @return array<string, int>
      */
     public function getThresholds(): array
     {

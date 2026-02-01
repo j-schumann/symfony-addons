@@ -144,14 +144,8 @@ CODE_SAMPLE
 
         $functionName = $funcCall->name->toString();
 
-        foreach ($this->targets as $target) {
-            // String targets are function calls
-            if (\is_string($target) && $target === $functionName) {
-                return true;
-            }
-        }
-
-        return false;
+        // String targets are function calls
+        return array_any($this->targets, static fn ($target) => \is_string($target) && $target === $functionName);
     }
 
     private function isMethodCallTarget(MethodCall $methodCall): bool

@@ -16,11 +16,11 @@ use Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber;
 
 final class ResetLoggerSubscriberTest extends TestCase
 {
-    protected Logger $stubLogger;
-    protected ?MockObject $stubHandler = null;
-    protected ?MockObject $stubProcessor = null;
+    private Logger $stubLogger;
+    private ?MockObject $stubHandler = null;
+    private ?MockObject $stubProcessor = null;
 
-    protected function createLogger($name = 'app'): void
+    private function createLogger(string $name = 'app'): void
     {
         $this->stubLogger = new Logger($name);
 

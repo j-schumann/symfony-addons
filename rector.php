@@ -8,14 +8,9 @@ use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitSelfCallRector;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
-use Rector\Set\ValueObject\LevelSetList;
-use Rector\Set\ValueObject\SetList;
-use Rector\Symfony\Symfony73\Rector\Class_\GetFiltersToAsTwigFilterAttributeRector;
 use Rector\Symfony\Symfony73\Rector\Class_\InvokableCommandInputAttributeRector;
 use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
 use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
-use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
-use Vrok\SymfonyAddons\Rector\NamedArgumentsFromArrayRector;
 
 // @see https://getrector.com/blog/5-common-mistakes-in-rector-config-and-how-to-avoid-them
 return RectorConfig::configure()
@@ -30,37 +25,31 @@ return RectorConfig::configure()
         phpunit: true,
         symfony: true,
     )
-    ->withPhpSets(php84: true)
-    ->withSets([
-        SetList::CODE_QUALITY,
-        SetList::TYPE_DECLARATION,
-
-        // unwanted: changes if ($user) to if ($user instanceof \Symfony\Component\Security\Core\User\UserInterface)
-        // SetList::INSTANCEOF,
-
-        // unwanted: splits IF statements to force returns
-        // SetList::EARLY_RETURN,
-
+    ->withPreparedSets(
+        // verify changes, some are unwanted!
+        deadCode: false,
+        codeQuality: true,
+        typeDeclarations: true,
+        typeDeclarationDocblocks: true,
+        privatization: true,
         // unwanted:
         // renames ChallengeConcretization $concretization to $challengeConcretization
         // renames $email = new TemplatedEmail() to $templatedEmail
-        // SetList::NAMING,
-
-        // verify changes, some are unwanted!
-        // SetList::DEAD_CODE,
-
+        naming: false,
+        // unwanted: changes if ($user) to if ($user instanceof \Symfony\Component\Security\Core\User\UserInterface)
+        instanceOf: false,
+        // unwanted: splits IF statements to force returns
+        earlyReturn: false,
+        rectorPreset: true,
+    )
+    ->withPhpSets(php85: true)
+    ->withSets([
         DoctrineSetList::DOCTRINE_CODE_QUALITY,
-
         PHPUnitSetList::PHPUNIT_CODE_QUALITY,
         PHPUnitSetList::PHPUNIT_120,
     ])
     ->withRules([
         PreferPHPUnitSelfCallRector::class,
-    ])
-    ->withConfiguredRule(NamedArgumentsFromArrayRector::class, [
-        'targets' => [
-            [ApiPlatformTestCase::class, 'testOperation'],
-        ],
     ])
     ->withSkip([
         __DIR__ . '/tests/Fixtures/app',
@@ -77,13 +66,5 @@ return RectorConfig::configure()
         // uses $this->assert... instead of self::assert
         // @see https://discourse.laminas.dev/t/this-assert-vs-self-assert/448
         PreferPHPUnitThisCallRector::class,
-
-        // Changes commands to not inherit from Command but be a simple
-        // invokable. But cannot transform configured descriptions to attributes.
-        // Also, invokables are not supported by the CommandTester.
-        InvokableCommandInputAttributeRector::class,
-
-        // #[AsTwigFilter] is only available in SF 7.3+, we need to support 7.2
-        GetFiltersToAsTwigFilterAttributeRector::class,
     ])
 ;

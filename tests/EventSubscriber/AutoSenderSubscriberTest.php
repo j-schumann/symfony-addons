@@ -23,7 +23,7 @@ final class AutoSenderSubscriberTest extends TestCase
     public function testAddsSenderAddress(): void
     {
         $subscriber = new AutoSenderSubscriber('Sender <test@domain.tld>');
-        $email = (new Email())
+        $email = new Email()
             ->to('receiver@domain.tld')
             ->subject('test')
             ->text('body');
@@ -43,7 +43,7 @@ final class AutoSenderSubscriberTest extends TestCase
     public function testKeepsExistingSender(): void
     {
         $subscriber = new AutoSenderSubscriber('Sender <test@domain.tld>');
-        $email = (new Email())
+        $email = new Email()
             ->from('sender@domain.tld')
             ->to('receiver@domain.tld')
             ->subject('test')

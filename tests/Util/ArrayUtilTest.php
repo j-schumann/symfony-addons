@@ -10,9 +10,9 @@ use Vrok\SymfonyAddons\Util\ArrayUtil;
 
 final class ArrayUtilTest extends TestCase
 {
-    protected const array A = ['a', 'b', 's' => ['d', 'e']];
-    protected const array B = ['b', 'c', 's' => ['e', 'f']];
-    protected const array C = [1 => '1', 'k' => 'v', 'a' => ['g']];
+    private const array A = ['a', 'b', 's' => ['d', 'e']];
+    private const array B = ['b', 'c', 's' => ['e', 'f']];
+    private const array C = [1 => '1', 'k' => 'v', 'a' => ['g']];
 
     // We cannot / don't want to use assertSame or assertArraySubset
     // as the indexes change and we don't care about them (except for nested
@@ -96,12 +96,18 @@ final class ArrayUtilTest extends TestCase
         ArrayUtil::mergeValues(self::B, 'a', self::C);
     }
 
+    /**
+     * @param \DateTimeImmutable[]|string[][]|string[]|int[] $value
+     */
     #[DataProvider('provideNonDuplicates')]
     public function testHasDuplicatesReturnsFalseCorrectly(array $value): void
     {
         self::assertFalse(ArrayUtil::hasDuplicates($value));
     }
 
+    /**
+     * @param \DateTimeImmutable[]|string[][]|string[]|int[] $value
+     */
     #[DataProvider('provideDuplicates')]
     public function testHasDuplicatesDetectsDuplicatesCorrectly(array $value): void
     {
@@ -114,6 +120,9 @@ final class ArrayUtilTest extends TestCase
         ArrayUtil::hasDuplicates('a');
     }
 
+    /**
+     * @return \Iterator<array<array<int, array<int, mixed>>, mixed>>
+     */
     public static function provideNonDuplicates(): \Iterator
     {
         yield [['a', 1, 'b']];
@@ -122,6 +131,9 @@ final class ArrayUtilTest extends TestCase
         yield [[[1 => 'a'], [2 => 'a']]];
     }
 
+    /**
+     * @return \Iterator<array<array<int, array<int, mixed>>, mixed>>
+     */
     public static function provideDuplicates(): \Iterator
     {
         $dt = new \DateTimeImmutable();

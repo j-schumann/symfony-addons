@@ -11,6 +11,9 @@ use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 
 final class ApiPlatformTestCaseTest extends KernelTestCase
 {
+    /**
+     * @return \Iterator<array<array<int, array<mixed>>, mixed>>
+     */
     public static function hasKeysSuccessProvider(): \Iterator
     {
         $data = [
@@ -29,12 +32,19 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
         yield [$data, ['nested' => ['empty']]];
     }
 
+    /**
+     * @param array<string, array<string, array<string, int>|int|null>|int> $data
+     * @param array<int|string, array<int|string, string>|string>           $keys
+     */
     #[DataProvider('hasKeysSuccessProvider')]
     public function testAssertDatasetHasKeysPasses(array $data, array $keys): void
     {
         ApiPlatformTestCase::assertDatasetHasKeys($keys, $data);
     }
 
+    /**
+     * @return \Iterator<array<array<int, mixed>, mixed>>
+     */
     public static function hasKeysThrowsProvider(): \Iterator
     {
         // key not found
@@ -47,6 +57,10 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
         yield [['nested' => ['value']], ['nested' => ['deep']], 'Dataset does not have key [nested][deep]!'];
     }
 
+    /**
+     * @param array<string, string[]|string>     $data
+     * @param array<int|string, string[]|string> $keys
+     */
     #[DataProvider('hasKeysThrowsProvider')]
     public function testAssertDatasetHasKeysThrows(array $data, array $keys, string $msg): void
     {
@@ -55,6 +69,9 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
         ApiPlatformTestCase::assertDatasetHasKeys($keys, $data);
     }
 
+    /**
+     * @return \Iterator<array<array<int, array<mixed>>, mixed>>
+     */
     public static function notHasKeysSuccessProvider(): \Iterator
     {
         yield [['irrelevant' => 1], ['simple']];
@@ -65,12 +82,19 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
         yield [['nested' => []], ['nested' => ['deep' => 'value']]];
     }
 
+    /**
+     * @param array<int|string, array<string, array<string, int>|null>|int|string> $data
+     * @param array<int|string, array<string, string>|string>                      $keys
+     */
     #[DataProvider('notHasKeysSuccessProvider')]
     public function testAssertDatasetNotHasKeysPasses(array $data, array $keys): void
     {
         ApiPlatformTestCase::assertDatasetNotHasKeys($keys, $data);
     }
 
+    /**
+     * @return \Iterator<array<array<int, mixed>, mixed>>
+     */
     public static function notHasKeysThrowsProvider(): \Iterator
     {
         yield [['fail1' => true], ['fail1'], 'Dataset should not have key [fail1]!'];
@@ -80,6 +104,10 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
         yield [['nested' => ['deep' => 'value']], ['nested' => ['deep']], 'Dataset should not have key [nested][deep]!'];
     }
 
+    /**
+     * @param array<string, array<int|string, string>|bool|string> $data
+     * @param array<int|string, string[]|string>                   $keys
+     */
     #[DataProvider('notHasKeysThrowsProvider')]
     public function testAssertDatasetNotHasKeysThrows(array $data, array $keys, string $msg): void
     {
