@@ -6,8 +6,6 @@ parameters:
 
 framework:
   handle_all_throwables: true
-  php_errors:
-    log: false
   mailer:
     dsn: null://null
   messenger:
@@ -16,11 +14,12 @@ framework:
         dsn: 'doctrine://default'
         options:
           auto_setup: true
+  php_errors:
+    log: false
   profiler:
     collect_serializer_data: true
-  # @todo Enable when minimum required symfony/framework is 7.3
-  #property_info:
-  #  with_constructor_extractor: false
+  property_info:
+    with_constructor_extractor: false
   session:
     handler_id: null
     cookie_secure: auto
