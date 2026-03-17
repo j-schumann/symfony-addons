@@ -50,6 +50,7 @@ framework:
 
 doctrine:
   dbal:
+    charset: null
     url: '%env(resolve:DATABASE_URL)%'
 
   orm:
