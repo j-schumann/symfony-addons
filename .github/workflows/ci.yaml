@@ -33,7 +33,7 @@ jobs:
         image: kcollins/mssql:latest
         env:
           ACCEPT_EULA: "Y"
-          MSSQL_SA_PASSWORD: "StrongP@ssw0rd!"
+          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
           MSSQL_DATABASE: dbtest
           MSSQL_USER: dbtest
           MSSQL_PASSWORD: dbtest
@@ -158,7 +158,7 @@ jobs:
       - name: Run tests on MSSql
         if: matrix.database == 'mssql'
         env:
-          DATABASE_URL: sqlsrv://dbtest:dbtest@127.0.0.1:1433/dbtest?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0
+          DATABASE_URL: sqlsrv://sa:StrongP-ssw0rd!@127.0.0.1:1433/dbtest?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0
         run: |
           sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
