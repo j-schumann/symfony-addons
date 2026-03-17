@@ -29,6 +29,19 @@ jobs:
           --health-retries=3
         ports:
           - 3306:3306
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: YourStrong!Passw0rd1
+          MSSQL_PID: Developer
+        options: >-
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"${MSSQL_SA_PASSWORD}\" -Q \"SELECT 1\""
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 1433:1433
       mysql:
         image: mysql:9
         env:
@@ -74,7 +87,10 @@ jobs:
           - php: '8.5'
             database: mariadb
             dependencies: highest
-          - php: '8.4'
+          - php: '8.5'
+            database: mssql
+            dependencies: highest
+          - php: '8.5'
             database: mysql
             dependencies: highest
           - php: '8.5'
