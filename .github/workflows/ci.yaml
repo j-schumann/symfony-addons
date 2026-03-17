@@ -158,7 +158,7 @@ jobs:
       - name: Run tests on MSSql
         if: matrix.database == 'mssql'
         env:
-          DATABASE_URL: sqlsrv://dbtest:dbtest@127.0.0.1:1433/dbtest?serverVersion=17
+          DATABASE_URL: sqlsrv://dbtest:dbtest@127.0.0.1:1433/dbtest?serverVersion=16
         run: |
           vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
