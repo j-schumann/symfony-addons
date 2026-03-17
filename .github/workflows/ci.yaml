@@ -160,6 +160,10 @@ jobs:
         env:
           DATABASE_URL: sqlsrv://dbtest:dbtest@127.0.0.1:1433/dbtest?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0
         run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
+          apt-get update
+          ACCEPT_EULA=Y apt-get install -y msodbcsql18
           vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
       - name: Run tests on Postgres
