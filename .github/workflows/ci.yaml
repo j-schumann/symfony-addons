@@ -144,14 +144,14 @@ jobs:
       - name: Run tests on MariaDB
         if: matrix.database == 'mariadb'
         env:
-          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-11.4.7
+          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-11.4.7&charset=utf8mb4
         run: |
           vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
       - name: Run tests on MySQL
         if: matrix.database == 'mysql'
         env:
-          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3307/dbtest?serverVersion=9.0
+          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3307/dbtest?serverVersion=9.0&charset=utf8mb4
         run: |
             vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
