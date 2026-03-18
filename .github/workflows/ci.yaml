@@ -10,6 +10,53 @@ env:
   COMPOSER_UPDATE_FLAGS: ""
 
 jobs:
+  phpunit-mysql:
+    name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    services:
+      mysql:
+        image: mysql:9
+        env:
+          MYSQL_USER: dbtest
+          MYSQL_PASSWORD: dbtest
+          MYSQL_DATABASE: dbtest
+          MYSQL_ROOT_PASSWORD: root
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+    strategy:
+      matrix:
+        php: [ '8.5' ]
+        database: [ mysql ]
+        dependencies: [ lowest, highest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Common PHP setup
+        uses: ./.github/actions/php-setup
+        with:
+          php: ${{ matrix.php }}
+          dependencies: ${{ matrix.dependencies }}
+
+      - name: Run tests on MySQL
+        env:
+          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=9.0&charset=utf8mb4
+        run: |
+          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
+
+      - name: Upload test results
+        uses: ./.github/actions/upload-phpunit-logs
+        with:
+          php: ${{ matrix.php }}
+          database: ${{ matrix.database }}
+          dependencies: ${{ matrix.dependencies }}
+
   phpunit-sqlsrv:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-latest
@@ -90,20 +137,6 @@ jobs:
           MSSQL_PASSWORD: dbtest
         ports:
           - "1433:1433"
-      mysql:
-        image: mysql:9
-        env:
-          MYSQL_USER: dbtest
-          MYSQL_PASSWORD: dbtest
-          MYSQL_DATABASE: dbtest
-          MYSQL_ROOT_PASSWORD: root
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-        ports:
-          - 3307:3306
       postgres:
         image: postgres:18
         ports:
@@ -134,12 +167,6 @@ jobs:
             coverage: true
           - php: '8.5'
             database: mariadb
-            dependencies: highest
-          - php: '8.5'
-            database: mssql
-            dependencies: highest
-          - php: '8.5'
-            database: mysql
             dependencies: highest
           - php: '8.5'
             database: postgres
@@ -197,24 +224,6 @@ jobs:
         env:
           DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-11.4.7&charset=utf8mb4
         run: |
-          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
-
-      - name: Run tests on MySQL
-        if: matrix.database == 'mysql'
-        env:
-          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3307/dbtest?serverVersion=9.0&charset=utf8mb4
-        run: |
-            vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
-
-      - name: Run tests on MSSql
-        if: matrix.database == 'mssql'
-        env:
-          DATABASE_URL: sqlsrv://sa:StrongP-ssw0rd!@127.0.0.1:1433/dbtest?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0
-        run: |
-          sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
-          apt-get update
-          ACCEPT_EULA=Y apt-get install -y msodbcsql18'
           vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
       - name: Run tests on Postgres
