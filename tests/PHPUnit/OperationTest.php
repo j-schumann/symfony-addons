@@ -6,7 +6,6 @@ namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
 use Monolog\Level;
 use PHPUnit\Framework\AssertionFailedError;
-use PHPUnit\Framework\Attributes\Group;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 
@@ -16,13 +15,6 @@ use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
  */
 final class OperationTest extends ApiPlatformTestCase
 {
-    /**
-     * This is in the group "database", as this loads the schema of our
-     * self-referencing TestEntity, which could cause foreign key-related errors
-     * on TRUNCATE. Executing this ensures that this is correctly handled in the
-     * RefreshDatabaseTrait.
-     */
-    #[Group('database')]
     public function testTestOperationCanBeCalled(): void
     {
         $this->testOperation(

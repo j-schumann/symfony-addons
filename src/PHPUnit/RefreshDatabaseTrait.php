@@ -209,6 +209,10 @@ trait RefreshDatabaseTrait
                 );
             }
 
+            if ($tempConnection->getDatabasePlatform() instanceof SQLServerPlatform) {
+                $tempConnection->executeStatement('USE master');
+            }
+
             $schemaManager->dropDatabase($dbName);
 
             $dbExists = false;
@@ -310,7 +314,7 @@ trait RefreshDatabaseTrait
             ->createMetadataProvider($connection);
 
         $dbNames = array_map(
-            static fn($n) => $n->getDatabaseName(),
+            static fn ($n) => $n->getDatabaseName(),
             iterator_to_array($metaProvider->getAllDatabaseNames())
         );
 
