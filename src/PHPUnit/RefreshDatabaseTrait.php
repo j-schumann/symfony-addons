@@ -7,6 +7,7 @@ namespace Vrok\SymfonyAddons\PHPUnit;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
@@ -184,11 +185,16 @@ trait RefreshDatabaseTrait
 
         // only check this with the new connection, as it would fail with the
         // old connection when the database indeed does not exist
-        $dbNames = array_map(
-            static fn ($n) => $n->getIdentifier()->getValue(),
-            $schemaManager->introspectDatabaseNames()
-        );
-        $dbExists = \in_array($dbName, $dbNames, true);
+        try {
+            $dbNames = array_map(
+                static fn($n) => $n->getIdentifier()->getValue(),
+                $schemaManager->introspectDatabaseNames()
+            );
+            $dbExists = \in_array($dbName, $dbNames, true);
+        }
+        catch (DatabaseRequired) {
+            $dbExists = false;
+        }
 
         if ($drop && $dbExists) {
             // close the current connection in the em, it would be invalid
