@@ -1,0 +1,35 @@
+name: 'Upload PHPUnit logs'
+description: 'Upload PHPUnit logs with a consistent artifact name'
+
+inputs:
+  php:
+    required: true
+    description: PHP Version being used
+  database:
+    required: true
+    description: Database being used
+  dependencies:
+    required: true
+    description: Dependencies being used
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Upload test artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        # Include matrix info in the name so each artifact is unique[web:82][web:84]
+        name: phpunit-logs-php${{ inputs.php }}-${{ inputs.database }}-${{ inputs.dependencies }}deps
+        path: build/logs/phpunit
+      continue-on-error: true
+
+    - name: Upload coverage results to Coveralls
+      if: matrix.coverage
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      shell: bash
+      run: |
+        composer global require --prefer-dist --no-interaction --no-progress --ansi php-coveralls/php-coveralls
+        php-coveralls --coverage_clover=build/logs/phpunit/clover.xml -v
+      continue-on-error: true

@@ -1,0 +1,52 @@
+name: 'PHP project setup'
+description: 'Common PHP + Composer setup for all test jobs'
+
+inputs:
+  php:
+    required: true
+    description: PHP Version to use
+  dependencies:
+    required: true
+    description: lowest|highest
+  coverage:
+    required: false
+    default: 'false'
+    description: Whether to run coverage check or not
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php }}
+        tools: pecl, composer
+        extensions: intl, json, mbstring, pdo_mysql, pdo_pgsql, sqlsrv, pdo_sqlsrv
+        coverage: pcov
+        ini-values: memory_limit=-1
+
+    - name: Handle lowest dependencies update
+      if: contains(inputs.dependencies, 'lowest')
+      shell: bash
+      run: echo "COMPOSER_UPDATE_FLAGS=$COMPOSER_UPDATE_FLAGS --prefer-lowest" >> $GITHUB_ENV
+
+    - name: Get composer cache directory
+      id: composercache
+      shell: bash
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.composercache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Enable code coverage flag
+      if: inputs.coverage == 'true'
+      shell: bash
+      run: echo "COVERAGE=1" >> $GITHUB_ENV
+
+    - name: "Update dependencies from composer.json using composer binary provided by system"
+      shell: bash
+      run: "composer update ${{ env.COMPOSER_UPDATE_FLAGS }} ${{ env.COMPOSER_FLAGS }}"
