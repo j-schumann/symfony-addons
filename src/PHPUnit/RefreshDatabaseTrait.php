@@ -8,6 +8,7 @@ use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -93,6 +94,14 @@ trait RefreshDatabaseTrait
                     static::$setupComplete = true;
                 }
 
+                // In SQLServer, TRUNCATE does not work with foreign keys, also
+                // using "EXEC sp_MSforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'"
+                // does not help here. So we switch to simple delete, but this
+                // requires us to manually reset auto-increments afterward.
+                if ($entityManager->getConnection()->getDatabasePlatform() instanceof SQLServerPlatform) {
+                    $executor->getPurger()->setPurgeMode(ORMPurger::PURGE_MODE_DELETE);
+                }
+
                 // Purge even when no fixtures are defined, e.g. for tests that
                 // require an empty database, like import tests.
                 // Fix for PHP8: purge separately from inserting the fixtures,
@@ -103,6 +112,13 @@ trait RefreshDatabaseTrait
                 // because he does not check if a transaction is still open
                 // before calling commit().
                 $executor->purge();
+
+                // See above, we have to manually reset identities on SQLServer
+                if ($entityManager->getConnection()->getDatabasePlatform() instanceof SQLServerPlatform) {
+                    $entityManager->getConnection()->executeStatement(
+                        "EXEC sp_MSforeachtable 'IF OBJECTPROPERTY(OBJECT_ID(''?''), ''TableHasIdentity'') = 1 DBCC CHECKIDENT (''?'', RESEED, 0)'"
+                    );
+                }
 
                 break;
         }
@@ -137,10 +153,7 @@ trait RefreshDatabaseTrait
         bool $drop = false,
     ): void {
         $connection = $em->getConnection();
-        $params = $connection->getParams();
-        if (isset($params['primary'])) {
-            $params = $params['primary'];
-        }
+        $params = $params['primary'] ?? $connection->getParams();
 
         // this name will already contain the dbname_suffix (and the TEST_TOKEN)
         // if any is configured
@@ -171,7 +184,11 @@ trait RefreshDatabaseTrait
 
         // only check this with the new connection, as it would fail with the
         // old connection when the database indeed does not exist
-        $dbExists = \in_array($dbName, $schemaManager->listDatabases());
+        $dbNames = array_map(
+            static fn ($n) => $n->getIdentifier()->getValue(),
+            $schemaManager->introspectDatabaseNames()
+        );
+        $dbExists = \in_array($dbName, $dbNames, true);
 
         if ($drop && $dbExists) {
             // close the current connection in the em, it would be invalid
@@ -220,6 +237,8 @@ trait RefreshDatabaseTrait
         $schemaTool = new SchemaTool($em);
 
         if ($drop) {
+            // the method name is misleading; it only drops the elements within
+            // the database, not the db itself...
             $schemaTool->dropDatabase();
         }
 
