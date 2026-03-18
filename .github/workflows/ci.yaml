@@ -30,6 +30,9 @@ jobs:
         database: [ sqlsrv ]
         dependencies: [ lowest, highest ]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
         with:
