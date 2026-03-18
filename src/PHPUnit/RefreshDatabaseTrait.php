@@ -7,7 +7,8 @@ namespace Vrok\SymfonyAddons\PHPUnit;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Exception\DatabaseRequired;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
@@ -95,19 +96,29 @@ trait RefreshDatabaseTrait
                     static::$setupComplete = true;
                 }
 
+                $connection = $executor->getObjectManager()->getConnection();
+                $platform = $connection->getDatabasePlatform();
+
+                // In MySQL/MariaDB we need to disable foreign key checks, as
+                // the automatic table ordering does not help us when we have
+                // self-referencing tables.
+                if ($platform instanceof MySQLPlatform || $platform instanceof MariaDBPlatform) {
+                    $connection->executeStatement('SET FOREIGN_KEY_CHECKS = 0');
+                }
+
                 // In SQLServer, TRUNCATE does not work with foreign keys, also
                 // using "EXEC sp_MSforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'"
                 // does not help here. So we switch to simple delete, but this
                 // requires us to manually reset auto-increments afterward.
-                if ($entityManager->getConnection()->getDatabasePlatform() instanceof SQLServerPlatform) {
+                if ($platform instanceof SQLServerPlatform) {
                     $executor->getPurger()->setPurgeMode(ORMPurger::PURGE_MODE_DELETE);
                 }
 
-                // Purge even when no fixtures are defined, e.g. for tests that
+                // Purge even when no fixtures are defined, e.g., for tests that
                 // require an empty database, like import tests.
                 // Fix for PHP8: purge separately from inserting the fixtures,
                 // as execute() would wrap the TRUNCATE in a transaction which
-                // is auto-committed by MySQL when DDL queries are executed which
+                // MySQL auto-commits when DDL queries are executed, which
                 // throws an exception in the entityManager ("There is no active
                 // transaction", @see https://github.com/doctrine/migrations/issues/1104)
                 // because he does not check if a transaction is still open
@@ -115,8 +126,8 @@ trait RefreshDatabaseTrait
                 $executor->purge();
 
                 // See above, we have to manually reset identities on SQLServer
-                if ($entityManager->getConnection()->getDatabasePlatform() instanceof SQLServerPlatform) {
-                    $entityManager->getConnection()->executeStatement(
+                if ($platform instanceof SQLServerPlatform) {
+                    $executor->getObjectManager()->getConnection()->executeStatement(
                         "EXEC sp_MSforeachtable 'IF OBJECTPROPERTY(OBJECT_ID(''?''), ''TableHasIdentity'') = 1 DBCC CHECKIDENT (''?'', RESEED, 0)'"
                     );
                 }
@@ -183,19 +194,7 @@ trait RefreshDatabaseTrait
             return;
         }
 
-        // only check this with the new connection, as it would fail with the
-        // old connection when the database indeed does not exist
-        try {
-            $dbNames = array_map(
-                static fn($n) => $n->getIdentifier()->getValue(),
-                $schemaManager->introspectDatabaseNames()
-            );
-            $dbExists = \in_array($dbName, $dbNames, true);
-        }
-        catch (DatabaseRequired) {
-            $dbExists = false;
-        }
-
+        $dbExists = self::databaseExists($em, $dbName);
         if ($drop && $dbExists) {
             // close the current connection in the em, it would be invalid
             // anyway after the drop
@@ -210,11 +209,8 @@ trait RefreshDatabaseTrait
                 );
             }
 
-            if ($tempConnection->getDatabasePlatform() instanceof SQLServerPlatform) {
-                $tempConnection->executeStatement('USE master');
-            }
-
             $schemaManager->dropDatabase($dbName);
+
             $dbExists = false;
         }
 
@@ -247,7 +243,7 @@ trait RefreshDatabaseTrait
         $schemaTool = new SchemaTool($em);
 
         if ($drop) {
-            // the method name is misleading; it only drops the elements within
+            // The method name is misleading; it only drops the elements within
             // the database, not the db itself...
             $schemaTool->dropDatabase();
         }
@@ -287,6 +283,38 @@ trait RefreshDatabaseTrait
         // don't use a static Executor, it contains the EM which could be closed
         // through (expected) exceptions and would not work
         return new ORMExecutor($em, $purger);
+    }
+
+    /**
+     * Returns the list of databases the current connection sees.
+     * Must be called with the "old" entityManager, that has the database name
+     * set in its connection, or we will receive "A database is required for the
+     * method: Doctrine\DBAL\Platforms\MySQL\MySQLMetadataProvider" on MariaDB
+     * and MySQL.
+     */
+    private static function databaseExists(EntityManagerInterface $em, string $dbName): bool
+    {
+        // We cannot use schemaManager->introspectDatabaseNames, as this would
+        // require the $tempConnection to have a DB name set for MySQL/MariaDB.
+        // But we can't set one, as it would fail when the database indeed does
+        // not exist, that's why we created the $tempConnection in the first
+        // place.
+        // All was working well when schemaManager->listDatabases was not yet
+        // deprecated...
+        $connection = $em->getConnection();
+
+        // So instead, we create the provider manually with the old connection,
+        // in the hope that this works even with the EM closed from previous
+        // test run exceptions...
+        $metaProvider = $connection->getDatabasePlatform()
+            ->createMetadataProvider($connection);
+
+        $dbNames = array_map(
+            static fn($n) => $n->getDatabaseName(),
+            iterator_to_array($metaProvider->getAllDatabaseNames())
+        );
+
+        return \in_array($dbName, $dbNames, true);
     }
 
     protected static function fixtureCleanup(): void
