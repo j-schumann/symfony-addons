@@ -51,7 +51,7 @@ jobs:
 
       - name: Run tests on MySQL
         env:
-          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-12&charset=utf8mb4
+          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-12.0.0&charset=utf8mb4
         run: |
           vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
@@ -150,7 +150,7 @@ jobs:
 
       - name: Run tests on Postgres
         env:
-          DATABASE_URL: pgsql://dbtest:dbtest@127.0.0.1:5432/dbtest?serverVersion=17
+          DATABASE_URL: pgsql://dbtest:dbtest@127.0.0.1:5432/dbtest?serverVersion=18
         run: |
           vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
