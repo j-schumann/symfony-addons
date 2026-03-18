@@ -210,6 +210,10 @@ trait RefreshDatabaseTrait
                 );
             }
 
+            if ($tempConnection->getDatabasePlatform() instanceof SQLServerPlatform) {
+                $tempConnection->executeStatement('USE master');
+            }
+
             $schemaManager->dropDatabase($dbName);
             $dbExists = false;
         }
