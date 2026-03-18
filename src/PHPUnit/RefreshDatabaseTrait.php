@@ -194,7 +194,11 @@ trait RefreshDatabaseTrait
             return;
         }
 
-        $dbExists = self::databaseExists($em, $dbName);
+        // @todo when DBAL 5.0 comes out: switch to this method, to replace the
+        // deprecated/removed listDatabases method
+        //$dbExists = self::databaseExists($em, $dbName);
+        $dbExists = \in_array($dbName, $schemaManager->listDatabases(), true);
+
         if ($drop && $dbExists) {
             // close the current connection in the em, it would be invalid
             // anyway after the drop
@@ -292,6 +296,11 @@ trait RefreshDatabaseTrait
     }
 
     /**
+     * @todo this method only works w/ DBAL >= 4.4, as the createMetadataProvider
+     * is first implemented there. But also schemaManager->listDatabases is
+     * only deprecated since 4.4, so we stay with that, until we actually want
+     * to support 5.0 w/o listDatabases.
+     *
      * Returns the list of databases the current connection sees.
      * Must be called with the "old" entityManager, that has the database name
      * set in its connection, or we will receive "A database is required for the

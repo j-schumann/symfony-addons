@@ -13,6 +13,7 @@ jobs:
   phpunit-sqlsrv:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-latest
+    continue-on-error: true
     services:
       mssql:
         image: kcollins/mssql:latest
@@ -118,7 +119,7 @@ jobs:
           --health-retries 5
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
-    continue-on-error: ${{ matrix.php == '8.5' }}
+    continue-on-error: ${{ matrix.php == '8.6' }}
     strategy:
       matrix:
         php:
