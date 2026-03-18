@@ -19,6 +19,7 @@ phpunit.xml
 ###< phpunit/phpunit ###
 
 ###> symfony
-/tests/Fixtures/app/var/
+/tests/Fixtures/app/config/reference.php
 /tests/Fixtures/app/public/bundles/
+/tests/Fixtures/app/var/
 ###< symfony

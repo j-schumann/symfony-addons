@@ -30,6 +30,9 @@ final class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         // [' close <3 heart, and 13 > 12'], fails but should be valid
     }
 
+    /**
+     * @return \Iterator<array<int, string>>
+     */
     public static function getInvalid(): \Iterator
     {
         yield ['This is <b>bold</b>'];

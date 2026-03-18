@@ -7,6 +7,7 @@ namespace Vrok\SymfonyAddons\Tests\EventSubscriber;
 use Monolog\Handler\BufferHandler;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -16,11 +17,11 @@ use Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber;
 
 final class ResetLoggerSubscriberTest extends TestCase
 {
-    protected Logger $stubLogger;
-    protected ?MockObject $stubHandler = null;
-    protected ?MockObject $stubProcessor = null;
+    private Logger $stubLogger;
+    private ?MockObject $stubHandler = null;
+    private ?MockObject $stubProcessor = null;
 
-    protected function createLogger($name = 'app'): void
+    private function createLogger(string $name = 'app'): void
     {
         $this->stubLogger = new Logger($name);
 
@@ -40,6 +41,7 @@ final class ResetLoggerSubscriberTest extends TestCase
         self::assertArrayHasKey(WorkerMessageFailedEvent::class, $events);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testResetsUidForApp(): void
     {
         $this->createLogger();
@@ -52,6 +54,7 @@ final class ResetLoggerSubscriberTest extends TestCase
         $subscriber->resetLogger();
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testKeepsUidForOthers(): void
     {
         $this->createLogger('fake');
@@ -64,6 +67,7 @@ final class ResetLoggerSubscriberTest extends TestCase
         $subscriber->resetLogger();
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testFlushesBuffer(): void
     {
         $this->createLogger();

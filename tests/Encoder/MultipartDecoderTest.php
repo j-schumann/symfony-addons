@@ -26,26 +26,23 @@ final class MultipartDecoderTest extends KernelTestCase
         $mockedClient
             ->expects($this->once())
             ->method('doRequest')
-            ->with($this->callback(
-                function (Request $request): true {
-                    $stack = new RequestStack();
-                    $stack->push($request);
+            ->willReturnCallback(static function (Request $request): Response {
+                $stack = new RequestStack();
+                $stack->push($request);
 
-                    $decoder = new MultipartDecoder($stack);
-                    $res = $decoder->decode('', 'multipart');
+                $decoder = new MultipartDecoder($stack);
+                $res = $decoder->decode('', 'multipart');
 
-                    // all params and the file where combined
-                    self::assertIsArray($res);
-                    self::assertCount(3, $res);
-                    self::assertSame('Notes', $res['content']);
-                    self::assertSame('123', $res['category']);
-                    self::assertInstanceOf(UploadedFile::class, $res['file']);
-                    self::assertSame('normal.jpg', $res['file']->getClientOriginalName());
+                // all params and the file where combined
+                self::assertIsArray($res);
+                self::assertCount(3, $res);
+                self::assertSame('Notes', $res['content']);
+                self::assertSame('123', $res['category']);
+                self::assertInstanceOf(UploadedFile::class, $res['file']);
+                self::assertSame('normal.jpg', $res['file']->getClientOriginalName());
 
-                    return true;
-                }
-            ))
-            ->willReturn(new Response());
+                return new Response();
+            });
 
         $this->uploadFile(
             $mockedClient,
@@ -78,8 +75,10 @@ final class MultipartDecoderTest extends KernelTestCase
     /**
      * Uses a given KernelBrowser (@see self::createKernelBrowsser) to upload
      * a file to the API.
+     *
+     * @param array<string, string> $params
      */
-    protected function uploadFile(
+    private function uploadFile(
         AbstractBrowser $client,
         ?string $path,
         ?string $origName,

@@ -76,10 +76,10 @@ $this->method(arg1: $value1, arg2: $value2);',
     public function getConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         return new FixerConfigurationResolver([
-            (new FixerOptionBuilder(
+            new FixerOptionBuilder(
                 'max_arguments',
                 'Maximum number of arguments before formatting is applied.'
-            ))
+            )
                 ->setAllowedTypes(['int'])
                 ->setDefault(self::DEFAULT_MAX_ARGUMENTS)
                 ->getOption(),
@@ -141,7 +141,8 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param Tokens<Token>      $tokens
+     * @param bool|int|list<int> $topLevelCommas
      */
     private function areArgumentsAlreadyFormatted(Tokens $tokens, int $openParenIndex, int $closeParenIndex, array $topLevelCommas): bool
     {
@@ -165,7 +166,8 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param  Tokens<Token>         $tokens
+     * @return array<string, string>
      */
     private function detectIndentation(Tokens $tokens, int $functionNameIndex): array
     {
@@ -267,7 +269,8 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param  Tokens<Token>                     $tokens
+     * @return array<string, bool|int|list<int>>
      */
     private function analyzeArguments(
         Tokens $tokens,
@@ -306,7 +309,8 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param Tokens<Token>        $tokens
+     * @param array<string, mixed> $indentation
      */
     private function formatMethodCall(Tokens $tokens, int $openParenIndex, int $closeParenIndex, array $indentation): void
     {
@@ -337,7 +341,8 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param Tokens<Token>      $tokens
+     * @param bool|int|list<int> $topLevelCommas
      */
     private function addNewlinesAfterCommas(Tokens $tokens, array $topLevelCommas, string $argumentIndent): void
     {

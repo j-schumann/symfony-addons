@@ -540,6 +540,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
 
     /**
      * Generates a JWT for the user given by its identifying property, e.g. email.
+     *
+     * @param array<string, string> $findUserBy
      */
     protected function getJWT(array $findUserBy): string
     {

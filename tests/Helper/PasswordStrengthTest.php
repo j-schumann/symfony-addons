@@ -10,6 +10,9 @@ use Vrok\SymfonyAddons\Helper\PasswordStrength;
 
 final class PasswordStrengthTest extends TestCase
 {
+    /**
+     * @return \Iterator<(array<int, float> | array<int, string>)>
+     */
     public static function getValues(): \Iterator
     {
         yield ['', -6.0];

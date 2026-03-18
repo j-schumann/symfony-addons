@@ -491,7 +491,7 @@ Optionally define which fixtures to use for this test class:
 ```
 
 Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values
-are _purge_ and _dropSchema_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
+are _purge_, _dropSchema_ and _dropDatabase_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
 
 ### Using the MonologAssertsTrait
 

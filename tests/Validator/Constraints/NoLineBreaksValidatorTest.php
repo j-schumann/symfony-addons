@@ -18,6 +18,9 @@ final class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         return new RegexValidator();
     }
 
+    /**
+     * @return \Iterator<array<int, string>>
+     */
     public static function getValid(): \Iterator
     {
         yield ["test\tstring"]; // tab

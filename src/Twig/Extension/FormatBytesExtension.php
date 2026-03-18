@@ -14,6 +14,9 @@ class FormatBytesExtension extends AbstractExtension
         return 'format_bytes';
     }
 
+    /**
+     * @return TwigFilter[]
+     */
     #[\Override]
     public function getFilters(): array
     {

@@ -52,7 +52,7 @@ final class OperationTest extends ApiPlatformTestCase
         $this->expectExceptionMessage('I was called');
 
         $this->testOperation(
-            prepare: static function (): void {
+            prepare: static function (): never {
                 throw new \RuntimeException('I was called');
             },
             uri: '/test'

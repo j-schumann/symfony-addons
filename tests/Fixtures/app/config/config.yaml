@@ -1,13 +1,12 @@
 parameters:
   env(DATABASE_URL): sqlite:///%kernel.project_dir%/var/data.db
-  #env(DATABASE_URL): pgsql://db_test:db_test@pgsql/db_test
-  #env(DATABASE_URL): mysql://db_test:db_test@mysql/db_test
-  #env(DATABASE_URL): //db_test:db_test@mariadb/db_test
+  #env(DATABASE_URL): pgsql://db_test:db_test@pgsql/db_test?serverVersion=18
+  #env(DATABASE_URL): mysql://db_test:db_test@mariadb:3306/db_test?serverVersion=mariadb-12.0.0&charset=utf8mb4
+  #env(DATABASE_URL): mysql://db_test:db_test@mysql:3306/db_test?serverVersion=9.0&charset=utf8mb4
+  #env(DATABASE_URL): sqlsrv://sa:StrongP-ssw0rd!@mssql-symfony:1433/db_test?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0
 
 framework:
   handle_all_throwables: true
-  php_errors:
-    log: false
   mailer:
     dsn: null://null
   messenger:
@@ -16,11 +15,12 @@ framework:
         dsn: 'doctrine://default'
         options:
           auto_setup: true
+  php_errors:
+    log: false
   profiler:
     collect_serializer_data: true
-  # @todo Enable when minimum required symfony/framework is 7.3
-  #property_info:
-  #  with_constructor_extractor: false
+  property_info:
+    with_constructor_extractor: false
   session:
     handler_id: null
     cookie_secure: auto
@@ -51,9 +51,7 @@ framework:
 
 doctrine:
   dbal:
-    charset: 'UTF8'
     url: '%env(resolve:DATABASE_URL)%'
-
   orm:
     mappings:
       Fixtures:

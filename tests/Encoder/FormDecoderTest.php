@@ -24,24 +24,21 @@ final class FormDecoderTest extends KernelTestCase
         $mockedClient
             ->expects($this->once())
             ->method('doRequest')
-            ->with($this->callback(
-                function (Request $request): true {
-                    $stack = new RequestStack();
-                    $stack->push($request);
+            ->willReturnCallback(static function (Request $request): Response {
+                $stack = new RequestStack();
+                $stack->push($request);
 
-                    $decoder = new FormDecoder($stack);
-                    $res = $decoder->decode('', 'form');
+                $decoder = new FormDecoder($stack);
+                $res = $decoder->decode('', 'form');
 
-                    // all params and the file where combined
-                    self::assertIsArray($res);
-                    self::assertCount(2, $res);
-                    self::assertSame('Notes', $res['content']);
-                    self::assertSame('123', $res['category']);
+                // all params and the file where combined
+                self::assertIsArray($res);
+                self::assertCount(2, $res);
+                self::assertSame('Notes', $res['content']);
+                self::assertSame('123', $res['category']);
 
-                    return true;
-                }
-            ))
-            ->willReturn(new Response());
+                return new Response();
+            });
 
         $mockedClient->request(
             'POST',

@@ -316,7 +316,7 @@ final class SimpleSearchFilterTest extends ApiTestCase
         self::assertSame('record ZWEI text', $result[0]->textColumn);
     }
 
-    protected function setupSchema(): void
+    private function setupSchema(): void
     {
         /** @var ManagerRegistry $doctrine */
         $doctrine =  self::getContainer()->get('doctrine');
