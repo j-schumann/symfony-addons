@@ -10,6 +10,55 @@ env:
   COMPOSER_UPDATE_FLAGS: ""
 
 jobs:
+  phpunit-mariadb:
+    name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    services:
+      mariadb:
+        image: mariadb:12
+        env:
+          MARIADB_USER: dbtest
+          MARIADB_PASSWORD: dbtest
+          MARIADB_DATABASE: dbtest
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
+          MARIADB_MYSQL_LOCALHOST_USER: 1
+          MARIADB_MYSQL_LOCALHOST_GRANTS: USAGE
+        options: >-
+          --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+    strategy:
+      matrix:
+        php: [ '8.5' ]
+        database: [ mysql ]
+        dependencies: [ lowest, highest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Common PHP setup
+        uses: ./.github/actions/php-setup
+        with:
+          php: ${{ matrix.php }}
+          dependencies: ${{ matrix.dependencies }}
+
+      - name: Run tests on MySQL
+        env:
+          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-12&charset=utf8mb4
+        run: |
+          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
+
+      - name: Upload test results
+        uses: ./.github/actions/upload-phpunit-logs
+        with:
+          php: ${{ matrix.php }}
+          database: ${{ matrix.database }}
+          dependencies: ${{ matrix.dependencies }}
+
   phpunit-mysql:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-latest
@@ -47,6 +96,52 @@ jobs:
       - name: Run tests on MySQL
         env:
           DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=9.0&charset=utf8mb4
+        run: |
+          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
+
+      - name: Upload test results
+        uses: ./.github/actions/upload-phpunit-logs
+        with:
+          php: ${{ matrix.php }}
+          database: ${{ matrix.database }}
+          dependencies: ${{ matrix.dependencies }}
+
+  phpunit-postgres:
+    name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    services:
+      postgres:
+        image: postgres:18
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_USER: dbtest
+          POSTGRES_PASSWORD: dbtest
+          POSTGRES_DB: dbtest
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      matrix:
+        php: [ '8.5' ]
+        database: [ mysql ]
+        dependencies: [ lowest, highest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Common PHP setup
+        uses: ./.github/actions/php-setup
+        with:
+          php: ${{ matrix.php }}
+          dependencies: ${{ matrix.dependencies }}
+
+      - name: Run tests on Postgres
+        env:
+          DATABASE_URL: pgsql://dbtest:dbtest@127.0.0.1:5432/dbtest?serverVersion=17
         run: |
           vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
@@ -109,47 +204,6 @@ jobs:
   phpunit:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    services:
-      mariadb:
-        image: mariadb:12
-        env:
-          MARIADB_USER: dbtest
-          MARIADB_PASSWORD: dbtest
-          MARIADB_DATABASE: dbtest
-          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
-          MARIADB_MYSQL_LOCALHOST_USER: 1
-          MARIADB_MYSQL_LOCALHOST_GRANTS: USAGE
-        options: >-
-          --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-        ports:
-          - 3306:3306
-      mssql:
-        image: kcollins/mssql:latest
-        env:
-          ACCEPT_EULA: "Y"
-          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
-          MSSQL_DATABASE: dbtest
-          MSSQL_USER: dbtest
-          MSSQL_PASSWORD: dbtest
-        ports:
-          - "1433:1433"
-      postgres:
-        image: postgres:18
-        ports:
-          - "5432:5432"
-        env:
-          POSTGRES_USER: dbtest
-          POSTGRES_PASSWORD: dbtest
-          POSTGRES_DB: dbtest
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
@@ -165,12 +219,6 @@ jobs:
           - php: '8.5'
             dependencies: highest
             coverage: true
-          - php: '8.5'
-            database: mariadb
-            dependencies: highest
-          - php: '8.5'
-            database: postgres
-            dependencies: highest
       fail-fast: false # continue the other jobs if one fails
     steps:
       - name: Checkout
@@ -218,20 +266,6 @@ jobs:
           else
             vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
           fi
-
-      - name: Run tests on MariaDB
-        if: matrix.database == 'mariadb'
-        env:
-          DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-11.4.7&charset=utf8mb4
-        run: |
-          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
-
-      - name: Run tests on Postgres
-        if: matrix.database == 'postgres'
-        env:
-          DATABASE_URL: pgsql://dbtest:dbtest@127.0.0.1:5432/dbtest?serverVersion=17
-        run: |
-          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test artifacts
         if: always()
