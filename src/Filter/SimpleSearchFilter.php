@@ -104,7 +104,7 @@ class SimpleSearchFilter extends AbstractFilter
                 // special handling for JSON fields on Postgres
                 if ($platform instanceof PostgreSQLPlatform) {
                     $fieldMeta = $metadata->getFieldMapping($field);
-                    if ('json' === $fieldMeta['type']) {
+                    if ('json' === $fieldMeta->type) {
                         $orExp->add($queryBuilder->expr()->like(
                             "LOWER(CAST($joinAlias.$field, 'text'))",
                             ":$parameterName"

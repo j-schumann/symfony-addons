@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.0] - 2026-03-18
+### Added
+* Support for SqlServer in the RefreshDatabaseTrait
+
+### Fixed
+* RefreshDatabaseTrait: Handling of foreign keys with DB_CLEANUP_METHOD=purge 
+  on MySQL/MariaDB
+
 ## [3.3.1] - 2026-02-01
 ### Added
 * Fix Support for Symfony 8
