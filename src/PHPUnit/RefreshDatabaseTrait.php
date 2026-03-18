@@ -210,7 +210,9 @@ trait RefreshDatabaseTrait
             }
 
             if ($tempConnection->getDatabasePlatform() instanceof SQLServerPlatform) {
-                $tempConnection->executeStatement('USE master');
+                $tempConnection->executeStatement(
+                    "USE master; ALTER DATABASE $dbName SET SINGLE_USER WITH ROLLBACK IMMEDIATE"
+                );
             }
 
             $schemaManager->dropDatabase($dbName);
