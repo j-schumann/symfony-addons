@@ -47,6 +47,6 @@ runs:
       shell: bash
       run: echo "COVERAGE=1" >> $GITHUB_ENV
 
-    - name: Install / update dependencies
+    - name: "Update dependencies from composer.json using composer binary provided by system"
       shell: bash
-      run: composer update $COMPOSER_UPDATE_FLAGS $COMPOSER_FLAGS
+      run: "composer update ${{ env.COMPOSER_UPDATE_FLAGS }} ${{ env.COMPOSER_FLAGS }}"
