@@ -50,8 +50,10 @@ framework:
 
 doctrine:
   dbal:
-    charset: null
-    url: '%env(resolve:DATABASE_URL)%'
+    #url: mysql://db_test:db_test@mariadb:3306/db_test?serverVersion=mariadb-11.4.7&charset=utf8mb4
+    #url: mysql://db_test:db_test@mysql:3306/db_test?serverVersion=9.0&charset=utf8mb4
+#    url: '%env(resolve:DATABASE_URL)%'
+    url: sqlsrv://sa:StrongP-ssw0rd!@mssql-symfony:1433/db_test?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0
 
   orm:
     mappings:
