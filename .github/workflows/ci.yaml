@@ -49,11 +49,10 @@ jobs:
           php: ${{ matrix.php }}
           dependencies: ${{ matrix.dependencies }}
 
-      - name: Run tests on MySQL
+      - name: Run tests on MariaDB
         env:
           DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-12.0.0&charset=utf8mb4
-        run: |
-          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
+        run: vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test results
         uses: ./.github/actions/upload-phpunit-logs
@@ -102,8 +101,7 @@ jobs:
       - name: Run tests on MySQL
         env:
           DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=9.0&charset=utf8mb4
-        run: |
-          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
+        run: vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test results
         uses: ./.github/actions/upload-phpunit-logs
@@ -151,8 +149,7 @@ jobs:
       - name: Run tests on Postgres
         env:
           DATABASE_URL: pgsql://dbtest:dbtest@127.0.0.1:5432/dbtest?serverVersion=18
-        run: |
-          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
+        run: vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test results
         uses: ./.github/actions/upload-phpunit-logs
@@ -188,7 +185,7 @@ jobs:
           dependencies: ${{ matrix.dependencies }}
           coverage: ${{ matrix.coverage }}
 
-      - name: Run all PHPUnit tests (on Sqlite)
+      - name: Run tests on Sqlite
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
         run: |
@@ -249,7 +246,7 @@ jobs:
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
           apt-get update
           ACCEPT_EULA=Y apt-get install -y msodbcsql18'
-          vendor/bin/phpunit --group=database --log-junit build/logs/phpunit/junit.xml
+          vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test results
         uses: ./.github/actions/upload-phpunit-logs
