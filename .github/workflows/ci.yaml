@@ -18,7 +18,7 @@ jobs:
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mariadb:
-        image: mariadb:12
+        image: mariadb:12@sha256:b1c7bf836e64ed9406a8984af29509f40089d55cea14b32f12c4726a1f17104b
         env:
           MARIADB_USER: dbtest
           MARIADB_PASSWORD: dbtest
@@ -41,7 +41,7 @@ jobs:
       fail-fast: false # continue the other jobs if one fails
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
@@ -69,7 +69,7 @@ jobs:
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mysql:
-        image: mysql:9
+        image: mysql:9@sha256:ad88e1c86cbf12ef52d0a0360cd4b774d22956c5ee9c565645fb019d7aacb6c3
         env:
           MYSQL_USER: dbtest
           MYSQL_PASSWORD: dbtest
@@ -90,7 +90,7 @@ jobs:
       fail-fast: false # continue the other jobs if one fails
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
@@ -118,7 +118,7 @@ jobs:
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       postgres:
-        image: postgres:18
+        image: postgres:18@sha256:1a5b3e745bbd82d6deb146505e504da3c2f248cac15e431951b148fbe4f8613a
         ports:
           - "5432:5432"
         env:
@@ -138,7 +138,7 @@ jobs:
       fail-fast: false # continue the other jobs if one fails
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
@@ -176,7 +176,7 @@ jobs:
       fail-fast: false # continue the other jobs if one fails
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
@@ -211,7 +211,7 @@ jobs:
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mssql:
-        image: kcollins/mssql:latest
+        image: kcollins/mssql:latest@sha256:95c2666d3a7c5dfaaf7247585057285ab7617fdcba213fff70f30ad92ce2a44a
         env:
           ACCEPT_EULA: "Y"
           MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
@@ -228,7 +228,7 @@ jobs:
       fail-fast: false # continue the other jobs if one fails
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
