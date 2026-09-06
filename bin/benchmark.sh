@@ -78,8 +78,9 @@ declare -A RESULTS
 declare -A FIRST_BOOT
 
 CPUS="$(nproc 2>/dev/null || echo '?')"
-RAM="$(free -g 2>/dev/null | awk '/^Mem:/ {print $2 " GB"}')"
-RAM="${RAM:-?}"
+# free(1) is not installed in every container, /proc/meminfo always is
+RAM="$(awk '/^MemTotal:/ {printf "%.0f GB", $2 / 1048576}' /proc/meminfo 2>/dev/null)"
+RAM="${RAM:-unknown}"
 
 echo "Refresh benchmark: ${ITERATIONS} kernel boots per cell, storage=${STORAGE}, ${CPUS} CPU, ${RAM} RAM"
 echo

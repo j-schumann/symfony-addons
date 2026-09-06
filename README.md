@@ -497,25 +497,115 @@ are _purge_, _dropSchema_ and _dropDatabase_, for more details see `RefreshDatab
 case, not as a speedup: per booted kernel _purge_ only empties the tables and resets the
 identities, where both others drop and recreate the whole schema.
 
-Measured on two application test suites, each against a stock (untuned) database:
+#### Measurements
 
-| suite | `purge` | `dropSchema` | `dropDatabase` |
-| --- | --- | --- | --- |
-| PostgreSQL 18, 726 tests, `paratest -p2` | **20.4 s** | 36.4 s | 48.4 s |
-| MySQL 8.4, 995 tests, `paratest -p3` | **38.0 s** | 833.3 s | 761.7 s |
+`bin/benchmark.sh` measures what one `bootKernel()` costs for every combination of
+platform and cleanup method, and the _Refresh Benchmark_ workflow runs it in CI. The
+numbers below come from that workflow: median milliseconds per `bootKernel()` over 200
+boots per cell, on a GitHub-hosted `ubuntu-latest` runner (**4 CPU, 15 GB RAM**), against
+this package's own 14 entity test schema. The first boot of each cell is excluded, as it
+also creates the database and the schema.
 
-(PostgreSQL is the mean of three runs, MySQL a single run per method. One suite per
-platform, so read the ordering rather than the ratios.)
+| platform | purge (delete) | purge (truncate) | dropSchema | dropDatabase |
+| --- | ---: | ---: | ---: | ---: |
+| **on disk** | | | | |
+| SQLite | 53.1 | 53.5 | 153.9 | 64.9 |
+| MariaDB 12 | 107.4 | **54.8** | 412.2 | 376.5 |
+| MySQL 9 | **121.0** | 309.4 | 753.2 | 521.6 |
+| PostgreSQL 18 | **31.5** | 39.5 | 162.9 | 186.1 |
+| SQL Server 2022 | 43.1 | 37.0 | 312.2 | see below |
+| **on tmpfs** | | | | |
+| SQLite | 7.5 | 7.3 | 19.7 | 12.0 |
+| MariaDB 12 | **12.1** | 13.1 | 37.5 | 25.9 |
+| MySQL 9 | **23.4** | 25.1 | 77.3 | 61.9 |
+| PostgreSQL 18 | **23.3** | 23.5 | 68.3 | 78.5 |
+| SQL Server 2022 | **16.0** | 16.1 | 120.2 | see below |
 
-_purge_ wins by a wide margin on both platforms, but which of the other two is second is
-not a given: _dropDatabase_ beat _dropSchema_ on MySQL and lost to it on PostgreSQL. If you
-do need a fresh schema, measure both for your own schema rather than assuming an order.
+`dropDatabase` on SQL Server is not in the table: it needs more than 600 seconds for 200
+boots, so more than 3 seconds per test, and the benchmark gives up on a cell at that point.
+That is the measurement.
 
-How much the choice is worth depends on how many tests boot the kernel and on how large the
-schema is: the cost of _dropSchema_ and _dropDatabase_ scales with the number of tables and
-indices, while _purge_ scales with the number of tables alone. On a small schema the three
-converge — this package's own test suite has two entities, and there all three methods are
-within measurement noise of each other.
+Three things to take from this:
+
+* _purge_ is the cheapest method everywhere, usually by a factor of three to ten. The other
+  two exist for tests that need a genuinely fresh schema, not as a speedup. Which of the
+  two is second is not a given: `dropDatabase` beats `dropSchema` on MySQL and MariaDB and
+  loses to it on PostgreSQL and SQLite.
+* Putting the database on tmpfs is worth far more than the choice of cleanup method — 4 to
+  9 times on disk-bound platforms. See below.
+* `DB_PURGE_MODE` is not a one-way street. On MySQL, `delete` is 2.5x faster than
+  `truncate`; on MariaDB it is the other way round, because MariaDB's `TRUNCATE` is roughly
+  four times cheaper per table than MySQL's while the identity reset that `delete` requires
+  costs the same on both.
+
+How much any of this is worth depends on how many of your tests boot the kernel and on how
+large your schema is: `dropSchema` and `dropDatabase` scale with the number of tables and
+indices, `purge` with the number of tables alone.
+
+#### Running the databases on tmpfs
+
+Test databases are throwaway by definition, so there is no reason to write them to disk.
+This is the single largest speedup available and costs nothing but a few lines.
+
+With docker compose:
+
+```yaml
+services:
+  mysql:
+    image: mysql:9
+    tmpfs:
+      - /var/lib/mysql:rw,size=1g
+
+  mariadb:
+    image: mariadb:12
+    tmpfs:
+      - /var/lib/mysql:rw,size=1g
+
+  postgres:
+    image: postgres:18
+    tmpfs:
+      # note the version in the path, postgres:18 does not use
+      # /var/lib/postgresql/data any more. Mounting the wrong path succeeds and
+      # silently leaves the database on disk.
+      - /var/lib/postgresql/18/docker:rw,size=1g
+
+  mssql:
+    image: kcollins/mssql:latest
+    tmpfs:
+      - /var/opt/mssql/data:rw,size=2g
+```
+
+In GitHub Actions, a service container takes no `command`, and `options` are passed to
+`docker create`, so `--tmpfs` belongs there:
+
+```yaml
+    services:
+      mysql:
+        image: mysql:9
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: db_test
+        options: >-
+          --tmpfs /var/lib/mysql:rw,size=1g
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
+```
+
+For SQLite, point the DSN at a tmpfs path instead, e.g.
+`sqlite:////dev/shm/test.db` — four slashes, three would make the path relative.
+
+**Relaxing durability on top of this buys nothing.** Turning off the safety guarantees is
+the usual next step, and it was measured: `--innodb-doublewrite=OFF
+--innodb-flush-log-at-trx-commit=2 --skip-log-bin` for MySQL/MariaDB, `-c fsync=off
+-c synchronous_commit=off -c full_page_writes=off` for PostgreSQL, and
+`ALTER DATABASE model SET DELAYED_DURABILITY = FORCED` for SQL Server. On tmpfs every one
+of those was flat or slightly slower than leaving the defaults alone, PostgreSQL by about a
+quarter — once the data directory is in RAM there is no disk write left for them to skip.
+Save the configuration and keep the defaults.
 
 With the cleanup method _purge_, the ENV `DB_PURGE_MODE` selects how the tables are
 emptied on MySQL/MariaDB. Allowed values are _delete_ (default) and _truncate_:
@@ -529,6 +619,12 @@ emptied on MySQL/MariaDB. Allowed values are _delete_ (default) and _truncate_:
 
 Measured on a 995 test suite with `paratest -p3` against MySQL 8.4: 38.0 s with _delete_
 versus 325.9 s with _truncate_.
+
+On MariaDB the comparison comes out the other way, see the table above: its `TRUNCATE` is
+about four times cheaper per table than MySQL's, while the identity reset that _delete_
+makes necessary costs the same on both, so _delete_ only pays off once a schema has
+considerably more tables than identity columns. If your suite runs on MariaDB, measure
+before keeping the default.
 
 The setting has no effect on other platforms: SQLServer cannot `TRUNCATE` tables that
 are referenced by a foreign key and always uses `DELETE`, PostgreSQL and SQLite have no
