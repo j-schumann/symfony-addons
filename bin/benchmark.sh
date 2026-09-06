@@ -22,7 +22,7 @@
 #   BENCH_ITERATIONS  kernel boots per cell (default 200)
 #   BENCH_STORAGE     label for the report only, e.g. "disk" or "tmpfs"
 #   BENCH_REPORT      file to append the markdown report to
-#   BENCH_MAX_CELL_SECONDS  give up on a cell after this long (default 200)
+#   BENCH_MAX_CELL_SECONDS  give up on a cell after this long (default 600)
 #   DATABASE_URL_<PLATFORM>  overrides the built-in DSN for that platform
 
 set -u -o pipefail
@@ -36,7 +36,7 @@ PLATFORMS="${BENCH_PLATFORMS:-sqlite mariadb mysql postgres sqlsrv}"
 # per boot, so a full matrix would outlive the CI job before reaching the cells we
 # actually care about. Cap each cell instead of the run, so one slow combination
 # only costs its own column.
-MAX_CELL_SECONDS="${BENCH_MAX_CELL_SECONDS:-200}"
+MAX_CELL_SECONDS="${BENCH_MAX_CELL_SECONDS:-600}"
 
 # The cleanup methods, as "<label>|<DB_CLEANUP_METHOD>|<DB_PURGE_MODE>". The purge
 # mode only has an effect on MySQL/MariaDB, on the other platforms both purge
@@ -77,7 +77,11 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 declare -A RESULTS
 declare -A FIRST_BOOT
 
-echo "Refresh benchmark: ${ITERATIONS} kernel boots per cell, storage=${STORAGE}"
+CPUS="$(nproc 2>/dev/null || echo '?')"
+RAM="$(free -g 2>/dev/null | awk '/^Mem:/ {print $2 " GB"}')"
+RAM="${RAM:-?}"
+
+echo "Refresh benchmark: ${ITERATIONS} kernel boots per cell, storage=${STORAGE}, ${CPUS} CPU, ${RAM} RAM"
 echo
 
 for platform in $PLATFORMS; do
@@ -173,6 +177,8 @@ emit() {
         printf '\n'
     done
 
+    echo
+    echo "Measured on ${CPUS} CPU / ${RAM} RAM."
     echo
     echo "The first boot of a process also creates the database and the schema and is"
     echo "excluded from the median; on the fastest cells it costs more than all the"
