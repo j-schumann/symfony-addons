@@ -111,6 +111,16 @@ jobs:
           php: '8.4'
           dependencies: highest
 
+      # The sqlsrv extension that php-setup installs is only half of what a
+      # SQL Server connection needs: without the system ODBC driver it fails with
+      # "SQLSTATE [IMSSP, -49]". ci.yaml installs it the same way.
+      - name: Install the ODBC driver for SQL Server
+        run: |
+          sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
+          apt-get update
+          ACCEPT_EULA=Y apt-get install -y msodbcsql18'
+
       - name: Wait for SQL Server
         env:
           SA_PASSWORD: "StrongP-ssw0rd!"
@@ -225,6 +235,16 @@ jobs:
         with:
           php: '8.4'
           dependencies: highest
+
+      # The sqlsrv extension that php-setup installs is only half of what a
+      # SQL Server connection needs: without the system ODBC driver it fails with
+      # "SQLSTATE [IMSSP, -49]". ci.yaml installs it the same way.
+      - name: Install the ODBC driver for SQL Server
+        run: |
+          sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
+          apt-get update
+          ACCEPT_EULA=Y apt-get install -y msodbcsql18'
 
       - name: Wait for SQL Server
         env:
@@ -394,6 +414,16 @@ jobs:
         with:
           php: '8.4'
           dependencies: highest
+
+      # The sqlsrv extension that php-setup installs is only half of what a
+      # SQL Server connection needs: without the system ODBC driver it fails with
+      # "SQLSTATE [IMSSP, -49]". ci.yaml installs it the same way.
+      - name: Install the ODBC driver for SQL Server
+        run: |
+          sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
+          apt-get update
+          ACCEPT_EULA=Y apt-get install -y msodbcsql18'
 
       - name: Wait for SQL Server
         env:
