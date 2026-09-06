@@ -1,16 +1,8 @@
 name: "Refresh Benchmark"
 
-# Manual only: this measures, it does not gate anything, and a full matrix takes
-# several minutes of runner time.
+# Manual only: this measures, it does not gate anything, and a full matrix takes several minutes of
+# runner time.
 on:
-  # workflow_dispatch alone is not enough while this lives on a probe branch:
-  # GitHub only offers the manual trigger for workflows that exist on the
-  # default branch. The push trigger below makes the workflow reachable from the
-  # probe branch and should be dropped once this is merged.
-  push:
-    branches:
-      - "probe/**"
-
   workflow_dispatch:
     inputs:
       iterations:
@@ -31,9 +23,9 @@ permissions:
   contents: read
 
 jobs:
-  # The two jobs differ only in the service "options": GitHub passes them to
-  # "docker create", so --tmpfs belongs there. They are duplicated rather than
-  # parameterised because service definitions cannot read the matrix context.
+  # The two jobs differ only in the service "options": GitHub passes them to "docker create", so
+  # --tmpfs belongs there. They are duplicated rather than parameterized because service definitions
+  # cannot read the matrix context.
   disk:
     name: Benchmark (disk)
     if: ${{ inputs.storage == '' || inputs.storage == 'both' || inputs.storage == 'disk' }}
@@ -102,34 +94,15 @@ jobs:
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
         with:
-          php: '8.4'
+          php: '8.5'
           dependencies: highest
 
-      # The sqlsrv extension that php-setup installs is only half of what a
-      # SQL Server connection needs: without the system ODBC driver it fails with
-      # "SQLSTATE [IMSSP, -49]". ci.yaml installs it the same way.
       - name: Install the ODBC driver for SQL Server
         run: |
           sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
           apt-get update
           ACCEPT_EULA=Y apt-get install -y msodbcsql18'
-
-      - name: Wait for SQL Server
-        env:
-          SA_PASSWORD: "StrongP-ssw0rd!"
-        run: |
-          for i in $(seq 1 60); do
-            if docker exec ${{ job.services.mssql.id }} /opt/mssql-tools18/bin/sqlcmd \
-                 -S localhost -U sa -P "$SA_PASSWORD" -C -Q "SELECT 1" >/dev/null 2>&1; then
-              echo "SQL Server ready after $((i * 2))s"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "SQL Server never became reachable:"
-          docker logs ${{ job.services.mssql.id }} 2>&1 | tail -30
-          exit 1
 
       - name: Run benchmark
         env:
@@ -227,12 +200,9 @@ jobs:
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
         with:
-          php: '8.4'
+          php: '8.5'
           dependencies: highest
 
-      # The sqlsrv extension that php-setup installs is only half of what a
-      # SQL Server connection needs: without the system ODBC driver it fails with
-      # "SQLSTATE [IMSSP, -49]". ci.yaml installs it the same way.
       - name: Install the ODBC driver for SQL Server
         run: |
           sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
@@ -240,29 +210,12 @@ jobs:
           apt-get update
           ACCEPT_EULA=Y apt-get install -y msodbcsql18'
 
-      - name: Wait for SQL Server
-        env:
-          SA_PASSWORD: "StrongP-ssw0rd!"
-        run: |
-          for i in $(seq 1 60); do
-            if docker exec ${{ job.services.mssql.id }} /opt/mssql-tools18/bin/sqlcmd \
-                 -S localhost -U sa -P "$SA_PASSWORD" -C -Q "SELECT 1" >/dev/null 2>&1; then
-              echo "SQL Server ready after $((i * 2))s"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "SQL Server never became reachable:"
-          docker logs ${{ job.services.mssql.id }} 2>&1 | tail -30
-          exit 1
-
       - name: Run benchmark
         env:
           BENCH_ITERATIONS: ${{ inputs.iterations }}
           BENCH_STORAGE: tmpfs
           BENCH_REPORT: ${{ github.workspace }}/benchmark-tmpfs.md
-          # /dev/shm is tmpfs on the runner, so SQLite gets the same treatment as
-          # the servers above
+          # /dev/shm is tmpfs on the runner, so SQLite gets the same treatment as the servers above
           BENCH_SQLITE_PATH: /dev/shm/bench.db
           DATABASE_URL_SQLITE: "sqlite:////dev/shm/bench.db"
           DATABASE_URL_MARIADB: "mysql://db_test:db_test@127.0.0.1:3307/db_test?serverVersion=mariadb-12.0.0&charset=utf8mb4"

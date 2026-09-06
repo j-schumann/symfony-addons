@@ -7,8 +7,8 @@ namespace Vrok\SymfonyAddons\Tests\Fixtures\Entity\Inheritance;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * A mapped superclass has no table of its own, the concrete entities that
- * inherit the identifier have one each.
+ * A mapped superclass has no table of its own, the concrete entities that inherit the identifier
+ * have one each.
  */
 #[ORM\MappedSuperclass]
 abstract class SuperclassBase

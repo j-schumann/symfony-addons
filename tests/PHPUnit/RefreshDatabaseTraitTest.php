@@ -122,11 +122,10 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     }
 
     /**
-     * Exactly one entry per table that really has an identity column: mapped
-     * superclasses and embeddables own no table, the children of a SINGLE_TABLE
-     * hierarchy share the table of their root, the children of a JOINED
-     * hierarchy have their own table but no identity column in it, and assigned
-     * / composite identifiers have no identity column at all.
+     * Exactly one entry per table that really has an identity column: mapped superclasses and
+     * embeddables own no table, the children of a SINGLE_TABLE hierarchy share the table of their
+     * root, the children of a JOINED hierarchy have their own table but no identity column in it,
+     * and assigned / composite identifiers have no identity column at all.
      */
     #[Env('DB_CLEANUP_METHOD', 'purge')]
     public function testIdentityTablesAreDerivedFromTheMapping(): void
@@ -155,8 +154,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
         sort($quotedNames);
         self::assertSame($expected, $quotedNames);
 
-        // the unquoted names are required to address the sequence / the
-        // identity column of a table
+        // the unquoted names are required to address the sequence / the identity column of a table
         self::assertSame(
             ['name' => 'order', 'column' => 'id'],
             $tables[$platform->quoteSingleIdentifier('order')]
@@ -164,8 +162,8 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     }
 
     /**
-     * All tables have to be emptied, including those that own no identity and
-     * are thus not part of the list above.
+     * All tables have to be emptied, including those that own no identity and are thus not part of
+     * the list above.
      */
     #[Env('DB_CLEANUP_METHOD', 'purge')]
     public function testPurgeEmptiesAllMappedTables(): void
@@ -189,10 +187,9 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     }
 
     /**
-     * The identity of every table has to restart at 1 after the purge, on every
-     * platform and for every class of an inheritance hierarchy. A JOINED child
-     * is the interesting case: it has its own table, but the counter it uses
-     * sits in the table of the root.
+     * The identity of every table has to restart at 1 after the purge, on every platform and for
+     * every class of an inheritance hierarchy. A JOINED child is the interesting case: it has its
+     * own table, but the counter it uses sits in the table of the root.
      */
     #[Env('DB_CLEANUP_METHOD', 'purge')]
     public function testPurgeResetsIdentities(): void
@@ -200,8 +197,8 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
         self::bootKernel();
         $em = self::getContainer()->get('doctrine')->getManager();
 
-        // increase the counters first, a purge of tables that were never
-        // inserted into would be trivial to pass
+        // increase the counters first, a purge of tables that were never inserted into would be
+        // trivial to pass
         self::createOneOfEach($em);
         $em->flush();
 
@@ -232,9 +229,8 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     }
 
     /**
-     * The same with the purge falling back to TRUNCATE: on MySQL/MariaDB the
-     * identities are then reset by the database itself, the result must not
-     * differ.
+     * The same with the purge falling back to TRUNCATE: on MySQL/MariaDB the identities are then
+     * reset by the database itself, the result must not differ.
      */
     #[Env('DB_CLEANUP_METHOD', 'purge')]
     #[Env('DB_PURGE_MODE', 'truncate')]
@@ -268,8 +264,8 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     }
 
     /**
-     * The foreign key checks are disabled for the purge, they have to be
-     * enabled again afterward, else the test itself would run without them.
+     * The foreign key checks are disabled for the purge, they have to be enabled again afterward,
+     * else the test itself would run without them.
      */
     #[Env('DB_CLEANUP_METHOD', 'purge')]
     public function testPurgeRestoresForeignKeyChecks(): void
@@ -287,7 +283,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
 
     /**
      * @return string[] entity classes of which exactly one record is created by
-     *                  createOneOfEach(), each of them backed by its own table
+     * createOneOfEach(), each of them backed by its own table
      */
     private static function countableClasses(): array
     {
@@ -333,8 +329,8 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
         $composite->keyPartTwo = 'two';
         $em->persist($composite);
 
-        // a record referencing itself can only be purged with the foreign key
-        // checks disabled, no table order helps here
+        // a record referencing itself can only be purged with the foreign key checks disabled, no
+        // table order helps here
         $selfReferencing = new SelfReferencingEntity();
         $selfReferencing->parent = $selfReferencing;
         $em->persist($selfReferencing);

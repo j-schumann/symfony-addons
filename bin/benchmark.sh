@@ -1,29 +1,26 @@
 #!/usr/bin/env bash
 #
-# Benchmarks the database refresh that RefreshDatabaseTrait performs on each
-# bootKernel(), for every supported database platform (rows) and every supported
-# cleanup method (columns).
+# Benchmarks the database refresh that RefreshDatabaseTrait performs on each bootKernel(), for every
+# supported database platform (rows) and every supported cleanup method (columns).
 #
 # Locally, run it inside the php container of .dev-symfony/docker-compose.yml:
 #
-#   docker compose -f .dev-symfony/docker-compose.yml up -d
-#   docker exec -w /var/www/html php-symfony bin/benchmark.sh
+# docker compose -f .dev-symfony/docker-compose.yml up -d docker exec -w /var/www/html php-symfony
+# bin/benchmark.sh
 #
 # For the tmpfs comparison, start the containers with the override as well:
 #
-#   docker compose -f .dev-symfony/docker-compose.yml \
+# docker compose -f .dev-symfony/docker-compose.yml \
 #                  -f .dev-symfony/docker-compose.tmpfs.yml up -d
-#   BENCH_STORAGE=tmpfs docker exec -w /var/www/html php-symfony bin/benchmark.sh
+# BENCH_STORAGE=tmpfs docker exec -w /var/www/html php-symfony bin/benchmark.sh
 #
 # In CI the workflow provides the services and sets the DATABASE_URL_* variables.
 #
-# Environment:
-#   BENCH_PLATFORMS   space separated subset of the platforms below
-#   BENCH_ITERATIONS  kernel boots per cell (default 200)
-#   BENCH_STORAGE     label for the report only, e.g. "disk" or "tmpfs"
-#   BENCH_REPORT      file to append the markdown report to
-#   BENCH_MAX_CELL_SECONDS  give up on a cell after this long (default 600)
-#   DATABASE_URL_<PLATFORM>  overrides the built-in DSN for that platform
+# Environment: BENCH_PLATFORMS   space separated subset of the platforms below BENCH_ITERATIONS
+# kernel boots per cell (default 200) BENCH_STORAGE     label for the report only, e.g. "disk" or
+# "tmpfs" BENCH_REPORT      file to append the markdown report to BENCH_MAX_CELL_SECONDS  give up on
+# a cell after this long (default 600) DATABASE_URL_<PLATFORM>  overrides the built-in DSN for that
+# platform
 
 set -u -o pipefail
 
@@ -32,15 +29,13 @@ STORAGE="${BENCH_STORAGE:-disk}"
 REPORT="${BENCH_REPORT:-}"
 PLATFORMS="${BENCH_PLATFORMS:-sqlite mariadb mysql postgres sqlsrv}"
 
-# The slowest combinations (dropDatabase on SQL Server, for example) take minutes
-# per boot, so a full matrix would outlive the CI job before reaching the cells we
-# actually care about. Cap each cell instead of the run, so one slow combination
-# only costs its own column.
+# The slowest combinations (dropDatabase on SQL Server, for example) take minutes per boot, so a
+# full matrix would outlive the CI job before reaching the cells we actually care about. Cap each
+# cell instead of the run, so one slow combination only costs its own column.
 MAX_CELL_SECONDS="${BENCH_MAX_CELL_SECONDS:-600}"
 
-# The cleanup methods, as "<label>|<DB_CLEANUP_METHOD>|<DB_PURGE_MODE>". The purge
-# mode only has an effect on MySQL/MariaDB, on the other platforms both purge
-# columns measure the same thing.
+# The cleanup methods, as "<label>|<DB_CLEANUP_METHOD>|<DB_PURGE_MODE>". The purge mode only has an
+# effect on MySQL/MariaDB, on the other platforms both purge columns measure the same thing.
 METHODS=(
     "purge (delete)|purge|delete"
     "purge (truncate)|purge|truncate"
@@ -101,10 +96,10 @@ for platform in $PLATFORMS; do
         out="$TMP_DIR/$platform-$method-$purge_mode.json"
         printf '  %-9s %-18s ' "$platform" "$label"
 
-        # RefreshDatabaseTrait reads its settings from $_ENV, which PHP only fills
-        # from the real environment when variables_order contains an "E". The
-        # php.ini default is "GPCS", so without this the settings below would be
-        # silently ignored and every cell would measure the default instead.
+        # RefreshDatabaseTrait reads its settings from $_ENV, which PHP only fills from the real
+        # environment when variables_order contains an "E". The php.ini default is "GPCS", so
+        # without this the settings below would be silently ignored and every cell would measure the
+        # default instead.
         DATABASE_URL="$dsn" \
             DB_CLEANUP_METHOD="$method" \
             DB_PURGE_MODE="$purge_mode" \
@@ -116,9 +111,8 @@ for platform in $PLATFORMS; do
             vendor/bin/phpunit --group benchmark --no-output > "$TMP_DIR/log" 2>&1
         status=$?
 
-        # 124 is how "timeout" reports that it had to kill the run. That is a
-        # measurement we did not get, not a broken setup, so the matrix keeps
-        # going and the cell says so.
+        # 124 is how "timeout" reports that it had to kill the run. That is a measurement we did not
+        # get, not a broken setup, so the matrix keeps going and the cell says so.
         if [ "$status" -eq 124 ]; then
             echo "skipped (>${MAX_CELL_SECONDS}s)"
             RESULTS["$platform|$label"]="skipped"
@@ -127,8 +121,8 @@ for platform in $PLATFORMS; do
 
         if [ "$status" -ne 0 ]; then
             echo "FAILED"
-            # The exception is what tells us why, and PHPUnit prints it well above
-            # the summary, so pick it out rather than just tailing the output.
+            # The exception is what tells us why, and PHPUnit prints it well above the summary, so
+            # pick it out rather than just tailing the output.
             grep -aiE 'exception|sqlstate|error:|\[Microsoft\]' "$TMP_DIR/log" \
                 | head -5 | sed 's/^/      /'
             tail -5 "$TMP_DIR/log" | sed 's/^/      /'
@@ -142,8 +136,8 @@ for platform in $PLATFORMS; do
             continue
         fi
 
-        # Guard against measuring the wrong thing: the run reports back which
-        # settings it actually saw, a mismatch means they did not reach the trait.
+        # Guard against measuring the wrong thing: the run reports back which settings it actually
+        # saw, a mismatch means they did not reach the trait.
         seen_method="$(sed -n 's/.*"cleanupMethod": "\([^"]*\)".*/\1/p' "$out")"
         seen_mode="$(sed -n 's/.*"purgeMode": "\([^"]*\)".*/\1/p' "$out")"
         if [ "$seen_method" != "$method" ] || [ "$seen_mode" != "$purge_mode" ]; then

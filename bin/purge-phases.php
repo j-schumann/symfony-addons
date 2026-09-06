@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 /**
- * Breaks the MySQL/MariaDB purge down into its phases, to show where the time
- * goes: the DELETE statements, the identity reset that DELETE makes necessary,
- * and the TRUNCATE statements they replace.
+ * Breaks the MySQL/MariaDB purge down into its phases, to show where the time goes: the DELETE
+ * statements, the identity reset that DELETE makes necessary, and the TRUNCATE statements they
+ * replace.
  *
  * Usage: php bin/purge-phases.php <pdo-dsn> <user> <password> [cycles]
  */
@@ -103,10 +103,10 @@ $truncates = static function () use ($pdo, $tables): void {
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
 };
 
-// Most tests only write to a handful of tables, so most of the ALTER statements
-// reset a counter that is already 1. Skipping those needs one query, but the
-// AUTO_INCREMENT column of information_schema is cached in MySQL 8+, so the
-// cache has to be disabled for the answer to be current.
+// Most tests only write to a handful of tables, so most of the ALTER statements reset a counter
+// that is already 1. Skipping those needs one query, but the AUTO_INCREMENT column of
+// information_schema is cached in MySQL 8+, so the cache has to be disabled for the answer to be
+// current.
 $deletesAndSelectiveReset = static function () use ($pdo, $tables): void {
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
     foreach ($tables as $table) {

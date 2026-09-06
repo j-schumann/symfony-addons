@@ -7,12 +7,16 @@ namespace Vrok\SymfonyAddons\Tests\Fixtures\Entity\Inheritance;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * With SINGLE_TABLE inheritance all children share the table of the root, so
- * only the root owns the auto-increment column.
+ * With SINGLE_TABLE inheritance all children share the table of the root, so only the root owns the
+ * auto-increment column.
  */
 #[ORM\Entity]
 #[ORM\InheritanceType('SINGLE_TABLE')]
-#[ORM\DiscriminatorColumn(name: 'discr', type: 'string', length: 16)]
+#[ORM\DiscriminatorColumn(
+    name: 'discr',
+    type: 'string',
+    length: 16
+)]
 #[ORM\DiscriminatorMap([
     'root'   => SingleTableRoot::class,
     'childA' => SingleTableChildA::class,

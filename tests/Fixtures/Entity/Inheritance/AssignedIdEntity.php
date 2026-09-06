@@ -8,8 +8,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * An entity with an assigned identifier (like projects using UUIDs) has no
- * auto-increment column that could be reset.
+ * An entity with an assigned identifier (like projects using UUIDs) has no auto-increment column
+ * that could be reset.
  */
 #[ORM\Entity]
 class AssignedIdEntity

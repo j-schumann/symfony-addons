@@ -15,21 +15,19 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Inheritance\SuperclassChildA;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 /**
- * Measures what a test pays for the database refresh that RefreshDatabaseTrait
- * performs on each bootKernel(), for one combination of database platform and
- * cleanup method. The platform comes from DATABASE_URL, the cleanup method from
- * DB_CLEANUP_METHOD / DB_PURGE_MODE, so a single test class covers every cell of
- * the matrix; bin/benchmark.sh runs the combinations and collects the results.
+ * Measures what a test pays for the database refresh that RefreshDatabaseTrait performs on each
+ * bootKernel(), for one combination of database platform and cleanup method. The platform comes
+ * from DATABASE_URL, the cleanup method from DB_CLEANUP_METHOD / DB_PURGE_MODE, so a single test
+ * class covers every cell of the matrix; bin/benchmark.sh runs the combinations and collects the
+ * results.
  *
- * Each iteration boots the kernel, which refreshes the database, and then writes
- * a few records so the next refresh has something to clean up: a benchmark
- * against empty tables would measure the wrong thing, especially for DELETE
- * which is O(rows).
+ * Each iteration boots the kernel, which refreshes the database, and then writes a few records so
+ * the next refresh has something to clean up: a benchmark against empty tables would measure the
+ * wrong thing, especially for DELETE which is O(rows).
  *
- * The number of iterations can be set with BENCH_ITERATIONS, the file to write
- * the result to with BENCH_OUTPUT. The result contains the mean and the median
- * of the per-boot times: the first boot of a process also creates the database
- * and the schema, which would dominate a small sample.
+ * The number of iterations can be set with BENCH_ITERATIONS, the file to write the result to with
+ * BENCH_OUTPUT. The result contains the mean and the median of the per-boot times: the first boot
+ * of a process also creates the database and the schema, which would dominate a small sample.
  */
 #[Group('benchmark')]
 final class RefreshDatabaseBenchmarkTest extends KernelTestCase
@@ -93,21 +91,21 @@ final class RefreshDatabaseBenchmarkTest extends KernelTestCase
         $count = \count($steadyState);
 
         $result = [
-            'platform' => $_ENV['BENCH_PLATFORM'] ?? 'unknown',
+            'platform'      => $_ENV['BENCH_PLATFORM'] ?? 'unknown',
             'cleanupMethod' => $_ENV['DB_CLEANUP_METHOD'] ?? 'purge',
-            'purgeMode' => $_ENV['DB_PURGE_MODE'] ?? 'delete',
-            'boots' => \count($timings),
-            'firstBootMs' => round($timings[0], 1),
-            'meanMs' => round(array_sum($steadyState) / $count, 1),
-            'medianMs' => round(
+            'purgeMode'     => $_ENV['DB_PURGE_MODE'] ?? 'delete',
+            'boots'         => \count($timings),
+            'firstBootMs'   => round($timings[0], 1),
+            'meanMs'        => round(array_sum($steadyState) / $count, 1),
+            'medianMs'      => round(
                 0 === $count % 2
                     ? ($steadyState[intdiv($count, 2) - 1] + $steadyState[intdiv($count, 2)]) / 2
                     : $steadyState[intdiv($count, 2)],
                 1
             ),
-            'minMs' => round($steadyState[0], 1),
-            'maxMs' => round($steadyState[$count - 1], 1),
-            'totalMs' => round(array_sum($timings), 1),
+            'minMs'         => round($steadyState[0], 1),
+            'maxMs'         => round($steadyState[$count - 1], 1),
+            'totalMs'       => round(array_sum($timings), 1),
         ];
 
         $output = $_ENV['BENCH_OUTPUT'] ?? null;
