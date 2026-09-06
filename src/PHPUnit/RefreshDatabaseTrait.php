@@ -78,7 +78,7 @@ trait RefreshDatabaseTrait
 
     /**
      * @var bool Flag whether the db setup is done (db exists, schema is up to
-     * date)
+     *           date)
      */
     protected static bool $setupComplete = false;
 
@@ -209,8 +209,8 @@ trait RefreshDatabaseTrait
      * duplicate the behavior of the doctrine:database:drop / doctrine:schema:create commands in the
      * DoctrineBundle.
      *
-     * @param bool $drop If true, the method will delete an existing database
-     * before recreating it. If false, the database will only be created if it doesn't exist.
+     * @param bool $drop if true, the method deletes an existing database before recreating
+     *                   it, else the database is only created when it does not exist
      */
     protected static function recreateDatabase(
         EntityManagerInterface $em,
@@ -286,9 +286,8 @@ trait RefreshDatabaseTrait
     /**
      * Brings the db schema to the newest version.
      *
-     * @param bool $drop If true, the method will drop the current schema, e.g.
-     * to reset all data, as dropping & recreating the schema will often be faster than truncating
-     * all tables.
+     * @param bool $drop if true, the method drops the current schema first, e.g. to reset
+     *                   all data
      */
     protected static function updateSchema(
         EntityManagerInterface $em,
@@ -443,8 +442,7 @@ trait RefreshDatabaseTrait
      * The result is cached, but as this is a trait, the cache is per test class using it and not
      * per process.
      *
-     * @return array<string, array{name: string, column: string}> the quoted
-     * table name, mapped to the unquoted table name and the unquoted name of the identity column
+     * @return array<string, array{name: string, column: string}>
      */
     protected static function getIdentityTables(
         EntityManagerInterface $em,

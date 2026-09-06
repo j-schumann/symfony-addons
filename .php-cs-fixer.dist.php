@@ -25,6 +25,11 @@ return $config
 
         'attribute_empty_parentheses'    => true,
 
+        // php-cs-fixer 3.95 changed @Symfony:risky to strategy "remove" for this rule, as
+        // Symfony itself does not declare strict types. This project does, in every file, so
+        // the ruleset would strip all of them on the next run.
+        'declare_strict_types'           => ['strategy' => 'enforce'],
+
         // but force alignment of keys/values in array definitions
         'binary_operator_spaces' => [
             'operators' => [

@@ -215,8 +215,6 @@ jobs:
           BENCH_ITERATIONS: ${{ inputs.iterations }}
           BENCH_STORAGE: tmpfs
           BENCH_REPORT: ${{ github.workspace }}/benchmark-tmpfs.md
-          # /dev/shm is tmpfs on the runner, so SQLite gets the same treatment as the servers above
-          BENCH_SQLITE_PATH: /dev/shm/bench.db
           DATABASE_URL_SQLITE: "sqlite:////dev/shm/bench.db"
           DATABASE_URL_MARIADB: "mysql://db_test:db_test@127.0.0.1:3307/db_test?serverVersion=mariadb-12.0.0&charset=utf8mb4"
           DATABASE_URL_MYSQL: "mysql://db_test:db_test@127.0.0.1:3306/db_test?serverVersion=9.0&charset=utf8mb4"

@@ -45,7 +45,7 @@ METHODS=(
 
 default_dsn() {
     case "$1" in
-        sqlite)   echo "sqlite:///${BENCH_SQLITE_PATH:-%kernel.project_dir%/var/bench.db}" ;;
+        sqlite)   echo "sqlite:///%kernel.project_dir%/var/bench.db" ;;
         mariadb)  echo "mysql://db_test:db_test@mariadb:3306/db_test?serverVersion=mariadb-12.0.0&charset=utf8mb4" ;;
         mysql)    echo "mysql://db_test:db_test@mysql:3306/db_test?serverVersion=9.0&charset=utf8mb4" ;;
         postgres) echo "pgsql://db_test:db_test@pgsql/db_test?serverVersion=18" ;;
@@ -70,7 +70,6 @@ TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 declare -A RESULTS
-declare -A FIRST_BOOT
 
 CPUS="$(nproc 2>/dev/null || echo '?')"
 # free(1) is not installed in every container, /proc/meminfo always is
@@ -147,9 +146,7 @@ for platform in $PLATFORMS; do
         fi
 
         median="$(sed -n 's/.*"medianMs": \([0-9.]*\).*/\1/p' "$out")"
-        first="$(sed -n 's/.*"firstBootMs": \([0-9.]*\).*/\1/p' "$out")"
         RESULTS["$platform|$label"]="$median"
-        FIRST_BOOT["$platform|$label"]="$first"
         echo "${median} ms"
     done
 done
