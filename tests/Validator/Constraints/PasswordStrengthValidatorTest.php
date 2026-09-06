@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;

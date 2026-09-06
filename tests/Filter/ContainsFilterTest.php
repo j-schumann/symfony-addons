@@ -2,8 +2,6 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;

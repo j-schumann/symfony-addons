@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Tests\Workflow;
 
 use Psr\EventDispatcher\EventDispatcherInterface;

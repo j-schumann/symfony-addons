@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\PHPUnit;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;

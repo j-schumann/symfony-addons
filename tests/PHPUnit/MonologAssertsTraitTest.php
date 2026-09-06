@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
 use Monolog\Handler\TestHandler;

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Doctrine;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;

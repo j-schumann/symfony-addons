@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraints\Regex;

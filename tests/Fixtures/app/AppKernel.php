@@ -2,8 +2,6 @@
 
 /** @noinspection PhpIllegalPsrClassPathInspection */
 
-declare(strict_types=1);
-
 use ApiPlatform\Symfony\Bundle\ApiPlatformBundle;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle;
