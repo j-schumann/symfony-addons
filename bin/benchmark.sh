@@ -122,6 +122,10 @@ for platform in $PLATFORMS; do
 
         if [ "$status" -ne 0 ]; then
             echo "FAILED"
+            # The exception is what tells us why, and PHPUnit prints it well above
+            # the summary, so pick it out rather than just tailing the output.
+            grep -aiE 'exception|sqlstate|error:|\[Microsoft\]' "$TMP_DIR/log" \
+                | head -5 | sed 's/^/      /'
             tail -5 "$TMP_DIR/log" | sed 's/^/      /'
             RESULTS["$platform|$label"]="failed"
             continue
