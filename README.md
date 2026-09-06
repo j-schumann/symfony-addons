@@ -477,77 +477,36 @@ Optionally define which fixtures to use for this test class:
 ```
 
 Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values are _purge_,
-_dropSchema_ and _dropDatabase_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
+_dropSchema_ and _dropDatabase_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.  
+Suggested method is _purge_ for all database platforms, see benchmark below. Results may vary
+depending on your DB schema and/or server setup, so check if different settings work better for you.
 
-**Use _purge_** unless a test needs a genuinely fresh schema. The other two exist for that case, not
-as a speedup: per booted kernel _purge_ only empties the tables and resets the identities, where
-both others drop and recreate the whole schema.
+On MySQL/MariaDB you can switch the _purge_ method, by setting the ENV `DB_PURGE_MODE` to _delete_
+(the default) or _truncate_. For details the the trait class. This setting has no effect on the other
+platforms.
 
-With the cleanup method _purge_, the ENV `DB_PURGE_MODE` selects how the tables are emptied on
-MySQL/MariaDB. Allowed values are _delete_ (the default) and _truncate_:
+#### Benchmark
 
-* _delete_ empties the tables with `DELETE` and resets the auto-increment counters afterwards.
-* _truncate_ empties them with `TRUNCATE`, which resets the counters by itself.
+The numbers below come from the _Refresh Benchmark_ CI workflow (see `bin/benchmark.sh`):  
+Median milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted `ubuntu-latest`
+runner (**4 CPU, 15 GB RAM**), against this package's own 14 entity test schema.
 
-On InnoDB, `TRUNCATE` is a DDL operation that drops and recreates the tablespace file of every
-table, for every test, where `DELETE` only removes the rows a test actually created — but makes the
-identity reset necessary. Which of the two is faster depends on the engine and on the schema, and it
-does not come out the same everywhere: measured, _delete_ wins clearly on MySQL and loses clearly on
-MariaDB, see the table below. Prefer _truncate_ also for tests that insert very large datasets
-before the cleanup, as `DELETE` is O(rows) where `TRUNCATE` is O(1).
+| platform        | purge delete<br>disk | purge delete<br>tmpfs | purge truncate<br>disk | purge truncate<br>tmpfs | dropSchema<br>disk | dropSchema<br>tmpfs | dropDatabase<br>disk | dropDatabase<br>tmpfs |
+|-----------------|---------------------:|----------------------:|-----------------------:|------------------------:|-------------------:|--------------------:|---------------------:|----------------------:|
+| SQLite          |                 53.1 |                   7.5 |                   53.5 |                     7.3 |              153.9 |                19.7 |                 64.9 |                  12.0 |
+| MariaDB 12      |                107.4 |                  12.1 |               **54.8** |                    13.1 |              412.2 |                37.5 |                376.5 |                  25.9 |
+| MySQL 9         |            **121.0** |                  23.4 |                  309.4 |                    25.1 |              753.2 |                77.3 |                521.6 |                  61.9 |
+| PostgreSQL 18   |             **31.5** |                  23.3 |                   39.5 |                    23.5 |              162.9 |                68.3 |                186.1 |                  78.5 |
+| SQL Server 2022 |                 43.1 |                  16.0 |                   37.0 |                    16.1 |              312.2 |               120.2 |               > 3000 |                > 3000 |
 
-The setting has no effect on the other platforms: SQLServer cannot `TRUNCATE` tables that are
-referenced by a foreign key and always uses `DELETE`, PostgreSQL and SQLite have no expensive
-`TRUNCATE` to avoid.
+Every value is milliseconds per refresh. `> 3000` means the cell hit the benchmark's limit of 600 s.
 
-Emptying a table does not reset its identity generator on every platform (only a `TRUNCATE` on
-MySQL/MariaDB does), so the purge resets them itself, for every table the mapping declares with an
-`IDENTITY` generator. Records created in a test therefore always receive the same IDs, on every
-platform.
-
-Both ENV variables reject unknown values with an `InvalidArgumentException` instead of silently
-falling back to the default.
-
-Please note that the ENV variables are read from `$_ENV`, so they have to be set with `<env
-name="DB_CLEANUP_METHOD" value="purge"/>` in your _phpunit.xml.dist_, a `<server .../>` element is
-silently ignored. Also, without `force="true"` an `<env>` element does not overwrite a variable that
-is already set in the real environment.
-
-#### Measurements
-
-`bin/benchmark.sh` measures what one `bootKernel()` costs for every combination of platform and
-cleanup method, and the _Refresh Benchmark_ workflow runs it in CI. The numbers below come from that
-workflow: median milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted
-`ubuntu-latest` runner (**4 CPU, 15 GB RAM**), against this package's own 14 entity test schema. The
-first boot of each cell is excluded, as it also creates the database and the schema.
-
-| platform | purge delete<br>disk | purge delete<br>tmpfs | purge truncate<br>disk | purge truncate<br>tmpfs | dropSchema<br>disk | dropSchema<br>tmpfs | dropDatabase<br>disk | dropDatabase<br>tmpfs |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| SQLite | 53.1 | 7.5 | 53.5 | 7.3 | 153.9 | 19.7 | 64.9 | 12.0 |
-| MariaDB 12 | 107.4 | 12.1 | **54.8** | 13.1 | 412.2 | 37.5 | 376.5 | 25.9 |
-| MySQL 9 | **121.0** | 23.4 | 309.4 | 25.1 | 753.2 | 77.3 | 521.6 | 61.9 |
-| PostgreSQL 18 | **31.5** | 23.3 | 39.5 | 23.5 | 162.9 | 68.3 | 186.1 | 78.5 |
-| SQL Server 2022 | 43.1 | 16.0 | 37.0 | 16.1 | 312.2 | 120.2 | > 3000 | > 3000 |
-
-Every value is milliseconds per refresh. `> 3000` means the cell hit the benchmark's limit of 600 s
-per cell: 200 boots did not finish in that time, which is more than 3000 ms per refresh. That is the
-measurement, not a missing one.
-
-Three things to take from this:
-
-* _purge_ is the cheapest method everywhere, usually by a factor of three to ten. The other two
-  exist for tests that need a genuinely fresh schema, not as a speedup. Which of the two is second
-  is not a given: `dropDatabase` beats `dropSchema` on MySQL and MariaDB and loses to it on
-  PostgreSQL and SQLite.
-* Putting the database on tmpfs is worth far more than the choice of cleanup method — 4 to 9 times
-  on disk-bound platforms. See below.
-* `DB_PURGE_MODE` is not a one-way street. On MySQL, `delete` is 2.5x faster than `truncate`; on
-  MariaDB it is the other way round, because MariaDB's `TRUNCATE` is roughly four times cheaper per
-  table than MySQL's while the identity reset that `delete` requires costs the same on both.
-
-How much any of this is worth depends on how many of your tests boot the kernel and on how large
-your schema is: `dropSchema` and `dropDatabase` scale with the number of tables and indices, `purge`
-with the number of tables alone.
+* DB_CLEANUP_METHOD=purge is usually the cheapest method everywhere, the DB_PURGE_MODE then varies
+* Putting the database on tmpfs is worth far more than the choice of cleanup method. Other optimizations
+* Using further optimizations like `--innodb-doublewrite=OFF --innodb-flush-log-at-trx-commit=2 --skip-log-bin`
+  for MySQL/MariaDB, `-c fsync=off -c synchronous_commit=off -c full_page_writes=off`for PostgreSQL
+  or `ALTER DATABASE model SET DELAYED_DURABILITY = FORCED` for SQL Server produce no better results
+  or perform even worse, so check before using them
 
 #### Running the databases on tmpfs
 
@@ -561,20 +520,17 @@ services:
   mysql:
     image: mysql:9
     tmpfs:
-      - /var/lib/mysql:rw,size=1g
+      - /var/lib/mysql:rw,size=2g
 
   mariadb:
     image: mariadb:12
     tmpfs:
-      - /var/lib/mysql:rw,size=1g
+      - /var/lib/mysql:rw,size=2g
 
   postgres:
     image: postgres:18
     tmpfs:
-      # note the version in the path, postgres:18 does not use
-      # /var/lib/postgresql/data any more. Mounting the wrong path succeeds and
-      # silently leaves the database on disk.
-      - /var/lib/postgresql/18/docker:rw,size=1g
+      - /var/lib/postgresql/18/docker:rw,size=2g
 
   mssql:
     image: kcollins/mssql:latest
@@ -593,7 +549,7 @@ create`, so `--tmpfs` belongs there:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: db_test
         options: >-
-          --tmpfs /var/lib/mysql:rw,size=1g
+          --tmpfs /var/lib/mysql:rw,size=2g
           --health-cmd="mysqladmin ping"
           --health-interval=10s
           --health-timeout=5s
@@ -604,14 +560,6 @@ create`, so `--tmpfs` belongs there:
 
 For SQLite, point the DSN at a tmpfs path instead, e.g. `sqlite:////dev/shm/test.db` — four slashes,
 three would make the path relative.
-
-**Relaxing durability on top of this buys nothing.** Turning off the safety guarantees is the usual
-next step, and it was measured: `--innodb-doublewrite=OFF --innodb-flush-log-at-trx-commit=2
---skip-log-bin` for MySQL/MariaDB, `-c fsync=off -c synchronous_commit=off -c full_page_writes=off`
-for PostgreSQL, and `ALTER DATABASE model SET DELAYED_DURABILITY = FORCED` for SQL Server. On tmpfs
-every one of those was flat or slightly slower than leaving the defaults alone, PostgreSQL by about
-a quarter — once the data directory is in RAM there is no disk write left for them to skip. Save the
-configuration and keep the defaults.
 
 ### Using the MonologAssertsTrait
 

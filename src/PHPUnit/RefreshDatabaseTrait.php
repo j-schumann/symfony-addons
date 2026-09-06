@@ -31,29 +31,12 @@ use Symfony\Component\HttpKernel\KernelInterface;
  * "purge" will update the DB schema once and afterward only purges all tables, may require
  * Vrok\DoctrineAddons\DBAL\Platforms\PostgreSQLTestPlatform to cascade the purge. On SQLServer the
  * tables are always emptied with DELETE, as TRUNCATE does not work there with foreign keys; on
- * MySQL/MariaDB DELETE is only the default and DB_PURGE_MODE switches back to TRUNCATE. Emptying a
- * table does not reset its identity generator on every platform, so this is done separately on all
- * of them, see resetIdentities()
+ * MySQL/MariaDB DELETE is only the default and DB_PURGE_MODE switches back to TRUNCATE.
  *
  * "dropSchema" will drop all tables (and indices) and recreate them before each test, use this when
  * a test requires a genuinely fresh schema.
  *
  * "dropDatabase" will drop the entire database and recreate it before each test.
- *
- * Per booted kernel "purge" only empties the tables, where both others drop and recreate the whole
- * schema, so it is the one to use unless a test really needs a fresh schema. See the README for
- * measurements and for when the difference matters.
- *
- * With the cleanup method "purge", the ENV DB_PURGE_MODE selects how the tables are emptied on
- * MySQL/MariaDB, "delete" (the default) or "truncate". On InnoDB, TRUNCATE is a DDL operation that
- * drops and recreates the tablespace file of every table, for every test, where DELETE is DML and
- * only has to remove the rows a test created. Which of the two wins is not a given though: it
- * depends on how expensive TRUNCATE is on the engine, on how many tables have an identity that
- * DELETE makes us reset, and on how many rows a test leaves behind, as DELETE is O(rows) where
- * TRUNCATE is O(1). It measures clearly in favour of "delete" on MySQL and clearly against it on
- * MariaDB, see the README. The setting has no effect on other platforms: SQLServer cannot TRUNCATE
- * tables that are referenced by a foreign key, PostgreSQL and SQLite have no expensive TRUNCATE to
- * avoid.
  */
 trait RefreshDatabaseTrait
 {
@@ -174,9 +157,7 @@ trait RefreshDatabaseTrait
                 // RESTART IDENTITY, SQLite empties the tables with DELETE whatever the purge mode
                 // says, and where we purged with DELETE there was no TRUNCATE to reset anything.
                 // So everywhere else we do it ourselves, as tests may rely on the generated IDs
-                // (e.g. when asserting on IRIs like /items/1). It has to happen here, after the
-                // purge and before the fixtures are loaded: ALTER TABLE is DDL and triggers MySQLs
-                // implicit commit, it must not run within a transaction.
+                // (e.g. when asserting on IRIs like /items/1).
                 $purgeResetIdentities = $isMysql && !$purgeWithDelete;
                 if (!$purgeResetIdentities) {
                     static::resetIdentities($entityManager, $platform);
