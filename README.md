@@ -56,28 +56,28 @@ config/services.yaml:
 Works like Symfony's own AtLeastOneOf constraint, but instead of returning a message like
 `This value should satisfy at least ...` it returns the message of the last failed validation.
 Can be used for obviously optional form fields where only simple messages should be
-displayed when `AtLeastOne` is used with `Blank` as first constraint.  
-See `AtLeastOneOfValidatorTest` for examples. 
+displayed when `AtLeastOne` is used with `Blank` as first constraint.
+See `AtLeastOneOfValidatorTest` for examples.
 
 ### NoHtml
-This validator tries to detect if a string contains HTML, to allow only plain text.  
+This validator tries to detect if a string contains HTML, to allow only plain text.
 See `NoHtmlValidatorTest` for examples of allowed / forbidden values.
 
 ### NoLineBreak
-This validator raises a violation if it detects one or more linebreak characters in 
-the validated string.  
+This validator raises a violation if it detects one or more linebreak characters in
+the validated string.
 Detects unicode linebreaks, see `NoLineBreaksValidatorTest` for details.
 
 ### NoSurroundingWhitespace
 This validator raises a violation if it detects trailing or leading whitespace or
-newline characters in the validated string. Linebreaks and spaces are valid within the string.  
-Uses a regex looking for `\s` and `\R`, see `NoSurroundingWhitespaceValidatorTest` 
+newline characters in the validated string. Linebreaks and spaces are valid within the string.
+Uses a regex looking for `\s` and `\R`, see `NoSurroundingWhitespaceValidatorTest`
 for details on detected characters.
 
 ### PasswordStrength
 This validator evaluates the strength of a given password string by determining its entropy
 instead of requireing something like "must contain at least one uppercase & one digit
-& one special char".  
+& one special char".
 Allows to set a `minStrength` to vary the requirements.
 See `Vrok\SymfonyAddons\Helper\PasswordStrength` for details on the calculation.
 
@@ -152,7 +152,7 @@ class AuthApiTest extends ApiPlatformTestCase
 <tr>
 <td>uri</td>
 <td>
- the URI / endpoint to call
+the URI / endpoint to call
 </td>
 <td>
 
@@ -180,7 +180,7 @@ from the database, determine its IRI, which is then used as URI for the request
 <td>email</td>
 <td>
 if given, tries to find a User with that email and sends
-the request authenticated as this user with lexikJWT bundle 
+the request authenticated as this user with lexikJWT bundle
 </td>
 <td>
 
@@ -318,7 +318,7 @@ asserts that the returned content is JSON and contains the given array as subset
 <tr>
 <td>requiredKeys</td>
 <td>
-asserts the dataset contains the list of keys. Used for elements where the value 
+asserts the dataset contains the list of keys. Used for elements where the value
 is not known in advance, e.g. ID, slug, timestamps. Can be nested.
 </td>
 <td>
@@ -408,7 +408,7 @@ asserts this number of messages to be dispatched to the message bus
 <tr>
 <td>dispatchedMessages</td>
 <td>
-Array of message classes, asserts that at least one instance of each given class 
+Array of message classes, asserts that at least one instance of each given class
 has been dispatched to the message bus. An Element can also be an array of
 [FQCN, callable], in that case the callback is called for each matching message
 with that message as first parameter and the JSON response as second parameter,
@@ -491,7 +491,8 @@ Optionally define which fixtures to use for this test class:
 ```
 
 Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values
-are _purge_, _dropSchema_ and _dropDatabase_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
+are _purge_, _dropSchema_ and _dropDatabase_, for more details see
+`RefreshDatabaseTrait::$cleanupMethod`.
 
 **Use _purge_** unless a test needs a genuinely fresh schema. The other two exist for that
 case, not as a speedup: per booted kernel _purge_ only empties the tables and resets the
@@ -536,37 +537,29 @@ boots per cell, on a GitHub-hosted `ubuntu-latest` runner (**4 CPU, 15 GB RAM**)
 this package's own 14 entity test schema. The first boot of each cell is excluded, as it
 also creates the database and the schema.
 
-| platform | purge (delete) | purge (truncate) | dropSchema | dropDatabase |
-| --- | ---: | ---: | ---: | ---: |
-| **on disk** | | | | |
-| SQLite | 53.1 | 53.5 | 153.9 | 64.9 |
-| MariaDB 12 | 107.4 | **54.8** | 412.2 | 376.5 |
-| MySQL 9 | **121.0** | 309.4 | 753.2 | 521.6 |
-| PostgreSQL 18 | **31.5** | 39.5 | 162.9 | 186.1 |
-| SQL Server 2022 | 43.1 | 37.0 | 312.2 | see below |
-| **on tmpfs** | | | | |
-| SQLite | 7.5 | 7.3 | 19.7 | 12.0 |
-| MariaDB 12 | **12.1** | 13.1 | 37.5 | 25.9 |
-| MySQL 9 | **23.4** | 25.1 | 77.3 | 61.9 |
-| PostgreSQL 18 | **23.3** | 23.5 | 68.3 | 78.5 |
-| SQL Server 2022 | **16.0** | 16.1 | 120.2 | see below |
+| platform | purge delete<br>disk | purge delete<br>tmpfs | purge truncate<br>disk | purge truncate<br>tmpfs | dropSchema<br>disk | dropSchema<br>tmpfs | dropDatabase<br>disk | dropDatabase<br>tmpfs |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| SQLite | 53.1 | 7.5 | 53.5 | 7.3 | 153.9 | 19.7 | 64.9 | 12.0 |
+| MariaDB 12 | 107.4 | 12.1 | **54.8** | 13.1 | 412.2 | 37.5 | 376.5 | 25.9 |
+| MySQL 9 | **121.0** | 23.4 | 309.4 | 25.1 | 753.2 | 77.3 | 521.6 | 61.9 |
+| PostgreSQL 18 | **31.5** | 23.3 | 39.5 | 23.5 | 162.9 | 68.3 | 186.1 | 78.5 |
+| SQL Server 2022 | 43.1 | 16.0 | 37.0 | 16.1 | 312.2 | 120.2 | > 3000 | > 3000 |
 
-`dropDatabase` on SQL Server is not in the table: it needs more than 600 seconds for 200
-boots, so more than 3 seconds per test, and the benchmark gives up on a cell at that point.
-That is the measurement.
+Every value is milliseconds per refresh. `> 3000` means the cell hit the benchmark's limit
+of 600 s per cell: 200 boots did not finish in that time, which is more than 3000 ms per
+refresh. That is the measurement, not a missing one.
 
 Three things to take from this:
 
-* _purge_ is the cheapest method everywhere, usually by a factor of three to ten. The other
-  two exist for tests that need a genuinely fresh schema, not as a speedup. Which of the
-  two is second is not a given: `dropDatabase` beats `dropSchema` on MySQL and MariaDB and
-  loses to it on PostgreSQL and SQLite.
-* Putting the database on tmpfs is worth far more than the choice of cleanup method — 4 to
-  9 times on disk-bound platforms. See below.
-* `DB_PURGE_MODE` is not a one-way street. On MySQL, `delete` is 2.5x faster than
-  `truncate`; on MariaDB it is the other way round, because MariaDB's `TRUNCATE` is roughly
-  four times cheaper per table than MySQL's while the identity reset that `delete` requires
-  costs the same on both.
+* _purge_ is the cheapest method everywhere, usually by a factor of three to ten. The other two
+  exist for tests that need a genuinely fresh schema, not as a speedup. Which of the two is second
+  is not a given: `dropDatabase` beats `dropSchema` on MySQL and MariaDB and loses to it on
+  PostgreSQL and SQLite.
+* Putting the database on tmpfs is worth far more than the choice of cleanup method — 4 to 9 times
+  on disk-bound platforms. See below.
+* `DB_PURGE_MODE` is not a one-way street. On MySQL, `delete` is 2.5x faster than `truncate`; on
+  MariaDB it is the other way round, because MariaDB's `TRUNCATE` is roughly four times cheaper per
+  table than MySQL's while the identity reset that `delete` requires costs the same on both.
 
 How much any of this is worth depends on how many of your tests boot the kernel and on how
 large your schema is: `dropSchema` and `dropDatabase` scale with the number of tables and
@@ -639,7 +632,7 @@ Save the configuration and keep the defaults.
 
 ### Using the MonologAssertsTrait
 
-For use with an Symfony project using the monolog-bundle.  
+For use with an Symfony project using the monolog-bundle.
 Requires `monolog/monolog` of v3.0 or higher.
 
 Include the trait in your testcase and call `prepareLogger` before triggering the
@@ -673,7 +666,7 @@ Require `symfony/workflow`.
 
 ### PropertyMarkingStore
 
-Can be used instead of the default `MethodMarkingStore`, for entities 
+Can be used instead of the default `MethodMarkingStore`, for entities
 & properties without Setter/Getter.
 
 workflow.yaml:
@@ -874,8 +867,8 @@ registers the new extension:
 
 ### FormatBytes
 
-Converts bytes to human-readable notation (supports up to TiB).  
-This extension is auto-registered.  
+Converts bytes to human-readable notation (supports up to TiB).
+This extension is auto-registered.
 In your Twig template:
 ```
   {{ attachment.filesize|formatBytes }}
@@ -889,7 +882,7 @@ This Rector allows migrating function calls that previously used an array of
 options (like `ApiPlatformTestCase#testOperation`) to use named arguments instead.
 
 This can be configured to target static functions, static class methods or instance
-methods.  
+methods.
 Example for the `rector.php`:
 ```php
 use Vrok\SymfonyAddons\Rector\NamedArgumentsFromArrayRector;
@@ -931,7 +924,7 @@ Attention: This Rector is not yet unit-tested, please report any bugs you find!
 
 This Fixer for php-cs-fixer allows wrapping long lines of function calls with
 named arguments to contain one argument per line, respecting multiline argument
-values like arrays.  
+values like arrays.
 This can be used to improve readability, e.g. after using the `NamedArgumentsFromArrayRector`
 which puts multiple arguments on the same line.
 
@@ -978,7 +971,7 @@ $this->testOperation(
 
 Attention: Formatting (indentation) is only fixed after the arguments were wrapped,
 by your specification of `method_argument_space` and `array_indentation` (or rulesets
-containing those, like `@Symfony`).  
+containing those, like `@Symfony`).
 This fixer is not yet unit-tested, please report any bugs you find!
 
 ## Developer Doc
@@ -992,7 +985,8 @@ This fixer is not yet unit-tested, please report any bugs you find!
 * _symfony/browser-kit_ is required for tests of the MultipartDecoder
 * _symfony/mailer_ is required for tests of the AutoSenderSubscriber
 * _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
-* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and ResetLoggerSubscriber
+* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and
+  ResetLoggerSubscriber
 * _symfony/string_ is required for API Platform's inflector
 * _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
 * _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore
