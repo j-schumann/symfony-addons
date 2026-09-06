@@ -104,7 +104,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     public function testUnknownCleanupMethodFails(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unknown DB_CLEANUP_METHOD "unknownMethod", allowed values are "purge", "dropSchema", "dropDatabase".');
+        $this->expectExceptionMessage("Unknown DB_CLEANUP_METHOD 'unknownMethod', allowed values are: purge, dropSchema, dropDatabase");
 
         self::bootKernel();
     }
@@ -114,7 +114,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     public function testUnknownPurgeModeFails(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unknown DB_PURGE_MODE "unknownMode", allowed values are "delete", "truncate".');
+        $this->expectExceptionMessage("Unknown DB_PURGE_MODE 'unknownMode', allowed values are: delete, truncate");
 
         self::bootKernel();
     }

@@ -103,8 +103,8 @@ trait RefreshDatabaseTrait
         $cleanupMethod = $_ENV['DB_CLEANUP_METHOD'] ?? 'purge';
         if (!\is_string($cleanupMethod) || !\in_array($cleanupMethod, self::CLEANUP_METHODS, true)) {
             $given = \is_string($cleanupMethod) ? $cleanupMethod : get_debug_type($cleanupMethod);
-            $allowed = implode('", "', self::CLEANUP_METHODS);
-            throw new \InvalidArgumentException("Unknown DB_CLEANUP_METHOD \"$given\", allowed values are \"$allowed\".");
+            $allowed = implode(', ', self::CLEANUP_METHODS);
+            throw new \InvalidArgumentException("Unknown DB_CLEANUP_METHOD '$given', allowed values are: $allowed");
         }
 
         switch ($cleanupMethod) {
@@ -137,8 +137,8 @@ trait RefreshDatabaseTrait
                 $purgeMode = $_ENV['DB_PURGE_MODE'] ?? 'delete';
                 if (!\is_string($purgeMode) || !\in_array($purgeMode, self::PURGE_MODES, true)) {
                     $given = \is_string($purgeMode) ? $purgeMode : get_debug_type($purgeMode);
-                    $allowed = implode('", "', self::PURGE_MODES);
-                    throw new \InvalidArgumentException("Unknown DB_PURGE_MODE \"$given\", allowed values are \"$allowed\".");
+                    $allowed = implode(', ', self::PURGE_MODES);
+                    throw new \InvalidArgumentException("Unknown DB_PURGE_MODE '$given', allowed values are: $allowed");
                 }
 
                 // In MySQL/MariaDB we need to disable foreign key checks, as the automatic table
@@ -169,13 +169,16 @@ trait RefreshDatabaseTrait
                 // because he does not check if a transaction is still open before calling commit().
                 $executor->purge();
 
-                // Emptying the tables does not necessarily reset their identity generators, but
-                // tests may rely on the generated IDs (e.g. when asserting on IRIs like /items/1),
-                // so we reset them ourselves. Only a TRUNCATE on MySQL/MariaDB does it for us. This
-                // has to happen here, after the purge and before the fixtures are loaded: ALTER
-                // TABLE is DDL and triggers MySQLs implicit commit, it must not run within a
-                // transaction.
-                if (!$isMysql || $purgeWithDelete) {
+                // A TRUNCATE on MySQL/MariaDB is the only purge that resets the identity
+                // generators for us. PostgreSQL keeps its sequences unless the TRUNCATE says
+                // RESTART IDENTITY, SQLite empties the tables with DELETE whatever the purge mode
+                // says, and where we purged with DELETE there was no TRUNCATE to reset anything.
+                // So everywhere else we do it ourselves, as tests may rely on the generated IDs
+                // (e.g. when asserting on IRIs like /items/1). It has to happen here, after the
+                // purge and before the fixtures are loaded: ALTER TABLE is DDL and triggers MySQLs
+                // implicit commit, it must not run within a transaction.
+                $purgeResetIdentities = $isMysql && !$purgeWithDelete;
+                if (!$purgeResetIdentities) {
                     static::resetIdentities($entityManager, $platform);
                 }
 
