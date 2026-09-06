@@ -19,17 +19,24 @@
 #
 # Environment:
 #   BENCH_PLATFORMS   space separated subset of the platforms below
-#   BENCH_ITERATIONS  kernel boots per cell (default 50)
+#   BENCH_ITERATIONS  kernel boots per cell (default 200)
 #   BENCH_STORAGE     label for the report only, e.g. "disk" or "tmpfs"
 #   BENCH_REPORT      file to append the markdown report to
+#   BENCH_MAX_CELL_SECONDS  give up on a cell after this long (default 200)
 #   DATABASE_URL_<PLATFORM>  overrides the built-in DSN for that platform
 
 set -u -o pipefail
 
-ITERATIONS="${BENCH_ITERATIONS:-50}"
+ITERATIONS="${BENCH_ITERATIONS:-200}"
 STORAGE="${BENCH_STORAGE:-disk}"
 REPORT="${BENCH_REPORT:-}"
 PLATFORMS="${BENCH_PLATFORMS:-sqlite mariadb mysql postgres sqlsrv}"
+
+# The slowest combinations (dropDatabase on SQL Server, for example) take minutes
+# per boot, so a full matrix would outlive the CI job before reaching the cells we
+# actually care about. Cap each cell instead of the run, so one slow combination
+# only costs its own column.
+MAX_CELL_SECONDS="${BENCH_MAX_CELL_SECONDS:-200}"
 
 # The cleanup methods, as "<label>|<DB_CLEANUP_METHOD>|<DB_PURGE_MODE>". The purge
 # mode only has an effect on MySQL/MariaDB, on the other platforms both purge
@@ -93,15 +100,27 @@ for platform in $PLATFORMS; do
         # from the real environment when variables_order contains an "E". The
         # php.ini default is "GPCS", so without this the settings below would be
         # silently ignored and every cell would measure the default instead.
-        if ! DATABASE_URL="$dsn" \
+        DATABASE_URL="$dsn" \
             DB_CLEANUP_METHOD="$method" \
             DB_PURGE_MODE="$purge_mode" \
             BENCH_PLATFORM="$platform" \
             BENCH_ITERATIONS="$ITERATIONS" \
             BENCH_OUTPUT="$out" \
+            timeout "$MAX_CELL_SECONDS" \
             "${BENCH_PHP:-php}" -d variables_order=EGPCS \
             vendor/bin/phpunit --group benchmark --no-output > "$TMP_DIR/log" 2>&1
-        then
+        status=$?
+
+        # 124 is how "timeout" reports that it had to kill the run. That is a
+        # measurement we did not get, not a broken setup, so the matrix keeps
+        # going and the cell says so.
+        if [ "$status" -eq 124 ]; then
+            echo "skipped (>${MAX_CELL_SECONDS}s)"
+            RESULTS["$platform|$label"]="skipped"
+            continue
+        fi
+
+        if [ "$status" -ne 0 ]; then
             echo "FAILED"
             tail -5 "$TMP_DIR/log" | sed 's/^/      /'
             RESULTS["$platform|$label"]="failed"
@@ -153,7 +172,8 @@ emit() {
     echo
     echo "The first boot of a process also creates the database and the schema and is"
     echo "excluded from the median; on the fastest cells it costs more than all the"
-    echo "other boots together."
+    echo "other boots together. A cell reads \"skipped\" when it did not finish within"
+    echo "${MAX_CELL_SECONDS}s, which already tells you it is far off the pace."
 }
 
 emit

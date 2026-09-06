@@ -3,12 +3,20 @@ name: "Refresh Benchmark"
 # Manual only: this measures, it does not gate anything, and a full matrix takes
 # several minutes of runner time.
 on:
+  # workflow_dispatch alone is not enough while this lives on a probe branch:
+  # GitHub only offers the manual trigger for workflows that exist on the
+  # default branch. The push trigger below makes the workflow reachable from the
+  # probe branch and should be dropped once this is merged.
+  push:
+    branches:
+      - "probe/**"
+
   workflow_dispatch:
     inputs:
       iterations:
         description: "Kernel boots per cell"
         required: false
-        default: "50"
+        default: "200"
       storage:
         description: "Database storage to measure"
         required: false
@@ -16,19 +24,25 @@ on:
         type: choice
         options:
           - both
+          - all
           - disk
           - tmpfs
+          - tuned
 
 permissions:
   contents: read
 
 jobs:
-  # The two jobs differ only in the service "options": GitHub passes them to
-  # "docker create", so --tmpfs belongs there. They are duplicated rather than
-  # parameterised because service definitions cannot read the matrix context.
+  # The disk and tmpfs jobs differ only in the service "options": GitHub passes
+  # them to "docker create", so --tmpfs belongs there. They are duplicated rather
+  # than parameterised because service definitions cannot read the matrix context.
+  # The tuned job below cannot use "services" at all, see the comment there.
+  #
+  # "both" is disk + tmpfs, the comparison the report was originally about;
+  # "all" adds the tuned run on top.
   disk:
     name: Benchmark (disk)
-    if: ${{ inputs.storage == 'both' || inputs.storage == 'disk' }}
+    if: ${{ inputs.storage == '' || inputs.storage == 'both' || inputs.storage == 'all' || inputs.storage == 'disk' }}
     runs-on: ubuntu-latest
 
     services:
@@ -121,7 +135,7 @@ jobs:
 
   tmpfs:
     name: Benchmark (tmpfs)
-    if: ${{ inputs.storage == 'both' || inputs.storage == 'tmpfs' }}
+    if: ${{ inputs.storage == '' || inputs.storage == 'both' || inputs.storage == 'all' || inputs.storage == 'tmpfs' }}
     runs-on: ubuntu-latest
 
     services:
@@ -164,7 +178,7 @@ jobs:
           POSTGRES_USER: db_test
           POSTGRES_PASSWORD: db_test
         options: >-
-          --tmpfs /var/lib/postgresql/data:rw,size=1g
+          --tmpfs /var/lib/postgresql/18/docker:rw,size=1g
           --health-cmd="pg_isready"
           --health-interval=10s
           --health-timeout=5s
@@ -218,3 +232,158 @@ jobs:
           name: benchmark-tmpfs
           path: benchmark-tmpfs.md
           if-no-files-found: ignore
+
+  tuned:
+    name: Benchmark (tmpfs + tuned)
+    if: ${{ inputs.storage == '' || inputs.storage == 'all' || inputs.storage == 'tuned' }}
+    runs-on: ubuntu-latest
+
+    # Only SQL Server can stay a service container here. The three other servers
+    # need a command line to be tuned, and a "services" block has no way to pass
+    # one: GitHub maps "options" to "docker create" flags, and the command is an
+    # argument, not a flag. They are started by hand below instead, which is also
+    # the only place both --tmpfs and the command can be given together.
+    services:
+      mssql:
+        image: kcollins/mssql:latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
+          MSSQL_DATABASE: db_test
+        options: --tmpfs /var/opt/mssql/data:rw,size=2g
+        ports:
+          - 1433:1433
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # The ports match the service containers of the other two jobs, so the
+      # DATABASE_URL_* values below stay identical across all three.
+      - name: Start the tuned database servers
+        run: |
+          docker run -d --name bench-mariadb \
+            --tmpfs /var/lib/mysql:rw,size=1g \
+            -e MARIADB_ROOT_PASSWORD=root \
+            -e MARIADB_DATABASE=db_test \
+            -e MARIADB_USER=db_test \
+            -e MARIADB_PASSWORD=db_test \
+            -p 3307:3306 \
+            mariadb:12 \
+            --innodb-doublewrite=OFF \
+            --innodb-flush-log-at-trx-commit=2 \
+            --skip-log-bin \
+            --innodb-buffer-pool-size=1G
+
+          docker run -d --name bench-mysql \
+            --tmpfs /var/lib/mysql:rw,size=1g \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -e MYSQL_DATABASE=db_test \
+            -e MYSQL_USER=db_test \
+            -e MYSQL_PASSWORD=db_test \
+            -p 3306:3306 \
+            mysql:lts \
+            --innodb-doublewrite=OFF \
+            --innodb-flush-log-at-trx-commit=2 \
+            --skip-log-bin \
+            --innodb-buffer-pool-size=1G
+
+          # postgres:18 keeps its data in /var/lib/postgresql/18/docker, not in
+          # the /var/lib/postgresql/data of older images, so that is where the
+          # tmpfs has to go for it to have any effect.
+          docker run -d --name bench-postgres \
+            --tmpfs /var/lib/postgresql/18/docker:rw,size=1g \
+            -e POSTGRES_DB=db_test \
+            -e POSTGRES_USER=db_test \
+            -e POSTGRES_PASSWORD=db_test \
+            -p 5432:5432 \
+            postgres:18 \
+            postgres \
+            -c fsync=off \
+            -c synchronous_commit=off \
+            -c full_page_writes=off \
+            -c autovacuum=off \
+            -c wal_level=minimal \
+            -c max_wal_senders=0 \
+            -c checkpoint_timeout=30min \
+            -c max_wal_size=4GB \
+            -c shared_buffers=1GB
+
+      # Started by hand means unsupervised by hand: without the health checks a
+      # service container would have had, the benchmark would otherwise open its
+      # first connection before the server accepts one.
+      - name: Wait for the tuned servers
+        run: |
+          wait_for() {
+            local name="$1"; shift
+            for _ in $(seq 1 60); do
+              if docker exec "$name" "$@" > /dev/null 2>&1; then
+                echo "$name is ready"
+                return 0
+              fi
+              sleep 2
+            done
+            echo "$name never became ready"
+            docker logs "$name"
+            return 1
+          }
+
+          wait_for bench-mariadb mariadb-admin ping -uroot -proot
+          wait_for bench-mysql mysqladmin ping -uroot -proot
+          wait_for bench-postgres pg_isready -U db_test -d db_test
+
+      # The SQL Server counterpart of the settings above. It is a database
+      # setting rather than a server one, and applying it to "model" is what
+      # makes every database the benchmark creates inherit it.
+      - name: Relax SQL Server durability
+        env:
+          SA_PASSWORD: "StrongP-ssw0rd!"
+        run: |
+          mssql='${{ job.services.mssql.id }}'
+
+          for _ in $(seq 1 60); do
+            docker exec "$mssql" /opt/mssql-tools18/bin/sqlcmd \
+              -S localhost -U sa -P "$SA_PASSWORD" -C -Q "SELECT 1" > /dev/null 2>&1 && break
+            sleep 2
+          done
+
+          docker exec "$mssql" /opt/mssql-tools18/bin/sqlcmd \
+            -S localhost -U sa -P "$SA_PASSWORD" -C \
+            -Q "ALTER DATABASE model SET DELAYED_DURABILITY = FORCED;"
+
+      - name: Common PHP setup
+        uses: ./.github/actions/php-setup
+        with:
+          php: '8.4'
+          dependencies: highest
+
+      - name: Run benchmark
+        env:
+          BENCH_ITERATIONS: ${{ inputs.iterations }}
+          BENCH_STORAGE: tuned
+          BENCH_REPORT: ${{ github.workspace }}/benchmark-tuned.md
+          # /dev/shm is tmpfs on the runner, so SQLite gets the same treatment as
+          # the servers above
+          BENCH_SQLITE_PATH: /dev/shm/bench.db
+          DATABASE_URL_SQLITE: "sqlite:////dev/shm/bench.db"
+          DATABASE_URL_MARIADB: "mysql://db_test:db_test@127.0.0.1:3307/db_test?serverVersion=mariadb-12.0.0&charset=utf8mb4"
+          DATABASE_URL_MYSQL: "mysql://db_test:db_test@127.0.0.1:3306/db_test?serverVersion=9.0&charset=utf8mb4"
+          DATABASE_URL_POSTGRES: "pgsql://db_test:db_test@127.0.0.1:5432/db_test?serverVersion=18"
+          DATABASE_URL_SQLSRV: "sqlsrv://sa:StrongP-ssw0rd!@127.0.0.1:1433/db_test?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0"
+        run: bin/benchmark.sh
+
+      - name: Publish to the job summary
+        if: always()
+        run: cat benchmark-tuned.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-tuned
+          path: benchmark-tuned.md
+          if-no-files-found: ignore
+
+      - name: Stop the tuned database servers
+        if: always()
+        run: docker rm -f bench-mariadb bench-mysql bench-postgres || true
