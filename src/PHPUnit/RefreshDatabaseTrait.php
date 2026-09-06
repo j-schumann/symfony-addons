@@ -29,10 +29,11 @@ use Symfony\Component\HttpKernel\KernelInterface;
  * in phpunit.xml.dist).
  *
  * "purge" will update the DB schema once and afterward only purges all tables, may require
- * Vrok\DoctrineAddons\DBAL\Platforms\PostgreSQLTestPlatform to cascade the purge. On MySQL/MariaDB
- * and SQLServer the tables are emptied with DELETE instead of TRUNCATE, see DB_PURGE_MODE. Emptying
- * a table does not reset its identity generator on every platform, so this is done separately on
- * all of them, see resetIdentities()
+ * Vrok\DoctrineAddons\DBAL\Platforms\PostgreSQLTestPlatform to cascade the purge. On SQLServer the
+ * tables are always emptied with DELETE, as TRUNCATE does not work there with foreign keys; on
+ * MySQL/MariaDB DELETE is only the default and DB_PURGE_MODE switches back to TRUNCATE. Emptying a
+ * table does not reset its identity generator on every platform, so this is done separately on all
+ * of them, see resetIdentities()
  *
  * "dropSchema" will drop all tables (and indices) and recreate them before each test, use this when
  * a test requires a genuinely fresh schema.
@@ -44,13 +45,15 @@ use Symfony\Component\HttpKernel\KernelInterface;
  * measurements and for when the difference matters.
  *
  * With the cleanup method "purge", the ENV DB_PURGE_MODE selects how the tables are emptied on
- * MySQL/MariaDB. The default is "delete": on InnoDB, TRUNCATE is a DDL operation that drops and
- * recreates the tablespace file, which is paid once per table and per test and dominates the
- * runtime of a database-heavy test suite, while DELETE is DML and magnitudes cheaper. Set it to
- * "truncate" to restore the previous behavior, e.g. for tests that insert very large datasets
- * before the cleanup, as DELETE is O(rows) where TRUNCATE is O(1). The setting has no effect on
- * other platforms: SQLServer cannot TRUNCATE tables that are referenced by a foreign key,
- * PostgreSQL and SQLite have no expensive TRUNCATE to avoid.
+ * MySQL/MariaDB, "delete" (the default) or "truncate". On InnoDB, TRUNCATE is a DDL operation that
+ * drops and recreates the tablespace file of every table, for every test, where DELETE is DML and
+ * only has to remove the rows a test created. Which of the two wins is not a given though: it
+ * depends on how expensive TRUNCATE is on the engine, on how many tables have an identity that
+ * DELETE makes us reset, and on how many rows a test leaves behind, as DELETE is O(rows) where
+ * TRUNCATE is O(1). It measures clearly in favour of "delete" on MySQL and clearly against it on
+ * MariaDB, see the README. The setting has no effect on other platforms: SQLServer cannot TRUNCATE
+ * tables that are referenced by a foreign key, PostgreSQL and SQLite have no expensive TRUNCATE to
+ * avoid.
  */
 trait RefreshDatabaseTrait
 {
@@ -100,7 +103,8 @@ trait RefreshDatabaseTrait
         $cleanupMethod = $_ENV['DB_CLEANUP_METHOD'] ?? 'purge';
         if (!\is_string($cleanupMethod) || !\in_array($cleanupMethod, self::CLEANUP_METHODS, true)) {
             $given = \is_string($cleanupMethod) ? $cleanupMethod : get_debug_type($cleanupMethod);
-            throw new \InvalidArgumentException("Unknown DB_CLEANUP_METHOD \"$given\", allowed values are \"".implode('", "', self::CLEANUP_METHODS).'".');
+            $allowed = implode('", "', self::CLEANUP_METHODS);
+            throw new \InvalidArgumentException("Unknown DB_CLEANUP_METHOD \"$given\", allowed values are \"$allowed\".");
         }
 
         switch ($cleanupMethod) {
@@ -130,6 +134,12 @@ trait RefreshDatabaseTrait
                 $connection = $executor->getObjectManager()->getConnection();
                 $platform = $connection->getDatabasePlatform();
                 $isMysql = $platform instanceof MySQLPlatform || $platform instanceof MariaDBPlatform;
+                $purgeMode = $_ENV['DB_PURGE_MODE'] ?? 'delete';
+                if (!\is_string($purgeMode) || !\in_array($purgeMode, self::PURGE_MODES, true)) {
+                    $given = \is_string($purgeMode) ? $purgeMode : get_debug_type($purgeMode);
+                    $allowed = implode('", "', self::PURGE_MODES);
+                    throw new \InvalidArgumentException("Unknown DB_PURGE_MODE \"$given\", allowed values are \"$allowed\".");
+                }
 
                 // In MySQL/MariaDB we need to disable foreign key checks, as the automatic table
                 // ordering does not help us when we have self-referencing tables.
@@ -137,22 +147,15 @@ trait RefreshDatabaseTrait
                     $connection->executeStatement('SET FOREIGN_KEY_CHECKS = 0');
                 }
 
-                // In SQLServer, TRUNCATE does not work with foreign keys, also using "EXEC
-                // sp_MSforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'" does not help here. In
-                // MySQL/MariaDB, TRUNCATE is a DDL operation: InnoDB drops and recreates the
-                // tablespace file, for each table and each test, which is far more expensive than
-                // emptying the tables with DELETE (@see DB_PURGE_MODE above). So we switch to
-                // simple delete on both platforms, but this requires us to manually reset
-                // auto-increments afterward.
-                $purgeMode = $_ENV['DB_PURGE_MODE'] ?? 'delete';
-                if (!\is_string($purgeMode) || !\in_array($purgeMode, self::PURGE_MODES, true)) {
-                    $given = \is_string($purgeMode) ? $purgeMode : get_debug_type($purgeMode);
-                    throw new \InvalidArgumentException("Unknown DB_PURGE_MODE \"$given\", allowed values are \"".implode('", "', self::PURGE_MODES).'".');
-                }
-
+                // SQLServer has no choice: TRUNCATE does not work with foreign keys there, and
+                // "EXEC sp_MSforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'" does not help
+                // either. On MySQL/MariaDB it is a preference: TRUNCATE is a DDL operation, InnoDB
+                // drops and recreates the tablespace file for each table and each test, which is
+                // usually more expensive than emptying the tables with DELETE, so DELETE is the
+                // default and DB_PURGE_MODE=truncate opts out of it. Either way, DELETE keeps the
+                // auto-increment counters, so they have to be reset afterward.
                 $purgeWithDelete = $platform instanceof SQLServerPlatform
                     || ($isMysql && 'truncate' !== $purgeMode);
-
                 if ($purgeWithDelete) {
                     $executor->getPurger()->setPurgeMode(ORMPurger::PURGE_MODE_DELETE);
                 }
