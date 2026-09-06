@@ -172,7 +172,6 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
 
         $em = self::getContainer()->get('doctrine')->getManager();
         self::createOneOfEach($em);
-        $em->flush();
 
         foreach (self::countableClasses() as $class) {
             self::assertSame(1, $em->getRepository($class)->count(), $class);
@@ -187,9 +186,9 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     }
 
     /**
-     * The identity of every table has to restart at 1 after the purge, on every platform and for
-     * every class of an inheritance hierarchy. A JOINED child is the interesting case: it has its
-     * own table, but the counter it uses sits in the table of the root.
+     * The identity of every table has to be reset by the purge, on every platform and for every
+     * class of an inheritance hierarchy. A JOINED child is the interesting case: it has its own
+     * table, but the counter it uses sits in the table of the root.
      */
     #[Env('DB_CLEANUP_METHOD', 'purge')]
     public function testPurgeResetsIdentities(): void
@@ -199,33 +198,15 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
 
         // increase the counters first, a purge of tables that were never inserted into would be
         // trivial to pass
-        self::createOneOfEach($em);
-        $em->flush();
+        $first = self::generatedIds(self::createOneOfEach($em));
+        self::assertNotSame([], $first);
 
         self::bootKernel();
         $em = self::getContainer()->get('doctrine')->getManager();
 
-        $testEntity = new TestEntity();
-        $superclassChild = new SuperclassChildA();
-        $singleTableChild = new SingleTableChildB();
-        $joinedChild = new JoinedChildB();
-        $reservedWord = new ReservedWordEntity();
-        $selfReferencing = new SelfReferencingEntity();
+        $second = self::generatedIds(self::createOneOfEach($em));
 
-        $em->persist($testEntity);
-        $em->persist($superclassChild);
-        $em->persist($singleTableChild);
-        $em->persist($joinedChild);
-        $em->persist($reservedWord);
-        $em->persist($selfReferencing);
-        $em->flush();
-
-        self::assertSame(1, $testEntity->id);
-        self::assertSame(1, $superclassChild->id);
-        self::assertSame(1, $singleTableChild->id);
-        self::assertSame(1, $joinedChild->id);
-        self::assertSame(1, $reservedWord->id);
-        self::assertSame(1, $selfReferencing->id);
+        self::assertSame($first, $second);
     }
 
     /**
@@ -244,23 +225,15 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
             self::markTestSkipped('Only MySQL/MariaDB can fall back to TRUNCATE');
         }
 
-        self::createOneOfEach($em);
-        $em->flush();
+        $first = self::generatedIds(self::createOneOfEach($em));
+        self::assertNotSame([], $first);
 
         self::bootKernel();
         $em = self::getContainer()->get('doctrine')->getManager();
 
-        $superclassChild = new SuperclassChildA();
-        $singleTableChild = new SingleTableChildB();
-        $joinedChild = new JoinedChildB();
-        $em->persist($superclassChild);
-        $em->persist($singleTableChild);
-        $em->persist($joinedChild);
-        $em->flush();
+        $second = self::generatedIds(self::createOneOfEach($em));
 
-        self::assertSame(1, $superclassChild->id);
-        self::assertSame(1, $singleTableChild->id);
-        self::assertSame(1, $joinedChild->id);
+        self::assertSame($first, $second);
     }
 
     /**
@@ -283,7 +256,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
 
     /**
      * @return string[] entity classes of which exactly one record is created by
-     * createOneOfEach(), each of them backed by its own table
+     *                  createOneOfEach(), each of them backed by its own table
      */
     private static function countableClasses(): array
     {
@@ -303,36 +276,73 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
         ];
     }
 
-    private static function createOneOfEach(EntityManagerInterface $em): void
+    /**
+     * Creates and flushes one record of every mapped entity.
+     *
+     * @return array<string, object> the created records, keyed by a stable label
+     */
+    private static function createOneOfEach(EntityManagerInterface $em): array
     {
         $testEntity = new TestEntity();
-        $em->persist($testEntity);
 
         $child = new Child();
         $child->testEntity = $testEntity;
-        $em->persist($child);
-
-        $em->persist(new SuperclassChildA());
-        $em->persist(new SuperclassChildB());
-        $em->persist(new SingleTableChildA());
-        $em->persist(new SingleTableChildB());
-        $em->persist(new JoinedChildA());
-        $em->persist(new JoinedChildB());
-        $em->persist(new ReservedWordEntity());
 
         $assigned = new AssignedIdEntity();
         $assigned->id = '3f2504e0-4f89-11d3-9a0c-0305e82c3301';
-        $em->persist($assigned);
 
         $composite = new CompositeKeyEntity();
         $composite->keyPartOne = 'one';
         $composite->keyPartTwo = 'two';
-        $em->persist($composite);
 
         // a record referencing itself can only be purged with the foreign key checks disabled, no
         // table order helps here
         $selfReferencing = new SelfReferencingEntity();
         $selfReferencing->parent = $selfReferencing;
-        $em->persist($selfReferencing);
+
+        $records = [
+            'testEntity'        => $testEntity,
+            'child'             => $child,
+            'superclassChildA'  => new SuperclassChildA(),
+            'superclassChildB'  => new SuperclassChildB(),
+            'singleTableChildA' => new SingleTableChildA(),
+            'singleTableChildB' => new SingleTableChildB(),
+            'joinedChildA'      => new JoinedChildA(),
+            'joinedChildB'      => new JoinedChildB(),
+            'reservedWord'      => new ReservedWordEntity(),
+            'assignedId'        => $assigned,
+            'compositeKey'      => $composite,
+            'selfReferencing'   => $selfReferencing,
+        ];
+
+        foreach ($records as $record) {
+            $em->persist($record);
+        }
+        $em->flush();
+
+        return $records;
+    }
+
+    /**
+     * The generated IDs of the records above, for the entities that have one.
+     *
+     * Asserting that they are all 1 would be wrong: the children of an inheritance hierarchy share
+     * the identity of their root, so the second of them is 2. What the purge has to guarantee is
+     * that a test always sees the same IDs, so we compare two rounds instead of a fixed number.
+     *
+     * @param array<string, object> $records
+     *
+     * @return array<string, int>
+     */
+    private static function generatedIds(array $records): array
+    {
+        $ids = [];
+        foreach ($records as $label => $record) {
+            if (property_exists($record, 'id') && \is_int($record->id)) {
+                $ids[$label] = $record->id;
+            }
+        }
+
+        return $ids;
     }
 }
