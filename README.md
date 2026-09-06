@@ -493,6 +493,60 @@ Optionally define which fixtures to use for this test class:
 Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values
 are _purge_, _dropSchema_ and _dropDatabase_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
 
+**Use _purge_** unless a test needs a genuinely fresh schema. The other two exist for that
+case, not as a speedup: per booted kernel _purge_ only empties the tables and resets the
+identities, where both others drop and recreate the whole schema.
+
+Measured on two application test suites, each against a stock (untuned) database:
+
+| suite | `purge` | `dropSchema` | `dropDatabase` |
+| --- | --- | --- | --- |
+| PostgreSQL 18, 726 tests, `paratest -p2` | **20.4 s** | 36.4 s | 48.4 s |
+| MySQL 8.4, 995 tests, `paratest -p3` | **38.0 s** | 833.3 s | 761.7 s |
+
+(PostgreSQL is the mean of three runs, MySQL a single run per method. One suite per
+platform, so read the ordering rather than the ratios.)
+
+_purge_ wins by a wide margin on both platforms, but which of the other two is second is
+not a given: _dropDatabase_ beat _dropSchema_ on MySQL and lost to it on PostgreSQL. If you
+do need a fresh schema, measure both for your own schema rather than assuming an order.
+
+How much the choice is worth depends on how many tests boot the kernel and on how large the
+schema is: the cost of _dropSchema_ and _dropDatabase_ scales with the number of tables and
+indices, while _purge_ scales with the number of tables alone. On a small schema the three
+converge — this package's own test suite has two entities, and there all three methods are
+within measurement noise of each other.
+
+With the cleanup method _purge_, the ENV `DB_PURGE_MODE` selects how the tables are
+emptied on MySQL/MariaDB. Allowed values are _delete_ (default) and _truncate_:
+
+* _delete_ empties the tables with `DELETE` and resets the auto-increment counters
+  afterwards. On InnoDB, `TRUNCATE` is a DDL operation that drops and recreates the
+  tablespace file of each table, for each test, which can dominate the runtime of a
+  database-heavy test suite.
+* _truncate_ restores the previous behavior. Use it for tests that insert very large
+  datasets before the cleanup, as `DELETE` is O(rows) where `TRUNCATE` is O(1).
+
+Measured on a 995 test suite with `paratest -p3` against MySQL 8.4: 38.0 s with _delete_
+versus 325.9 s with _truncate_.
+
+The setting has no effect on other platforms: SQLServer cannot `TRUNCATE` tables that
+are referenced by a foreign key and always uses `DELETE`, PostgreSQL and SQLite have no
+expensive `TRUNCATE` to avoid.
+
+Emptying a table does not reset its identity generator on every platform (only a
+`TRUNCATE` on MySQL/MariaDB does), so the purge resets them itself, for every table the
+mapping declares with an `IDENTITY` generator. Records created in a test therefore
+always receive the same IDs, on every platform.
+
+Both ENV variables reject unknown values with an `InvalidArgumentException` instead of
+silently falling back to the default.
+
+Please note that the ENV variables are read from `$_ENV`, so they have to be set with
+`<env name="DB_CLEANUP_METHOD" value="purge"/>` in your _phpunit.xml.dist_, a
+`<server .../>` element is silently ignored. Also, without `force="true"` an `<env>`
+element does not overwrite a variable that is already set in the real environment.
+
 ### Using the MonologAssertsTrait
 
 For use with an Symfony project using the monolog-bundle.  
