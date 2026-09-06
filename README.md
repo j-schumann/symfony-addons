@@ -497,6 +497,36 @@ are _purge_, _dropSchema_ and _dropDatabase_, for more details see `RefreshDatab
 case, not as a speedup: per booted kernel _purge_ only empties the tables and resets the
 identities, where both others drop and recreate the whole schema.
 
+With the cleanup method _purge_, the ENV `DB_PURGE_MODE` selects how the tables are emptied
+on MySQL/MariaDB. Allowed values are _delete_ (the default) and _truncate_:
+
+* _delete_ empties the tables with `DELETE` and resets the auto-increment counters afterwards.
+* _truncate_ empties them with `TRUNCATE`, which resets the counters by itself.
+
+On InnoDB, `TRUNCATE` is a DDL operation that drops and recreates the tablespace file of every
+table, for every test, where `DELETE` only removes the rows a test actually created — but makes
+the identity reset necessary. Which of the two is faster depends on the engine and on the
+schema, and it does not come out the same everywhere: measured, _delete_ wins clearly on MySQL
+and loses clearly on MariaDB, see the table below. Prefer _truncate_ also for tests that insert
+very large datasets before the cleanup, as `DELETE` is O(rows) where `TRUNCATE` is O(1).
+
+The setting has no effect on the other platforms: SQLServer cannot `TRUNCATE` tables that are
+referenced by a foreign key and always uses `DELETE`, PostgreSQL and SQLite have no expensive
+`TRUNCATE` to avoid.
+
+Emptying a table does not reset its identity generator on every platform (only a
+`TRUNCATE` on MySQL/MariaDB does), so the purge resets them itself, for every table the
+mapping declares with an `IDENTITY` generator. Records created in a test therefore
+always receive the same IDs, on every platform.
+
+Both ENV variables reject unknown values with an `InvalidArgumentException` instead of
+silently falling back to the default.
+
+Please note that the ENV variables are read from `$_ENV`, so they have to be set with
+`<env name="DB_CLEANUP_METHOD" value="purge"/>` in your _phpunit.xml.dist_, a
+`<server .../>` element is silently ignored. Also, without `force="true"` an `<env>`
+element does not overwrite a variable that is already set in the real environment.
+
 #### Measurements
 
 `bin/benchmark.sh` measures what one `bootKernel()` costs for every combination of
@@ -606,42 +636,6 @@ the usual next step, and it was measured: `--innodb-doublewrite=OFF
 of those was flat or slightly slower than leaving the defaults alone, PostgreSQL by about a
 quarter — once the data directory is in RAM there is no disk write left for them to skip.
 Save the configuration and keep the defaults.
-
-With the cleanup method _purge_, the ENV `DB_PURGE_MODE` selects how the tables are
-emptied on MySQL/MariaDB. Allowed values are _delete_ (default) and _truncate_:
-
-* _delete_ empties the tables with `DELETE` and resets the auto-increment counters
-  afterwards. On InnoDB, `TRUNCATE` is a DDL operation that drops and recreates the
-  tablespace file of each table, for each test, which can dominate the runtime of a
-  database-heavy test suite.
-* _truncate_ restores the previous behavior. Use it for tests that insert very large
-  datasets before the cleanup, as `DELETE` is O(rows) where `TRUNCATE` is O(1).
-
-Measured on a 995 test suite with `paratest -p3` against MySQL 8.4: 38.0 s with _delete_
-versus 325.9 s with _truncate_.
-
-On MariaDB the comparison comes out the other way, see the table above: its `TRUNCATE` is
-about four times cheaper per table than MySQL's, while the identity reset that _delete_
-makes necessary costs the same on both, so _delete_ only pays off once a schema has
-considerably more tables than identity columns. If your suite runs on MariaDB, measure
-before keeping the default.
-
-The setting has no effect on other platforms: SQLServer cannot `TRUNCATE` tables that
-are referenced by a foreign key and always uses `DELETE`, PostgreSQL and SQLite have no
-expensive `TRUNCATE` to avoid.
-
-Emptying a table does not reset its identity generator on every platform (only a
-`TRUNCATE` on MySQL/MariaDB does), so the purge resets them itself, for every table the
-mapping declares with an `IDENTITY` generator. Records created in a test therefore
-always receive the same IDs, on every platform.
-
-Both ENV variables reject unknown values with an `InvalidArgumentException` instead of
-silently falling back to the default.
-
-Please note that the ENV variables are read from `$_ENV`, so they have to be set with
-`<env name="DB_CLEANUP_METHOD" value="purge"/>` in your _phpunit.xml.dist_, a
-`<server .../>` element is silently ignored. Also, without `force="true"` an `<env>`
-element does not overwrite a variable that is already set in the real environment.
 
 ### Using the MonologAssertsTrait
 
