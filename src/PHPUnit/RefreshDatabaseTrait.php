@@ -61,15 +61,14 @@ trait RefreshDatabaseTrait
     protected static ?array $fixtures = null;
 
     /**
-     * @var bool Flag whether the db setup is done (db exists, schema is up to
-     *           date)
-     */
-    protected static bool $setupComplete = false;
-
-    /**
      * @var array|null cache for the tables that have an auto-increment column
      */
     private static ?array $identityTables = null;
+
+    /**
+     * @var bool Flag whether the db setup is done (db exists, schema is up to date)
+     */
+    protected static bool $setupComplete = false;
 
     /**
      * Called on each test that calls bootKernel() or uses createClient().
@@ -106,8 +105,7 @@ trait RefreshDatabaseTrait
                 break;
 
             case 'purge':
-                // only required on the first test: make sure the db exists and the schema is up to
-                // date
+                // only on the first test: make sure the db exists and the schema is up to date
                 if (!static::$setupComplete) {
                     static::recreateDatabase($entityManager);
                     static::updateSchema($entityManager);
@@ -194,8 +192,8 @@ trait RefreshDatabaseTrait
      * duplicate the behavior of the doctrine:database:drop / doctrine:schema:create commands in the
      * DoctrineBundle.
      *
-     * @param bool $drop if true, the method deletes an existing database before recreating
-     *                   it, else the database is only created when it does not exist
+     * @param bool $drop if true, the method deletes an existing database before recreating it, else
+     *                   the database is only created when it does not exist
      */
     protected static function recreateDatabase(
         EntityManagerInterface $em,
@@ -204,8 +202,7 @@ trait RefreshDatabaseTrait
         $connection = $em->getConnection();
         $params = $params['primary'] ?? $connection->getParams();
 
-        // this name will already contain the dbname_suffix (and the TEST_TOKEN) if any is
-        // configured
+        // name will already contain the dbname_suffix (and the TEST_TOKEN) if any is configured
         $dbName = $params['path'] ?? $params['dbname'] ?? false;
         if (!$dbName) {
             throw new \RuntimeException("Connection does not contain a 'dbname' or 'path' parameter, don't know how to proceed, aborting.");
@@ -226,8 +223,7 @@ trait RefreshDatabaseTrait
                 unlink($dbName);
             }
 
-            // the database file will be automatically created on first use, no need to create it
-            // here
+            // the database file will be automatically created on first use, no need to create now
             return;
         }
 
@@ -271,8 +267,7 @@ trait RefreshDatabaseTrait
     /**
      * Brings the db schema to the newest version.
      *
-     * @param bool $drop if true, the method drops the current schema first, e.g. to reset
-     *                   all data
+     * @param bool $drop if true, the method drops the current schema first, e.g. to reset all data
      */
     protected static function updateSchema(
         EntityManagerInterface $em,
@@ -414,18 +409,6 @@ trait RefreshDatabaseTrait
     /**
      * Returns all tables that have an identity / auto-increment column, in the order in which the
      * mapping defines them.
-     *
-     * The list is derived from the ORM metadata and not from the database: The trait creates the
-     * schema itself, from that same metadata (@see updateSchema()), and the SchemaTool marks a
-     * column as auto-increment exactly when the entity uses the IDENTITY generator for a
-     * single-field identifier, so both are in sync by construction. We apply the same filters the
-     * ORMPurger uses to build its list of tables.
-     *
-     * Tables that are excluded from the purge (via the ORMPurgers $excluded or a schema assets
-     * filter) are not filtered out here, they are only reset together with all others.
-     *
-     * The result is cached, but as this is a trait, the cache is per test class using it and not
-     * per process.
      *
      * @return array<string, array{name: string, column: string}>
      */

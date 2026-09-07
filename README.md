@@ -473,7 +473,7 @@ class DatabaseTest extends KernelTestCase
 Optionally define which fixtures to use for this test class:
 
 ```php
-    protected static $fixtureGroups = ['test', 'other'];
+protected static $fixtureGroups = ['test', 'other'];
 ```
 
 Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values are _purge_,
@@ -493,21 +493,22 @@ milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted `ubu
 
 <table>
 <thead>
-<tr><th rowspan="2">platform</th><th colspan="4">on tmpfs</th><th colspan="4">on disk</th></tr>
-<tr><th align="right">purge<br>delete</th><th align="right">purge<br>truncate</th><th align="right">dropSchema</th><th align="right">dropDatabase</th><th align="right">purge<br>delete</th><th align="right">purge<br>truncate</th><th align="right">dropSchema</th><th align="right">dropDatabase</th></tr>
+<tr><th rowspan="3">platform</th><th colspan="4">on tmpfs</th><th colspan="4">on disk</th></tr>
+<tr><th colspan="2" align="center">purge</th><th rowspan="2" align="right">dropSchema</th><th rowspan="2" align="right">dropDatabase</th><th colspan="2" align="center">purge</th><th rowspan="2" align="right">dropSchema</th><th rowspan="2" align="right">dropDatabase</th></tr>
+<tr><th align="right">delete</th><th align="right">truncate</th><th align="right">delete</th><th align="right">truncate</th></tr>
 </thead>
 <tbody>
-<tr><td>SQLite</td><td align="right" colspan="2"><strong>7.4</strong></td><td align="right">19.7</td><td align="right">12.0</td><td align="right" colspan="2">53.3</td><td align="right">153.9</td><td align="right">64.9</td></tr>
+<tr><td>SQLite</td><td align="center" colspan="2"><strong>7.4</strong></td><td align="right">19.7</td><td align="right">12.0</td><td align="center" colspan="2">53.3</td><td align="right">153.9</td><td align="right">64.9</td></tr>
 <tr><td>MariaDB 12</td><td align="right"><strong>12.1</strong></td><td align="right">13.1</td><td align="right">37.5</td><td align="right">25.9</td><td align="right">107.4</td><td align="right">54.8</td><td align="right">412.2</td><td align="right">376.5</td></tr>
 <tr><td>MySQL 9</td><td align="right"><strong>23.4</strong></td><td align="right">25.1</td><td align="right">77.3</td><td align="right">61.9</td><td align="right">121.0</td><td align="right">309.4</td><td align="right">753.2</td><td align="right">521.6</td></tr>
-<tr><td>PostgreSQL 18</td><td align="right" colspan="2"><strong>23.4</strong></td><td align="right">68.3</td><td align="right">78.5</td><td align="right" colspan="2">35.5</td><td align="right">162.9</td><td align="right">186.1</td></tr>
-<tr><td>SQL Server 2022</td><td align="right" colspan="2"><strong>16.1</strong></td><td align="right">120.2</td><td align="right">&gt; 3000</td><td align="right" colspan="2">40.0</td><td align="right">312.2</td><td align="right">&gt; 3000</td></tr>
+<tr><td>PostgreSQL 18</td><td align="center" colspan="2"><strong>23.4</strong></td><td align="right">68.3</td><td align="right">78.5</td><td align="center" colspan="2">35.5</td><td align="right">162.9</td><td align="right">186.1</td></tr>
+<tr><td>SQL Server 2022</td><td align="center" colspan="2"><strong>16.1</strong></td><td align="right">120.2</td><td align="right">dnf *</td><td align="center" colspan="2">40.0</td><td align="right">312.2</td><td align="right">dnf *</td></tr>
 </tbody>
 </table>
 
 Every value is milliseconds per refresh. The bold cell of each row is the fastest method on tmpfs,
-which is the setup worth having; the disk columns are what you pay for not having it. `> 3000` means
-the cell did not finish 200 boots within the benchmark's limit of 600 s per cell.
+which is the setup worth having; the disk columns are what you pay for not having it.  
+dnf: did not finish in the benchmark's limit of 600s per run.
 
 `DB_PURGE_MODE` only has an effect on MySQL and MariaDB. On the other three platforms both purge
 modes run the same code, so their two columns are merged and show the mean of the two runs. How far

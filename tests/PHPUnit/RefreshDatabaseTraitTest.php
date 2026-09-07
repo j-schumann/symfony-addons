@@ -322,11 +322,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     }
 
     /**
-     * The generated IDs of the records above, for the entities that have one.
-     *
-     * Asserting that they are all 1 would be wrong: the children of an inheritance hierarchy share
-     * the identity of their root, so the second of them is 2. What the purge has to guarantee is
-     * that a test always sees the same IDs, so we compare two rounds instead of a fixed number.
+     * Returns the list of (autoincrement) IDs for the given list of entities.
      *
      * @param array<string, object> $records
      *
