@@ -27,6 +27,7 @@ jobs:
           MARIADB_MYSQL_LOCALHOST_USER: 1
           MARIADB_MYSQL_LOCALHOST_GRANTS: USAGE
         options: >-
+          --tmpfs /var/lib/mysql:rw,size=1g
           --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized"
           --health-interval=10s
           --health-timeout=5s
@@ -76,6 +77,7 @@ jobs:
           MYSQL_DATABASE: dbtest
           MYSQL_ROOT_PASSWORD: root
         options: >-
+          --tmpfs /var/lib/mysql:rw,size=1g
           --health-cmd="mysqladmin ping"
           --health-interval=10s
           --health-timeout=5s
@@ -126,6 +128,7 @@ jobs:
           POSTGRES_PASSWORD: dbtest
           POSTGRES_DB: dbtest
         options: >-
+          --tmpfs /var/lib/postgresql/18/docker:rw,size=1g
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
@@ -187,7 +190,8 @@ jobs:
 
       - name: Run tests on Sqlite
         env:
-          DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
+          # /dev/shm is the runner's tmpfs, the counterpart to the --tmpfs datadirs of the other jobs
+          DATABASE_URL: sqlite:////dev/shm/data.db
         run: |
           mkdir -p build/logs/phpunit
           if [ "$COVERAGE" = '1' ]; then
@@ -218,6 +222,7 @@ jobs:
           MSSQL_DATABASE: dbtest
           MSSQL_USER: dbtest
           MSSQL_PASSWORD: dbtest
+        options: --tmpfs /var/opt/mssql/data:rw,size=2g
         ports:
           - "1433:1433"
     strategy:
