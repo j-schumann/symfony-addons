@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.0] - 2026-09-07
+### Added
+* new ENV option to that the "purge" mode in RefreshDatabaseTrait, using DELETE instead of truncate,
+  see README.md for details & suggestions on the test setup
+
 ## [3.4.0] - 2026-03-18
 ### Added
 * Support for SqlServer in the RefreshDatabaseTrait
