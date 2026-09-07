@@ -1,14 +1,14 @@
 <?php
 
-declare(strict_types=1);
-
 use Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector;
+use Rector\CodingStyle\Rector\ClassLike\NewlineBetweenClassLikeStmtsRector;
+use Rector\CodingStyle\Rector\Encapsed\EncapsedStringsToSprintfRector;
+use Rector\CodingStyle\Rector\Encapsed\WrapEncapsedVariableInCurlyBracesRector;
 use Rector\Config\RectorConfig;
-use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitSelfCallRector;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
-use Rector\Symfony\Symfony73\Rector\Class_\InvokableCommandInputAttributeRector;
+use Rector\Set\ValueObject\LevelSetList;
 use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
 use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
 
@@ -29,6 +29,7 @@ return RectorConfig::configure()
         // verify changes, some are unwanted!
         deadCode: false,
         codeQuality: true,
+        codingStyle: true,
         typeDeclarations: true,
         typeDeclarationDocblocks: true,
         privatization: true,
@@ -41,18 +42,22 @@ return RectorConfig::configure()
         // unwanted: splits IF statements to force returns
         earlyReturn: false,
         rectorPreset: true,
+        phpunitCodeQuality: true,
+        doctrineCodeQuality: true,
+        symfonyCodeQuality: true,
+        symfonyConfigs: true,
     )
     ->withPhpSets(php85: true)
     ->withSets([
-        DoctrineSetList::DOCTRINE_CODE_QUALITY,
-        PHPUnitSetList::PHPUNIT_CODE_QUALITY,
+        LevelSetList::UP_TO_PHP_85,
+        PHPUnitSetList::PHPUNIT_110,
         PHPUnitSetList::PHPUNIT_120,
     ])
     ->withRules([
         PreferPHPUnitSelfCallRector::class,
     ])
     ->withSkip([
-        __DIR__ . '/tests/Fixtures/app',
+        __DIR__.'/tests/Fixtures/app',
 
         // mostly unnecessary as they are callbacks to array_filter etc.
         AddArrowFunctionReturnTypeRector::class,
@@ -60,11 +65,20 @@ return RectorConfig::configure()
         // replaces our (imported) Types::JSON with \Doctrine\DBAL\Types\Types::JSON
         AttributeKeyToClassConstFetchRector::class,
 
+        // unnecessary sprintf calls
+        EncapsedStringsToSprintfRector::class,
+
         // replaces null === $project with !$project instanceof Project
         FlipTypeControlToUseExclusiveTypeRector::class,
+
+        // adds a newline before our "// endregion" comments
+        NewlineBetweenClassLikeStmtsRector::class,
 
         // uses $this->assert... instead of self::assert
         // @see https://discourse.laminas.dev/t/this-assert-vs-self-assert/448
         PreferPHPUnitThisCallRector::class,
+
+        // adds unnecessary braces, would be removed again by cs-fixer
+        WrapEncapsedVariableInCurlyBracesRector::class,
     ])
 ;
