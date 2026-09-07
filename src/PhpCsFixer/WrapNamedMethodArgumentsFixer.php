@@ -59,7 +59,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      */
     public function isCandidate(Tokens $tokens): bool
     {
@@ -90,7 +90,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      */
     public function fix(\SplFileInfo $file, Tokens $tokens): void
     {
@@ -120,7 +120,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      */
     private function shouldFormatMethodCall(
         Tokens $tokens,
@@ -139,7 +139,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token>      $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      * @param bool|int|list<int> $topLevelCommas
      */
     private function areArgumentsAlreadyFormatted(Tokens $tokens, int $openParenIndex, int $closeParenIndex, array $topLevelCommas): bool
@@ -164,7 +164,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param  Tokens<Token>         $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      * @return array<string, string>
      */
     private function detectIndentation(Tokens $tokens, int $functionNameIndex): array
@@ -179,6 +179,7 @@ $this->method(arg1: $value1, arg2: $value2);',
             ) {
                 break;
             }
+
             --$lineStartIndex;
         }
 
@@ -201,7 +202,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      */
     private function detectIndentationUnit(Tokens $tokens): string
     {
@@ -267,7 +268,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param  Tokens<Token>                     $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      * @return array<string, bool|int|list<int>>
      */
     private function analyzeArguments(
@@ -307,7 +308,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token>        $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      * @param array<string, mixed> $indentation
      */
     private function formatMethodCall(Tokens $tokens, int $openParenIndex, int $closeParenIndex, array $indentation): void
@@ -322,7 +323,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      */
     private function addNewlineBeforeClosingParenthesis(Tokens $tokens, int $closeParenIndex, string $baseIndent): void
     {
@@ -339,7 +340,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token>      $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      * @param bool|int|list<int> $topLevelCommas
      */
     private function addNewlinesAfterCommas(Tokens $tokens, array $topLevelCommas, string $argumentIndent): void
@@ -355,7 +356,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      */
     private function addNewlineAfterOpeningParenthesis(Tokens $tokens, int $openParenIndex, string $argumentIndent): void
     {
@@ -368,7 +369,7 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token> $tokens
+     * @param \PhpCsFixer\Tokenizer\Tokens<\PhpCsFixer\Tokenizer\Token> $tokens
      */
     private function replaceWhitespaceWithNewline(Tokens $tokens, int $whitespaceIndex, string $indent): void
     {

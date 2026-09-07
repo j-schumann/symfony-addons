@@ -74,6 +74,9 @@ CODE_SAMPLE
         return [FuncCall::class, MethodCall::class, StaticCall::class];
     }
 
+    /**
+     * @param \PhpParser\Node\Expr\FuncCall|\PhpParser\Node\Expr\MethodCall|\PhpParser\Node\Expr\StaticCall $node
+     */
     public function refactor(Node $node): ?Node
     {
         if (!$this->shouldProcessNode($node)) {
@@ -143,7 +146,7 @@ CODE_SAMPLE
         $functionName = $funcCall->name->toString();
 
         // String targets are function calls
-        return array_any($this->targets, static fn ($target) => \is_string($target) && $target === $functionName);
+        return array_any($this->targets, static fn (array|string $target) => \is_string($target) && $target === $functionName);
     }
 
     private function isMethodCallTarget(MethodCall $methodCall): bool

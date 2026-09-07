@@ -63,6 +63,7 @@ final class RefreshDatabaseBenchmarkTest extends KernelTestCase
 
         $child = new Child();
         $child->testEntity = $testEntity;
+
         $em->persist($child);
 
         $em->persist(new SuperclassChildA());
@@ -74,6 +75,7 @@ final class RefreshDatabaseBenchmarkTest extends KernelTestCase
         self::assertSame($iteration, $iteration);
     }
 
+    #[\Override]
     public static function tearDownAfterClass(): void
     {
         $timings = self::$timings;

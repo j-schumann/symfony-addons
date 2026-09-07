@@ -23,8 +23,7 @@ final class FormDecoderTest extends KernelTestCase
             ->expects($this->once())
             ->method('doRequest')
             ->willReturnCallback(static function (Request $request): Response {
-                $stack = new RequestStack();
-                $stack->push($request);
+                $stack = new RequestStack([$request]);
 
                 $decoder = new FormDecoder($stack);
                 $res = $decoder->decode('', 'form');

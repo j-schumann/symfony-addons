@@ -169,16 +169,16 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
         self::bootKernel();
 
         $em = self::getContainer()->get('doctrine')->getManager();
-        self::createOneOfEach($em);
+        $this->createOneOfEach($em);
 
-        foreach (self::countableClasses() as $class) {
+        foreach ($this->countableClasses() as $class) {
             self::assertSame(1, $em->getRepository($class)->count(), $class);
         }
 
         self::bootKernel();
         $em = self::getContainer()->get('doctrine')->getManager();
 
-        foreach (self::countableClasses() as $class) {
+        foreach ($this->countableClasses() as $class) {
             self::assertSame(0, $em->getRepository($class)->count(), $class);
         }
     }
@@ -196,13 +196,13 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
 
         // increase the counters first, a purge of tables that were never inserted into would be
         // trivial to pass
-        $first = self::generatedIds(self::createOneOfEach($em));
+        $first = $this->generatedIds($this->createOneOfEach($em));
         self::assertNotSame([], $first);
 
         self::bootKernel();
         $em = self::getContainer()->get('doctrine')->getManager();
 
-        $second = self::generatedIds(self::createOneOfEach($em));
+        $second = $this->generatedIds($this->createOneOfEach($em));
 
         self::assertSame($first, $second);
     }
@@ -223,13 +223,13 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
             self::markTestSkipped('Only MySQL/MariaDB can fall back to TRUNCATE');
         }
 
-        $first = self::generatedIds(self::createOneOfEach($em));
+        $first = $this->generatedIds($this->createOneOfEach($em));
         self::assertNotSame([], $first);
 
         self::bootKernel();
         $em = self::getContainer()->get('doctrine')->getManager();
 
-        $second = self::generatedIds(self::createOneOfEach($em));
+        $second = $this->generatedIds($this->createOneOfEach($em));
 
         self::assertSame($first, $second);
     }
@@ -256,7 +256,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
      * @return string[] entity classes of which exactly one record is created by
      *                  createOneOfEach(), each of them backed by its own table
      */
-    private static function countableClasses(): array
+    private function countableClasses(): array
     {
         return [
             TestEntity::class,
@@ -279,7 +279,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
      *
      * @return array<string, object> the created records, keyed by a stable label
      */
-    private static function createOneOfEach(EntityManagerInterface $em): array
+    private function createOneOfEach(EntityManagerInterface $em): array
     {
         $testEntity = new TestEntity();
 
@@ -316,6 +316,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
         foreach ($records as $record) {
             $em->persist($record);
         }
+
         $em->flush();
 
         return $records;
@@ -328,7 +329,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
      *
      * @return array<string, int>
      */
-    private static function generatedIds(array $records): array
+    private function generatedIds(array $records): array
     {
         $ids = [];
         foreach ($records as $label => $record) {

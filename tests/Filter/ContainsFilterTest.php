@@ -19,7 +19,7 @@ final class ContainsFilterTest extends KernelTestCase
     public function testGetDescription(): void
     {
         $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null], null);
+        $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null]);
 
         self::assertEquals([
             'jsonColumn'   => [
@@ -38,7 +38,7 @@ final class ContainsFilterTest extends KernelTestCase
     public function testApplyFilter(): void
     {
         $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null], null);
+        $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null]);
         $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
 
@@ -65,7 +65,7 @@ final class ContainsFilterTest extends KernelTestCase
     public function testApplyFilterForArray(): void
     {
         $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null], null);
+        $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null]);
         $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
 

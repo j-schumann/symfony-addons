@@ -175,7 +175,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                                     refreshed. Can be used to update the parameters, e.g. with
      *                                     IDs/IRIs from the DB.
      * @param string   $uri                the endpoint to call, e.g. '/tenants'
-     * @param array    $iri                [classname, [field => value]],
+     * @param array<int, mixed> $iri [classname, [field => value]],
      *                                     e.g. [User::class, [email => 'test@test.de']]
      *                                     tries to find an entity by the given conditions and
      *                                     retrieves its IRI, it is then used as URI
@@ -185,7 +185,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                                     'application/x-www-form-urlencoded' request in the
      *                                     given field name
      * @param string   $method             HTTP method for the request, defaults to GET
-     * @param array    $requestOptions     options for the HTTP client, e.g. query parameters or
+     * @param array<string, mixed> $requestOptions options for the HTTP client, e.g. query parameters or
      *                                     basic auth
      * @param array    $files              array of files to upload
      * @param ?int     $responseCode       asserts that the received status code matches
@@ -267,7 +267,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
 
         // Called after createClient(), as this forces the kernel boot, which in
         // turn refreshes the database.
-        if ($prepare) {
+        if ($prepare !== null) {
             $prepare(static::getContainer(), $params);
             extract($params);
         }
@@ -340,10 +340,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             }
         }
 
-        if ([] !== $createdLogs) {
-            foreach ($createdLogs as $createdLog) {
-                self::assertLoggerHasMessage($createdLog[0], $createdLog[1]);
-            }
+        foreach ($createdLogs as $createdLog) {
+            self::assertLoggerHasMessage($createdLog[0], $createdLog[1]);
         }
 
         if (null !== $emailCount) {
@@ -384,41 +382,39 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                 );
             }
 
-            if ([] !== $dispatchedMessages) {
-                foreach ($dispatchedMessages as $message) {
-                    $messageCallback = null;
+            foreach ($dispatchedMessages as $message) {
+                $messageCallback = null;
 
-                    if (\is_array($message)
-                        && 2 === \count($message)
-                        && \is_string($message[0])
-                        && \is_callable($message[1])
-                    ) {
-                        $messageClass = $message[0];
-                        $messageCallback = $message[1];
-                    } elseif (\is_string($message)) {
-                        $messageClass = $message;
-                    } else {
-                        $error = 'Entries of "dispatchedMessages" must either be a string representing '
-                            .'the FQN of the message class or an array with two elements: '
-                            .'first the message class FQN and second a callable that will be called '
-                            .'with the message object for inspection and the API response data';
-                        throw new \InvalidArgumentException($error);
-                    }
+                if (\is_array($message)
+                    && 2 === \count($message)
+                    && \is_string($message[0])
+                    && \is_callable($message[1])
+                ) {
+                    $messageClass = $message[0];
+                    $messageCallback = $message[1];
+                } elseif (\is_string($message)) {
+                    $messageClass = $message;
+                } else {
+                    $error = 'Entries of "dispatchedMessages" must either be a string representing '
+                        .'the FQN of the message class or an array with two elements: '
+                        .'first the message class FQN and second a callable that will be called '
+                        .'with the message object for inspection and the API response data';
+                    throw new \InvalidArgumentException($error);
+                }
 
-                    $filtered = array_filter(
-                        $messages,
-                        static fn (array $ele) => is_a($ele['message'], $messageClass)
-                    );
-                    self::assertGreaterThan(
-                        0,
-                        \count($filtered),
-                        "The expected '$messageClass' was not dispatched"
-                    );
+                $filtered = array_filter(
+                    $messages,
+                    static fn (array $ele) => is_a($ele['message'], $messageClass)
+                );
+                self::assertGreaterThan(
+                    0,
+                    \count($filtered),
+                    "The expected '$messageClass' was not dispatched"
+                );
 
-                    if ($messageCallback) {
-                        foreach ($filtered as $msg) {
-                            $messageCallback($msg['message'], $response->toArray(false));
-                        }
+                if ($messageCallback !== null) {
+                    foreach ($filtered as $msg) {
+                        $messageCallback($msg['message'], $response->toArray(false));
                     }
                 }
             }
@@ -517,6 +513,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                 if (!isset($array[$index])) {
                     continue;
                 }
+
                 self::assertIsArray(
                     $array[$index],
                     "Key {$parent}[$index] is expected to be an array or null!"
