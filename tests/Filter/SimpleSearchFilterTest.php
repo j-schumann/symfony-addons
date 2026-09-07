@@ -140,11 +140,13 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $rec1 = new TestEntity();
         $rec1->textColumn = 'record EINS text';
         $rec1->varcharColumn = 'record EINS varchar';
+
         $em->persist($rec1);
 
         $rec2 = new TestEntity();
         $rec2->textColumn = 'record ZWEI text';
         $rec2->varcharColumn = 'record ZWEI varchar';
+
         $em->persist($rec2);
         $em->flush();
 
@@ -182,11 +184,13 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $rec1 = new TestEntity();
         $rec1->textColumn = 'record EINS text';
         $rec1->varcharColumn = 'record EINS varchar';
+
         $em->persist($rec1);
 
         $rec2 = new TestEntity();
         $rec2->textColumn = 'record ZWEI text';
         $rec2->varcharColumn = 'record ZWEI varchar';
+
         $em->persist($rec2);
         $em->flush();
 
@@ -223,10 +227,12 @@ final class SimpleSearchFilterTest extends ApiTestCase
 
         $rec1 = new TestEntity();
         $rec1->jsonColumn = ['record EINS json'];
+
         $em->persist($rec1);
 
         $rec2 = new TestEntity();
         $rec2->jsonColumn = ['record ZWEI json'];
+
         $em->persist($rec2);
         $em->flush();
 
@@ -264,21 +270,25 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $rec1 = new TestEntity();
         $rec1->textColumn = 'record EINS text';
         $rec1->varcharColumn = 'record EINS varchar';
+
         $em->persist($rec1);
 
         $child1 = new Child();
         $child1->varcharColumn = 'child EINS varchar';
         $child1->testEntity = $rec1;
+
         $rec1->children->add($child1);
 
         $rec2 = new TestEntity();
         $rec2->textColumn = 'record ZWEI text';
         $rec2->varcharColumn = 'record ZWEI varchar';
+
         $em->persist($rec2);
 
         $child2 = new Child();
         $child2->varcharColumn = 'child ZWEI varchar';
         $child2->testEntity = $rec2;
+
         $rec2->children->add($child2);
 
         $em->flush();

@@ -90,7 +90,7 @@ class QueryBuilderHelper
         }
 
         if ($autoCreate && !$joinAlias) {
-            $joinAlias = $this->addJoin($relation);
+            return $this->addJoin($relation);
         }
 
         return $joinAlias;

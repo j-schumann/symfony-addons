@@ -78,9 +78,7 @@ class ContainsFilter extends AbstractFilter
         $description = [];
 
         $properties = $this->getProperties();
-        if (null === $properties) {
-            $properties = array_fill_keys($this->getClassMetadata($resourceClass)->getFieldNames(), null);
-        }
+        $properties ??= array_fill_keys($this->getClassMetadata($resourceClass)->getFieldNames(), null);
 
         foreach (array_keys($properties) as $property) {
             if (!$this->isPropertyMapped($property, $resourceClass)) {

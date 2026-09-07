@@ -91,9 +91,7 @@ class PasswordStrength
         for ($i = 0; $i < $y; ++$i) {
             $code = \ord($password[$i]);
 
-            if (!isset($mult[$code])) {
-                $mult[$code] = 1;
-            }
+            $mult[$code] ??= 1;
 
             if ($i > 19) {
                 $result += $mult[$code];
@@ -120,12 +118,15 @@ class PasswordStrength
         if ($upper) {
             ++$extrabits;
         }
+
         if ($lower && $upper) {
             ++$extrabits;
         }
+
         if ($numeric) {
             ++$extrabits;
         }
+
         if ($other) {
             $extrabits += 2;
         } elseif ($space) {
