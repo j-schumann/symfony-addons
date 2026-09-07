@@ -5,12 +5,19 @@ use Rector\CodingStyle\Rector\ClassLike\NewlineBetweenClassLikeStmtsRector;
 use Rector\CodingStyle\Rector\Encapsed\EncapsedStringsToSprintfRector;
 use Rector\CodingStyle\Rector\Encapsed\WrapEncapsedVariableInCurlyBracesRector;
 use Rector\Config\RectorConfig;
+use Rector\Doctrine\Set\DoctrineSetList;
+use Rector\Php74\Rector\Ternary\ParenthesizeNestedTernaryRector;
+use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
+use Rector\PHPUnit\CodeQuality\Rector\Class_\AddSeeTestAnnotationRector;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitSelfCallRector;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector;
+use Rector\PHPUnit\CodeQuality\Rector\StmtsAwareInterface\DeclareStrictTypesTestsRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
-use Rector\Set\ValueObject\LevelSetList;
 use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
 use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
+use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
+use Rector\TypeDeclaration\Rector\StmtsAwareInterface\SafeDeclareStrictTypesRector;
 
 // @see https://getrector.com/blog/5-common-mistakes-in-rector-config-and-how-to-avoid-them
 return RectorConfig::configure()
@@ -27,7 +34,7 @@ return RectorConfig::configure()
     )
     ->withPreparedSets(
         // verify changes, some are unwanted!
-        deadCode: false,
+        deadCode: true,
         codeQuality: true,
         codingStyle: true,
         typeDeclarations: true,
@@ -49,9 +56,8 @@ return RectorConfig::configure()
     )
     ->withPhpSets(php85: true)
     ->withSets([
-        LevelSetList::UP_TO_PHP_85,
-        PHPUnitSetList::PHPUNIT_110,
-        PHPUnitSetList::PHPUNIT_120,
+        DoctrineSetList::DOCTRINE_CODE_QUALITY,
+        PHPUnitSetList::PHPUNIT_CODE_QUALITY,
     ])
     ->withRules([
         PreferPHPUnitSelfCallRector::class,
@@ -62,8 +68,18 @@ return RectorConfig::configure()
         // mostly unnecessary as they are callbacks to array_filter etc.
         AddArrowFunctionReturnTypeRector::class,
 
+        // Adds `@see <TestClass>` docblocks to source classes — unwanted annotation noise.
+        AddSeeTestAnnotationRector::class,
+
         // replaces our (imported) Types::JSON with \Doctrine\DBAL\Types\Types::JSON
         AttributeKeyToClassConstFetchRector::class,
+
+        // Fires on ::class on object — often intentional (e.g. attribute key lookups).
+        ClassOnObjectRector::class,
+
+        // Entity convention: ORM-attributed properties must NOT use constructor promotion —
+        // attributes must live on the class-body property declaration, not on ctor params.
+        ClassPropertyAssignToConstructorPromotionRector::class,
 
         // unnecessary sprintf calls
         EncapsedStringsToSprintfRector::class,
@@ -74,11 +90,23 @@ return RectorConfig::configure()
         // adds a newline before our "// endregion" comments
         NewlineBetweenClassLikeStmtsRector::class,
 
+        // Parenthesising nested ternaries is handled by cs-fixer; rector rewrite is redundant.
+        ParenthesizeNestedTernaryRector::class,
+
         // uses $this->assert... instead of self::assert
         // @see https://discourse.laminas.dev/t/this-assert-vs-self-assert/448
         PreferPHPUnitThisCallRector::class,
 
         // adds unnecessary braces, would be removed again by cs-fixer
         WrapEncapsedVariableInCurlyBracesRector::class,
+
+        // explicitly removed by @Symfony:risky with php-cs-fixer
+        // @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/discussions/8877#discussioncomment-14776674
+        DeclareStrictTypesRector::class,
+        DeclareStrictTypesTestsRector::class,
+        SafeDeclareStrictTypesRector::class,
+
+        // Auto-generated, config reference dump
+        __DIR__.'/tests/Fixtures/app/config/reference.php',
     ])
 ;
