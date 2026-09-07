@@ -497,11 +497,11 @@ milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted `ubu
 <tr><th align="right">purge<br>delete</th><th align="right">purge<br>truncate</th><th align="right">dropSchema</th><th align="right">dropDatabase</th><th align="right">purge<br>delete</th><th align="right">purge<br>truncate</th><th align="right">dropSchema</th><th align="right">dropDatabase</th></tr>
 </thead>
 <tbody>
-<tr><td>SQLite</td><td align="right">7.5</td><td align="right"><strong>7.3</strong></td><td align="right">19.7</td><td align="right">12.0</td><td align="right">53.1</td><td align="right">53.5</td><td align="right">153.9</td><td align="right">64.9</td></tr>
+<tr><td>SQLite</td><td align="right" colspan="2"><strong>7.4</strong></td><td align="right">19.7</td><td align="right">12.0</td><td align="right" colspan="2">53.3</td><td align="right">153.9</td><td align="right">64.9</td></tr>
 <tr><td>MariaDB 12</td><td align="right"><strong>12.1</strong></td><td align="right">13.1</td><td align="right">37.5</td><td align="right">25.9</td><td align="right">107.4</td><td align="right">54.8</td><td align="right">412.2</td><td align="right">376.5</td></tr>
 <tr><td>MySQL 9</td><td align="right"><strong>23.4</strong></td><td align="right">25.1</td><td align="right">77.3</td><td align="right">61.9</td><td align="right">121.0</td><td align="right">309.4</td><td align="right">753.2</td><td align="right">521.6</td></tr>
-<tr><td>PostgreSQL 18</td><td align="right"><strong>23.3</strong></td><td align="right">23.5</td><td align="right">68.3</td><td align="right">78.5</td><td align="right">31.5</td><td align="right">39.5</td><td align="right">162.9</td><td align="right">186.1</td></tr>
-<tr><td>SQL Server 2022</td><td align="right"><strong>16.0</strong></td><td align="right">16.1</td><td align="right">120.2</td><td align="right">&gt; 3000</td><td align="right">43.1</td><td align="right">37.0</td><td align="right">312.2</td><td align="right">&gt; 3000</td></tr>
+<tr><td>PostgreSQL 18</td><td align="right" colspan="2"><strong>23.4</strong></td><td align="right">68.3</td><td align="right">78.5</td><td align="right" colspan="2">35.5</td><td align="right">162.9</td><td align="right">186.1</td></tr>
+<tr><td>SQL Server 2022</td><td align="right" colspan="2"><strong>16.1</strong></td><td align="right">120.2</td><td align="right">&gt; 3000</td><td align="right" colspan="2">40.0</td><td align="right">312.2</td><td align="right">&gt; 3000</td></tr>
 </tbody>
 </table>
 
@@ -509,8 +509,10 @@ Every value is milliseconds per refresh. The bold cell of each row is the fastes
 which is the setup worth having; the disk columns are what you pay for not having it. `> 3000` means
 the cell did not finish 200 boots within the benchmark's limit of 600 s per cell.
 
-`DB_PURGE_MODE` only has an effect on MySQL and MariaDB. In the other three rows the two purge
-columns run the same code, so the difference between them is run to run variance.
+`DB_PURGE_MODE` only has an effect on MySQL and MariaDB. On the other three platforms both purge
+modes run the same code, so their two columns are merged and show the mean of the two runs. How far
+those two runs sat apart is a useful reading of its own: 0.2 ms on SQLite, but 31.5 against 39.5 ms
+on PostgreSQL, so differences of that order between neighbouring cells are noise, not a result.
 
 * DB_CLEANUP_METHOD=purge is usually the cheapest method everywhere, the DB_PURGE_MODE then varies
 * Putting the database on tmpfs is worth far more than the choice of cleanup method. Other
