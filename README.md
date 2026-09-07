@@ -491,22 +491,26 @@ The numbers below come from the _Refresh Benchmark_ CI workflow (see `bin/benchm
 milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted `ubuntu-latest` runner
 (**4 CPU, 15 GB RAM**), against this package's own 14 entity test schema.
 
-| platform        | purge delete<br>disk | purge delete<br>tmpfs | purge truncate<br>disk | purge truncate<br>tmpfs | dropSchema<br>disk | dropSchema<br>tmpfs | dropDatabase<br>disk | dropDatabase<br>tmpfs |
-|-----------------|---------------------:|----------------------:|-----------------------:|------------------------:|-------------------:|--------------------:|---------------------:|----------------------:|
-| SQLite          |                 53.1 |                   7.5 |                   53.5 |                 **7.3** |              153.9 |                19.7 |                 64.9 |                  12.0 |
-| MariaDB 12      |                107.4 |              **12.1** |                   54.8 |                    13.1 |              412.2 |                37.5 |                376.5 |                  25.9 |
-| MySQL 9         |                121.0 |              **23.4** |                  309.4 |                    25.1 |              753.2 |                77.3 |                521.6 |                  61.9 |
-| PostgreSQL 18   |                 31.5 |              **23.3** |                   39.5 |                    23.5 |              162.9 |                68.3 |                186.1 |                  78.5 |
-| SQL Server 2022 |                 43.1 |              **16.0** |                   37.0 |                    16.1 |              312.2 |               120.2 |               > 3000 |                > 3000 |
+<table>
+<thead>
+<tr><th rowspan="2">platform</th><th colspan="4">on tmpfs</th><th colspan="4">on disk</th></tr>
+<tr><th align="right">purge<br>delete</th><th align="right">purge<br>truncate</th><th align="right">dropSchema</th><th align="right">dropDatabase</th><th align="right">purge<br>delete</th><th align="right">purge<br>truncate</th><th align="right">dropSchema</th><th align="right">dropDatabase</th></tr>
+</thead>
+<tbody>
+<tr><td>SQLite</td><td align="right">7.5</td><td align="right"><strong>7.3</strong></td><td align="right">19.7</td><td align="right">12.0</td><td align="right">53.1</td><td align="right">53.5</td><td align="right">153.9</td><td align="right">64.9</td></tr>
+<tr><td>MariaDB 12</td><td align="right"><strong>12.1</strong></td><td align="right">13.1</td><td align="right">37.5</td><td align="right">25.9</td><td align="right">107.4</td><td align="right">54.8</td><td align="right">412.2</td><td align="right">376.5</td></tr>
+<tr><td>MySQL 9</td><td align="right"><strong>23.4</strong></td><td align="right">25.1</td><td align="right">77.3</td><td align="right">61.9</td><td align="right">121.0</td><td align="right">309.4</td><td align="right">753.2</td><td align="right">521.6</td></tr>
+<tr><td>PostgreSQL 18</td><td align="right"><strong>23.3</strong></td><td align="right">23.5</td><td align="right">68.3</td><td align="right">78.5</td><td align="right">31.5</td><td align="right">39.5</td><td align="right">162.9</td><td align="right">186.1</td></tr>
+<tr><td>SQL Server 2022</td><td align="right"><strong>16.0</strong></td><td align="right">16.1</td><td align="right">120.2</td><td align="right">&gt; 3000</td><td align="right">43.1</td><td align="right">37.0</td><td align="right">312.2</td><td align="right">&gt; 3000</td></tr>
+</tbody>
+</table>
 
 Every value is milliseconds per refresh. The bold cell of each row is the fastest method on tmpfs,
-which is the setup worth having. `> 3000` means the cell did not finish 200 boots within the
-benchmark's limit of 600 s per cell, so it averaged more than 3 s per refresh — that is the
-measurement, not a missing one.
+which is the setup worth having; the disk columns are what you pay for not having it. `> 3000` means
+the cell did not finish 200 boots within the benchmark's limit of 600 s per cell.
 
 `DB_PURGE_MODE` only has an effect on MySQL and MariaDB. In the other three rows the two purge
-columns run the same code, so the difference between them is run to run variance and the bold marks
-the luckier of two identical measurements.
+columns run the same code, so the difference between them is run to run variance.
 
 * DB_CLEANUP_METHOD=purge is usually the cheapest method everywhere, the DB_PURGE_MODE then varies
 * Putting the database on tmpfs is worth far more than the choice of cleanup method. Other
