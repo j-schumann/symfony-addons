@@ -33,7 +33,7 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:12
+        image: mariadb:12@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
         env:
           MARIADB_ROOT_PASSWORD: root
           MARIADB_DATABASE: db_test
@@ -48,7 +48,7 @@ jobs:
           - 3307:3306
 
       mysql:
-        image: mysql:lts
+        image: mysql:lts@sha256:257388edf9c84dbc04c763625446d5f3fa6ed60d1b0873bc552c614ba0a7ab4e
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: db_test
@@ -63,7 +63,7 @@ jobs:
           - 3306:3306
 
       postgres:
-        image: postgres:18
+        image: postgres:18@sha256:4ef4dbc939d61acea57712655ddb4b4ab27419c913f94cca0cd57cb3ea3c2280
         env:
           POSTGRES_DB: db_test
           POSTGRES_USER: db_test
@@ -77,7 +77,7 @@ jobs:
           - 5432:5432
 
       mssql:
-        image: kcollins/mssql:latest
+        image: kcollins/mssql:latest@sha256:95c2666d3a7c5dfaaf7247585057285ab7617fdcba213fff70f30ad92ce2a44a
         env:
           ACCEPT_EULA: "Y"
           MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
@@ -122,7 +122,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: benchmark-disk
           path: benchmark-disk.md
@@ -135,7 +135,7 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:12
+        image: mariadb:12@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
         env:
           MARIADB_ROOT_PASSWORD: root
           MARIADB_DATABASE: db_test
@@ -151,7 +151,7 @@ jobs:
           - 3307:3306
 
       mysql:
-        image: mysql:lts
+        image: mysql:lts@sha256:257388edf9c84dbc04c763625446d5f3fa6ed60d1b0873bc552c614ba0a7ab4e
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: db_test
@@ -167,7 +167,7 @@ jobs:
           - 3306:3306
 
       postgres:
-        image: postgres:18
+        image: postgres:18@sha256:4ef4dbc939d61acea57712655ddb4b4ab27419c913f94cca0cd57cb3ea3c2280
         env:
           POSTGRES_DB: db_test
           POSTGRES_USER: db_test
@@ -182,7 +182,7 @@ jobs:
           - 5432:5432
 
       mssql:
-        image: kcollins/mssql:latest
+        image: kcollins/mssql:latest@sha256:95c2666d3a7c5dfaaf7247585057285ab7617fdcba213fff70f30ad92ce2a44a
         env:
           ACCEPT_EULA: "Y"
           MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
@@ -228,7 +228,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: benchmark-tmpfs
           path: benchmark-tmpfs.md
