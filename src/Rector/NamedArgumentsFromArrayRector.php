@@ -30,29 +30,29 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
             [
                 new ConfiguredCodeSample(
                     <<<'CODE_SAMPLE'
-foo([
-    'a' => $a,
-    'b' => $b,
-]);
+                        foo([
+                            'a' => $a,
+                            'b' => $b,
+                        ]);
 
-MyClass::staticMethod([
-    'x' => $x,
-    'y' => $y,
-]);
+                        MyClass::staticMethod([
+                            'x' => $x,
+                            'y' => $y,
+                        ]);
 
-$obj->instanceMethod([
-    'p' => $p,
-    'q' => $q,
-]);
-CODE_SAMPLE
+                        $obj->instanceMethod([
+                            'p' => $p,
+                            'q' => $q,
+                        ]);
+                        CODE_SAMPLE
                     ,
                     <<<'CODE_SAMPLE'
-foo(a: $a, b: $b);
+                        foo(a: $a, b: $b);
 
-MyClass::staticMethod(x: $x, y: $y);
+                        MyClass::staticMethod(x: $x, y: $y);
 
-$obj->instanceMethod(p: $p, q: $q);
-CODE_SAMPLE
+                        $obj->instanceMethod(p: $p, q: $q);
+                        CODE_SAMPLE
                     ,
                     [
                         'targets' => [
@@ -75,7 +75,7 @@ CODE_SAMPLE
     }
 
     /**
-     * @param \PhpParser\Node\Expr\FuncCall|\PhpParser\Node\Expr\MethodCall|\PhpParser\Node\Expr\StaticCall $node
+     * @param FuncCall|MethodCall|StaticCall $node
      */
     public function refactor(Node $node): ?Node
     {
