@@ -477,36 +477,43 @@ Optionally define which fixtures to use for this test class:
 ```
 
 Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values are _purge_,
-_dropSchema_ and _dropDatabase_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.  
+_dropSchema_ and _dropDatabase_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
 Suggested method is _purge_ for all database platforms, see benchmark below. Results may vary
 depending on your DB schema and/or server setup, so check if different settings work better for you.
 
 On MySQL/MariaDB you can switch the _purge_ method, by setting the ENV `DB_PURGE_MODE` to _delete_
-(the default) or _truncate_. For details the the trait class. This setting has no effect on the other
-platforms.
+(the default) or _truncate_. For details the the trait class. This setting has no effect on the
+other platforms.
 
 #### Benchmark
 
-The numbers below come from the _Refresh Benchmark_ CI workflow (see `bin/benchmark.sh`):  
-Median milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted `ubuntu-latest`
-runner (**4 CPU, 15 GB RAM**), against this package's own 14 entity test schema.
+The numbers below come from the _Refresh Benchmark_ CI workflow (see `bin/benchmark.sh`): Median
+milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted `ubuntu-latest` runner
+(**4 CPU, 15 GB RAM**), against this package's own 14 entity test schema.
 
 | platform        | purge delete<br>disk | purge delete<br>tmpfs | purge truncate<br>disk | purge truncate<br>tmpfs | dropSchema<br>disk | dropSchema<br>tmpfs | dropDatabase<br>disk | dropDatabase<br>tmpfs |
 |-----------------|---------------------:|----------------------:|-----------------------:|------------------------:|-------------------:|--------------------:|---------------------:|----------------------:|
-| SQLite          |                 53.1 |                   7.5 |                   53.5 |                     7.3 |              153.9 |                19.7 |                 64.9 |                  12.0 |
-| MariaDB 12      |                107.4 |                  12.1 |               **54.8** |                    13.1 |              412.2 |                37.5 |                376.5 |                  25.9 |
-| MySQL 9         |            **121.0** |                  23.4 |                  309.4 |                    25.1 |              753.2 |                77.3 |                521.6 |                  61.9 |
-| PostgreSQL 18   |             **31.5** |                  23.3 |                   39.5 |                    23.5 |              162.9 |                68.3 |                186.1 |                  78.5 |
-| SQL Server 2022 |                 43.1 |                  16.0 |                   37.0 |                    16.1 |              312.2 |               120.2 |               > 3000 |                > 3000 |
+| SQLite          |             **53.1** |                   7.5 |                   53.5 |                 **7.3** |              153.9 |                19.7 |                 64.9 |                  12.0 |
+| MariaDB 12      |                107.4 |              **12.1** |               **54.8** |                    13.1 |              412.2 |                37.5 |                376.5 |                  25.9 |
+| MySQL 9         |            **121.0** |              **23.4** |                  309.4 |                    25.1 |              753.2 |                77.3 |                521.6 |                  61.9 |
+| PostgreSQL 18   |             **31.5** |              **23.3** |                   39.5 |                    23.5 |              162.9 |                68.3 |                186.1 |                  78.5 |
+| SQL Server 2022 |                 43.1 |              **16.0** |               **37.0** |                    16.1 |              312.2 |               120.2 |               > 3000 |                > 3000 |
 
-Every value is milliseconds per refresh. `> 3000` means the cell hit the benchmark's limit of 600 s.
+Every value is milliseconds per refresh, the fastest method per platform and storage is marked bold.
+`> 3000` means the cell did not finish 200 boots within the benchmark's limit of 600 s per cell, so
+it averaged more than 3 s per refresh — that is the measurement, not a missing one.
+
+`DB_PURGE_MODE` only has an effect on MySQL and MariaDB. In the other three rows the two purge
+columns run the same code, so the difference between them is run to run variance and the bold marks
+the luckier of two identical measurements.
 
 * DB_CLEANUP_METHOD=purge is usually the cheapest method everywhere, the DB_PURGE_MODE then varies
-* Putting the database on tmpfs is worth far more than the choice of cleanup method. Other optimizations
-* Using further optimizations like `--innodb-doublewrite=OFF --innodb-flush-log-at-trx-commit=2 --skip-log-bin`
-  for MySQL/MariaDB, `-c fsync=off -c synchronous_commit=off -c full_page_writes=off`for PostgreSQL
-  or `ALTER DATABASE model SET DELAYED_DURABILITY = FORCED` for SQL Server produce no better results
-  or perform even worse, so check before using them
+* Putting the database on tmpfs is worth far more than the choice of cleanup method. Other
+  optimizations
+* Using further optimizations like `--innodb-doublewrite=OFF --innodb-flush-log-at-trx-commit=2
+  --skip-log-bin` for MySQL/MariaDB, `-c fsync=off -c synchronous_commit=off -c
+  full_page_writes=off`for PostgreSQL or `ALTER DATABASE model SET DELAYED_DURABILITY = FORCED` for
+  SQL Server produce no better results or perform even worse, so check before using them
 
 #### Running the databases on tmpfs
 
