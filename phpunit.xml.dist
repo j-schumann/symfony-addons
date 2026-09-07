@@ -35,6 +35,14 @@
     </testsuite>
   </testsuites>
 
+  <groups>
+    <exclude>
+      <!-- The benchmark is not a test, it only measures. Run it with bin/benchmark.sh,
+           which selects the group explicitly. -->
+      <group>benchmark</group>
+    </exclude>
+  </groups>
+
   <source
           ignoreSuppressionOfDeprecations="true"
           restrictNotices="true"

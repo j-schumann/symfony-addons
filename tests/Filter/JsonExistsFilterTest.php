@@ -2,8 +2,6 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
@@ -21,7 +19,7 @@ final class JsonExistsFilterTest extends KernelTestCase
     public function testGetDescription(): void
     {
         $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null], null);
+        $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null]);
 
         self::assertEquals([
             'jsonColumn'   => [
@@ -40,7 +38,7 @@ final class JsonExistsFilterTest extends KernelTestCase
     public function testApplyFilter(): void
     {
         $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null], null);
+        $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null]);
         $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
 

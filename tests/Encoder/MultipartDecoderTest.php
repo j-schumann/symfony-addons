@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Tests\Encoder;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -27,8 +25,7 @@ final class MultipartDecoderTest extends KernelTestCase
             ->expects($this->once())
             ->method('doRequest')
             ->willReturnCallback(static function (Request $request): Response {
-                $stack = new RequestStack();
-                $stack->push($request);
+                $stack = new RequestStack([$request]);
 
                 $decoder = new MultipartDecoder($stack);
                 $res = $decoder->decode('', 'multipart');

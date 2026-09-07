@@ -2,8 +2,6 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
@@ -27,8 +25,7 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $filter = new SimpleSearchFilter(
             self::getContainer()->get('doctrine'),
             null,
-            ['id' => null, 'jsonColumn' => null],
-            null
+            ['id' => null, 'jsonColumn' => null]
         );
 
         $result = $filter->getDescription(TestEntity::class);
@@ -73,8 +70,7 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $filter = new SimpleSearchFilter(
             $doctrine,
             null,
-            ['jsonColumn' => null],
-            null
+            ['jsonColumn' => null]
         );
         $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
@@ -106,8 +102,7 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $filter = new SimpleSearchFilter(
             $doctrine,
             null,
-            ['id' => null, 'jsonColumn' => null],
-            null
+            ['id' => null, 'jsonColumn' => null]
         );
         $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
@@ -156,8 +151,7 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $filter = new SimpleSearchFilter(
             $doctrine,
             null,
-            ['textColumn' => null, 'varcharColumn' => null],
-            null
+            ['textColumn' => null, 'varcharColumn' => null]
         );
         $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
@@ -199,8 +193,7 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $filter = new SimpleSearchFilter(
             $doctrine,
             null,
-            ['textColumn' => null, 'varcharColumn' => null],
-            null
+            ['textColumn' => null, 'varcharColumn' => null]
         );
         $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
@@ -240,8 +233,7 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $filter = new SimpleSearchFilter(
             $doctrine,
             null,
-            ['jsonColumn' => null],
-            null
+            ['jsonColumn' => null]
         );
         $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();
@@ -295,8 +287,7 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $filter = new SimpleSearchFilter(
             $doctrine,
             null,
-            ['children.varcharColumn' => null],
-            null
+            ['children.varcharColumn' => null]
         );
         $doctrine =  self::getContainer()->get('doctrine');
         $queryNameGen = new QueryNameGenerator();

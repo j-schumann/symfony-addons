@@ -1,0 +1,235 @@
+name: "Refresh Benchmark"
+
+# Manual only: this measures, it does not gate anything, and a full matrix takes several minutes of
+# runner time.
+on:
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: "Kernel boots per cell"
+        required: false
+        default: "200"
+      storage:
+        description: "Database storage to measure"
+        required: false
+        default: "both"
+        type: choice
+        options:
+          - both
+          - disk
+          - tmpfs
+
+permissions:
+  contents: read
+
+jobs:
+  # The two jobs differ only in the service "options": GitHub passes them to "docker create", so
+  # --tmpfs belongs there. They are duplicated rather than parameterized because service definitions
+  # cannot read the matrix context.
+  disk:
+    name: Benchmark (disk)
+    if: ${{ inputs.storage == '' || inputs.storage == 'both' || inputs.storage == 'disk' }}
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:12
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: db_test
+          MARIADB_USER: db_test
+          MARIADB_PASSWORD: db_test
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3307:3306
+
+      mysql:
+        image: mysql:lts
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: db_test
+          MYSQL_USER: db_test
+          MYSQL_PASSWORD: db_test
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
+
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: db_test
+          POSTGRES_USER: db_test
+          POSTGRES_PASSWORD: db_test
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 5432:5432
+
+      mssql:
+        image: kcollins/mssql:latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
+          MSSQL_DATABASE: db_test
+          MSSQL_USER: db_test
+          MSSQL_PASSWORD: db_test
+        ports:
+          - 1433:1433
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Common PHP setup
+        uses: ./.github/actions/php-setup
+        with:
+          php: '8.5'
+          dependencies: highest
+
+      - name: Install the ODBC driver for SQL Server
+        run: |
+          sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
+          apt-get update
+          ACCEPT_EULA=Y apt-get install -y msodbcsql18'
+
+      - name: Run benchmark
+        env:
+          BENCH_ITERATIONS: ${{ inputs.iterations }}
+          BENCH_STORAGE: disk
+          BENCH_REPORT: ${{ github.workspace }}/benchmark-disk.md
+          DATABASE_URL_SQLITE: "sqlite:///%kernel.project_dir%/var/bench.db"
+          DATABASE_URL_MARIADB: "mysql://db_test:db_test@127.0.0.1:3307/db_test?serverVersion=mariadb-12.0.0&charset=utf8mb4"
+          DATABASE_URL_MYSQL: "mysql://db_test:db_test@127.0.0.1:3306/db_test?serverVersion=9.0&charset=utf8mb4"
+          DATABASE_URL_POSTGRES: "pgsql://db_test:db_test@127.0.0.1:5432/db_test?serverVersion=18"
+          DATABASE_URL_SQLSRV: "sqlsrv://sa:StrongP-ssw0rd!@127.0.0.1:1433/db_test?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0"
+        run: bin/benchmark.sh
+
+      - name: Publish to the job summary
+        if: always()
+        run: cat benchmark-disk.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-disk
+          path: benchmark-disk.md
+          if-no-files-found: ignore
+
+  tmpfs:
+    name: Benchmark (tmpfs)
+    if: ${{ inputs.storage == '' || inputs.storage == 'both' || inputs.storage == 'tmpfs' }}
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:12
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: db_test
+          MARIADB_USER: db_test
+          MARIADB_PASSWORD: db_test
+        options: >-
+          --tmpfs /var/lib/mysql:rw,size=1g
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3307:3306
+
+      mysql:
+        image: mysql:lts
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: db_test
+          MYSQL_USER: db_test
+          MYSQL_PASSWORD: db_test
+        options: >-
+          --tmpfs /var/lib/mysql:rw,size=1g
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
+
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: db_test
+          POSTGRES_USER: db_test
+          POSTGRES_PASSWORD: db_test
+        options: >-
+          --tmpfs /var/lib/postgresql/18/docker:rw,size=1g
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 5432:5432
+
+      mssql:
+        image: kcollins/mssql:latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
+          MSSQL_DATABASE: db_test
+          MSSQL_USER: db_test
+          MSSQL_PASSWORD: db_test
+        options: --tmpfs /var/opt/mssql/data:rw,size=2g
+        ports:
+          - 1433:1433
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Common PHP setup
+        uses: ./.github/actions/php-setup
+        with:
+          php: '8.5'
+          dependencies: highest
+
+      - name: Install the ODBC driver for SQL Server
+        run: |
+          sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
+          apt-get update
+          ACCEPT_EULA=Y apt-get install -y msodbcsql18'
+
+      - name: Run benchmark
+        env:
+          BENCH_ITERATIONS: ${{ inputs.iterations }}
+          BENCH_STORAGE: tmpfs
+          BENCH_REPORT: ${{ github.workspace }}/benchmark-tmpfs.md
+          DATABASE_URL_SQLITE: "sqlite:////dev/shm/bench.db"
+          DATABASE_URL_MARIADB: "mysql://db_test:db_test@127.0.0.1:3307/db_test?serverVersion=mariadb-12.0.0&charset=utf8mb4"
+          DATABASE_URL_MYSQL: "mysql://db_test:db_test@127.0.0.1:3306/db_test?serverVersion=9.0&charset=utf8mb4"
+          DATABASE_URL_POSTGRES: "pgsql://db_test:db_test@127.0.0.1:5432/db_test?serverVersion=18"
+          DATABASE_URL_SQLSRV: "sqlsrv://sa:StrongP-ssw0rd!@127.0.0.1:1433/db_test?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0"
+        run: bin/benchmark.sh
+
+      - name: Publish to the job summary
+        if: always()
+        run: cat benchmark-tmpfs.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-tmpfs
+          path: benchmark-tmpfs.md
+          if-no-files-found: ignore

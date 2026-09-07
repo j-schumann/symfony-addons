@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Tests\Fixtures\Entity;
 
 use ApiPlatform\Metadata\ApiResource;

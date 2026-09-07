@@ -1,7 +1,6 @@
 # vrok/symfony-addons
 
-This is a library with additional classes for usage in combination with the
-Symfony framework.
+This is a library with additional classes for usage in combination with the Symfony framework.
 
 [![CI Status](https://github.com/j-schumann/symfony-addons/actions/workflows/ci.yaml/badge.svg)](https://github.com/j-schumann/symfony-addons/actions)
 [![Coverage Status](https://coveralls.io/repos/github/j-schumann/symfony-addons/badge.svg?branch=main)](https://coveralls.io/github/j-schumann/symfony-addons?branch=main)
@@ -9,10 +8,9 @@ Symfony framework.
 ## Mailer helpers
 ### Automatically set a sender address
 
-We want to replace setting the sender via mailer.yaml as envelope
-(@see https://symfonycasts.com/screencast/mailer/event-global-recipients)
-as this would still require each mail to have a FROM address set and also
-doesn't allow us to set a sender name.
+We want to replace setting the sender via mailer.yaml as envelope (@see
+https://symfonycasts.com/screencast/mailer/event-global-recipients) as this would still require each
+mail to have a FROM address set and also doesn't allow us to set a sender name.
 
 config/services.yaml:
 ```yaml
@@ -29,9 +27,9 @@ MAILER_SENDER="Change Me <your@email>"
 ## Messenger helpers
 ### Resetting the logger before/after a message
 
-We want to group all log entries belonging to a single message to be grouped
-with a distinct UID and to flush a buffer logger after a message was processed
-(successfully or failed), to immediately see the entries in the log:
+We want to group all log entries belonging to a single message to be grouped with a distinct UID and
+to flush a buffer logger after a message was processed (successfully or failed), to immediately see
+the entries in the log:
 
 config/services.yaml:
 ```yaml
@@ -53,47 +51,41 @@ config/services.yaml:
 ## Validators
 
 ### AtLeastOneOf
-Works like Symfony's own AtLeastOneOf constraint, but instead of returning a message like
-`This value should satisfy at least ...` it returns the message of the last failed validation.
-Can be used for obviously optional form fields where only simple messages should be
-displayed when `AtLeastOne` is used with `Blank` as first constraint.  
-See `AtLeastOneOfValidatorTest` for examples. 
+Works like Symfony's own AtLeastOneOf constraint, but instead of returning a message like `This
+value should satisfy at least ...` it returns the message of the last failed validation. Can be used
+for obviously optional form fields where only simple messages should be displayed when `AtLeastOne`
+is used with `Blank` as first constraint. See `AtLeastOneOfValidatorTest` for examples.
 
 ### NoHtml
-This validator tries to detect if a string contains HTML, to allow only plain text.  
-See `NoHtmlValidatorTest` for examples of allowed / forbidden values.
+This validator tries to detect if a string contains HTML, to allow only plain text. See
+`NoHtmlValidatorTest` for examples of allowed / forbidden values.
 
 ### NoLineBreak
-This validator raises a violation if it detects one or more linebreak characters in 
-the validated string.  
-Detects unicode linebreaks, see `NoLineBreaksValidatorTest` for details.
+This validator raises a violation if it detects one or more linebreak characters in the validated
+string. Detects unicode linebreaks, see `NoLineBreaksValidatorTest` for details.
 
 ### NoSurroundingWhitespace
-This validator raises a violation if it detects trailing or leading whitespace or
-newline characters in the validated string. Linebreaks and spaces are valid within the string.  
-Uses a regex looking for `\s` and `\R`, see `NoSurroundingWhitespaceValidatorTest` 
-for details on detected characters.
+This validator raises a violation if it detects trailing or leading whitespace or newline characters
+in the validated string. Linebreaks and spaces are valid within the string. Uses a regex looking for
+`\s` and `\R`, see `NoSurroundingWhitespaceValidatorTest` for details on detected characters.
 
 ### PasswordStrength
-This validator evaluates the strength of a given password string by determining its entropy
-instead of requireing something like "must contain at least one uppercase & one digit
-& one special char".  
-Allows to set a `minStrength` to vary the requirements.
-See `Vrok\SymfonyAddons\Helper\PasswordStrength` for details on the calculation.
+This validator evaluates the strength of a given password string by determining its entropy instead
+of requireing something like "must contain at least one uppercase & one digit & one special char".
+Allows to set a `minStrength` to vary the requirements. See
+`Vrok\SymfonyAddons\Helper\PasswordStrength` for details on the calculation.
 
 ## PHPUnit helpers
 
 ### Using the ApiPlatformTestCase
 
-This class is used to test ApiPlatform endpoints by specifying input data
-and verifying the response data. It combines the traits documented below
-to refresh the database before each test, optionally create authenticated
-requests and check for created logs / sent emails / dispatched messages.
-It allows to easily check for expected response content, allowed or forbidden
-keys in the data or to verify against a given schema.
+This class is used to test ApiPlatform endpoints by specifying input data and verifying the response
+data. It combines the traits documented below to refresh the database before each test, optionally
+create authenticated requests and check for created logs / sent emails / dispatched messages. It
+allows to easily check for expected response content, allowed or forbidden keys in the data or to
+verify against a given schema.
 
-Requires "symfony/browser-kit" & "symfony/http-client" to be installed
-(and of cause ApiPlatform).
+Requires "symfony/browser-kit" & "symfony/http-client" to be installed (and of cause ApiPlatform).
 
 ```php
 <?php
@@ -152,7 +144,7 @@ class AuthApiTest extends ApiPlatformTestCase
 <tr>
 <td>uri</td>
 <td>
- the URI / endpoint to call
+the URI / endpoint to call
 </td>
 <td>
 
@@ -165,8 +157,8 @@ class AuthApiTest extends ApiPlatformTestCase
 <td>iri</td>
 <td>
 
-an array of `[classname, [field => value]]` that is used to fetch a record
-from the database, determine its IRI, which is then used as URI for the request
+an array of `[classname, [field => value]]` that is used to fetch a record from the database,
+determine its IRI, which is then used as URI for the request
 
 </td>
 <td>
@@ -179,8 +171,8 @@ from the database, determine its IRI, which is then used as URI for the request
 <tr>
 <td>email</td>
 <td>
-if given, tries to find a User with that email and sends
-the request authenticated as this user with lexikJWT bundle 
+if given, tries to find a User with that email and sends the request authenticated as this user with
+lexikJWT bundle
 </td>
 <td>
 
@@ -193,11 +185,9 @@ the request authenticated as this user with lexikJWT bundle
 <td>postFormAuth</td>
 <td>
 if given (and 'email' is set) the JWT from Lexik is sent as 'application/x-www-form-urlencoded'
-request in a form field.<br />
-This is used for download endpoints where the browser should present the user
-with the file to download instead of loading it into memory via Javascript.
-(As we don't want to supply the token via GET to prevent security issues and
-as we cannot set a cookie.)
+request in a form field.<br /> This is used for download endpoints where the browser should present
+the user with the file to download instead of loading it into memory via Javascript. (As we don't
+want to supply the token via GET to prevent security issues and as we cannot set a cookie.)
 </td>
 <td>
 
@@ -210,9 +200,8 @@ as we cannot set a cookie.)
 <td>method</td>
 <td>
 
-HTTP method for the request, defaults to GET. If PATCH is used, the content-type
-header is automatically set to `application/merge-patch+json` (if not already
-specified)
+HTTP method for the request, defaults to GET. If PATCH is used, the content-type header is
+automatically set to `application/merge-patch+json` (if not already specified)
 
 </td>
 <td>
@@ -253,10 +242,9 @@ options for the HTTP client, e.g. query parameters or basic auth
 <td>files</td>
 <td>
 
-An array of one or more files to upload. The files will be copied to a temp file,
-and wrapped in an `UploadedFile`, so the tested application can move/delete it
-as it needs to. If this option is used, the content-type header is automatically
-set to `multipart/form-data` (if not already specified)
+An array of one or more files to upload. The files will be copied to a temp file, and wrapped in an
+`UploadedFile`, so the tested application can move/delete it as it needs to. If this option is used,
+the content-type header is automatically set to `multipart/form-data` (if not already specified)
 
 </td>
 <td>
@@ -318,8 +306,8 @@ asserts that the returned content is JSON and contains the given array as subset
 <tr>
 <td>requiredKeys</td>
 <td>
-asserts the dataset contains the list of keys. Used for elements where the value 
-is not known in advance, e.g. ID, slug, timestamps. Can be nested.
+asserts the dataset contains the list of keys. Used for elements where the value is not known in
+advance, e.g. ID, slug, timestamps. Can be nested.
 </td>
 <td>
 
@@ -347,9 +335,9 @@ like requiredKeys, but the dataset may not contain those
 <tr>
 <td>schemaClass</td>
 <td>
-Asserts that the received response matches the JSON schema for the given class.
-If the `iri` parameter is used or the request method is *not* GET, the item
-schema is used. Else the collection schema is used.
+Asserts that the received response matches the JSON schema for the given class. If the `iri`
+parameter is used or the request method is *not* GET, the item schema is used. Else the collection
+schema is used.
 </td>
 <td>
 
@@ -363,8 +351,8 @@ schema is used. Else the collection schema is used.
 <tr>
 <td>createdLogs</td>
 <td>
-array of entries, asserts the messages to be present (with the correct log level)
-in the monolog handlers after the operation ran
+array of entries, asserts the messages to be present (with the correct log level) in the monolog
+handlers after the operation ran
 </td>
 <td>
 
@@ -408,11 +396,10 @@ asserts this number of messages to be dispatched to the message bus
 <tr>
 <td>dispatchedMessages</td>
 <td>
-Array of message classes, asserts that at least one instance of each given class 
-has been dispatched to the message bus. An Element can also be an array of
-[FQCN, callable], in that case the callback is called for each matching message
-with that message as first parameter and the JSON response as second parameter,
-to trigger additional assertions for the message.
+Array of message classes, asserts that at least one instance of each given class has been dispatched
+to the message bus. An Element can also be an array of [FQCN, callable], in that case the callback
+is called for each matching message with that message as first parameter and the JSON response as
+second parameter, to trigger additional assertions for the message.
 </td>
 <td>
 
@@ -432,8 +419,8 @@ to trigger additional assertions for the message.
 <tr>
 <td>dispatchedEvents</td>
 <td>
-Array of event names (may be class names), asserts that at least one instance of
-each given event has been dispatched to Symfony's EventDispatcher.
+Array of event names (may be class names), asserts that at least one instance of each given event
+has been dispatched to Symfony's EventDispatcher.
 </td>
 <td>
 
@@ -452,13 +439,12 @@ each given event has been dispatched to Symfony's EventDispatcher.
 
 ### Using the RefreshDatabaseTrait
 
-(Re-)Creates the DB schema for each test, removes existing data and fills the tables
-with predefined fixtures.
-Install `doctrine/doctrine-fixtures-bundle` and create fixtures,
-the trait uses the _test_ group per default.
+(Re-)Creates the DB schema for each test, removes existing data and fills the tables with predefined
+fixtures. Install `doctrine/doctrine-fixtures-bundle` and create fixtures, the trait uses the _test_
+group per default.
 
-Just include the trait in your testcase and call `bootKernel()` or
-`createClient()`, e.g. in the setUp method:
+Just include the trait in your testcase and call `bootKernel()` or `createClient()`, e.g. in the
+setUp method:
 ```php
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
@@ -487,20 +473,117 @@ class DatabaseTest extends KernelTestCase
 Optionally define which fixtures to use for this test class:
 
 ```php
-    protected static $fixtureGroups = ['test', 'other'];
+protected static $fixtureGroups = ['test', 'other'];
 ```
 
-Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values
-are _purge_, _dropSchema_ and _dropDatabase_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
+Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values are _purge_,
+_dropSchema_ and _dropDatabase_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
+Suggested method is _purge_ for all database platforms, see benchmark below. Results may vary
+depending on your DB schema and/or server setup, so check if different settings work better for you.
+
+On MySQL/MariaDB you can switch the _purge_ method, by setting the ENV `DB_PURGE_MODE` to _delete_
+(the default) or _truncate_. For details the the trait class. This setting has no effect on the
+other platforms.
+
+#### Benchmark
+
+The numbers below come from the _Refresh Benchmark_ CI workflow (see `bin/benchmark.sh`): Median
+milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted `ubuntu-latest` runner
+(**4 CPU, 15 GB RAM**), against this package's own 14 entity test schema.
+
+<table>
+<thead>
+<tr><th rowspan="3">platform</th><th colspan="4">on tmpfs</th><th colspan="4">on disk</th></tr>
+<tr><th colspan="2" align="center">purge</th><th rowspan="2" align="right">dropSchema</th><th rowspan="2" align="right">dropDatabase</th><th colspan="2" align="center">purge</th><th rowspan="2" align="right">dropSchema</th><th rowspan="2" align="right">dropDatabase</th></tr>
+<tr><th align="right">delete</th><th align="right">truncate</th><th align="right">delete</th><th align="right">truncate</th></tr>
+</thead>
+<tbody>
+<tr><td>SQLite</td><td align="center" colspan="2"><strong>7.4</strong></td><td align="right">19.7</td><td align="right">12.0</td><td align="center" colspan="2">53.3</td><td align="right">153.9</td><td align="right">64.9</td></tr>
+<tr><td>MariaDB 12</td><td align="right"><strong>12.1</strong></td><td align="right">13.1</td><td align="right">37.5</td><td align="right">25.9</td><td align="right">107.4</td><td align="right">54.8</td><td align="right">412.2</td><td align="right">376.5</td></tr>
+<tr><td>MySQL 9</td><td align="right"><strong>23.4</strong></td><td align="right">25.1</td><td align="right">77.3</td><td align="right">61.9</td><td align="right">121.0</td><td align="right">309.4</td><td align="right">753.2</td><td align="right">521.6</td></tr>
+<tr><td>PostgreSQL 18</td><td align="center" colspan="2"><strong>23.4</strong></td><td align="right">68.3</td><td align="right">78.5</td><td align="center" colspan="2">35.5</td><td align="right">162.9</td><td align="right">186.1</td></tr>
+<tr><td>SQL Server 2022</td><td align="center" colspan="2"><strong>16.1</strong></td><td align="right">120.2</td><td align="right">dnf *</td><td align="center" colspan="2">40.0</td><td align="right">312.2</td><td align="right">dnf *</td></tr>
+</tbody>
+</table>
+
+Every value is milliseconds per refresh. The bold cell of each row is the fastest method on tmpfs,
+which is the setup worth having; the disk columns are what you pay for not having it.  
+dnf: did not finish in the benchmark's limit of 600s per run.
+
+`DB_PURGE_MODE` only has an effect on MySQL and MariaDB. On the other three platforms both purge
+modes run the same code, so their two columns are merged and show the mean of the two runs. How far
+those two runs sat apart is a useful reading of its own: 0.2 ms on SQLite, but 31.5 against 39.5 ms
+on PostgreSQL, so differences of that order between neighbouring cells are noise, not a result.
+
+* DB_CLEANUP_METHOD=purge is usually the cheapest method everywhere, the DB_PURGE_MODE then varies
+* Putting the database on tmpfs is worth far more than the choice of cleanup method. Other
+  optimizations
+* Using further optimizations like `--innodb-doublewrite=OFF --innodb-flush-log-at-trx-commit=2
+  --skip-log-bin` for MySQL/MariaDB, `-c fsync=off -c synchronous_commit=off -c
+  full_page_writes=off`for PostgreSQL or `ALTER DATABASE model SET DELAYED_DURABILITY = FORCED` for
+  SQL Server produce no better results or perform even worse, so check before using them
+
+#### Running the databases on tmpfs
+
+Test databases are throwaway by definition, so there is no reason to write them to disk. This is the
+single largest speedup available and costs nothing but a few lines.
+
+With docker compose:
+
+```yaml
+services:
+  mysql:
+    image: mysql:9
+    tmpfs:
+      - /var/lib/mysql:rw,size=2g
+
+  mariadb:
+    image: mariadb:12
+    tmpfs:
+      - /var/lib/mysql:rw,size=2g
+
+  postgres:
+    image: postgres:18
+    tmpfs:
+      - /var/lib/postgresql/18/docker:rw,size=2g
+
+  mssql:
+    image: kcollins/mssql:latest
+    tmpfs:
+      - /var/opt/mssql/data:rw,size=2g
+```
+
+In GitHub Actions, a service container takes no `command`, and `options` are passed to `docker
+create`, so `--tmpfs` belongs there:
+
+```yaml
+    services:
+      mysql:
+        image: mysql:9
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: db_test
+        options: >-
+          --tmpfs /var/lib/mysql:rw,size=2g
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
+```
+
+For SQLite, point the DSN at a tmpfs path instead, e.g. `sqlite:////dev/shm/test.db` — four slashes,
+three would make the path relative.
 
 ### Using the MonologAssertsTrait
 
-For use with an Symfony project using the monolog-bundle.  
-Requires `monolog/monolog` of v3.0 or higher.
+For use with an Symfony project using the monolog-bundle. Requires `monolog/monolog` of v3.0 or
+higher.
 
-Include the trait in your testcase and call `prepareLogger` before triggering the
-action that should create logs and use `assertLoggerHasMessage` afterwards to check
-if a log record was created with the given message & severity:
+Include the trait in your testcase and call `prepareLogger` before triggering the action that should
+create logs and use `assertLoggerHasMessage` afterwards to check if a log record was created with
+the given message & severity:
  ```php
 use Monolog\Level;
 use Psr\Log\LoggerInterface;
@@ -529,8 +612,8 @@ Require `symfony/workflow`.
 
 ### PropertyMarkingStore
 
-Can be used instead of the default `MethodMarkingStore`, for entities 
-& properties without Setter/Getter.
+Can be used instead of the default `MethodMarkingStore`, for entities & properties without
+Setter/Getter.
 
 workflow.yaml:
 ```yaml
@@ -555,9 +638,8 @@ services.yaml:
 
 ### WorkflowHelper
 
-Allows to get an array of available transitions and their blockers,
-can be used to show the user what transitions are possible from the current
-state and/or why a transition is currently blocked.
+Allows to get an array of available transitions and their blockers, can be used to show the user
+what transitions are possible from the current state and/or why a transition is currently blocked.
 
 ```php
     public function __invoke(
@@ -593,9 +675,9 @@ bin/console cron:monthly
 ```
 
 When these are called, they trigger an event (`CronHourlyEvent`, `CronDailyEvent`,
-`CronMonthlyEvent`) that can be used by one ore more event listeners/subscribers to do
-maintenance, push messages to the messenger etc.
-It is your responsibility to execute these commands via crontab correctly!
+`CronMonthlyEvent`) that can be used by one ore more event listeners/subscribers to do maintenance,
+push messages to the messenger etc. It is your responsibility to execute these commands via crontab
+correctly!
 
 ```php
 use Vrok\SymfonyAddons\Event\CronDailyEvent;
@@ -616,10 +698,10 @@ class MyEventSubscriber implements EventSubscriberInterface
 
 ### SimpleSearchFilter
 
-Selects entities where the search term is found (case insensitive) in at least
-one of the specified properties. The properties can also be of relations, e.g.
-`child.name`. All specified properties must be string types (varchar, text etc.)
-or JSON fields (Postgres only), in that case the JSON is cast to string first.
+Selects entities where the search term is found (case insensitive) in at least one of the specified
+properties. The properties can also be of relations, e.g. `child.name`. All specified properties
+must be string types (varchar, text etc.) or JSON fields (Postgres only), in that case the JSON is
+cast to string first.
 
 ```php
 #[ApiFilter(
@@ -646,8 +728,8 @@ doctrine:
 
 ### ContainsFilter
 
-Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter,
-using the `@>` operator. For example for filtering for numbers in an array.
+Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter, using
+the `@>` operator. For example for filtering for numbers in an array.
 
 ```php
 #[ApiFilter(filterClass: ContainsFilter::class, properties: ['numbers'])]
@@ -664,10 +746,10 @@ doctrine:
 
 ### JsonExistsFilter
 
-Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter,
-using the `?` operator. For example for filtering Users by their role, to prevent accidental
-matching with overlapping role names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as
-text with `WHERE roles LIKE '%ROLE_ADMIN%'`.
+Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter, using
+the `?` operator. For example for filtering Users by their role, to prevent accidental matching with
+overlapping role names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as text with `WHERE
+roles LIKE '%ROLE_ADMIN%'`.
 
 ```php
 #[ApiFilter(filterClass: JsonExistsFilter::class, properties: ['roles'])]
@@ -684,16 +766,16 @@ doctrine:
 
 ## MultipartDecoder
 
-Adding this bundle to the `bundles.php` registers the `MultipartDecoder`
-to allow handling of file uploads with additional data (e.g. in ApiPlatform):
+Adding this bundle to the `bundles.php` registers the `MultipartDecoder` to allow handling of file
+uploads with additional data (e.g. in ApiPlatform):
 
 ```php
     Vrok\SymfonyAddons\VrokSymfonyAddonsBundle::class => ['all' => true],
 ```
 
-The decoder is automatically called for `multipart` requests and
-simply returns all POST parameters and uploaded files together. To enable
-this add the `multipart` format to your `config\api_platform.yaml`:
+The decoder is automatically called for `multipart` requests and simply returns all POST parameters
+and uploaded files together. To enable this add the `multipart` format to your
+`config\api_platform.yaml`:
 
 ```yaml
 api_platform:
@@ -703,16 +785,15 @@ api_platform:
 
 ## FormDecoder
 
-Adding this bundle to the `bundles.php` registers the `FormDecoder`
-to allow handling HTML form data in ApiPlatform:
+Adding this bundle to the `bundles.php` registers the `FormDecoder` to allow handling HTML form data
+in ApiPlatform:
 
 ```php
     Vrok\SymfonyAddons\VrokSymfonyAddonsBundle::class => ['all' => true],
 ```
 
-The decoder is automatically called for `form` requests and
-simply returns all POST parameters. To enable this add the `form` format to your
-`config\api_platform.yaml`:
+The decoder is automatically called for `form` requests and simply returns all POST parameters. To
+enable this add the `form` format to your `config\api_platform.yaml`:
 
 ```yaml
 api_platform:
@@ -722,16 +803,15 @@ api_platform:
 
 ## Twig Extensions
 
-Adding this bundle to the `bundles.php` together with the `symfony/twig-bundle`
-registers the new extension:
+Adding this bundle to the `bundles.php` together with the `symfony/twig-bundle` registers the new
+extension:
 ```php
     Vrok\SymfonyAddons\VrokSymfonyAddonsBundle::class => ['all' => true],
 ```
 
 ### FormatBytes
 
-Converts bytes to human-readable notation (supports up to TiB).  
-This extension is auto-registered.  
+Converts bytes to human-readable notation (supports up to TiB). This extension is auto-registered.
 In your Twig template:
 ```
   {{ attachment.filesize|formatBytes }}
@@ -741,12 +821,11 @@ Outputs: 9.34 MiB
 
 ## Experimental / Additional Features
 ### NamedArgumentsFromArrayRector
-This Rector allows migrating function calls that previously used an array of
-options (like `ApiPlatformTestCase#testOperation`) to use named arguments instead.
+This Rector allows migrating function calls that previously used an array of options (like
+`ApiPlatformTestCase#testOperation`) to use named arguments instead.
 
-This can be configured to target static functions, static class methods or instance
-methods.  
-Example for the `rector.php`:
+This can be configured to target static functions, static class methods or instance methods. Example
+for the `rector.php`:
 ```php
 use Vrok\SymfonyAddons\Rector\NamedArgumentsFromArrayRector;
 
@@ -785,14 +864,13 @@ Attention: This Rector is not yet unit-tested, please report any bugs you find!
 
 ### WrapNamedMethodArgumentsFixer
 
-This Fixer for php-cs-fixer allows wrapping long lines of function calls with
-named arguments to contain one argument per line, respecting multiline argument
-values like arrays.  
-This can be used to improve readability, e.g. after using the `NamedArgumentsFromArrayRector`
-which puts multiple arguments on the same line.
+This Fixer for php-cs-fixer allows wrapping long lines of function calls with named arguments to
+contain one argument per line, respecting multiline argument values like arrays. This can be used to
+improve readability, e.g. after using the `NamedArgumentsFromArrayRector` which puts multiple
+arguments on the same line.
 
-It allows configuring the maximum number of arguments to keep on a single
-line, each call with more named arguments will be wrapped.
+It allows configuring the maximum number of arguments to keep on a single line, each call with more
+named arguments will be wrapped.
 
 Register the Fixer in your `.php-cs-fixer.dist.php` and add a rule:
 ```php
@@ -832,10 +910,9 @@ $this->testOperation(
 );
 ```
 
-Attention: Formatting (indentation) is only fixed after the arguments were wrapped,
-by your specification of `method_argument_space` and `array_indentation` (or rulesets
-containing those, like `@Symfony`).  
-This fixer is not yet unit-tested, please report any bugs you find!
+Attention: Formatting (indentation) is only fixed after the arguments were wrapped, by your
+specification of `method_argument_space` and `array_indentation` (or rulesets containing those, like
+`@Symfony`). This fixer is not yet unit-tested, please report any bugs you find!
 
 ## Developer Doc
 ### composer.json require
@@ -848,7 +925,8 @@ This fixer is not yet unit-tested, please report any bugs you find!
 * _symfony/browser-kit_ is required for tests of the MultipartDecoder
 * _symfony/mailer_ is required for tests of the AutoSenderSubscriber
 * _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
-* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and ResetLoggerSubscriber
+* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and
+  ResetLoggerSubscriber
 * _symfony/string_ is required for API Platform's inflector
 * _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
 * _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\PhpCsFixer;
 
 use PhpCsFixer\Fixer\ConfigurableFixerInterface;
@@ -181,6 +179,7 @@ $this->method(arg1: $value1, arg2: $value2);',
             ) {
                 break;
             }
+
             --$lineStartIndex;
         }
 

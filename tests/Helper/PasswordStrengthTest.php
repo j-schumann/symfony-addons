@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Tests\Helper;
 
 use PHPUnit\Framework\Attributes\DataProvider;

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vrok\SymfonyAddons\Workflow;
 
 use Symfony\Component\Workflow\TransitionBlocker;

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Symfony\Component\ErrorHandler\ErrorHandler;
 
 date_default_timezone_set('UTC');
