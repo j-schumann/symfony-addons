@@ -493,15 +493,16 @@ milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted `ubu
 
 | platform        | purge delete<br>disk | purge delete<br>tmpfs | purge truncate<br>disk | purge truncate<br>tmpfs | dropSchema<br>disk | dropSchema<br>tmpfs | dropDatabase<br>disk | dropDatabase<br>tmpfs |
 |-----------------|---------------------:|----------------------:|-----------------------:|------------------------:|-------------------:|--------------------:|---------------------:|----------------------:|
-| SQLite          |             **53.1** |                   7.5 |                   53.5 |                 **7.3** |              153.9 |                19.7 |                 64.9 |                  12.0 |
-| MariaDB 12      |                107.4 |              **12.1** |               **54.8** |                    13.1 |              412.2 |                37.5 |                376.5 |                  25.9 |
-| MySQL 9         |            **121.0** |              **23.4** |                  309.4 |                    25.1 |              753.2 |                77.3 |                521.6 |                  61.9 |
-| PostgreSQL 18   |             **31.5** |              **23.3** |                   39.5 |                    23.5 |              162.9 |                68.3 |                186.1 |                  78.5 |
-| SQL Server 2022 |                 43.1 |              **16.0** |               **37.0** |                    16.1 |              312.2 |               120.2 |               > 3000 |                > 3000 |
+| SQLite          |                 53.1 |                   7.5 |                   53.5 |                 **7.3** |              153.9 |                19.7 |                 64.9 |                  12.0 |
+| MariaDB 12      |                107.4 |              **12.1** |                   54.8 |                    13.1 |              412.2 |                37.5 |                376.5 |                  25.9 |
+| MySQL 9         |                121.0 |              **23.4** |                  309.4 |                    25.1 |              753.2 |                77.3 |                521.6 |                  61.9 |
+| PostgreSQL 18   |                 31.5 |              **23.3** |                   39.5 |                    23.5 |              162.9 |                68.3 |                186.1 |                  78.5 |
+| SQL Server 2022 |                 43.1 |              **16.0** |                   37.0 |                    16.1 |              312.2 |               120.2 |               > 3000 |                > 3000 |
 
-Every value is milliseconds per refresh, the fastest method per platform and storage is marked bold.
-`> 3000` means the cell did not finish 200 boots within the benchmark's limit of 600 s per cell, so
-it averaged more than 3 s per refresh — that is the measurement, not a missing one.
+Every value is milliseconds per refresh. The bold cell of each row is the fastest method on tmpfs,
+which is the setup worth having. `> 3000` means the cell did not finish 200 boots within the
+benchmark's limit of 600 s per cell, so it averaged more than 3 s per refresh — that is the
+measurement, not a missing one.
 
 `DB_PURGE_MODE` only has an effect on MySQL and MariaDB. In the other three rows the two purge
 columns run the same code, so the difference between them is run to run variance and the bold marks
