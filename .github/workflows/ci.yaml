@@ -70,7 +70,7 @@ jobs:
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mysql:
-        image: mysql:lts@sha256:313c76f59c62376fd26b78fc85169902ef10134996bbfc31200eb9c2ed7e802e
+        image: mysql:lts@sha256:d59aeb6202bb716f7d8c1f6ae303b919620c381e9884811b54cbcd04c5cc968f
         env:
           MYSQL_USER: dbtest
           MYSQL_PASSWORD: dbtest
