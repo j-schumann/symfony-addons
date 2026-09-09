@@ -482,7 +482,7 @@ Suggested method is _purge_ for all database platforms, see benchmark below. Res
 depending on your DB schema and/or server setup, so check if different settings work better for you.
 
 On MySQL/MariaDB you can switch the _purge_ method, by setting the ENV `DB_PURGE_MODE` to _delete_
-(the default) or _truncate_. For details the the trait class. This setting has no effect on the
+(the default) or _truncate_. For details see the trait class. This setting has no effect on the
 other platforms.
 
 #### Benchmark
