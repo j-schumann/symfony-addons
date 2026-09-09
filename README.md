@@ -487,9 +487,9 @@ other platforms.
 
 #### Benchmark
 
-The numbers below come from the _Refresh Benchmark_ CI workflow (see `bin/benchmark.sh`): Median
-milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted `ubuntu-latest` runner
-(**4 CPU, 15 GB RAM**), against this package's own 14 entity test schema.
+The numbers below come from the _Refresh Benchmark_ CI workflow (see `bin/benchmark.sh`) and are 
+median milliseconds per `bootKernel()` (200 iterations), on a GitHub-hosted `ubuntu-latest` runner
+(**4 CPU, 16 GB RAM**), against this package's own 14 entity test schema.
 
 <table>
 <thead>
@@ -506,22 +506,18 @@ milliseconds per `bootKernel()` over 200 boots per cell, on a GitHub-hosted `ubu
 </tbody>
 </table>
 
-Every value is milliseconds per refresh. The bold cell of each row is the fastest method on tmpfs,
-which is the setup worth having; the disk columns are what you pay for not having it.  
+The bold cell of each row is the fastest method on tmpfs, which is the setup worth having.  
 dnf: did not finish in the benchmark's limit of 600s per run.
 
 `DB_PURGE_MODE` only has an effect on MySQL and MariaDB. On the other three platforms both purge
-modes run the same code, so their two columns are merged and show the mean of the two runs. How far
-those two runs sat apart is a useful reading of its own: 0.2 ms on SQLite, but 31.5 against 39.5 ms
-on PostgreSQL, so differences of that order between neighbouring cells are noise, not a result.
+modes run the same code.
 
 * DB_CLEANUP_METHOD=purge is usually the cheapest method everywhere, the DB_PURGE_MODE then varies
-* Putting the database on tmpfs is worth far more than the choice of cleanup method. Other
-  optimizations
+* Putting the database on tmpfs is worth far more than the choice of cleanup method.
 * Using further optimizations like `--innodb-doublewrite=OFF --innodb-flush-log-at-trx-commit=2
   --skip-log-bin` for MySQL/MariaDB, `-c fsync=off -c synchronous_commit=off -c
   full_page_writes=off`for PostgreSQL or `ALTER DATABASE model SET DELAYED_DURABILITY = FORCED` for
-  SQL Server produce no better results or perform even worse, so check before using them
+  SQL Server produces no better results or performs even worse, so check before using them.
 
 #### Running the databases on tmpfs
 
