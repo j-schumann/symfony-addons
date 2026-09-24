@@ -48,7 +48,7 @@ jobs:
           - 3307:3306
 
       mysql:
-        image: mysql:lts@sha256:29abb0a179982e4a8928138bfc7f918af9eda64e7eeb1b1d084c1720a20159e6
+        image: mysql:lts@sha256:30a0abfa7b502a496e12339b54cd07aaa70363396dc4b8e8a72a92804a505cd6
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: db_test
@@ -151,7 +151,7 @@ jobs:
           - 3307:3306
 
       mysql:
-        image: mysql:lts@sha256:29abb0a179982e4a8928138bfc7f918af9eda64e7eeb1b1d084c1720a20159e6
+        image: mysql:lts@sha256:30a0abfa7b502a496e12339b54cd07aaa70363396dc4b8e8a72a92804a505cd6
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: db_test
