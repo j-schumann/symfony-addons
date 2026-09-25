@@ -19,10 +19,6 @@ framework:
     log: false
   property_info:
     with_constructor_extractor: false
-  session:
-    handler_id: null
-    cookie_secure: auto
-    cookie_samesite: lax
   validation:
     email_validation_mode: html5
 

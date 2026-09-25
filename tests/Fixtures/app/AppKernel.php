@@ -63,7 +63,6 @@ class AppKernel extends Kernel
             'validation'           => [],
             'serializer'           => [],
             'test'                 => null,
-            'session'              => ['storage_factory_id' => 'session.storage.factory.mock_file'],
             'profiler'             => $profiler,
             'router'               => ['utf8' => true],
             'http_method_override' => false,
