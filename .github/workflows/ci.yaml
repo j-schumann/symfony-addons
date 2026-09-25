@@ -12,7 +12,7 @@ env:
 jobs:
   phpunit-mariadb:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
@@ -64,7 +64,7 @@ jobs:
 
   phpunit-mysql:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
@@ -114,7 +114,7 @@ jobs:
 
   phpunit-postgres:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
@@ -163,7 +163,7 @@ jobs:
 
   phpunit-sqlite:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
@@ -209,7 +209,7 @@ jobs:
 
   phpunit-sqlsrv:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
