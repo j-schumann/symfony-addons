@@ -18,7 +18,7 @@ final class OperationTest extends ApiPlatformTestCase
         $this->testOperation(
             uri: '/test',
             responseCode: 404,
-            contentType: ApiPlatformTestCase::PROBLEM_CONTENT_TYPE,
+            contentType: ApiPlatformTestCase::PROBLEM_MEDIA_TYPE,
             json: [
                 'detail' => 'No route found for "GET http://localhost/test"',
             ],
@@ -42,6 +42,24 @@ final class OperationTest extends ApiPlatformTestCase
             forbiddenKeys: ['hydra:member'],
             messageCount: 0,
         );
+    }
+
+    /**
+     * ApiPlatform < 4.4 returns "application/problem+json; charset=utf-8",
+     * newer versions return "application/problem+json". The deprecated
+     * constant must still work with both.
+     *
+     * @todo remove with the next major version, together with PROBLEM_CONTENT_TYPE
+     */
+    public function testTestOperationIgnoresCharset(): void
+    {
+        $response = $this->testOperation(
+            uri: '/test',
+            responseCode: 404,
+            contentType: ApiPlatformTestCase::PROBLEM_CONTENT_TYPE,
+        );
+
+        self::assertInstanceOf(ResponseInterface::class, $response);
     }
 
     public function testTestOperationCallsPrepare(): void

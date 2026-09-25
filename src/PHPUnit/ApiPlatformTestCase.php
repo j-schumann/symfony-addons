@@ -31,8 +31,14 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'message' => 'JWT Token not found',
     ];
 
-    // this should be returned for RFC 7807 compliant errors
+    /**
+     * @deprecated since 3.6, use PROBLEM_MEDIA_TYPE instead, ApiPlatform >= 4.4
+     *             no longer sends a charset for JSON based content types
+     */
     public const PROBLEM_CONTENT_TYPE = 'application/problem+json; charset=utf-8';
+
+    // this should be returned for RFC 7807 compliant errors
+    public const PROBLEM_MEDIA_TYPE = 'application/problem+json';
 
     public const PROBLEM_400 = [
         // 'detail' => 'The key "username" must be provided.', // varies
@@ -189,7 +195,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                                                 basic auth
      * @param array                $files              array of files to upload
      * @param ?int                 $responseCode       asserts that the received status code matches
-     * @param string               $contentType        asserts that the received content type header matches
+     * @param string               $contentType        asserts that the received content type header matches,
+     *                                                 a "charset=utf-8" parameter is ignored on both sides
      * @param array                $json               asserts that the returned content is JSON and
      *                                                 contains the given array as subset
      * @param array                $requiredKeys       asserts the dataset contains the list of keys.
@@ -318,7 +325,14 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         }
 
         if ('' !== $contentType) {
-            self::assertResponseHeaderSame('content-type', $contentType);
+            // @todo remove the normalization with the next major version and
+            //       only use assertResponseHeaderSame()
+            $receivedType = $response->getHeaders(false)['content-type'][0] ?? '';
+            if (self::normalizeContentType($receivedType) === self::normalizeContentType($contentType)) {
+                $this->addToAssertionCount(1);
+            } else {
+                self::assertResponseHeaderSame('content-type', $contentType);
+            }
         }
 
         if ([] !== $json) {
@@ -444,6 +458,22 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             $mimeType,
             null,
             true
+        );
+    }
+
+    /**
+     * ApiPlatform < 4.4 appends "; charset=utf-8" to all content types,
+     * newer versions only for text/* and application/xml. Remove the charset
+     * so tests work with both versions, regardless of the expected value.
+     *
+     * @todo remove with the next major version
+     */
+    private static function normalizeContentType(string $contentType): string
+    {
+        return (string) preg_replace(
+            '/\s*;\s*charset\s*=\s*"?utf-8"?/i',
+            '',
+            strtolower(trim($contentType))
         );
     }
 

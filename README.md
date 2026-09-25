@@ -277,11 +277,12 @@ asserts that the received status code matches
 <tr>
 <td>contentType</td>
 <td>
-asserts that the received content type header matches
+asserts that the received content type header matches,
+a `charset=utf-8` parameter is ignored
 </td>
 <td>
 
-`'contentType' => 'application/ld+json; charset=utf-8'`
+`'contentType' => 'application/ld+json'`
 
 </td>
 </tr>
