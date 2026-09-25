@@ -18,7 +18,7 @@
         "doctrine/orm": "^3.5.0",
         "friendsofphp/php-cs-fixer": "^3.95",
         "monolog/monolog": "^3.8.0",
-        "phpunit/phpunit": "^13.2.0",
+        "phpunit/phpunit": "^13.3.5",
         "rector/rector": "^2.6",
         "roave/security-advisories": "dev-latest",
         "symfony/browser-kit": "^7.4.10|^8.0.0",
