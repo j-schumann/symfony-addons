@@ -5,21 +5,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [3.6.0] - TBD
 ### Added
-* `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE` (`application/problem+json`)
+* `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`
 
 ### Fixed
-* `ApiPlatformTestCase::testOperation()`: the `contentType` assertion now ignores
-  a `charset=utf-8` parameter on the expected and the received value, as
-  ApiPlatform >= 4.4 no longer sends it for JSON based content types
-* Symfony 8.1 deprecation for `framework.profiler.collect_serializer_data` in the
-  test app
-* Deprecations with lowest dependencies, by requiring `symfony/console` >= 7.4.10
-  and `symfony/monolog-bundle` >= 3.11 for development
+* `ApiPlatformTestCase::testOperation()`: the `contentType` assertion now ignores a `charset=utf-8`
+  parameter on the expected and the received value, as ApiPlatform >= 4.4 no longer sends it for
+  JSON based content types
+* deprecations
 
 ### Deprecated
 * `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`, use `PROBLEM_MEDIA_TYPE` instead.
-  The constant and the charset normalization in `testOperation()` will be
-  removed in 4.0.
 
 ## [3.5.0] - 2026-09-07
 ### Added

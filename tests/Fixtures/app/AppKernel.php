@@ -50,8 +50,8 @@ class AppKernel extends Kernel
             'collect' => false,
         ];
 
-        // Symfony 7.4 deprecates not setting this to true, 8.0 only allows
-        // true (the default) and 8.1 deprecates setting it at all.
+        // Symfony 7.4 deprecates not setting this to true, 8.0 only allows true (the default) and
+        // 8.1 deprecates setting it at all.
         // @todo remove when Symfony 7.4 support is dropped
         if (Kernel::VERSION_ID < 80000) {
             $profiler['collect_serializer_data'] = true;

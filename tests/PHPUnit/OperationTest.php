@@ -45,9 +45,8 @@ final class OperationTest extends ApiPlatformTestCase
     }
 
     /**
-     * ApiPlatform < 4.4 returns "application/problem+json; charset=utf-8",
-     * newer versions return "application/problem+json". The deprecated
-     * constant must still work with both.
+     * ApiPlatform < 4.4 returns "application/problem+json; charset=utf-8", newer versions return
+     * "application/problem+json". The deprecated constant must still work with both.
      *
      * @todo remove with the next major version, together with PROBLEM_CONTENT_TYPE
      */

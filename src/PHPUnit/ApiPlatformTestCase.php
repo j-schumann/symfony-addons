@@ -149,28 +149,6 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     ] + self::PROBLEM_500;
     // endregion
 
-    public const SUPPORTED_OPERATION_PARAMS = [
-        'contentType',
-        'createdLogs',
-        'dispatchedEvents',
-        'dispatchedMessages',
-        'email',
-        'emailCount',
-        'files',
-        'forbiddenKeys',
-        'iri',
-        'json',
-        'messageCount',
-        'method',
-        'postFormAuth',
-        'prepare',
-        'requestOptions',
-        'requiredKeys',
-        'responseCode',
-        'schemaClass',
-        'uri',
-    ];
-
     /**
      * The params *must* contain either 'iri' or 'uri', all other settings are
      * optional.
@@ -195,8 +173,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                                                 basic auth
      * @param array                $files              array of files to upload
      * @param ?int                 $responseCode       asserts that the received status code matches
-     * @param string               $contentType        asserts that the received content type header matches,
-     *                                                 a "charset=utf-8" parameter is ignored on both sides
+     * @param string               $contentType        asserts that the received content type header matches
      * @param array                $json               asserts that the returned content is JSON and
      *                                                 contains the given array as subset
      * @param array                $requiredKeys       asserts the dataset contains the list of keys.
@@ -325,8 +302,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         }
 
         if ('' !== $contentType) {
-            // @todo remove the normalization with the next major version and
-            //       only use assertResponseHeaderSame()
+            // @todo remove the normalization with the next major version and only use
+            //       assertResponseHeaderSame()
             $receivedType = $response->getHeaders(false)['content-type'][0] ?? '';
             if (self::normalizeContentType($receivedType) === self::normalizeContentType($contentType)) {
                 $this->addToAssertionCount(1);
@@ -461,22 +438,6 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         );
     }
 
-    /**
-     * ApiPlatform < 4.4 appends "; charset=utf-8" to all content types,
-     * newer versions only for text/* and application/xml. Remove the charset
-     * so tests work with both versions, regardless of the expected value.
-     *
-     * @todo remove with the next major version
-     */
-    private static function normalizeContentType(string $contentType): string
-    {
-        return (string) preg_replace(
-            '/\s*;\s*charset\s*=\s*"?utf-8"?/i',
-            '',
-            strtolower(trim($contentType))
-        );
-    }
-
     #[\Override]
     public static function tearDownAfterClass(): void
     {
@@ -579,5 +540,21 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         $jwtManager = static::getContainer()->get('lexik_jwt_authentication.jwt_manager');
 
         return $jwtManager->create($user);
+    }
+
+    /**
+     * ApiPlatform < 4.4 appends "; charset=utf-8" to all content types,
+     * newer versions only for text/* and application/xml. Remove the charset
+     * so tests work with both versions, regardless of the expected value.
+     *
+     * @todo remove with the next major version
+     */
+    private static function normalizeContentType(string $contentType): string
+    {
+        return (string) preg_replace(
+            '/\s*;\s*charset\s*=\s*"?utf-8"?/i',
+            '',
+            strtolower(trim($contentType))
+        );
     }
 }

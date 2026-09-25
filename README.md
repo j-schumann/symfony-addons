@@ -277,8 +277,7 @@ asserts that the received status code matches
 <tr>
 <td>contentType</td>
 <td>
-asserts that the received content type header matches,
-a `charset=utf-8` parameter is ignored
+asserts that the received content type header matches, a `charset=utf-8` parameter is ignored
 </td>
 <td>
 
@@ -935,3 +934,9 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * tests for NamedArgumentsFromArrayRector
 * tests for WrapNamedMethodArgumentsFixer
 * compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper
+
+#### Next Major
+* drop support for APIP < 5
+* drop support for vrok/doctrine-addons < 3
+* remove PROBLEM_CONTENT_TYPE -> b/c incompatible note
+* check: change user login, how does APIP handle it?
