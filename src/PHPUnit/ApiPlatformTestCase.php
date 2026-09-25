@@ -305,7 +305,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             // @todo remove the normalization with the next major version and only use
             //       assertResponseHeaderSame()
             $receivedType = $response->getHeaders(false)['content-type'][0] ?? '';
-            if (self::normalizeContentType($receivedType) === self::normalizeContentType($contentType)) {
+            if ($this->normalizeContentType($receivedType) === $this->normalizeContentType($contentType)) {
                 $this->addToAssertionCount(1);
             } else {
                 self::assertResponseHeaderSame('content-type', $contentType);
@@ -549,7 +549,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *
      * @todo remove with the next major version
      */
-    private static function normalizeContentType(string $contentType): string
+    private function normalizeContentType(string $contentType): string
     {
         return (string) preg_replace(
             '/\s*;\s*charset\s*=\s*"?utf-8"?/i',

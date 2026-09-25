@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Metadata\DatabaseMetadataRow;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -480,7 +481,7 @@ trait RefreshDatabaseTrait
             ->createMetadataProvider($connection);
 
         $dbNames = array_map(
-            static fn ($n) => $n->getDatabaseName(),
+            static fn (DatabaseMetadataRow $n) => $n->getDatabaseName(),
             iterator_to_array($metaProvider->getAllDatabaseNames())
         );
 

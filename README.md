@@ -940,3 +940,4 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * drop support for vrok/doctrine-addons < 3
 * remove PROBLEM_CONTENT_TYPE -> b/c incompatible note
 * check: change user login, how does APIP handle it?
+* switch Twig extensions to #AsTwigFilter
