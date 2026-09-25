@@ -33,7 +33,7 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:12@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
+        image: mariadb:13@sha256:d4fdec0510ad498e4f3127da30a99df3745bd6d5e611ae6ac5f76403d9284a8d
         env:
           MARIADB_ROOT_PASSWORD: root
           MARIADB_DATABASE: db_test
@@ -48,7 +48,7 @@ jobs:
           - 3307:3306
 
       mysql:
-        image: mysql:lts@sha256:257388edf9c84dbc04c763625446d5f3fa6ed60d1b0873bc552c614ba0a7ab4e
+        image: mysql:lts@sha256:30a0abfa7b502a496e12339b54cd07aaa70363396dc4b8e8a72a92804a505cd6
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: db_test
@@ -63,7 +63,7 @@ jobs:
           - 3306:3306
 
       postgres:
-        image: postgres:18@sha256:4ef4dbc939d61acea57712655ddb4b4ab27419c913f94cca0cd57cb3ea3c2280
+        image: postgres:18@sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722
         env:
           POSTGRES_DB: db_test
           POSTGRES_USER: db_test
@@ -135,7 +135,7 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:12@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
+        image: mariadb:13@sha256:d4fdec0510ad498e4f3127da30a99df3745bd6d5e611ae6ac5f76403d9284a8d
         env:
           MARIADB_ROOT_PASSWORD: root
           MARIADB_DATABASE: db_test
@@ -151,7 +151,7 @@ jobs:
           - 3307:3306
 
       mysql:
-        image: mysql:lts@sha256:257388edf9c84dbc04c763625446d5f3fa6ed60d1b0873bc552c614ba0a7ab4e
+        image: mysql:lts@sha256:30a0abfa7b502a496e12339b54cd07aaa70363396dc4b8e8a72a92804a505cd6
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: db_test
@@ -167,7 +167,7 @@ jobs:
           - 3306:3306
 
       postgres:
-        image: postgres:18@sha256:4ef4dbc939d61acea57712655ddb4b4ab27419c913f94cca0cd57cb3ea3c2280
+        image: postgres:18@sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722
         env:
           POSTGRES_DB: db_test
           POSTGRES_USER: db_test

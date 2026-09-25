@@ -18,7 +18,7 @@ jobs:
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mariadb:
-        image: mariadb:12@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
+        image: mariadb:13@sha256:d4fdec0510ad498e4f3127da30a99df3745bd6d5e611ae6ac5f76403d9284a8d
         env:
           MARIADB_USER: dbtest
           MARIADB_PASSWORD: dbtest
@@ -70,7 +70,7 @@ jobs:
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mysql:
-        image: mysql:lts@sha256:313c76f59c62376fd26b78fc85169902ef10134996bbfc31200eb9c2ed7e802e
+        image: mysql:lts@sha256:d55f5ba0270ae9824697021ed8a3b651f952f79be366fea1816795850a1f53d3
         env:
           MYSQL_USER: dbtest
           MYSQL_PASSWORD: dbtest
@@ -120,7 +120,7 @@ jobs:
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       postgres:
-        image: postgres:18@sha256:4ef4dbc939d61acea57712655ddb4b4ab27419c913f94cca0cd57cb3ea3c2280
+        image: postgres:18@sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722
         ports:
           - "5432:5432"
         env:
