@@ -29,7 +29,7 @@ jobs:
   disk:
     name: Benchmark (disk)
     if: ${{ inputs.storage == '' || inputs.storage == 'both' || inputs.storage == 'disk' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     services:
       mariadb:
@@ -131,7 +131,7 @@ jobs:
   tmpfs:
     name: Benchmark (tmpfs)
     if: ${{ inputs.storage == '' || inputs.storage == 'both' || inputs.storage == 'tmpfs' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     services:
       mariadb:

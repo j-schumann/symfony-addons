@@ -63,7 +63,7 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
     public function testAssertDatasetHasKeysThrows(array $data, array $keys, string $msg): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage($msg);
+        $this->expectExceptionMessageIsOrContains($msg);
         ApiPlatformTestCase::assertDatasetHasKeys($keys, $data);
     }
 
@@ -110,7 +110,7 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
     public function testAssertDatasetNotHasKeysThrows(array $data, array $keys, string $msg): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage($msg);
+        $this->expectExceptionMessageIsOrContains($msg);
         ApiPlatformTestCase::assertDatasetNotHasKeys($keys, $data);
     }
 }

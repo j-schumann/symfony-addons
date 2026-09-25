@@ -81,9 +81,6 @@ return RectorConfig::configure()
         // attributes must live on the class-body property declaration, not on ctor params.
         ClassPropertyAssignToConstructorPromotionRector::class,
 
-        // unnecessary sprintf calls
-        EncapsedStringsToSprintfRector::class,
-
         // replaces null === $project with !$project instanceof Project
         FlipTypeControlToUseExclusiveTypeRector::class,
 
@@ -96,9 +93,6 @@ return RectorConfig::configure()
         // uses $this->assert... instead of self::assert
         // @see https://discourse.laminas.dev/t/this-assert-vs-self-assert/448
         PreferPHPUnitThisCallRector::class,
-
-        // adds unnecessary braces, would be removed again by cs-fixer
-        WrapEncapsedVariableInCurlyBracesRector::class,
 
         // explicitly removed by @Symfony:risky with php-cs-fixer
         // @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/discussions/8877#discussioncomment-14776674

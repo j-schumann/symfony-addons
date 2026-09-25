@@ -17,14 +17,8 @@ framework:
           auto_setup: true
   php_errors:
     log: false
-  profiler:
-    collect_serializer_data: true
   property_info:
     with_constructor_extractor: false
-  session:
-    handler_id: null
-    cookie_secure: auto
-    cookie_samesite: lax
   validation:
     email_validation_mode: html5
 

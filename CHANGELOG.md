@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.0] - 2026-09-25
+### Added
+* `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`
+
+### Fixed
+* `ApiPlatformTestCase::testOperation()`: the `contentType` assertion now ignores a `charset=utf-8`
+  parameter on the expected and the received value, as ApiPlatform >= 4.4 no longer sends it for
+  JSON based content types
+* deprecations
+
+### Deprecated
+* `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`, use `PROBLEM_MEDIA_TYPE` instead.
+
 ## [3.5.0] - 2026-09-07
 ### Added
 * new ENV option to that the "purge" mode in RefreshDatabaseTrait, using DELETE instead of truncate,
