@@ -56,7 +56,7 @@ final class MonologAssertsTraitTest extends KernelTestCase
         $logger->debug('my test message');
 
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Logger has no message with the given level that contains the given string!');
+        $this->expectExceptionMessageIsOrContains('Logger has no message with the given level that contains the given string!');
         self::assertLoggerHasMessage('my debug message', Level::Debug);
     }
 
@@ -69,14 +69,14 @@ final class MonologAssertsTraitTest extends KernelTestCase
         $logger->debug('my debug message');
 
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Logger has no message with the given level that contains the given string!');
+        $this->expectExceptionMessageIsOrContains('Logger has no message with the given level that contains the given string!');
         self::assertLoggerHasMessage('my debug message', Level::Error);
     }
 
     public function testHasMessageRequiresTestHandler(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Logger has no TestHandler, please call self::prepareLogger() before the test!');
+        $this->expectExceptionMessageIs('Logger has no TestHandler, please call self::prepareLogger() before the test!');
         self::assertLoggerHasMessage('fail', Level::Error);
     }
 }

@@ -64,7 +64,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationCallsPrepare(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('I was called');
+        $this->expectExceptionMessageIs('I was called');
 
         $this->testOperation(
             prepare: static function (): never {
@@ -77,7 +77,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationUsesPreparedParameters(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Failed asserting that the Response status code is 555.');
+        $this->expectExceptionMessageIsOrContains('Failed asserting that the Response status code is 555.');
 
         $this->testOperation(
             prepare: static function ($container, array &$params): void {
@@ -90,7 +90,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationChecksReturnCode(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Failed asserting that the Response status code is 200.');
+        $this->expectExceptionMessageIsOrContains('Failed asserting that the Response status code is 200.');
 
         $this->testOperation(uri: '/test', responseCode: 200);
     }
@@ -98,7 +98,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationChecksContentType(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Failed asserting that the Response has header "content-type" with value "application/text".');
+        $this->expectExceptionMessageIs('Failed asserting that the Response has header "content-type" with value "application/text".');
 
         $this->testOperation(uri: '/test', contentType: 'application/text');
     }
@@ -106,7 +106,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationChecksJson(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Failed asserting that an array has the subset Array');
+        $this->expectExceptionMessageIsOrContains('Failed asserting that an array has the subset Array');
 
         $this->testOperation(uri: '/test', json: ['success' => true]);
     }
@@ -114,7 +114,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationChecksRequiredKeys(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Dataset does not have key [success]!');
+        $this->expectExceptionMessageIsOrContains('Dataset does not have key [success]!');
 
         $this->testOperation(uri: '/test', requiredKeys: ['success']);
     }
@@ -122,7 +122,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationChecksForbiddenKeys(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Dataset should not have key [detail]!');
+        $this->expectExceptionMessageIsOrContains('Dataset should not have key [detail]!');
 
         $this->testOperation(uri: '/test', forbiddenKeys: ['detail']);
     }
@@ -137,7 +137,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationDetectsNotDispatchedEvents(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage("Expected event 'failedEvent' was not dispatched");
+        $this->expectExceptionMessageIsOrContains("Expected event 'failedEvent' was not dispatched");
 
         $this->testOperation(uri: '/test', dispatchedEvents: ['failedEvent']);
     }
@@ -145,7 +145,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationChecksCreatedLogs(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Logger has no message with the given level that contains the given string!');
+        $this->expectExceptionMessageIsOrContains('Logger has no message with the given level that contains the given string!');
 
         $this->testOperation(uri: '/test', createdLogs: [['not found', Level::Error]]);
     }
@@ -153,7 +153,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationChecksEmailCount(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Failed asserting that the Transport has sent "1" emails (0 sent).');
+        $this->expectExceptionMessageIs('Failed asserting that the Transport has sent "1" emails (0 sent).');
 
         $this->testOperation(uri: '/test', emailCount: 1);
     }
@@ -161,7 +161,7 @@ final class OperationTest extends ApiPlatformTestCase
     public function testTestOperationChecksMessageCount(): void
     {
         $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessage('Expected 1 messages to be dispatched, found 0');
+        $this->expectExceptionMessageIsOrContains('Expected 1 messages to be dispatched, found 0');
 
         $this->testOperation(uri: '/test', messageCount: 1);
     }
