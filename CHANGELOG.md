@@ -5,26 +5,24 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [3.7.0] - 2026-10-09
 ### Added
-* Support for API Platform 5, next to API Platform 4 (>= 4.2)
+* Support for API Platform 5
 * `SimpleSearchFilter`, `ContainsFilter` and `JsonExistsFilter` can be used with the
-  `#[QueryParameter]` attribute, see README.md. The `#[ApiFilter]` attribute (deprecated since
-  API Platform 4.4) is still supported, so you can migrate at your own pace.
+  `#[QueryParameter]` attribute, see README.md.
 
 ### Changed
-* `ApiPlatformTestCase` extends `ApiPlatform\Test\ApiTestCase` with API Platform 5, to prevent
-  the deprecation of `ApiPlatform\Symfony\Bundle\Test\ApiTestCase`. If you use the split
-  API Platform 5 packages instead of `api-platform/core`, you must require `api-platform/test`
+* `ApiPlatformTestCase` extends `ApiPlatform\Test\ApiTestCase` with API Platform 5. If you use the
+  split API Platform 5 packages instead of `api-platform/core`, you must require `api-platform/test`
   (e.g. as dev dependency), it is not installed automatically.
-* The filters no longer extend the `AbstractFilter` deprecated in API Platform 4.4, they use the
-  new internal `FilterTrait` instead. This only affects you if you extend one of the filters
-  or check for `instanceof AbstractFilter`:
-    * `getLogger()` is now public
-    * `filterProperty()` of `ContainsFilter` and `JsonExistsFilter` no longer checks if the
-      property is enabled, this is done in `apply()`
+* The filters no longer extend the `AbstractFilter` deprecated in API Platform 4.4, this can be
+  a backwards compatibility break if you extend the filters or check for `instanceof AbstractFilter`.
 * `SimpleSearchFilter`: the `ManagerRegistry` constructor argument is optional, API Platform
   injects it
-* `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an
-  exception when no properties are set, API Platform 4.2 calls it for a `#[QueryParameter]`
+* `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an exception 
+  when no properties are set
+
+### Fixed
+* `SimpleSearchFilter` ignores array values (e.g. `?pattern[]=foo`), before it searched for
+  "Array" and triggered a PHP warning
 
 ## [3.6.0] - 2026-09-25
 ### Added

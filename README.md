@@ -692,8 +692,7 @@ class MyEventSubscriber implements EventSubscriberInterface
 
 ## ApiPlatform Filters
 
-All filters can be used with the `#[QueryParameter]` attribute (recommended, API Platform >= 4.2)
-or the legacy `#[ApiFilter]` attribute (deprecated since API Platform 4.4, removed in 6.0).
+All filters can be used with the `#[QueryParameter]` attribute (recommended in API Platform >= 4.2).
 With `#[QueryParameter]` the filter does not need any properties enabled, the parameter names the
 property to filter. Nested properties, e.g. `children.content`, are supported.
 

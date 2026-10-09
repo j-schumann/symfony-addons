@@ -96,6 +96,24 @@ final class SimpleSearchFilterTest extends BaseApiTestCase
         self::assertStringContainsString($dql, (string) $qb);
     }
 
+    public function testApplyFilterIgnoresArrayValue(): void
+    {
+        $doctrine = self::getContainer()->get('doctrine');
+        $filter = new SimpleSearchFilter($doctrine, null, ['jsonColumn' => null]);
+
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'filters' => [
+                'pattern' => ['testVal'],
+            ],
+        ]);
+
+        self::assertStringNotContainsString('WHERE', (string) $qb);
+    }
+
     public function testApplyFilterWithMultipleFields(): void
     {
         $doctrine =  self::getContainer()->get('doctrine');

@@ -111,7 +111,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        if (null === $value || $property !== $this->searchParameterName) {
+        if (!\is_scalar($value) || $property !== $this->searchParameterName) {
             return;
         }
 
