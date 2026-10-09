@@ -49,7 +49,7 @@ class ApiFilterEntity
     #[ORM\Column(type: JsonbColumn::TYPE, options: JsonbColumn::OPTIONS)]
     public array $roles = [];
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(onDelete: 'SET NULL')]
-    public ?self $parent = null;
+    // no "onDelete", SQL Server does not allow cascading actions on self-references
+    #[ORM\ManyToOne(targetEntity: ApiFilterEntity::class)]
+    public ?ApiFilterEntity $parent = null;
 }
