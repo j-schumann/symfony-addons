@@ -14,10 +14,7 @@ use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 use Vrok\SymfonyAddons\Tests\Fixtures\JsonbColumn;
 
-#[ApiResource]
 #[ApiResource(
-    uriTemplate: '/search_test_entities',
-    shortName: 'SearchTestEntity',
     operations: [
         new GetCollection(
             normalizationContext: ['groups' => ['none']],

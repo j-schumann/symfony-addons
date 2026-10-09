@@ -11,7 +11,7 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 /**
  * Uses the filters via #[QueryParameter] through the API Platform request
- * handling, see the second #[ApiResource] of the TestEntity.
+ * handling, see the #[ApiResource] of the TestEntity.
  */
 #[Group('database')]
 final class QueryParameterAttributeTest extends FilterRequestTestCase
@@ -92,7 +92,7 @@ final class QueryParameterAttributeTest extends FilterRequestTestCase
 
     public function testParametersAreDocumented(): void
     {
-        $names = $this->getOpenApiParameterNames('/search_test_entities');
+        $names = $this->getOpenApiParameterNames('/test_entities');
 
         foreach (['pattern', 'search', 'childName', 'contains', 'contains[]', 'hasKey'] as $name) {
             self::assertContains($name, $names);
@@ -104,6 +104,6 @@ final class QueryParameterAttributeTest extends FilterRequestTestCase
 
     private function search(string $query): array
     {
-        return $this->requestCollection('/search_test_entities'.$query);
+        return $this->requestCollection('/test_entities'.$query);
     }
 }
