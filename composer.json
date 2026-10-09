@@ -11,7 +11,7 @@
         "symfony/yaml": "^7.4.10|^8.0.0"
     },
     "require-dev": {
-        "api-platform/core": "^4.2.0",
+        "api-platform/core": "^5.0.0",
         "doctrine/doctrine-bundle": "^3.2.0",
         "doctrine/persistence": "^4.1.1",
         "doctrine/doctrine-fixtures-bundle": "^4.1.0",
