@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.0] - 2026-10-09
+### Added
+* Support for API Platform 5
+* `SimpleSearchFilter`, `ContainsFilter` and `JsonExistsFilter` can be used with the
+  `#[QueryParameter]` attribute, see README.md.
+
+### Changed
+* `ApiPlatformTestCase` extends `ApiPlatform\Test\ApiTestCase` with API Platform 5. If you use the
+  split API Platform 5 packages instead of `api-platform/core`, you must require `api-platform/test`
+  (e.g. as dev dependency), it is not installed automatically.
+* The filters no longer extend the `AbstractFilter` deprecated in API Platform 4.4, this can be
+  a backwards compatibility break if you extend the filters or check for `instanceof AbstractFilter`.
+* `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an exception 
+  when no properties are set
+
+### Fixed
+* `SimpleSearchFilter` ignores array values (e.g. `?pattern[]=foo`) and logs a notice, like
+  API Platform does for invalid filter values
+* `JsonExistsFilter` no longer documents the `property[]` parameter in the OpenAPI
+  specification, it supports only a single value
+* `SimpleSearchFilter` on Postgres: also casts columns with the `jsonb`, `json_object` and
+  `jsonb_object` types of DBAL >= 4.5 to text before searching them
+
 ## [3.6.0] - 2026-09-25
 ### Added
 * `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`

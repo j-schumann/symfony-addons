@@ -1,0 +1,15 @@
+# Loaded additionally in the "test_api_filter" environment, see AppKernel.
+# @todo remove when support for #[ApiFilter] is dropped (API Platform 6)
+doctrine:
+  orm:
+    mappings:
+      ApiFilterFixtures:
+        is_bundle: false
+        dir: '%kernel.project_dir%/../ApiFilter'
+        prefix: 'Vrok\SymfonyAddons\Tests\Fixtures\ApiFilter'
+        alias: ApiFilterFixtures
+        type: attribute
+
+api_platform:
+  mapping:
+    paths: ['%kernel.project_dir%/../Entity', '%kernel.project_dir%/../ApiFilter']

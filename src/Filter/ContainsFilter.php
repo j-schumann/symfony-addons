@@ -2,10 +2,16 @@
 
 namespace Vrok\SymfonyAddons\Filter;
 
-use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
+use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
+use ApiPlatform\Doctrine\Common\Filter\ManagerRegistryAwareInterface;
+use ApiPlatform\Doctrine\Common\Filter\PropertyAwareFilterInterface;
+use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
+use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Parameter;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
@@ -17,21 +23,20 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
-class ContainsFilter extends AbstractFilter
+class ContainsFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface, PropertyAwareFilterInterface
 {
+    use FilterTrait;
+
     protected function filterProperty(
         string $property,
-        $value,
+        mixed $value,
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        if (
-            !$this->isPropertyEnabled($property, $resourceClass)
-            || !$this->isPropertyMapped($property, $resourceClass)
-        ) {
+        if (!$this->isPropertyMapped($property, $resourceClass)) {
             return;
         }
 
@@ -71,6 +76,19 @@ class ContainsFilter extends AbstractFilter
         }
 
         return $value;
+    }
+
+    public function getOpenApiParameters(Parameter $parameter): OpenApiParameter|array|null
+    {
+        return [
+            new OpenApiParameter($parameter->getKey(), 'query'),
+            new OpenApiParameter(
+                $parameter->getKey().'[]',
+                'query',
+                style: 'deepObject',
+                explode: true
+            ),
+        ];
     }
 
     public function getDescription(string $resourceClass): array
