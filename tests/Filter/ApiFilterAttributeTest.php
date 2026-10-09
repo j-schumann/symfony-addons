@@ -42,7 +42,7 @@ final class ApiFilterAttributeTest extends FilterRequestTestCase
         $rec1->textColumn = 'record EINS text';
         $rec1->varcharColumn = 'record EINS varchar';
         $rec1->numbers = [1, 5];
-        $rec1->roles = ['ROLE_ADMIN'];
+        $rec1->roles = ['ROLE_ADMIN', 'ROLE_EDITOR'];
         $rec1->parent = $parent;
         $em->persist($rec1);
 
@@ -91,18 +91,19 @@ final class ApiFilterAttributeTest extends FilterRequestTestCase
         self::assertCount(1, $this->search('?roles=ROLE_ADMIN'));
         self::assertCount(1, $this->search('?roles=ROLE_ADMIN_BLOG'));
         self::assertCount(0, $this->search('?roles=ROLE'));
+
+        // multiple values combined with AND (default)
+        self::assertCount(1, $this->search('?roles[]=ROLE_ADMIN&roles[]=ROLE_EDITOR'));
+        self::assertCount(0, $this->search('?roles[]=ROLE_ADMIN&roles[]=ROLE_ADMIN_BLOG'));
     }
 
     public function testParametersAreDocumented(): void
     {
         $names = $this->getOpenApiParameterNames('/api_filter_entities');
 
-        foreach (['pattern', 'numbers', 'numbers[]', 'roles'] as $name) {
+        foreach (['pattern', 'numbers', 'numbers[]', 'roles', 'roles[]'] as $name) {
             self::assertContains($name, $names);
         }
-
-        // JsonExistsFilter supports only a single value
-        self::assertNotContains('roles[]', $names);
     }
 
     private function search(string $query): array
