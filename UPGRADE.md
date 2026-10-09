@@ -1,3 +1,21 @@
+# Upgrade to 4.0
+
+* If you use the `JsonExistsFilter`: it now supports multiple values (e.g.
+  `?roles[]=ROLE_A&roles[]=ROLE_B`), before they were ignored. Register the new DQL
+  functions of `vrok/doctrine-addons` >= 3.1, else such requests fail with an
+  unknown DQL function:
+  ```yaml
+  doctrine:
+    orm:
+      dql:
+        string_functions:
+          JSON_CONTAINS_ALL_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAllTextFunction
+          JSON_CONTAINS_ANY_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAnyTextFunction
+  ```
+* Multiple values for the `JsonExistsFilter` are combined with AND by default: a record must
+  contain all values. To match records that contain at least one of them, set the `combination`
+  argument to `JsonExistsFilter::OR`, see README.md.
+
 # Upgrade to 3.0
 
 * Update all your dependencies to the latest versions

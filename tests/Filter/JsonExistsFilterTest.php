@@ -5,10 +5,14 @@
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
+use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\QueryParameter;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
@@ -23,7 +27,12 @@ final class JsonExistsFilterTest extends KernelTestCase
         $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null]);
 
         self::assertEquals([
-            'jsonColumn' => [
+            'jsonColumn'   => [
+                'property' => 'jsonColumn',
+                'type'     => 'string',
+                'required' => false,
+            ],
+            'jsonColumn[]' => [
                 'property' => 'jsonColumn',
                 'type'     => 'string',
                 'required' => false,
@@ -74,5 +83,69 @@ final class JsonExistsFilterTest extends KernelTestCase
 
         self::assertSame('testVal', $qb->getParameter('jsonColumn_p1')?->getValue());
         self::assertStringContainsString('WHERE JSON_CONTAINS_TEXT(o.jsonColumn, :jsonColumn_p1) = true', (string) $qb);
+    }
+
+    public function testApplyMultipleValuesWithOr(): void
+    {
+        $filter = new JsonExistsFilter($this->getDoctrine(), combination: JsonExistsFilter::OR);
+        $qb = $this->applyFilter($filter, ['ROLE_A', 'ROLE_B', 'ROLE_A']);
+
+        // duplicates are removed
+        self::assertSame(['ROLE_A', 'ROLE_B'], $qb->getParameter('jsonColumn_p1')?->getValue());
+        self::assertStringContainsString('WHERE JSON_CONTAINS_ANY_TEXT(o.jsonColumn, :jsonColumn_p1) = true', (string) $qb);
+    }
+
+    public function testApplyMultipleValuesWithAndByDefault(): void
+    {
+        $qb = $this->applyFilter(new JsonExistsFilter($this->getDoctrine()), ['ROLE_A', 'ROLE_B']);
+
+        self::assertSame(['ROLE_A', 'ROLE_B'], $qb->getParameter('jsonColumn_p1')?->getValue());
+        self::assertStringContainsString('WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true', (string) $qb);
+    }
+
+    public function testApplySingleValueArray(): void
+    {
+        $qb = $this->applyFilter(new JsonExistsFilter($this->getDoctrine()), ['ROLE_A']);
+
+        self::assertSame('ROLE_A', $qb->getParameter('jsonColumn_p1')?->getValue());
+        self::assertStringContainsString('WHERE JSON_CONTAINS_TEXT(o.jsonColumn, :jsonColumn_p1) = true', (string) $qb);
+    }
+
+    public function testApplyIgnoresInvalidValues(): void
+    {
+        foreach ([[], [['nested']], null] as $value) {
+            $logHandler = new TestHandler();
+            $filter = new JsonExistsFilter($this->getDoctrine(), new Logger('test', [$logHandler]));
+            $qb = $this->applyFilter($filter, $value);
+
+            self::assertStringNotContainsString('WHERE', (string) $qb);
+            self::assertTrue($logHandler->hasNotice('Invalid filter ignored'));
+        }
+    }
+
+    public function testRejectsInvalidCombination(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid combination "xor"');
+
+        new JsonExistsFilter(combination: 'xor');
+    }
+
+    private function getDoctrine(): ManagerRegistry
+    {
+        return self::getContainer()->get('doctrine');
+    }
+
+    private function applyFilter(JsonExistsFilter $filter, mixed $value): QueryBuilder
+    {
+        /** @var QueryBuilder $qb */
+        $qb = $this->getDoctrine()->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'filters' => ['jsonColumn' => $value],
+        ]);
+
+        return $qb;
     }
 }

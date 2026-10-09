@@ -765,22 +765,39 @@ the `?` operator. For example for filtering Users by their role, to prevent acci
 overlapping role names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as text with `WHERE
 roles LIKE '%ROLE_ADMIN%'`.
 
+Multiple values (e.g. `?roles[]=ROLE_ADMIN&roles[]=ROLE_EDITOR`) are combined with AND by
+default (`?&` operator), a record must contain all values. Set `combination` to
+`JsonExistsFilter::OR` to match records that contain at least one of the values (`?|` operator).
+
 ```php
 #[GetCollection(parameters: [
+    // records with all the given roles
     'role' => new QueryParameter(filter: new JsonExistsFilter(), property: 'roles'),
+    // records with at least one of the given roles
+    'anyRole' => new QueryParameter(
+        filter: new JsonExistsFilter(combination: JsonExistsFilter::OR),
+        property: 'roles',
+    ),
 ])]
 
 // legacy
-#[ApiFilter(filterClass: JsonExistsFilter::class, properties: ['roles'])]
+#[ApiFilter(
+    filterClass: JsonExistsFilter::class,
+    properties: ['roles'],
+    arguments: ['combination' => JsonExistsFilter::OR],
+)]
 ```
 
-Requires JSON_CONTAINS_TEXT as defined Doctrine function, provided by `vrok/doctrine-addons`:
+Requires JSON_CONTAINS_TEXT, JSON_CONTAINS_ALL_TEXT and JSON_CONTAINS_ANY_TEXT as defined Doctrine
+functions, provided by `vrok/doctrine-addons` >= 3.1:
 ```yaml
 doctrine:
   orm:
     dql:
       string_functions:
         JSON_CONTAINS_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsTextFunction
+        JSON_CONTAINS_ALL_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAllTextFunction
+        JSON_CONTAINS_ANY_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAnyTextFunction
 ```
 
 ## MultipartDecoder
@@ -960,7 +977,6 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 
 #### Next Major
 * drop support for APIP < 5
-* drop support for vrok/doctrine-addons < 3
 * drop support for doctrine/dbal < 4.5 -> remove tests/Fixtures/JsonbColumn.php, use `Types::JSONB`
 * remove PROBLEM_CONTENT_TYPE -> b/c incompatible note
 * check: change user login, how does APIP handle it?
