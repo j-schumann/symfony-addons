@@ -692,6 +692,11 @@ class MyEventSubscriber implements EventSubscriberInterface
 
 ## ApiPlatform Filters
 
+All filters can be used with the `#[QueryParameter]` attribute (recommended, API Platform >= 4.2)
+or the legacy `#[ApiFilter]` attribute (deprecated since API Platform 4.4, removed in 6.0).
+With `#[QueryParameter]` the filter does not need any properties enabled, the parameter names the
+property to filter. Nested properties, e.g. `children.content`, are supported.
+
 ### SimpleSearchFilter
 
 Selects entities where the search term is found (case insensitive) in at least one of the specified
@@ -700,6 +705,15 @@ must be string types (varchar, text etc.) or JSON fields (Postgres only), in tha
 cast to string first.
 
 ```php
+#[GetCollection(parameters: [
+    // the parameter names the properties to search
+    'pattern' => new QueryParameter(
+        filter: new SimpleSearchFilter(),
+        properties: ['description', 'name', 'slug', 'parent.title', 'children.content'],
+    ),
+])]
+
+// legacy
 #[ApiFilter(
     filterClass: SimpleSearchFilter::class,
     properties: [
@@ -728,6 +742,11 @@ Postgres-only: Filters entities by their jsonb fields, if they contain the searc
 the `@>` operator. For example for filtering for numbers in an array.
 
 ```php
+#[GetCollection(parameters: [
+    'numbers' => new QueryParameter(filter: new ContainsFilter(), property: 'numbers'),
+])]
+
+// legacy
 #[ApiFilter(filterClass: ContainsFilter::class, properties: ['numbers'])]
 ```
 
@@ -748,6 +767,11 @@ overlapping role names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as t
 roles LIKE '%ROLE_ADMIN%'`.
 
 ```php
+#[GetCollection(parameters: [
+    'role' => new QueryParameter(filter: new JsonExistsFilter(), property: 'roles'),
+])]
+
+// legacy
 #[ApiFilter(filterClass: JsonExistsFilter::class, properties: ['roles'])]
 ```
 

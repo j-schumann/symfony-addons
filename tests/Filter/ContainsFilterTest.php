@@ -6,6 +6,7 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\QueryParameter;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use PHPUnit\Framework\Attributes\Group;
@@ -90,5 +91,75 @@ final class ContainsFilterTest extends KernelTestCase
             'WHERE CONTAINS(o.jsonColumn, :jsonColumn_p1) = true AND CONTAINS(o.jsonColumn, :jsonColumn_p2) = true',
             (string) $qb
         );
+    }
+
+    public function testApplyQueryParameter(): void
+    {
+        $doctrine = self::getContainer()->get('doctrine');
+        $filter = new ContainsFilter($doctrine);
+
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $parameter = new QueryParameter(key: 'contains', property: 'jsonColumn');
+        $parameter->setValue(['testVal', 'otherVal']);
+
+        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'parameter' => $parameter,
+            'filters'   => ['jsonColumn' => ['testVal', 'otherVal']],
+        ]);
+
+        self::assertSame('testVal', $qb->getParameter('jsonColumn_p1')?->getValue());
+        self::assertSame('otherVal', $qb->getParameter('jsonColumn_p2')?->getValue());
+        self::assertStringContainsString(
+            'WHERE CONTAINS(o.jsonColumn, :jsonColumn_p1) = true AND CONTAINS(o.jsonColumn, :jsonColumn_p2) = true',
+            (string) $qb
+        );
+    }
+
+    public function testApplyQueryParameterWithNestedProperty(): void
+    {
+        $doctrine = self::getContainer()->get('doctrine');
+
+        // nested properties need not be enabled in the filter, the parameter
+        // names them explicitly
+        $filter = new ContainsFilter($doctrine);
+
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $parameter = new QueryParameter(key: 'childName', property: 'children.varcharColumn');
+        $parameter->setValue('testVal');
+
+        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'parameter' => $parameter,
+        ]);
+
+        self::assertStringContainsString('LEFT JOIN o.children children_a1', (string) $qb);
+        self::assertStringContainsString(
+            'WHERE CONTAINS(children_a1.varcharColumn, :varcharColumn_p1) = true',
+            (string) $qb
+        );
+    }
+
+    public function testApplyQueryParameterIgnoresUnmappedProperty(): void
+    {
+        $doctrine = self::getContainer()->get('doctrine');
+        $filter = new ContainsFilter($doctrine);
+
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $parameter = new QueryParameter(key: 'unknown');
+        $parameter->setValue('testVal');
+
+        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'parameter' => $parameter,
+        ]);
+
+        self::assertStringNotContainsString('WHERE', (string) $qb);
     }
 }

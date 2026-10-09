@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+* Support for API Platform 5, next to API Platform 4
+* `SimpleSearchFilter`, `ContainsFilter` and `JsonExistsFilter` can be used with the
+  `#[QueryParameter]` attribute, see README.md
+
+### Changed
+* The filters no longer extend the deprecated `AbstractFilter` of API Platform, they
+  use the new internal `FilterTrait` instead
+* `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an
+  exception when no properties are set
+
 ## [3.6.0] - 2026-09-25
 ### Added
 * `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`

@@ -6,6 +6,7 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\QueryParameter;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use PHPUnit\Framework\Attributes\Group;
@@ -56,6 +57,27 @@ final class JsonExistsFilterTest extends KernelTestCase
         self::assertInstanceOf(Parameter::class, $param);
         self::assertSame('testVal', $param->getValue());
 
+        self::assertStringContainsString('WHERE JSON_CONTAINS_TEXT(o.jsonColumn, :jsonColumn_p1) = true', (string) $qb);
+    }
+
+    public function testApplyQueryParameter(): void
+    {
+        $doctrine = self::getContainer()->get('doctrine');
+        $filter = new JsonExistsFilter($doctrine);
+
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $parameter = new QueryParameter(key: 'hasKey', property: 'jsonColumn');
+        $parameter->setValue('testVal');
+
+        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'parameter' => $parameter,
+            'filters'   => ['jsonColumn' => 'testVal'],
+        ]);
+
+        self::assertSame('testVal', $qb->getParameter('jsonColumn_p1')?->getValue());
         self::assertStringContainsString('WHERE JSON_CONTAINS_TEXT(o.jsonColumn, :jsonColumn_p1) = true', (string) $qb);
     }
 }

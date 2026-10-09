@@ -3,12 +3,35 @@
 namespace Vrok\SymfonyAddons\Tests\Fixtures\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\QueryParameter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 
 #[ApiResource]
+#[ApiResource(
+    uriTemplate: '/search_test_entities',
+    shortName: 'SearchTestEntity',
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => ['none']],
+            parameters: [
+                // the parameter names the properties to search
+                'pattern' => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['textColumn', 'varcharColumn'],
+                ),
+                // the filter names the properties to search
+                'search'  => new QueryParameter(
+                    filter: new SimpleSearchFilter(properties: ['varcharColumn' => null]),
+                ),
+            ],
+        ),
+    ],
+)]
 #[ORM\Entity]
 class TestEntity
 {

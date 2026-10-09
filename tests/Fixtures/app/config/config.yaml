@@ -63,6 +63,8 @@ doctrine:
 api_platform:
   handle_symfony_errors: true
   use_symfony_listeners: false
+  mapping:
+    paths: ['%kernel.project_dir%/../Entity']
   defaults:
     extra_properties:
       rfc_7807_compliant_errors: true

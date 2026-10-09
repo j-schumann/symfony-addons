@@ -2,11 +2,15 @@
 
 namespace Vrok\SymfonyAddons\Filter;
 
-use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
+use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
+use ApiPlatform\Doctrine\Common\Filter\ManagerRegistryAwareInterface;
+use ApiPlatform\Doctrine\Common\Filter\PropertyAwareFilterInterface;
+use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Metadata\Exception\InvalidArgumentException;
+use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\OpenApi\Model\Parameter;
+use ApiPlatform\Metadata\Parameter;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
@@ -21,8 +25,14 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
  *
  * @todo UnitTests w/ Mariadb + Postgres
  */
-class SimpleSearchFilter extends AbstractFilter
+class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface, PropertyAwareFilterInterface
 {
+    use FilterTrait {
+        FilterTrait::__construct as private initFilter;
+    }
+
+    private const string DESCRIPTION = 'Selects entities where each search term is found somewhere in at least one of the specified properties';
+
     /**
      * Add configuration parameter
      * {@inheritdoc}
@@ -30,13 +40,66 @@ class SimpleSearchFilter extends AbstractFilter
      * @param string $searchParameterName The parameter whose value this filter searches for
      */
     public function __construct(
-        ManagerRegistry $managerRegistry,
+        ?ManagerRegistry $managerRegistry = null,
         ?LoggerInterface $logger = null,
         ?array $properties = null,
         ?NameConverterInterface $nameConverter = null,
         private readonly string $searchParameterName = 'pattern',
     ) {
-        parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
+        $this->initFilter($managerRegistry, $logger, $properties, $nameConverter);
+    }
+
+    public function apply(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
+        $parameter = $context['parameter'] ?? null;
+        if ($parameter instanceof Parameter) {
+            $this->filterParameter($parameter, $queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);
+
+            return;
+        }
+
+        // @todo remove when support for #[ApiFilter] is dropped (API Platform 6)
+        foreach ($context['filters'] ?? [] as $property => $value) {
+            $this->filterProperty($this->denormalizePropertyName($property), $value, $queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);
+        }
+    }
+
+    /**
+     * Used for #[QueryParameter]: Searches the properties of the parameter or,
+     * if it has none, the properties of the filter. Unmapped properties are
+     * skipped, API Platform 5 adds the parameter key to the filter properties.
+     */
+    protected function filterParameter(
+        Parameter $parameter,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
+        $value = $parameter->getValue();
+        if (!\is_scalar($value)) {
+            return;
+        }
+
+        $properties = array_filter(
+            $parameter->getProperties() ?? array_keys($this->properties ?? []),
+            fn (string $property): bool => $this->isPropertyMapped($property, $resourceClass, true),
+        );
+
+        $this->addWhere(
+            $queryBuilder,
+            $queryNameGenerator,
+            $value,
+            $queryNameGenerator->generateParameterName($parameter->getKey()),
+            $resourceClass,
+            $properties,
+        );
     }
 
     protected function filterProperty(
@@ -52,12 +115,23 @@ class SimpleSearchFilter extends AbstractFilter
             return;
         }
 
+        $properties = array_keys($this->properties ?? []);
+        foreach ($properties as $prop) {
+            if (
+                !$this->isPropertyEnabled($prop, $resourceClass)
+                || !$this->isPropertyMapped($prop, $resourceClass, true)
+            ) {
+                return;
+            }
+        }
+
         $this->addWhere(
             $queryBuilder,
             $queryNameGenerator,
             $value,
             $queryNameGenerator->generateParameterName($property),
-            $resourceClass
+            $resourceClass,
+            $properties,
         );
     }
 
@@ -67,7 +141,12 @@ class SimpleSearchFilter extends AbstractFilter
         mixed $value,
         string $parameterName,
         string $resourceClass,
+        array $properties,
     ): void {
+        if ([] === $properties) {
+            return;
+        }
+
         $alias = $queryBuilder->getRootAliases()[0];
 
         $em =  $queryBuilder->getEntityManager();
@@ -77,15 +156,7 @@ class SimpleSearchFilter extends AbstractFilter
 
         // Build OR expression
         $orExp = $queryBuilder->expr()->orX();
-        foreach ($this->getProperties() as $prop => $_) {
-            if (
-                null === $value
-                || !$this->isPropertyEnabled($prop, $resourceClass)
-                || !$this->isPropertyMapped($prop, $resourceClass, true)
-            ) {
-                return;
-            }
-
+        foreach ($properties as $prop) {
             // @todo refactor to deduplicate code
             if ($this->isPropertyNested($prop, $resourceClass)) {
                 [$joinAlias, $field, $associations] = $this->addJoinsForNestedProperty(
@@ -138,11 +209,18 @@ class SimpleSearchFilter extends AbstractFilter
             ->setParameter($parameterName, '%'.strtolower((string) $value).'%');
     }
 
+    public function getOpenApiParameters(Parameter $parameter): OpenApiParameter|array|null
+    {
+        return new OpenApiParameter($parameter->getKey(), 'query', self::DESCRIPTION);
+    }
+
     public function getDescription(string $resourceClass): array
     {
+        // API Platform 4.2 also calls this for a #[QueryParameter], which can
+        // name the properties instead of the filter
         $props = $this->getProperties();
         if (null === $props) {
-            throw new InvalidArgumentException('Properties must be specified');
+            return [];
         }
 
         return [
@@ -150,12 +228,7 @@ class SimpleSearchFilter extends AbstractFilter
                 'property' => implode(', ', array_keys($props)),
                 'type'     => 'string',
                 'required' => false,
-                'openapi'  => new Parameter(
-                    $this->searchParameterName,
-                    'query',
-                    'Selects entities where each search term is found somewhere in at least one of the specified properties',
-                    false,
-                ),
+                'openapi'  => new OpenApiParameter($this->searchParameterName, 'query', self::DESCRIPTION),
             ],
         ];
     }
