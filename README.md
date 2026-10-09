@@ -961,6 +961,7 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 #### Next Major
 * drop support for APIP < 5
 * drop support for vrok/doctrine-addons < 3
+* drop support for doctrine/dbal < 4.5 -> remove tests/Fixtures/JsonbColumn.php, use `Types::JSONB`
 * remove PROBLEM_CONTENT_TYPE -> b/c incompatible note
 * check: change user login, how does APIP handle it?
 * switch Twig extensions to #AsTwigFilter
