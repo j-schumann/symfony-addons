@@ -6,7 +6,6 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
@@ -14,11 +13,12 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\Group;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
+use Vrok\SymfonyAddons\PHPUnit\BaseApiTestCase;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 #[Group('database')]
-final class SimpleSearchFilterTest extends ApiTestCase
+final class SimpleSearchFilterTest extends BaseApiTestCase
 {
     public function testGetDescription(): void
     {

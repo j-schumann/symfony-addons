@@ -2,7 +2,6 @@
 
 namespace Vrok\SymfonyAddons\PHPUnit;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
@@ -12,7 +11,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * Helper class that contains often used functionality to simplify testing
  * API endpoints.
  */
-abstract class ApiPlatformTestCase extends ApiTestCase
+abstract class ApiPlatformTestCase extends BaseApiTestCase
 {
     use MonologAssertsTrait;
     use RefreshDatabaseTrait;
