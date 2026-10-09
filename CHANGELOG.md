@@ -15,15 +15,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   (e.g. as dev dependency), it is not installed automatically.
 * The filters no longer extend the `AbstractFilter` deprecated in API Platform 4.4, this can be
   a backwards compatibility break if you extend the filters or check for `instanceof AbstractFilter`.
-* `SimpleSearchFilter`: the `ManagerRegistry` constructor argument is optional, API Platform
-  injects it
 * `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an exception 
   when no properties are set
 
 ### Fixed
 * `SimpleSearchFilter` ignores array values (e.g. `?pattern[]=foo`) and logs a notice, like
-  API Platform does for invalid filter values, before it searched for "Array" and triggered a
-  PHP warning
+  API Platform does for invalid filter values
 * `JsonExistsFilter` no longer documents the `property[]` parameter in the OpenAPI
   specification, it supports only a single value
 * `SimpleSearchFilter` on Postgres: also casts columns with the `jsonb`, `json_object` and
