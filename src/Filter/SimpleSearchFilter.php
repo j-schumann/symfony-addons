@@ -7,6 +7,7 @@ use ApiPlatform\Doctrine\Common\Filter\ManagerRegistryAwareInterface;
 use ApiPlatform\Doctrine\Common\Filter\PropertyAwareFilterInterface;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
@@ -86,7 +87,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
         array $context = [],
     ): void {
         $value = $parameter->getValue();
-        if (!\is_scalar($value)) {
+        if (!$this->isValidValue($value, $parameter->getKey() ?? '')) {
             return;
         }
 
@@ -114,7 +115,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        if (!\is_scalar($value) || $property !== $this->searchParameterName) {
+        if ($property !== $this->searchParameterName || !$this->isValidValue($value, $property)) {
             return;
         }
 
@@ -136,6 +137,27 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
             $resourceClass,
             $properties,
         );
+    }
+
+    /**
+     * Only a single search term is supported, arrays (e.g. ?pattern[]=foo) are
+     * ignored and logged, like API Platform does for invalid filter values.
+     */
+    private function isValidValue(mixed $value, string $parameterName): bool
+    {
+        if (null === $value) {
+            return false;
+        }
+
+        if (!\is_scalar($value)) {
+            $this->getLogger()->notice('Invalid filter ignored', [
+                'exception' => new InvalidArgumentException(\sprintf('Invalid value for "%s" parameter, only a single search term is supported', $parameterName)),
+            ]);
+
+            return false;
+        }
+
+        return true;
     }
 
     private function addWhere(

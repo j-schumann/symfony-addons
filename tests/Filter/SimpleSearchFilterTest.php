@@ -6,11 +6,14 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\QueryParameter;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\Attributes\Group;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 use Vrok\SymfonyAddons\PHPUnit\BaseApiTestCase;
@@ -99,7 +102,8 @@ final class SimpleSearchFilterTest extends BaseApiTestCase
     public function testApplyFilterIgnoresArrayValue(): void
     {
         $doctrine = self::getContainer()->get('doctrine');
-        $filter = new SimpleSearchFilter($doctrine, null, ['jsonColumn' => null]);
+        $logHandler = new TestHandler();
+        $filter = new SimpleSearchFilter($doctrine, new Logger('test', [$logHandler]), ['jsonColumn' => null]);
 
         /** @var QueryBuilder $qb */
         $qb = $doctrine->getManager()->getRepository(TestEntity::class)
@@ -112,6 +116,49 @@ final class SimpleSearchFilterTest extends BaseApiTestCase
         ]);
 
         self::assertStringNotContainsString('WHERE', (string) $qb);
+        self::assertTrue($logHandler->hasNotice('Invalid filter ignored'));
+    }
+
+    public function testApplyQueryParameterIgnoresArrayValue(): void
+    {
+        $doctrine = self::getContainer()->get('doctrine');
+        $logHandler = new TestHandler();
+        $filter = new SimpleSearchFilter($doctrine, new Logger('test', [$logHandler]));
+
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        $parameter = new QueryParameter(key: 'pattern', properties: ['textColumn']);
+        $parameter->setValue(['testVal']);
+
+        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'parameter' => $parameter,
+        ]);
+
+        self::assertStringNotContainsString('WHERE', (string) $qb);
+        self::assertTrue($logHandler->hasNotice('Invalid filter ignored'));
+    }
+
+    public function testApplyFilterIgnoresOtherParameters(): void
+    {
+        $doctrine = self::getContainer()->get('doctrine');
+        $logHandler = new TestHandler();
+        $filter = new SimpleSearchFilter($doctrine, new Logger('test', [$logHandler]), ['jsonColumn' => null]);
+
+        /** @var QueryBuilder $qb */
+        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        // arrays for parameters of other filters are not logged
+        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'filters' => [
+                'numbers' => ['1', '5'],
+            ],
+        ]);
+
+        self::assertStringNotContainsString('WHERE', (string) $qb);
+        self::assertFalse($logHandler->hasNoticeRecords());
     }
 
     public function testApplyFilterWithMultipleFields(): void
