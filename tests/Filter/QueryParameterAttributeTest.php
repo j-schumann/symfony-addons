@@ -14,7 +14,7 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
  * handling, see the second #[ApiResource] of the TestEntity.
  */
 #[Group('database')]
-final class QueryParameterTest extends FilterRequestTestCase
+final class QueryParameterAttributeTest extends FilterRequestTestCase
 {
     protected function getEntityClasses(): array
     {
