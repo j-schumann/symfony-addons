@@ -97,6 +97,9 @@ final class QueryParameterTest extends FilterRequestTestCase
         foreach (['pattern', 'search', 'childName', 'contains', 'contains[]', 'hasKey'] as $name) {
             self::assertContains($name, $names);
         }
+
+        // JsonExistsFilter supports only a single value
+        self::assertNotContains('hasKey[]', $names);
     }
 
     private function search(string $query): array

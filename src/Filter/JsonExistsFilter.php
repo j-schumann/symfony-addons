@@ -98,15 +98,13 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
                 continue;
             }
 
+            // only a single value is supported, arrays are ignored, see normalizeValue()
             $propertyName = $this->normalizePropertyName($property);
-            $filterParameterNames = [$propertyName, $propertyName.'[]'];
-            foreach ($filterParameterNames as $filterParameterName) {
-                $description[$filterParameterName] = [
-                    'property' => $propertyName,
-                    'type'     => 'string',
-                    'required' => false,
-                ];
-            }
+            $description[$propertyName] = [
+                'property' => $propertyName,
+                'type'     => 'string',
+                'required' => false,
+            ];
         }
 
         return $description;

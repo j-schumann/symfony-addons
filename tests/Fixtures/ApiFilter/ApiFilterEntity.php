@@ -50,6 +50,6 @@ class ApiFilterEntity
     public array $roles = [];
 
     // no "onDelete", SQL Server does not allow cascading actions on self-references
-    #[ORM\ManyToOne(targetEntity: ApiFilterEntity::class)]
+    #[ORM\ManyToOne(targetEntity: self::class)]
     public ?ApiFilterEntity $parent = null;
 }

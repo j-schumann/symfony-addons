@@ -23,6 +23,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Fixed
 * `SimpleSearchFilter` ignores array values (e.g. `?pattern[]=foo`), before it searched for
   "Array" and triggered a PHP warning
+* `JsonExistsFilter` no longer documents the `property[]` parameter in the OpenAPI
+  specification, it supports only a single value
 * `SimpleSearchFilter` on Postgres: also casts columns with the `jsonb`, `json_object` and
   `jsonb_object` types of DBAL >= 4.5 to text before searching them
 

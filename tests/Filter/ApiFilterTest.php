@@ -97,9 +97,12 @@ final class ApiFilterTest extends FilterRequestTestCase
     {
         $names = $this->getOpenApiParameterNames('/api_filter_entities');
 
-        foreach (['pattern', 'numbers', 'numbers[]', 'roles', 'roles[]'] as $name) {
+        foreach (['pattern', 'numbers', 'numbers[]', 'roles'] as $name) {
             self::assertContains($name, $names);
         }
+
+        // JsonExistsFilter supports only a single value
+        self::assertNotContains('roles[]', $names);
     }
 
     private function search(string $query): array

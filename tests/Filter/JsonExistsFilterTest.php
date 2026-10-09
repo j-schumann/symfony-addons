@@ -23,12 +23,7 @@ final class JsonExistsFilterTest extends KernelTestCase
         $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null]);
 
         self::assertEquals([
-            'jsonColumn'   => [
-                'property' => 'jsonColumn',
-                'type'     => 'string',
-                'required' => false,
-            ],
-            'jsonColumn[]' => [
+            'jsonColumn' => [
                 'property' => 'jsonColumn',
                 'type'     => 'string',
                 'required' => false,
