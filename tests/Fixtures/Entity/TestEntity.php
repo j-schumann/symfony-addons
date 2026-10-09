@@ -9,7 +9,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Vrok\SymfonyAddons\Filter\ContainsFilter;
+use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
+use Vrok\SymfonyAddons\Tests\Fixtures\JsonbColumn;
 
 #[ApiResource]
 #[ApiResource(
@@ -20,14 +23,22 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
             normalizationContext: ['groups' => ['none']],
             parameters: [
                 // the parameter names the properties to search
-                'pattern' => new QueryParameter(
+                'pattern'   => new QueryParameter(
                     filter: new SimpleSearchFilter(),
                     properties: ['textColumn', 'varcharColumn'],
                 ),
                 // the filter names the properties to search
-                'search'  => new QueryParameter(
+                'search'    => new QueryParameter(
                     filter: new SimpleSearchFilter(properties: ['varcharColumn' => null]),
                 ),
+                // nested property
+                'childName' => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['children.varcharColumn'],
+                ),
+                // Postgres only
+                'contains'  => new QueryParameter(filter: new ContainsFilter(), property: 'jsonColumn'),
+                'hasKey'    => new QueryParameter(filter: new JsonExistsFilter(), property: 'jsonColumn'),
             ],
         ),
     ],
@@ -40,7 +51,7 @@ class TestEntity
     #[ORM\Column]
     public ?int $id = null;
 
-    #[ORM\Column(type: Types::JSON, options: ['JSONB' => true])]
+    #[ORM\Column(type: JsonbColumn::TYPE, options: JsonbColumn::OPTIONS)]
     public array $jsonColumn = [];
 
     #[ORM\Column(type: Types::TEXT)]

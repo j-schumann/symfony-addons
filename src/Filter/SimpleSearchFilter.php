@@ -31,6 +31,9 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
         FilterTrait::__construct as private initFilter;
     }
 
+    // DBAL >= 4.5 has dedicated types for jsonb and JSON objects
+    private const array JSON_TYPES = ['json', 'json_object', 'jsonb', 'jsonb_object'];
+
     private const string DESCRIPTION = 'Selects entities where each search term is found somewhere in at least one of the specified properties';
 
     /**
@@ -173,7 +176,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
                 // special handling for JSON fields on Postgres
                 if ($platform instanceof PostgreSQLPlatform) {
                     $fieldMeta = $metadata->getFieldMapping($field);
-                    if ('json' === $fieldMeta->type) {
+                    if (\in_array($fieldMeta->type, self::JSON_TYPES, true)) {
                         $orExp->add($queryBuilder->expr()->like(
                             "LOWER(CAST($joinAlias.$field, 'text'))",
                             ":$parameterName"
@@ -192,7 +195,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
             // special handling for JSON fields on Postgres
             if ($platform instanceof PostgreSQLPlatform) {
                 $fieldMeta = $classMetadata->getFieldMapping($prop);
-                if ('json' === $fieldMeta->type) {
+                if (\in_array($fieldMeta->type, self::JSON_TYPES, true)) {
                     $orExp->add($queryBuilder->expr()->like(
                         "LOWER(CAST($alias.$prop, 'text'))",
                         ":$parameterName"
