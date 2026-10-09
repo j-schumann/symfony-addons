@@ -3,17 +3,28 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.7.0] - 2026-10-09
 ### Added
-* Support for API Platform 5, next to API Platform 4
+* Support for API Platform 5, next to API Platform 4 (>= 4.2)
 * `SimpleSearchFilter`, `ContainsFilter` and `JsonExistsFilter` can be used with the
-  `#[QueryParameter]` attribute, see README.md
+  `#[QueryParameter]` attribute, see README.md. The `#[ApiFilter]` attribute (deprecated since
+  API Platform 4.4) is still supported, so you can migrate at your own pace.
 
 ### Changed
-* The filters no longer extend the deprecated `AbstractFilter` of API Platform, they
-  use the new internal `FilterTrait` instead
+* `ApiPlatformTestCase` extends `ApiPlatform\Test\ApiTestCase` with API Platform 5, to prevent
+  the deprecation of `ApiPlatform\Symfony\Bundle\Test\ApiTestCase`. If you use the split
+  API Platform 5 packages instead of `api-platform/core`, you must require `api-platform/test`
+  (e.g. as dev dependency), it is not installed automatically.
+* The filters no longer extend the `AbstractFilter` deprecated in API Platform 4.4, they use the
+  new internal `FilterTrait` instead. This only affects you if you extend one of the filters
+  or check for `instanceof AbstractFilter`:
+    * `getLogger()` is now public
+    * `filterProperty()` of `ContainsFilter` and `JsonExistsFilter` no longer checks if the
+      property is enabled, this is done in `apply()`
+* `SimpleSearchFilter`: the `ManagerRegistry` constructor argument is optional, API Platform
+  injects it
 * `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an
-  exception when no properties are set
+  exception when no properties are set, API Platform 4.2 calls it for a `#[QueryParameter]`
 
 ## [3.6.0] - 2026-09-25
 ### Added
