@@ -13,19 +13,20 @@ jobs:
   phpunit-mariadb:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-26.04
+
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mariadb:
-        image: mariadb:13@sha256:f1bba652ba57bea3099ca2fe1af692af537c27d96e0bcde39dce29e2ba1ec4f3
         env:
-          MARIADB_USER: dbtest
-          MARIADB_PASSWORD: dbtest
-          MARIADB_DATABASE: dbtest
           MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
-          MARIADB_MYSQL_LOCALHOST_USER: 1
+          MARIADB_DATABASE: dbtest
           MARIADB_MYSQL_LOCALHOST_GRANTS: USAGE
+          MARIADB_MYSQL_LOCALHOST_USER: 1
+          MARIADB_PASSWORD: dbtest
+          MARIADB_USER: dbtest
+        image: mariadb:13@sha256:f1bba652ba57bea3099ca2fe1af692af537c27d96e0bcde39dce29e2ba1ec4f3
         options: >-
           --tmpfs /var/lib/mysql:rw,size=1g
           --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized"
@@ -35,11 +36,15 @@ jobs:
         ports:
           - 3306:3306
     strategy:
+      fail-fast: false
       matrix:
-        php: [ '8.5', '8.6' ]
         database: [ mariadb ]
-        dependencies: [ lowest, highest ]
-      fail-fast: false # continue the other jobs if one fails
+        dependencies: [ highest, lowest ]
+        include:
+          - coverage: true
+            dependencies: highest
+            php: '8.5'
+        php: [ '8.5', '8.6' ]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -47,35 +52,38 @@ jobs:
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
         with:
-          php: ${{ matrix.php }}
+          coverage: ${{ matrix.coverage }}
           dependencies: ${{ matrix.dependencies }}
+          php: ${{ matrix.php }}
 
       - name: Run tests on MariaDB
         env:
           DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=mariadb-12.0.0&charset=utf8mb4
-        run: vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
+        run: vendor/bin/phpunit $PHPUNIT_COVERAGE_FLAGS --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test results
         uses: ./.github/actions/upload-phpunit-logs
         with:
-          php: ${{ matrix.php }}
+          coverage: ${{ matrix.coverage }}
           database: ${{ matrix.database }}
           dependencies: ${{ matrix.dependencies }}
+          php: ${{ matrix.php }}
 
   phpunit-mysql:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-26.04
+
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mysql:
-        image: mysql:lts@sha256:091c9c7c4b6a6b4d2329d54b7f40d323741785ca990469df9a1d706be0db43e7
         env:
-          MYSQL_USER: dbtest
-          MYSQL_PASSWORD: dbtest
           MYSQL_DATABASE: dbtest
+          MYSQL_PASSWORD: dbtest
           MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: dbtest
+        image: mysql:lts@sha256:091c9c7c4b6a6b4d2329d54b7f40d323741785ca990469df9a1d706be0db43e7
         options: >-
           --tmpfs /var/lib/mysql:rw,size=1g
           --health-cmd="mysqladmin ping"
@@ -85,11 +93,15 @@ jobs:
         ports:
           - 3306:3306
     strategy:
+      fail-fast: false
       matrix:
-        php: [ '8.5', '8.6' ]
         database: [ mysql ]
-        dependencies: [ lowest, highest ]
-      fail-fast: false # continue the other jobs if one fails
+        dependencies: [ highest, lowest ]
+        include:
+          - coverage: true
+            dependencies: highest
+            php: '8.5'
+        php: [ '8.5', '8.6' ]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -97,48 +109,55 @@ jobs:
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
         with:
-          php: ${{ matrix.php }}
+          coverage: ${{ matrix.coverage }}
           dependencies: ${{ matrix.dependencies }}
+          php: ${{ matrix.php }}
 
       - name: Run tests on MySQL
         env:
           DATABASE_URL: mysql://dbtest:dbtest@127.0.0.1:3306/dbtest?serverVersion=9.0&charset=utf8mb4
-        run: vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
+        run: vendor/bin/phpunit $PHPUNIT_COVERAGE_FLAGS --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test results
         uses: ./.github/actions/upload-phpunit-logs
         with:
-          php: ${{ matrix.php }}
+          coverage: ${{ matrix.coverage }}
           database: ${{ matrix.database }}
           dependencies: ${{ matrix.dependencies }}
+          php: ${{ matrix.php }}
 
   phpunit-postgres:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-26.04
+
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       postgres:
-        image: postgres:18@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
-        ports:
-          - "5432:5432"
         env:
-          POSTGRES_USER: dbtest
-          POSTGRES_PASSWORD: dbtest
           POSTGRES_DB: dbtest
+          POSTGRES_PASSWORD: dbtest
+          POSTGRES_USER: dbtest
+        image: postgres:18@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
         options: >-
           --tmpfs /var/lib/postgresql/18/docker:rw,size=1g
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - "5432:5432"
     strategy:
+      fail-fast: false
       matrix:
-        php: [ '8.5', '8.6' ]
         database: [ postgres ]
-        dependencies: [ lowest, highest ]
-      fail-fast: false # continue the other jobs if one fails
+        dependencies: [ highest, lowest ]
+        include:
+          - coverage: true
+            dependencies: highest
+            php: '8.5'
+        php: [ '8.5', '8.6' ]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -146,37 +165,40 @@ jobs:
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
         with:
-          php: ${{ matrix.php }}
+          coverage: ${{ matrix.coverage }}
           dependencies: ${{ matrix.dependencies }}
+          php: ${{ matrix.php }}
 
       - name: Run tests on Postgres
         env:
           DATABASE_URL: pgsql://dbtest:dbtest@127.0.0.1:5432/dbtest?serverVersion=18
-        run: vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
+        run: vendor/bin/phpunit $PHPUNIT_COVERAGE_FLAGS --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test results
         uses: ./.github/actions/upload-phpunit-logs
         with:
-          php: ${{ matrix.php }}
+          coverage: ${{ matrix.coverage }}
           database: ${{ matrix.database }}
           dependencies: ${{ matrix.dependencies }}
+          php: ${{ matrix.php }}
 
   phpunit-sqlite:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-26.04
+
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
     strategy:
+      fail-fast: false
       matrix:
-        php: ['8.4', '8.5', '8.6']
-        dependencies: [lowest, highest]
-        database: [sqlite]
+        database: [ sqlite ]
+        dependencies: [ highest, lowest ]
         include:
-          - php: '8.5'
+          - coverage: true
             dependencies: highest
-            coverage: true
-      fail-fast: false # continue the other jobs if one fails
+            php: '8.5'
+        php: [ '8.4', '8.5', '8.6' ]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -184,53 +206,54 @@ jobs:
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
         with:
-          php: ${{ matrix.php }}
-          dependencies: ${{ matrix.dependencies }}
           coverage: ${{ matrix.coverage }}
+          dependencies: ${{ matrix.dependencies }}
+          php: ${{ matrix.php }}
 
       - name: Run tests on Sqlite
         env:
-          # /dev/shm is the runner's tmpfs, the counterpart to the --tmpfs datadirs of the other jobs
+          # /dev/shm is the runner's tmpfs, the counterpart to the --tmpfs
+          # datadirs of the other jobs
           DATABASE_URL: sqlite:////dev/shm/data.db
-        run: |
-          mkdir -p build/logs/phpunit
-          if [ "$COVERAGE" = '1' ]; then
-            vendor/bin/phpunit --coverage-clover build/logs/phpunit/clover.xml --log-junit build/logs/phpunit/junit.xml
-          else
-            vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
-          fi
+        run: vendor/bin/phpunit $PHPUNIT_COVERAGE_FLAGS --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test results
         uses: ./.github/actions/upload-phpunit-logs
         with:
-          php: ${{ matrix.php }}
+          coverage: ${{ matrix.coverage }}
           database: ${{ matrix.database }}
           dependencies: ${{ matrix.dependencies }}
+          php: ${{ matrix.php }}
 
   phpunit-sqlsrv:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-26.04
+
     # don't mark the whole pipeline failed if one of those fails, there might
     # be incompatibilities with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mssql:
-        image: kcollins/mssql:latest@sha256:95c2666d3a7c5dfaaf7247585057285ab7617fdcba213fff70f30ad92ce2a44a
         env:
           ACCEPT_EULA: "Y"
-          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
           MSSQL_DATABASE: dbtest
-          MSSQL_USER: dbtest
           MSSQL_PASSWORD: dbtest
+          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
+          MSSQL_USER: dbtest
+        image: kcollins/mssql:latest@sha256:95c2666d3a7c5dfaaf7247585057285ab7617fdcba213fff70f30ad92ce2a44a
         options: --tmpfs /var/opt/mssql/data:rw,size=2g
         ports:
           - "1433:1433"
     strategy:
+      fail-fast: false
       matrix:
-        php: [ '8.5', '8.6' ]
         database: [ sqlsrv ]
-        dependencies: [ lowest, highest ]
-      fail-fast: false # continue the other jobs if one fails
+        dependencies: [ highest, lowest ]
+        include:
+          - coverage: true
+            dependencies: highest
+            php: '8.5'
+        php: [ '8.5', '8.6' ]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -238,24 +261,40 @@ jobs:
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
         with:
-          php: ${{ matrix.php }}
+          coverage: ${{ matrix.coverage }}
           dependencies: ${{ matrix.dependencies }}
+          php: ${{ matrix.php }}
 
       - name: Run tests on SQL Server
         env:
           DATABASE_URL: sqlsrv://sa:StrongP-ssw0rd!@127.0.0.1:1433/dbtest?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0
-        # not only the (already installed) sqlsrv extension is required, but also the
-        # ODBC driver for Linux -> install too
+
+        # the sqlsrv extension is already installed, but it also requires the
+        # ODBC driver for Linux
         run: |
           sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list
           apt-get update
           ACCEPT_EULA=Y apt-get install -y msodbcsql18'
-          vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
+          vendor/bin/phpunit $PHPUNIT_COVERAGE_FLAGS --log-junit build/logs/phpunit/junit.xml
 
       - name: Upload test results
         uses: ./.github/actions/upload-phpunit-logs
         with:
-          php: ${{ matrix.php }}
+          coverage: ${{ matrix.coverage }}
           database: ${{ matrix.database }}
           dependencies: ${{ matrix.dependencies }}
+          php: ${{ matrix.php }}
+
+  coverage-finished:
+    name: Merge the coverage results
+    needs: [ phpunit-mariadb, phpunit-mysql, phpunit-postgres, phpunit-sqlite, phpunit-sqlsrv ]
+    runs-on: ubuntu-26.04
+
+    # also merge the uploads of the successful jobs when another job failed
+    if: always()
+    steps:
+      - name: Finish the parallel Coveralls build
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2
+        with:
+          parallel-finished: true
