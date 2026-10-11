@@ -14,19 +14,60 @@ use ApiPlatform\Metadata\Parameter;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 /**
  * @todo extensive tests
- * @todo support ?| to search for multiple values
  *
  * Filters entities by their jsonb (Postgres-only) fields, if they contain
- * the search parameter, using the ? operator
+ * the search values. Multiple values are combined with AND (?& operator,
+ * default) or OR (?| operator), see $combination. For a single value both
+ * behave like the ? operator.
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
 class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface, PropertyAwareFilterInterface
 {
-    use FilterTrait;
+    use FilterTrait {
+        FilterTrait::__construct as private initFilter;
+    }
+
+    /**
+     * Records must contain all the values.
+     */
+    public const string AND = 'and';
+
+    /**
+     * Records must contain at least one of the values.
+     */
+    public const string OR = 'or';
+
+    /**
+     * DQL functions of vrok/doctrine-addons >= 3.1 per combination.
+     */
+    private const array FUNCTIONS = [
+        self::AND => 'JSON_CONTAINS_ALL_TEXT',
+        self::OR  => 'JSON_CONTAINS_ANY_TEXT',
+    ];
+
+    /**
+     * @param string $combination How multiple values are combined, self::AND or self::OR
+     */
+    public function __construct(
+        ?ManagerRegistry $managerRegistry = null,
+        ?LoggerInterface $logger = null,
+        ?array $properties = null,
+        ?NameConverterInterface $nameConverter = null,
+        private readonly string $combination = self::AND,
+    ) {
+        if (!isset(self::FUNCTIONS[$combination])) {
+            throw new InvalidArgumentException(\sprintf('Invalid "combination" parameter "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
+        }
+
+        $this->initFilter($managerRegistry, $logger, $properties, $nameConverter);
+    }
 
     protected function filterProperty(
         string $property,
@@ -50,40 +91,81 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         $field = $property;
 
         if ($this->isPropertyNested($property, $resourceClass)) {
-            [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::LEFT_JOIN);
+            [$alias, $field] = $this->addJoinsForNestedProperty(
+                $property,
+                $alias,
+                $queryBuilder,
+                $queryNameGenerator,
+                $resourceClass,
+                Join::LEFT_JOIN
+            );
         }
 
         $valueParameter = $queryNameGenerator->generateParameterName($field);
 
         $queryBuilder
-            ->andWhere(\sprintf('JSON_CONTAINS_TEXT(%s.%s, :%s) = true', $alias, $field, $valueParameter))
+            ->andWhere(
+                \sprintf(
+                    '%s(%s.%s, :%s) = true',
+                    self::FUNCTIONS[$this->combination],
+                    $alias,
+                    $field,
+                    $valueParameter
+                )
+            )
             ->setParameter($valueParameter, $value);
     }
 
+    /**
+     * Returns the values as list of unique strings or NULL if the value is
+     * invalid.
+     *
+     * @return list<string>|null
+     */
     protected function normalizeValue(mixed $value, string $property): mixed
     {
-        if (\is_array($value)) {
-            $this->getLogger()->notice('Invalid filter ignored', [
-                'exception' => new InvalidArgumentException(\sprintf('Invalid value for "%s" property', $property)),
-            ]);
-
-            return null;
-        }
-
         if (null === $value) {
             $this->getLogger()->notice('Invalid filter ignored', [
-                'exception' => new InvalidArgumentException(\sprintf('A value is required for %1$s', $property)),
+                'exception' => new InvalidArgumentException(
+                    \sprintf('A value is required for %1$s', $property)
+                ),
             ]);
 
             return null;
         }
 
-        return $value;
+        if (\is_scalar($value)) {
+            return [(string) $value];
+        }
+
+        if (
+            \is_array($value)
+            && [] !== $value
+            && array_all($value, static fn (mixed $item): bool => \is_scalar($item))
+        ) {
+            return array_values(array_unique(array_map(strval(...), $value)));
+        }
+
+        $this->getLogger()->notice('Invalid filter ignored', [
+            'exception' => new InvalidArgumentException(
+                \sprintf('Invalid value for "%s" property', $property)
+            ),
+        ]);
+
+        return null;
     }
 
     public function getOpenApiParameters(Parameter $parameter): OpenApiParameter|array|null
     {
-        return new OpenApiParameter($parameter->getKey(), 'query');
+        return [
+            new OpenApiParameter($parameter->getKey(), 'query'),
+            new OpenApiParameter(
+                $parameter->getKey().'[]',
+                'query',
+                style: 'deepObject',
+                explode: true
+            ),
+        ];
     }
 
     public function getDescription(string $resourceClass): array
@@ -91,20 +173,25 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         $description = [];
 
         $properties = $this->getProperties();
-        $properties ??= array_fill_keys($this->getClassMetadata($resourceClass)->getFieldNames(), null);
+        $properties ??= array_fill_keys(
+            $this->getClassMetadata($resourceClass)->getFieldNames(),
+            null
+        );
 
         foreach (array_keys($properties) as $property) {
             if (!$this->isPropertyMapped($property, $resourceClass)) {
                 continue;
             }
 
-            // only a single value is supported, arrays are ignored, see normalizeValue()
             $propertyName = $this->normalizePropertyName($property);
-            $description[$propertyName] = [
-                'property' => $propertyName,
-                'type'     => 'string',
-                'required' => false,
-            ];
+            $filterParameterNames = [$propertyName, $propertyName.'[]'];
+            foreach ($filterParameterNames as $filterParameterName) {
+                $description[$filterParameterName] = [
+                    'property' => $propertyName,
+                    'required' => false,
+                    'type'     => 'string',
+                ];
+            }
         }
 
         return $description;

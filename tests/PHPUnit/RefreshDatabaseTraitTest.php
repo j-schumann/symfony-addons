@@ -5,7 +5,6 @@ namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
@@ -22,7 +21,6 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Inheritance\SuperclassChildB;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 use Zalas\PHPUnit\Globals\Attribute\Env;
 
-#[Group('database')]
 final class RefreshDatabaseTraitTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;

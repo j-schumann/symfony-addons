@@ -28,12 +28,17 @@
         "symfony/doctrine-bridge": "^7.4.10|^8.0.0",
         "symfony/doctrine-messenger": "^7.4.10|^8.0.0",
         "symfony/monolog-bundle": "^3.11.0|^4.0.0",
+        "symfony/property-info": "^7.4.10|^8.0.0",
         "symfony/string": "^7.4.10|^8.0.0",
         "symfony/twig-bundle": "^7.4.10|^8.0.0",
         "symfony/validator": "^7.4.10|^8.0.0",
         "symfony/workflow": "^7.4.10|^8.0.0",
-        "vrok/doctrine-addons": "^2.15.0|^3.0.0",
+        "vrok/doctrine-addons": "^3.1.0",
         "zalas/phpunit-globals": "^4.2.0"
+    },
+    "suggest": {
+        "api-platform/test": "Required by the BaseApiTestCase when API Platform is installed as split packages instead of api-platform/core",
+        "vrok/doctrine-addons": "^3.1.0 provides the DQL functions the ContainsFilter, the JsonExistsFilter and the SimpleSearchFilter on JSON columns in Postgres require"
     },
     "autoload": {
         "psr-4": {
@@ -53,7 +58,6 @@
         "cs-check": "php-cs-fixer fix --dry-run --diff -v",
         "cs-fix": "php-cs-fixer fix -v",
         "test": "phpunit --colors=always",
-        "test-database": "phpunit --colors=always --group=database",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }
 }

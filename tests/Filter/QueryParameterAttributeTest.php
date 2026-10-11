@@ -5,7 +5,6 @@
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\Attributes\Group;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
@@ -13,7 +12,6 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
  * Uses the filters via #[QueryParameter] through the API Platform request
  * handling, see the #[ApiResource] of the TestEntity.
  */
-#[Group('database')]
 final class QueryParameterAttributeTest extends FilterRequestTestCase
 {
     protected function getEntityClasses(): array
@@ -26,7 +24,7 @@ final class QueryParameterAttributeTest extends FilterRequestTestCase
         $rec1 = new TestEntity();
         $rec1->textColumn = 'record EINS text';
         $rec1->varcharColumn = 'record EINS varchar';
-        $rec1->jsonColumn = [1, 5, 'ROLE_ADMIN'];
+        $rec1->jsonColumn = [1, 5, 'ROLE_ADMIN', 'ROLE_EDITOR'];
         $child1 = new Child();
         $child1->varcharColumn = 'child EINS';
         $child1->testEntity = $rec1;
@@ -88,18 +86,35 @@ final class QueryParameterAttributeTest extends FilterRequestTestCase
         self::assertCount(1, $this->search('?hasKey=ROLE_ADMIN'));
         self::assertCount(1, $this->search('?hasKey=ROLE_ADMIN_BLOG'));
         self::assertCount(0, $this->search('?hasKey=ROLE'));
+
+        // multiple values combined with AND (default)
+        self::assertCount(0, $this->search('?hasKey[]=ROLE_ADMIN&hasKey[]=ROLE_ADMIN_BLOG'));
+        self::assertCount(1, $this->search('?hasKey[]=ROLE_ADMIN&hasKey[]=ROLE_EDITOR'));
+
+        // multiple values combined with OR
+        self::assertCount(
+            2,
+            $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_ADMIN_BLOG')
+        );
+        self::assertCount(1, $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_NONE'));
     }
 
     public function testParametersAreDocumented(): void
     {
         $names = $this->getOpenApiParameterNames('/test_entities');
 
-        foreach (['pattern', 'search', 'childName', 'contains', 'contains[]', 'hasKey'] as $name) {
+        $expected = [
+            'childName',
+            'contains',
+            'contains[]',
+            'hasKey',
+            'hasKey[]',
+            'pattern',
+            'search',
+        ];
+        foreach ($expected as $name) {
             self::assertContains($name, $names);
         }
-
-        // JsonExistsFilter supports only a single value
-        self::assertNotContains('hasKey[]', $names);
     }
 
     private function search(string $query): array

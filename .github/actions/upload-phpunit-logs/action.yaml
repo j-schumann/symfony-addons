@@ -2,15 +2,19 @@ name: 'Upload PHPUnit logs'
 description: 'Upload PHPUnit logs with a consistent artifact name'
 
 inputs:
-  php:
-    required: true
-    description: PHP Version being used
+  coverage:
+    required: false
+    default: 'false'
+    description: Whether to upload the coverage results to Coveralls as part of a parallel build
   database:
     required: true
     description: Database being used
   dependencies:
     required: true
     description: Dependencies being used
+  php:
+    required: true
+    description: PHP Version being used
 
 runs:
   using: 'composite'
@@ -19,17 +23,20 @@ runs:
       if: always()
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
       with:
-        # Include matrix info in the name so each artifact is unique[web:82][web:84]
-        name: phpunit-logs-php${{ inputs.php }}-${{ inputs.database }}-${{ inputs.dependencies }}deps
+        # the artifact name must be unique within the workflow run
+        name: phpunit-logs-${{ inputs.php }}-${{ inputs.database }}-${{ inputs.dependencies }}
         path: build/logs/phpunit
       continue-on-error: true
 
     - name: Upload coverage results to Coveralls
-      if: matrix.coverage
-      env:
-        COVERALLS_REPO_TOKEN: ${{ github.token }}
-      shell: bash
-      run: |
-        composer global require --prefer-dist --no-interaction --no-progress --ansi php-coveralls/php-coveralls
-        php-coveralls --coverage_clover=build/logs/phpunit/clover.xml -v
+      if: inputs.coverage == 'true'
+      uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2
+      with:
+        file: build/logs/phpunit/clover.xml
+        flag-name: ${{ inputs.database }}
+        format: clover
+
+        # the coverage-finished job of the workflow merges the uploads of all
+        # jobs into one report
+        parallel: true
       continue-on-error: true

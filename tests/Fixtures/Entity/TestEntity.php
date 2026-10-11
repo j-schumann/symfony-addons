@@ -34,8 +34,18 @@ use Vrok\SymfonyAddons\Tests\Fixtures\JsonbColumn;
                     properties: ['children.varcharColumn'],
                 ),
                 // Postgres only
-                'contains'  => new QueryParameter(filter: new ContainsFilter(), property: 'jsonColumn'),
-                'hasKey'    => new QueryParameter(filter: new JsonExistsFilter(), property: 'jsonColumn'),
+                'contains'  => new QueryParameter(
+                    filter: new ContainsFilter(),
+                    property: 'jsonColumn',
+                ),
+                'hasAnyKey' => new QueryParameter(
+                    filter: new JsonExistsFilter(combination: JsonExistsFilter::OR),
+                    property: 'jsonColumn',
+                ),
+                'hasKey'    => new QueryParameter(
+                    filter: new JsonExistsFilter(),
+                    property: 'jsonColumn',
+                ),
             ],
         ),
     ],

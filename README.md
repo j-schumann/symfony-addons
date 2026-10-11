@@ -760,27 +760,50 @@ doctrine:
 
 ### JsonExistsFilter
 
-Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter, using
-the `?` operator. For example for filtering Users by their role, to prevent accidental matching with
+Postgres-only: Filters entities by their jsonb fields, if they contain the search values. For
+example for filtering Users by their role, to prevent accidental matching with
 overlapping role names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as text with `WHERE
 roles LIKE '%ROLE_ADMIN%'`.
 
+Multiple values (e.g. `?roles[]=ROLE_ADMIN&roles[]=ROLE_EDITOR`) are combined with AND by
+default (`?&` operator), a record must contain all values. Set `combination` to
+`JsonExistsFilter::OR` to match records that contain at least one of the values (`?|` operator).
+For a single value both behave like the `?` operator.
+
 ```php
 #[GetCollection(parameters: [
+    // records with at least one of the given roles
+    'anyRole' => new QueryParameter(
+        filter: new JsonExistsFilter(combination: JsonExistsFilter::OR),
+        property: 'roles',
+    ),
+
+    // records with all the given roles
     'role' => new QueryParameter(filter: new JsonExistsFilter(), property: 'roles'),
 ])]
 
 // legacy
-#[ApiFilter(filterClass: JsonExistsFilter::class, properties: ['roles'])]
+#[ApiFilter(
+    filterClass: JsonExistsFilter::class,
+    properties: ['roles'],
+    arguments: ['combination' => JsonExistsFilter::OR],
+)]
 ```
 
-Requires JSON_CONTAINS_TEXT as defined Doctrine function, provided by `vrok/doctrine-addons`:
+Requires a DQL function of `vrok/doctrine-addons` >= 3.1, depending on the `combination` of the
+filter. Register the functions for the combination(s) you use (this applies to single and multiple
+values):
+
 ```yaml
 doctrine:
   orm:
     dql:
       string_functions:
-        JSON_CONTAINS_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsTextFunction
+        # for JsonExistsFilter::AND, the default
+        JSON_CONTAINS_ALL_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAllTextFunction
+
+        # for JsonExistsFilter::OR
+        JSON_CONTAINS_ANY_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAnyTextFunction
 ```
 
 ## MultipartDecoder
@@ -960,7 +983,6 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 
 #### Next Major
 * drop support for APIP < 5
-* drop support for vrok/doctrine-addons < 3
 * drop support for doctrine/dbal < 4.5 -> remove tests/Fixtures/JsonbColumn.php, use `Types::JSONB`
 * remove PROBLEM_CONTENT_TYPE -> b/c incompatible note
 * check: change user login, how does APIP handle it?
