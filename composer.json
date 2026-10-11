@@ -58,7 +58,6 @@
         "cs-check": "php-cs-fixer fix --dry-run --diff -v",
         "cs-fix": "php-cs-fixer fix -v",
         "test": "phpunit --colors=always",
-        "test-database": "phpunit --colors=always --group=database",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }
 }
