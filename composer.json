@@ -38,7 +38,7 @@
     },
     "suggest": {
         "api-platform/test": "Required by the BaseApiTestCase when API Platform is installed as split packages instead of api-platform/core",
-        "vrok/doctrine-addons": "^3.1.0 provides the DQL functions the ContainsFilter, JsonExistsFilter and SimpleSearchFilter require"
+        "vrok/doctrine-addons": "^3.1.0 provides the DQL functions the ContainsFilter, the JsonExistsFilter and the SimpleSearchFilter on JSON columns in Postgres require"
     },
     "autoload": {
         "psr-4": {
