@@ -5,7 +5,6 @@
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use Vrok\SymfonyAddons\Tests\Fixtures\ApiFilter\ApiFilterEntity;
 
@@ -18,7 +17,6 @@ use Vrok\SymfonyAddons\Tests\Fixtures\ApiFilter\ApiFilterEntity;
  *
  * @todo remove when support for #[ApiFilter] is dropped (API Platform 6)
  */
-#[Group('database')]
 #[IgnoreDeprecations('with the "#\[ApiFilter\]" attribute is deprecated|through "Operation::\$filters" is deprecated')]
 final class ApiFilterAttributeTest extends FilterRequestTestCase
 {

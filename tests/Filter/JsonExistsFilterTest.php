@@ -13,12 +13,10 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
-use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
-#[Group('database')]
 final class JsonExistsFilterTest extends KernelTestCase
 {
     public function testGetDescription(): void

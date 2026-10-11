@@ -5,7 +5,6 @@
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\Attributes\Group;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
@@ -13,7 +12,6 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
  * Uses the filters via #[QueryParameter] through the API Platform request
  * handling, see the #[ApiResource] of the TestEntity.
  */
-#[Group('database')]
 final class QueryParameterAttributeTest extends FilterRequestTestCase
 {
     protected function getEntityClasses(): array
