@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Removed
 * Support for API Platform 4, requires API Platform 5
+* Support for doctrine/dbal < 4.5
 * `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`, deprecated since 3.6, use `PROBLEM_MEDIA_TYPE`
 * The internal `BaseApiTestCase`, `ApiPlatformTestCase` extends `ApiPlatform\Test\ApiTestCase`
 

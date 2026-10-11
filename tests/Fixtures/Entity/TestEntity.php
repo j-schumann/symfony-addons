@@ -12,7 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Vrok\SymfonyAddons\Filter\ContainsFilter;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
-use Vrok\SymfonyAddons\Tests\Fixtures\JsonbColumn;
 
 #[ApiResource(
     operations: [
@@ -58,7 +57,7 @@ class TestEntity
     #[ORM\Column]
     public ?int $id = null;
 
-    #[ORM\Column(type: JsonbColumn::TYPE, options: JsonbColumn::OPTIONS)]
+    #[ORM\Column(type: Types::JSONB)]
     public array $jsonColumn = [];
 
     #[ORM\Column(type: Types::TEXT)]

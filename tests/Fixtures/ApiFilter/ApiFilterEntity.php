@@ -10,7 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Vrok\SymfonyAddons\Filter\ContainsFilter;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
-use Vrok\SymfonyAddons\Tests\Fixtures\JsonbColumn;
 
 /**
  * Uses the filters via the legacy #[ApiFilter] attribute, which is deprecated. Only loaded in the
@@ -42,10 +41,10 @@ class ApiFilterEntity
     #[ORM\Column(type: Types::STRING, length: 255)]
     public string $varcharColumn = '';
 
-    #[ORM\Column(type: JsonbColumn::TYPE, options: JsonbColumn::OPTIONS)]
+    #[ORM\Column(type: Types::JSONB)]
     public array $numbers = [];
 
-    #[ORM\Column(type: JsonbColumn::TYPE, options: JsonbColumn::OPTIONS)]
+    #[ORM\Column(type: Types::JSONB)]
     public array $roles = [];
 
     // no "onDelete", SQL Server does not allow cascading actions on self-references

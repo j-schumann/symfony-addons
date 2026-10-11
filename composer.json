@@ -36,6 +36,7 @@
         "zalas/phpunit-globals": "^4.2.0"
     },
     "conflict": {
+        "doctrine/dbal": "<4.5",
         "twig/twig": "<3.21"
     },
     "suggest": {

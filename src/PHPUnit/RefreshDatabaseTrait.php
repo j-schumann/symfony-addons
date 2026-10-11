@@ -457,9 +457,8 @@ trait RefreshDatabaseTrait
     }
 
     /**
-     * @todo this method only works w/ DBAL >= 4.4, as the createMetadataProvider is first
-     *       implemented there. But also schemaManager->listDatabases is only deprecated since 4.4,
-     *       so we stay with that, until we actually want to support 5.0 w/o listDatabases.
+     * @todo schemaManager->listDatabases is deprecated, but we stay with it until we actually want
+     *       to support DBAL 5.0 w/o listDatabases.
      *
      * Returns the list of databases the current connection sees. Must be called with the "old"
      * entityManager, that has the database name set in its connection, or we will receive "A
