@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.0.0] - unreleased
+## [4.0.0] - TBD
 ### Added
 * `JsonExistsFilter` supports multiple values (e.g. `?roles[]=ROLE_A&roles[]=ROLE_B`), combined
   with AND (default) or OR, see the new `combination` constructor argument

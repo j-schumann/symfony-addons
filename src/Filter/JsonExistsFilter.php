@@ -63,7 +63,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         private readonly string $combination = self::AND,
     ) {
         if (!isset(self::FUNCTIONS[$combination])) {
-            throw new InvalidArgumentException(\sprintf('Invalid combination "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
+            throw new InvalidArgumentException(\sprintf('Invalid "combination" parameter "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
         }
 
         $this->initFilter($managerRegistry, $logger, $properties, $nameConverter);

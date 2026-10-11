@@ -791,17 +791,8 @@ For a single value both behave like the `?` operator.
 ```
 
 Requires a DQL function of `vrok/doctrine-addons` >= 3.1, depending on the `combination` of the
-filter. Register only the functions for the combinations you use:
-
-| Filter configuration                                                  | Required DQL function    |
-|-----------------------------------------------------------------------|--------------------------|
-| `new JsonExistsFilter()`                                              | `JSON_CONTAINS_ALL_TEXT` |
-| `new JsonExistsFilter(combination: JsonExistsFilter::AND)`            | `JSON_CONTAINS_ALL_TEXT` |
-| `new JsonExistsFilter(combination: JsonExistsFilter::OR)`             | `JSON_CONTAINS_ANY_TEXT` |
-| `#[ApiFilter(JsonExistsFilter::class, …)]`                            | `JSON_CONTAINS_ALL_TEXT` |
-| `#[ApiFilter(…, arguments: ['combination' => JsonExistsFilter::OR])]` | `JSON_CONTAINS_ANY_TEXT` |
-
-This applies to single and multiple values.
+filter. Register the functions for the combination(s) you use (this applies to single and multiple
+values):
 
 ```yaml
 doctrine:
