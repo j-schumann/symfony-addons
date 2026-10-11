@@ -43,6 +43,9 @@ trait FilterTrait
         $this->nameConverter = $nameConverter;
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function apply(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,

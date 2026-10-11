@@ -34,6 +34,7 @@ final class ApiFilterAttributeTest extends FilterRequestTestCase
     {
         $parent = new ApiFilterEntity();
         $parent->varcharColumn = 'parent';
+
         $em->persist($parent);
 
         $rec1 = new ApiFilterEntity();
@@ -42,6 +43,7 @@ final class ApiFilterAttributeTest extends FilterRequestTestCase
         $rec1->numbers = [1, 5];
         $rec1->roles = ['ROLE_ADMIN', 'ROLE_EDITOR'];
         $rec1->parent = $parent;
+
         $em->persist($rec1);
 
         $rec2 = new ApiFilterEntity();
@@ -49,6 +51,7 @@ final class ApiFilterAttributeTest extends FilterRequestTestCase
         $rec2->varcharColumn = 'record ZWEI varchar';
         $rec2->numbers = [2];
         $rec2->roles = ['ROLE_ADMIN_BLOG'];
+
         $em->persist($rec2);
     }
 

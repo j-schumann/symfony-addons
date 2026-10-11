@@ -25,9 +25,11 @@ final class QueryParameterAttributeTest extends FilterRequestTestCase
         $rec1->textColumn = 'record EINS text';
         $rec1->varcharColumn = 'record EINS varchar';
         $rec1->jsonColumn = [1, 5, 'ROLE_ADMIN', 'ROLE_EDITOR'];
+
         $child1 = new Child();
         $child1->varcharColumn = 'child EINS';
         $child1->testEntity = $rec1;
+
         $em->persist($child1);
         $em->persist($rec1);
 
@@ -35,9 +37,11 @@ final class QueryParameterAttributeTest extends FilterRequestTestCase
         $rec2->textColumn = 'record ZWEI text';
         $rec2->varcharColumn = 'record ZWEI varchar';
         $rec2->jsonColumn = [2, 'ROLE_ADMIN_BLOG'];
+
         $child2 = new Child();
         $child2->varcharColumn = 'child ZWEI';
         $child2->testEntity = $rec2;
+
         $em->persist($child2);
         $em->persist($rec2);
     }

@@ -159,6 +159,9 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
         return true;
     }
 
+    /**
+     * @param int[]|string[] $properties
+     */
     private function addWhere(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
