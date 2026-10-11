@@ -2,6 +2,7 @@
 
 namespace Vrok\SymfonyAddons\PHPUnit;
 
+use ApiPlatform\Test\ApiTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
@@ -11,7 +12,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * Helper class that contains often used functionality to simplify testing
  * API endpoints.
  */
-abstract class ApiPlatformTestCase extends BaseApiTestCase
+abstract class ApiPlatformTestCase extends ApiTestCase
 {
     use MonologAssertsTrait;
     use RefreshDatabaseTrait;
@@ -24,17 +25,11 @@ abstract class ApiPlatformTestCase extends BaseApiTestCase
      */
     protected static string $userClass = '\App\Entity\User';
 
-    // region JSON responses, for ApiPlatform >= 3.2
+    // region JSON responses
     protected const UNAUTHENTICATED_RESPONSE = [
         'code'    => 401,
         'message' => 'JWT Token not found',
     ];
-
-    /**
-     * @deprecated since 3.6, use PROBLEM_MEDIA_TYPE instead, ApiPlatform >= 4.4
-     *             no longer sends a charset for JSON based content types
-     */
-    public const PROBLEM_CONTENT_TYPE = 'application/problem+json; charset=utf-8';
 
     // this should be returned for RFC 7807 compliant errors
     public const PROBLEM_MEDIA_TYPE = 'application/problem+json';
@@ -301,14 +296,7 @@ abstract class ApiPlatformTestCase extends BaseApiTestCase
         }
 
         if ('' !== $contentType) {
-            // @todo remove the normalization with the next major version and only use
-            //       assertResponseHeaderSame()
-            $receivedType = $response->getHeaders(false)['content-type'][0] ?? '';
-            if ($this->normalizeContentType($receivedType) === $this->normalizeContentType($contentType)) {
-                $this->addToAssertionCount(1);
-            } else {
-                self::assertResponseHeaderSame('content-type', $contentType);
-            }
+            self::assertResponseHeaderSame('content-type', $contentType);
         }
 
         if ([] !== $json) {
@@ -539,21 +527,5 @@ abstract class ApiPlatformTestCase extends BaseApiTestCase
         $jwtManager = static::getContainer()->get('lexik_jwt_authentication.jwt_manager');
 
         return $jwtManager->create($user);
-    }
-
-    /**
-     * ApiPlatform < 4.4 appends "; charset=utf-8" to all content types,
-     * newer versions only for text/* and application/xml. Remove the charset
-     * so tests work with both versions, regardless of the expected value.
-     *
-     * @todo remove with the next major version
-     */
-    private function normalizeContentType(string $contentType): string
-    {
-        return (string) preg_replace(
-            '/\s*;\s*charset\s*=\s*"?utf-8"?/i',
-            '',
-            strtolower(trim($contentType))
-        );
     }
 }

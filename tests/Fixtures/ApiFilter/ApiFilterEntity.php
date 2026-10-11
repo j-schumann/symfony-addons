@@ -13,8 +13,8 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 use Vrok\SymfonyAddons\Tests\Fixtures\JsonbColumn;
 
 /**
- * Uses the filters via the legacy #[ApiFilter] attribute, which is deprecated
- * since API Platform 4.4. Only loaded in the "test_api_filter" environment, so
+ * Uses the filters via the legacy #[ApiFilter] attribute, which is deprecated.
+ * Only loaded in the "test_api_filter" environment, so
  * the deprecation is only triggered by the tests for this entity.
  *
  * @todo remove when support for #[ApiFilter] is dropped (API Platform 6)

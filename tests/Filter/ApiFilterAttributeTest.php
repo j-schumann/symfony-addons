@@ -12,7 +12,7 @@ use Vrok\SymfonyAddons\Tests\Fixtures\ApiFilter\ApiFilterEntity;
  * Uses the filters via the legacy #[ApiFilter] attribute through the API
  * Platform request handling, see the ApiFilterEntity.
  *
- * API Platform >= 4.4 deprecates the attribute when it builds the container
+ * API Platform deprecates the attribute when it builds the container
  * and the metadata of the ApiFilterEntity, this is expected.
  *
  * @todo remove when support for #[ApiFilter] is dropped (API Platform 6)

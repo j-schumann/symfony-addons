@@ -14,6 +14,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   for single values too, see UPGRADE.md
 * BC break: `JsonExistsFilter` no longer ignores multiple values, such requests return only the
   matching records
+* BC break: `ApiPlatformTestCase::testOperation()` compares the `contentType` exactly, it no longer
+  ignores a `; charset=utf-8` suffix
+
+### Removed
+* Support for API Platform 4, requires API Platform 5
+* `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`, deprecated since 3.6, use `PROBLEM_MEDIA_TYPE`
+* The internal `BaseApiTestCase`, `ApiPlatformTestCase` extends `ApiPlatform\Test\ApiTestCase`
 
 ## [3.7.0] - 2026-10-09
 ### Added

@@ -241,7 +241,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
 
     public function getDescription(string $resourceClass): array
     {
-        // API Platform 4.2 also calls this for a #[QueryParameter], which can
+        // API Platform also calls this for a #[QueryParameter], which can
         // name the properties instead of the filter
         $props = $this->getProperties();
         if (null === $props) {

@@ -27,11 +27,8 @@ final class OperationTest extends ApiPlatformTestCase
                 'status',
                 'type',
 
-                // ApiPlatform 4.2 is backwards incompatible (again):
-                // Before, "title" and "hydra:title" were both set, so old
-                // clients, depending on the "hydra" values worked and new ones
-                // that use only "detail"+"title". Now we only get either
-                // title or hydra:title
+                // API Platform sets either "title" or "hydra:title", depending on
+                // api_platform.serializer.hydra_prefix
                 // @todo Change when api_platform.serializer.hydra_prefix is
                 //       set to false
                 'hydra:title',
@@ -42,23 +39,6 @@ final class OperationTest extends ApiPlatformTestCase
             forbiddenKeys: ['hydra:member'],
             messageCount: 0,
         );
-    }
-
-    /**
-     * ApiPlatform < 4.4 returns "application/problem+json; charset=utf-8", newer versions return
-     * "application/problem+json". The deprecated constant must still work with both.
-     *
-     * @todo remove with the next major version, together with PROBLEM_CONTENT_TYPE
-     */
-    public function testTestOperationIgnoresCharset(): void
-    {
-        $response = $this->testOperation(
-            uri: '/test',
-            responseCode: 404,
-            contentType: ApiPlatformTestCase::PROBLEM_CONTENT_TYPE,
-        );
-
-        self::assertInstanceOf(ResponseInterface::class, $response);
     }
 
     public function testTestOperationCallsPrepare(): void

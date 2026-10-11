@@ -692,7 +692,7 @@ class MyEventSubscriber implements EventSubscriberInterface
 
 ## ApiPlatform Filters
 
-All filters can be used with the `#[QueryParameter]` attribute (recommended in API Platform >= 4.2).
+All filters can be used with the `#[QueryParameter]` attribute (recommended).
 With `#[QueryParameter]` the filter does not need any properties enabled, the parameter names the
 property to filter. Nested properties, e.g. `children.content`, are supported.
 
@@ -982,8 +982,6 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper
 
 #### Next Major
-* drop support for APIP < 5
 * drop support for doctrine/dbal < 4.5 -> remove tests/Fixtures/JsonbColumn.php, use `Types::JSONB`
-* remove PROBLEM_CONTENT_TYPE -> b/c incompatible note
 * check: change user login, how does APIP handle it?
 * switch Twig extensions to #AsTwigFilter

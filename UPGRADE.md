@@ -1,5 +1,12 @@
 # Upgrade to 4.0
 
+* Update API Platform to version 5, version 4 is no longer supported. If you use the split API
+  Platform packages instead of `api-platform/core`, require `api-platform/test` for the
+  `ApiPlatformTestCase`.
+* Replace `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE` with `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`.
+  `testOperation()` compares the `contentType` exactly, remove a `; charset=utf-8` suffix from
+  expected JSON based content types.
+* If you extended the internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase` instead.
 * If you use the `JsonExistsFilter`: it now filters by multiple values (e.g.
   `?roles[]=ROLE_A&roles[]=ROLE_B`). Before, the filter ignored such requests and returned
   all records, now they return only the matching records. The filter no longer uses

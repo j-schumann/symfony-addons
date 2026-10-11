@@ -4,16 +4,16 @@
 
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
+use ApiPlatform\Test\ApiTestCase;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
-use Vrok\SymfonyAddons\PHPUnit\BaseApiTestCase;
 
 /**
  * Base for tests that use the filters through the API Platform request
  * handling, to verify the wiring of the filters, not only their queries.
  */
-abstract class FilterRequestTestCase extends BaseApiTestCase
+abstract class FilterRequestTestCase extends ApiTestCase
 {
     protected static ?bool $alwaysBootKernel = false;
 
