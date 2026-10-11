@@ -760,14 +760,15 @@ doctrine:
 
 ### JsonExistsFilter
 
-Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter, using
-the `?` operator. For example for filtering Users by their role, to prevent accidental matching with
+Postgres-only: Filters entities by their jsonb fields, if they contain the search values. For
+example for filtering Users by their role, to prevent accidental matching with
 overlapping role names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as text with `WHERE
 roles LIKE '%ROLE_ADMIN%'`.
 
 Multiple values (e.g. `?roles[]=ROLE_ADMIN&roles[]=ROLE_EDITOR`) are combined with AND by
 default (`?&` operator), a record must contain all values. Set `combination` to
 `JsonExistsFilter::OR` to match records that contain at least one of the values (`?|` operator).
+For a single value both behave like the `?` operator.
 
 ```php
 #[GetCollection(parameters: [
@@ -789,8 +790,8 @@ default (`?&` operator), a record must contain all values. Set `combination` to
 )]
 ```
 
-Requires JSON_CONTAINS_ALL_TEXT, JSON_CONTAINS_ANY_TEXT and JSON_CONTAINS_TEXT as defined Doctrine
-functions, provided by `vrok/doctrine-addons` >= 3.1:
+Requires JSON_CONTAINS_ALL_TEXT (AND) and/or JSON_CONTAINS_ANY_TEXT (OR) as defined Doctrine
+functions, depending on the combinations you use, provided by `vrok/doctrine-addons` >= 3.1:
 ```yaml
 doctrine:
   orm:
@@ -798,7 +799,6 @@ doctrine:
       string_functions:
         JSON_CONTAINS_ALL_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAllTextFunction
         JSON_CONTAINS_ANY_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAnyTextFunction
-        JSON_CONTAINS_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsTextFunction
 ```
 
 ## MultipartDecoder

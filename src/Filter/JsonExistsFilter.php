@@ -22,8 +22,9 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
  * @todo extensive tests
  *
  * Filters entities by their jsonb (Postgres-only) fields, if they contain
- * the search parameter, using the ? operator. Multiple values are combined
- * with AND (?& operator, default) or OR (?| operator), see $combination.
+ * the search values. Multiple values are combined with AND (?& operator,
+ * default) or OR (?| operator), see $combination. For a single value both
+ * behave like the ? operator.
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
@@ -44,9 +45,9 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
     public const string OR = 'or';
 
     /**
-     * DQL functions of vrok/doctrine-addons >= 3.1 for multiple values.
+     * DQL functions of vrok/doctrine-addons >= 3.1 per combination.
      */
-    private const array MULTIPLE_VALUES_FUNCTIONS = [
+    private const array FUNCTIONS = [
         self::AND => 'JSON_CONTAINS_ALL_TEXT',
         self::OR  => 'JSON_CONTAINS_ANY_TEXT',
     ];
@@ -61,7 +62,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         ?NameConverterInterface $nameConverter = null,
         private readonly string $combination = self::AND,
     ) {
-        if (!isset(self::MULTIPLE_VALUES_FUNCTIONS[$combination])) {
+        if (!isset(self::FUNCTIONS[$combination])) {
             throw new InvalidArgumentException(\sprintf('Invalid combination "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
         }
 
@@ -86,10 +87,6 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
             return;
         }
 
-        $function = \is_array($value)
-            ? self::MULTIPLE_VALUES_FUNCTIONS[$this->combination]
-            : 'JSON_CONTAINS_TEXT';
-
         $alias = $queryBuilder->getRootAliases()[0];
         $field = $property;
 
@@ -108,16 +105,22 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
 
         $queryBuilder
             ->andWhere(
-                \sprintf('%s(%s.%s, :%s) = true', $function, $alias, $field, $valueParameter)
+                \sprintf(
+                    '%s(%s.%s, :%s) = true',
+                    self::FUNCTIONS[$this->combination],
+                    $alias,
+                    $field,
+                    $valueParameter
+                )
             )
             ->setParameter($valueParameter, $value);
     }
 
     /**
-     * Returns a single value as string, multiple values as list of unique
-     * strings or NULL if the value is invalid.
+     * Returns the values as list of unique strings or NULL if the value is
+     * invalid.
      *
-     * @return string|list<string>|null
+     * @return list<string>|null
      */
     protected function normalizeValue(mixed $value, string $property): mixed
     {
@@ -132,7 +135,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         }
 
         if (\is_scalar($value)) {
-            return (string) $value;
+            return [(string) $value];
         }
 
         if (
@@ -140,10 +143,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
             && [] !== $value
             && array_all($value, static fn (mixed $item): bool => \is_scalar($item))
         ) {
-            $values = array_values(array_unique(array_map(strval(...), $value)));
-
-            // a single value does not need the operators for multiple values
-            return 1 === \count($values) ? $values[0] : $values;
+            return array_values(array_unique(array_map(strval(...), $value)));
         }
 
         $this->getLogger()->notice('Invalid filter ignored', [

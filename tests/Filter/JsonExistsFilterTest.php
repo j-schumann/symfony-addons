@@ -57,10 +57,10 @@ final class JsonExistsFilterTest extends KernelTestCase
 
         $param = $qb->getParameter('jsonColumn_p1');
         self::assertInstanceOf(Parameter::class, $param);
-        self::assertSame('testVal', $param->getValue());
+        self::assertSame(['testVal'], $param->getValue());
 
         self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
+            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
             (string) $qb
         );
     }
@@ -82,9 +82,9 @@ final class JsonExistsFilterTest extends KernelTestCase
             'filters'   => ['jsonColumn' => 'testVal'],
         ]);
 
-        self::assertSame('testVal', $qb->getParameter('jsonColumn_p1')?->getValue());
+        self::assertSame(['testVal'], $qb->getParameter('jsonColumn_p1')?->getValue());
         self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
+            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
             (string) $qb
         );
     }
@@ -116,9 +116,9 @@ final class JsonExistsFilterTest extends KernelTestCase
     {
         $qb = $this->applyFilter(new JsonExistsFilter($this->getDoctrine()), ['ROLE_A']);
 
-        self::assertSame('ROLE_A', $qb->getParameter('jsonColumn_p1')?->getValue());
+        self::assertSame(['ROLE_A'], $qb->getParameter('jsonColumn_p1')?->getValue());
         self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
+            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
             (string) $qb
         );
     }

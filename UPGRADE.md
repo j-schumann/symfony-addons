@@ -2,10 +2,10 @@
 
 * If you use the `JsonExistsFilter`: it now filters by multiple values (e.g.
   `?roles[]=ROLE_A&roles[]=ROLE_B`). Before, the filter ignored such requests and returned
-  all records, now they return only the matching records. Single values still use
-  `JSON_CONTAINS_TEXT` as before, multiple values require two additional DQL functions of
-  `vrok/doctrine-addons` >= 3.1. Register them, else requests with multiple values fail with an
-  unknown DQL function:
+  all records, now they return only the matching records. The filter no longer uses
+  `JSON_CONTAINS_TEXT` but `JSON_CONTAINS_ALL_TEXT` (default, AND) or `JSON_CONTAINS_ANY_TEXT`
+  (OR) of `vrok/doctrine-addons` >= 3.1, for single values too. Register the functions for the
+  combinations you use, else all requests using the filter fail with an unknown DQL function:
   ```yaml
   doctrine:
     orm:

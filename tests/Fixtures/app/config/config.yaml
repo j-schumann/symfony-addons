@@ -60,7 +60,6 @@ doctrine:
         CONTAINS: Vrok\DoctrineAddons\ORM\Query\AST\ContainsFunction
         JSON_CONTAINS_ALL_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAllTextFunction
         JSON_CONTAINS_ANY_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAnyTextFunction
-        JSON_CONTAINS_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsTextFunction
 
 api_platform:
   handle_symfony_errors: true

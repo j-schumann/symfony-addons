@@ -6,12 +6,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [4.0.0] - unreleased
 ### Added
 * `JsonExistsFilter` supports multiple values (e.g. `?roles[]=ROLE_A&roles[]=ROLE_B`), combined
-  with AND (default) or OR, see the new `combination` constructor argument. Requires the DQL
-  functions `JSON_CONTAINS_ALL_TEXT` and `JSON_CONTAINS_ANY_TEXT` of `vrok/doctrine-addons` >= 3.1
+  with AND (default) or OR, see the new `combination` constructor argument
 
 ### Changed
-* BC break: `JsonExistsFilter` no longer ignores multiple values, it fails if the new DQL
-  functions are not registered, see UPGRADE.md
+* BC break: `JsonExistsFilter` uses the DQL function `JSON_CONTAINS_ALL_TEXT` (AND) or
+  `JSON_CONTAINS_ANY_TEXT` (OR) of `vrok/doctrine-addons` >= 3.1 instead of `JSON_CONTAINS_TEXT`,
+  for single values too, see UPGRADE.md
+* BC break: `JsonExistsFilter` no longer ignores multiple values, such requests return only the
+  matching records
 
 ## [3.7.0] - 2026-10-09
 ### Added
