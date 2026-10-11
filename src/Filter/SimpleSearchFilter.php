@@ -160,7 +160,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
     }
 
     /**
-     * @param int[]|string[] $properties
+     * @param string[] $properties
      */
     private function addWhere(
         QueryBuilder $queryBuilder,

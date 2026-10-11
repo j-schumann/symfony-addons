@@ -14,8 +14,8 @@ class ArrayUtil
      * 2) array_merge($a, $b) obviously does not work with multidimensional arrays
      * 3) array_merge_recursive($a, $b) correctly ignores the numeric keys but duplicates equal
      *    values
-     * 4) array_replace_recursive goes by keys, if the key is present in $a and
-     *    $b, the value from $a is overwritten
+     * 4) array_replace_recursive goes by keys, if the key is present in $a and $b, the value from
+     *    $a is overwritten
      *
      * This function is meant to be used for example with
      * ApiPlatformTestCase::assertDatasetHasKeys, so we can combine different

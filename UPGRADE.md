@@ -34,7 +34,7 @@
 * Make sure all your `Vrok\Validator` attributes / calls use named arguments instead of an array of
   options.
 * If you used multiple calls to `testOperation()` in a single test with `ApiPlatformTestCase` and
-  want to refresh your database inbetween, you now have to call `static::bootKernel()` yourself.
+  want to refresh your database in between, you now have to call `static::bootKernel()` yourself.
 * Remove `skipRefresh` from your calls to `testOperation()`, this is now the default behavior and
   the option is no longer valid.
 * `ApiPlatformTestCase` no longer uses the `AuthenticatedClientTrait`, if you need the

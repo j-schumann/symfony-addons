@@ -16,7 +16,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   matching records
 * BC break: `ApiPlatformTestCase::testOperation()` compares the `contentType` exactly, it no longer
   ignores a `; charset=utf-8` suffix
-
 * BC break: `FormatBytesExtension` declares its filter with `#[AsTwigFilter]` and no longer
   extends Twig's `AbstractExtension`, `getName()` and `getFilters()` are removed. Requires
   `twig/twig` >= 3.21

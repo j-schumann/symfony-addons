@@ -30,7 +30,9 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'message' => 'JWT Token not found',
     ];
 
-    // this should be returned for RFC 7807 compliant errors
+    /**
+     * Media type of RFC 7807 compliant error responses.
+     */
     public const PROBLEM_MEDIA_TYPE = 'application/problem+json';
 
     public const PROBLEM_400 = [

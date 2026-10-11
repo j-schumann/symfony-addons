@@ -27,7 +27,7 @@ class ResetLoggerSubscriber implements EventSubscriberInterface, LoggerAwareInte
     {
         return [
             // after a new message is received, before handling: reset the UID added to the logs so
-            // we can separate log entries by handled message, like with indivual HTTP requests
+            // we can separate log entries by handled message, like with individual HTTP requests
             WorkerMessageReceivedEvent::class => 'resetLogger',
 
             // after the handling succeeded or failed: flush all BufferHandlers so we can
@@ -58,7 +58,7 @@ class ResetLoggerSubscriber implements EventSubscriberInterface, LoggerAwareInte
     }
 
     /**
-     * After a message was processed flash any buffer handlers, we don't want to wait till the next
+     * After a message was processed flush any buffer handlers, we don't want to wait till the next
      * message to see the logs.
      */
     public function flushLogger(): void

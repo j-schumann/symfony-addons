@@ -147,7 +147,7 @@ trait RefreshDatabaseTrait
                 // fixtures, as execute() would wrap the TRUNCATE in a transaction which MySQL
                 // auto-commits when DDL queries are executed, which throws an exception in the
                 // entityManager ("There is no active transaction",
-                // @see https://github.com/doctrine/migrations/issues/1104) because he does not
+                // @see https://github.com/doctrine/migrations/issues/1104) because it does not
                 // check if a transaction is still open before calling commit().
                 $executor->purge();
 
