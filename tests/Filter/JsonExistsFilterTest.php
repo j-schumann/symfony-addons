@@ -138,7 +138,7 @@ final class JsonExistsFilterTest extends KernelTestCase
     public function testRejectsInvalidCombination(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid combination "xor"');
+        $this->expectExceptionMessage('Invalid "combination" parameter "xor"');
 
         new JsonExistsFilter(combination: 'xor');
     }
