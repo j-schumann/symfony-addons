@@ -33,16 +33,22 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         FilterTrait::__construct as private initFilter;
     }
 
-    // records must contain at least one of the values
-    public const string OR = 'or';
-
-    // records must contain all the values
+    /**
+     * Records must contain all the values.
+     */
     public const string AND = 'and';
 
-    // DQL functions of vrok/doctrine-addons >= 3.1 for multiple values
+    /**
+     * Records must contain at least one of the values.
+     */
+    public const string OR = 'or';
+
+    /**
+     * DQL functions of vrok/doctrine-addons >= 3.1 for multiple values.
+     */
     private const array MULTIPLE_VALUES_FUNCTIONS = [
-        self::OR  => 'JSON_CONTAINS_ANY_TEXT',
         self::AND => 'JSON_CONTAINS_ALL_TEXT',
+        self::OR  => 'JSON_CONTAINS_ANY_TEXT',
     ];
 
     /**
@@ -56,7 +62,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         private readonly string $combination = self::AND,
     ) {
         if (!isset(self::MULTIPLE_VALUES_FUNCTIONS[$combination])) {
-            throw new InvalidArgumentException(\sprintf('Invalid combination "%s", use "%s" or "%s"', $combination, self::OR, self::AND));
+            throw new InvalidArgumentException(\sprintf('Invalid combination "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
         }
 
         $this->initFilter($managerRegistry, $logger, $properties, $nameConverter);
@@ -88,13 +94,22 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         $field = $property;
 
         if ($this->isPropertyNested($property, $resourceClass)) {
-            [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::LEFT_JOIN);
+            [$alias, $field] = $this->addJoinsForNestedProperty(
+                $property,
+                $alias,
+                $queryBuilder,
+                $queryNameGenerator,
+                $resourceClass,
+                Join::LEFT_JOIN
+            );
         }
 
         $valueParameter = $queryNameGenerator->generateParameterName($field);
 
         $queryBuilder
-            ->andWhere(\sprintf('%s(%s.%s, :%s) = true', $function, $alias, $field, $valueParameter))
+            ->andWhere(
+                \sprintf('%s(%s.%s, :%s) = true', $function, $alias, $field, $valueParameter)
+            )
             ->setParameter($valueParameter, $value);
     }
 
@@ -108,7 +123,9 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
     {
         if (null === $value) {
             $this->getLogger()->notice('Invalid filter ignored', [
-                'exception' => new InvalidArgumentException(\sprintf('A value is required for %1$s', $property)),
+                'exception' => new InvalidArgumentException(
+                    \sprintf('A value is required for %1$s', $property)
+                ),
             ]);
 
             return null;
@@ -118,7 +135,11 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
             return (string) $value;
         }
 
-        if (\is_array($value) && [] !== $value && array_all($value, static fn (mixed $item): bool => \is_scalar($item))) {
+        if (
+            \is_array($value)
+            && [] !== $value
+            && array_all($value, static fn (mixed $item): bool => \is_scalar($item))
+        ) {
             $values = array_values(array_unique(array_map(strval(...), $value)));
 
             // a single value does not need the operators for multiple values
@@ -126,7 +147,9 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         }
 
         $this->getLogger()->notice('Invalid filter ignored', [
-            'exception' => new InvalidArgumentException(\sprintf('Invalid value for "%s" property', $property)),
+            'exception' => new InvalidArgumentException(
+                \sprintf('Invalid value for "%s" property', $property)
+            ),
         ]);
 
         return null;
@@ -150,7 +173,10 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         $description = [];
 
         $properties = $this->getProperties();
-        $properties ??= array_fill_keys($this->getClassMetadata($resourceClass)->getFieldNames(), null);
+        $properties ??= array_fill_keys(
+            $this->getClassMetadata($resourceClass)->getFieldNames(),
+            null
+        );
 
         foreach (array_keys($properties) as $property) {
             if (!$this->isPropertyMapped($property, $resourceClass)) {
@@ -162,8 +188,8 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
             foreach ($filterParameterNames as $filterParameterName) {
                 $description[$filterParameterName] = [
                     'property' => $propertyName,
-                    'type'     => 'string',
                     'required' => false,
+                    'type'     => 'string',
                 ];
             }
         }

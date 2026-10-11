@@ -92,7 +92,10 @@ final class QueryParameterAttributeTest extends FilterRequestTestCase
         self::assertCount(1, $this->search('?hasKey[]=ROLE_ADMIN&hasKey[]=ROLE_EDITOR'));
 
         // multiple values combined with OR
-        self::assertCount(2, $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_ADMIN_BLOG'));
+        self::assertCount(
+            2,
+            $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_ADMIN_BLOG')
+        );
         self::assertCount(1, $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_NONE'));
     }
 
@@ -100,7 +103,16 @@ final class QueryParameterAttributeTest extends FilterRequestTestCase
     {
         $names = $this->getOpenApiParameterNames('/test_entities');
 
-        foreach (['pattern', 'search', 'childName', 'contains', 'contains[]', 'hasKey', 'hasKey[]'] as $name) {
+        $expected = [
+            'childName',
+            'contains',
+            'contains[]',
+            'hasKey',
+            'hasKey[]',
+            'pattern',
+            'search',
+        ];
+        foreach ($expected as $name) {
             self::assertContains($name, $names);
         }
     }

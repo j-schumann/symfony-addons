@@ -35,6 +35,10 @@
         "vrok/doctrine-addons": "^3.1.0",
         "zalas/phpunit-globals": "^4.2.0"
     },
+    "suggest": {
+        "api-platform/test": "Required by the BaseApiTestCase when API Platform is installed as split packages instead of api-platform/core",
+        "vrok/doctrine-addons": "^3.1.0 provides the DQL functions the ContainsFilter, JsonExistsFilter and SimpleSearchFilter require"
+    },
     "autoload": {
         "psr-4": {
             "Vrok\\SymfonyAddons\\": "src/"

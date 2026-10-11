@@ -771,13 +771,14 @@ default (`?&` operator), a record must contain all values. Set `combination` to
 
 ```php
 #[GetCollection(parameters: [
-    // records with all the given roles
-    'role' => new QueryParameter(filter: new JsonExistsFilter(), property: 'roles'),
     // records with at least one of the given roles
     'anyRole' => new QueryParameter(
         filter: new JsonExistsFilter(combination: JsonExistsFilter::OR),
         property: 'roles',
     ),
+
+    // records with all the given roles
+    'role' => new QueryParameter(filter: new JsonExistsFilter(), property: 'roles'),
 ])]
 
 // legacy
@@ -788,16 +789,16 @@ default (`?&` operator), a record must contain all values. Set `combination` to
 )]
 ```
 
-Requires JSON_CONTAINS_TEXT, JSON_CONTAINS_ALL_TEXT and JSON_CONTAINS_ANY_TEXT as defined Doctrine
+Requires JSON_CONTAINS_ALL_TEXT, JSON_CONTAINS_ANY_TEXT and JSON_CONTAINS_TEXT as defined Doctrine
 functions, provided by `vrok/doctrine-addons` >= 3.1:
 ```yaml
 doctrine:
   orm:
     dql:
       string_functions:
-        JSON_CONTAINS_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsTextFunction
         JSON_CONTAINS_ALL_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAllTextFunction
         JSON_CONTAINS_ANY_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAnyTextFunction
+        JSON_CONTAINS_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsTextFunction
 ```
 
 ## MultipartDecoder
