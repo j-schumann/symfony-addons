@@ -4,7 +4,6 @@ namespace Vrok\SymfonyAddons\Tests\Twig;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Twig\Environment;
-use Twig\TwigFilter;
 use Vrok\SymfonyAddons\Twig\Extension\FormatBytesExtension;
 
 final class FormatBytesExtensionTest extends KernelTestCase
@@ -50,25 +49,14 @@ final class FormatBytesExtensionTest extends KernelTestCase
         self::assertSame('1.82 TiB', $result);
     }
 
-    public function testGetFilters(): void
-    {
-        $ext = new FormatBytesExtension();
-        $filters = $ext->getFilters();
-        self::assertCount(1, $filters);
-        self::assertInstanceOf(TwigFilter::class, $filters[0]);
-        self::assertSame('formatBytes', $filters[0]->getName());
-    }
-
-    public function testGetName(): void
-    {
-        $ext = new FormatBytesExtension();
-        self::assertSame('format_bytes', $ext->getName());
-    }
-
-    public function testService(): void
+    public function testFilterIsRegistered(): void
     {
         /** @var Environment $twig */
         $twig = self::getContainer()->get('twig');
-        self::assertTrue($twig->hasExtension(FormatBytesExtension::class));
+
+        self::assertSame(
+            '9.77 KiB',
+            $twig->createTemplate('{{ 10000|formatBytes }}')->render()
+        );
     }
 }

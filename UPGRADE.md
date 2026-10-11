@@ -6,6 +6,9 @@
 * Replace `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE` with
   `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`. `testOperation()` compares the `contentType` exactly,
   remove a `; charset=utf-8` suffix from expected JSON based content types.
+* The `FormatBytesExtension` uses the `#[AsTwigFilter]` attribute, update `twig/twig` to >= 3.21.
+  If you registered the extension yourself with the `twig.extension` tag, use `autoconfigure: true`
+  instead.
 * If you extended the internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase` instead.
 * If you use the `JsonExistsFilter`: it now filters by multiple values (e.g.
   `?roles[]=ROLE_A&roles[]=ROLE_B`). Before, the filter ignored such requests and returned all

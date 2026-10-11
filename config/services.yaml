@@ -25,6 +25,6 @@ services:
     tags:
       - { name: 'serializer.encoder' }
 
+  # registers the #[AsTwigFilter] methods with the TwigBundle
   Vrok\SymfonyAddons\Twig\Extension\FormatBytesExtension:
-    tags:
-      - { name: 'twig.extension' }
+    autoconfigure: true

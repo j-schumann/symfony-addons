@@ -2,27 +2,11 @@
 
 namespace Vrok\SymfonyAddons\Twig\Extension;
 
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
+use Twig\Attribute\AsTwigFilter;
 
-class FormatBytesExtension extends AbstractExtension
+class FormatBytesExtension
 {
-    public function getName(): string
-    {
-        return 'format_bytes';
-    }
-
-    /**
-     * @return TwigFilter[]
-     */
-    #[\Override]
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter('formatBytes', $this->formatBytes(...)),
-        ];
-    }
-
+    #[AsTwigFilter(name: 'formatBytes')]
     public function formatBytes($bytes, $precision = 2): string
     {
         $units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];

@@ -17,6 +17,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * BC break: `ApiPlatformTestCase::testOperation()` compares the `contentType` exactly, it no longer
   ignores a `; charset=utf-8` suffix
 
+* BC break: `FormatBytesExtension` declares its filter with `#[AsTwigFilter]` and no longer
+  extends Twig's `AbstractExtension`, `getName()` and `getFilters()` are removed. Requires
+  `twig/twig` >= 3.21
+
 ### Removed
 * Support for API Platform 4, requires API Platform 5
 * `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`, deprecated since 3.6, use `PROBLEM_MEDIA_TYPE`
