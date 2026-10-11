@@ -32,16 +32,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * `ApiPlatformTestCase` extends `ApiPlatform\Test\ApiTestCase` with API Platform 5. If you use the
   split API Platform 5 packages instead of `api-platform/core`, you must require `api-platform/test`
   (e.g. as dev dependency), it is not installed automatically.
-* The filters no longer extend the `AbstractFilter` deprecated in API Platform 4.4, this can be
-  a backwards compatibility break if you extend the filters or check for `instanceof AbstractFilter`.
+* The filters no longer extend the `AbstractFilter` deprecated in API Platform 4.4, this can be a
+  backwards compatibility break if you extend the filters or check for `instanceof AbstractFilter`.
 * `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an exception 
   when no properties are set
 
 ### Fixed
-* `SimpleSearchFilter` ignores array values (e.g. `?pattern[]=foo`) and logs a notice, like
-  API Platform does for invalid filter values
-* `JsonExistsFilter` no longer documents the `property[]` parameter in the OpenAPI
-  specification, it supports only a single value
+* `SimpleSearchFilter` ignores array values (e.g. `?pattern[]=foo`) and logs a notice, like API
+  Platform does for invalid filter values
+* `JsonExistsFilter` no longer documents the `property[]` parameter in the OpenAPI specification, it
+  supports only a single value
 * `SimpleSearchFilter` on Postgres: also casts columns with the `jsonb`, `json_object` and
   `jsonb_object` types of DBAL >= 4.5 to text before searching them
 
@@ -68,8 +68,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * Support for SqlServer in the RefreshDatabaseTrait
 
 ### Fixed
-* RefreshDatabaseTrait: Handling of foreign keys with DB_CLEANUP_METHOD=purge
-  on MySQL/MariaDB
+* RefreshDatabaseTrait: Handling of foreign keys with DB_CLEANUP_METHOD=purge on MySQL/MariaDB
 
 ## [3.3.1] - 2026-02-01
 ### Added
@@ -96,71 +95,67 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [3.1.0] - 2025-07-21
 ### Added
 * `RefreshDatabaseTrait` can now automatically create missing test database(s)
-* `RefreshDatabaseTrait` now supports `dropDatabase` as DB_CLEANUP_METHOD, test
-  in your setup if it is faster than `dropSchema`
+* `RefreshDatabaseTrait` now supports `dropDatabase` as DB_CLEANUP_METHOD, test in your setup if it
+  is faster than `dropSchema`
 
 ## [3.0.0] - 2025-06-16
 ### Changed
-* `ApiPlatformTestCase` no longer uses the `AuthenticatedClientTrait` but
-  its own `getJWT` and allows to customize the User class via the static
-  `$userClass`.
+* `ApiPlatformTestCase` no longer uses the `AuthenticatedClientTrait` but its own `getJWT` and
+  allows to customize the User class via the static `$userClass`.
 
 ### Removed
-* Removed support for PHP <= 8.2, Symfony <= 7.1, ApiPlatform <= 4.0, Doctrine
-  DataFixtures <= 1, Doctrine Persistence <= 3, Doctrine FixturesBundle <= 3
-* Giving options as array to the `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace`
-  and `PasswordStrength` constraints was removed, as this is deprecated in
-  Symfony 7.3, use named arguments instead.
-* If you previously used the `NoHtml` or `PasswordStrength` constraint by giving
-  options not as array (first argument) but as non-named arguments, e.g.
-  `new NoHtml(null, ['validationGrp'])` this will no longer work as the
-  argument order changed by allowing `message` (and `minStrength`) as arguments.
-* If you previously used the `NoLineBreaks` or `NoSurroundingWhitespace` 
-  constraint with the `match` option to invert the behavior this will no longer
-  work, it is now fixed to always match the constraint name.
-* The ApiPlatformTestCase no longer reboots the kernel on each call to
-  `testOperation()`, instead the kernel is only booted when required.  
-  The `skipRefresh` option was removed as this is now the default behavior. If
-  you still want to force a DB refresh between calls to `testOperation()` in a
-  single test you have to call `static::bootKernel()` yourself.
-* Old ApiPlatformTestCase constants with (Hydra) error responses from APIP < 3.2
-  were removed.
-* Because the `files` argument of `testOperation` now defaults to an empty array,
-  the "ContentType: multipart/form-data" header is no longer added automatically.
-* Specifying both `iri` and `uri` as arguments for  `testOperation` now throws
-  an exception.
+* Removed support for PHP <= 8.2, Symfony <= 7.1, ApiPlatform <= 4.0, Doctrine DataFixtures <= 1,
+  Doctrine Persistence <= 3, Doctrine FixturesBundle <= 3
+* Giving options as array to the `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace` and
+  `PasswordStrength` constraints was removed, as this is deprecated in Symfony 7.3, use named
+  arguments instead.
+* If you previously used the `NoHtml` or `PasswordStrength` constraint by giving options not as
+  array (first argument) but as non-named arguments, e.g. `new NoHtml(null, ['validationGrp'])` this
+  will no longer work as the argument order changed by allowing `message` (and `minStrength`) as
+  arguments.
+* If you previously used the `NoLineBreaks` or `NoSurroundingWhitespace` constraint with the `match`
+  option to invert the behavior this will no longer work, it is now fixed to always match the
+  constraint name.
+* The ApiPlatformTestCase no longer reboots the kernel on each call to `testOperation()`, instead
+  the kernel is only booted when required.  
+  The `skipRefresh` option was removed as this is now the default behavior. If you still want to
+  force a DB refresh between calls to `testOperation()` in a single test you have to call
+  `static::bootKernel()` yourself.
+* Old ApiPlatformTestCase constants with (Hydra) error responses from APIP < 3.2 were removed.
+* Because the `files` argument of `testOperation` now defaults to an empty array, the "ContentType:
+  multipart/form-data" header is no longer added automatically.
+* Specifying both `iri` and `uri` as arguments for `testOperation` now throws an exception.
 * `AuthenticatedClientTrait` was removed
 
 ## [2.16.0] - 2025-06-12
 ### Changed
-* The `NoHtml` constraint now has a custom error code and sets the "{{ value }}"
-  parameter.
+* The `NoHtml` constraint now has a custom error code and sets the "{{ value }}" parameter.
 * The `PasswordStrength` constraint now has a custom error code.
-* The `NoHtml`, `NoLineBreaks` and `NoSurroundingWhitespace` constraints now
-  support options as single (named) arguments instead of only as array.
+* The `NoHtml`, `NoLineBreaks` and `NoSurroundingWhitespace` constraints now support options as
+  single (named) arguments instead of only as array.
 
 ### Deprecated
-* Giving options as array to the `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace`
-  and `PasswordStrength` constraints will be removed in v3, as this is deprecated in
-  Symfony 7.3, use named arguments instead.
-* Using the `skipRefresh` option for `ApiPlatformTestCase::testOperation`, this
-  will be the default behavior in 3.0 and the option will be removed.
-* Using the old error constants for APIP < 3.2 in `ApiPlatformTestCase`, they
-  will be removed in 3.0.
+* Giving options as array to the `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace` and
+  `PasswordStrength` constraints will be removed in v3, as this is deprecated in Symfony 7.3, use
+  named arguments instead.
+* Using the `skipRefresh` option for `ApiPlatformTestCase::testOperation`, this will be the default
+  behavior in 3.0 and the option will be removed.
+* Using the old error constants for APIP < 3.2 in `ApiPlatformTestCase`, they will be removed in
+  3.0.
 
 ### Backwards incompatibility
-* If you previously used the `NoHtml` or `PasswordStrength` constraint by giving
-  options not as array (first argument) but as non-named arguments, e.g.
-  `new NoHtml(null, ['validationGrp'])` this will no longer work as the
-  argument order changed by allowing `message` (and `minStrength`) as arguments.
-* If you previously used the `NoLineBreaks` or `NoSurroundingWhitespace`
-  constraint with the `match` option to invert the behavior this will no longer
-  work, it is now fixed to always match the constraint name.
+* If you previously used the `NoHtml` or `PasswordStrength` constraint by giving options not as
+  array (first argument) but as non-named arguments, e.g. `new NoHtml(null, ['validationGrp'])` this
+  will no longer work as the argument order changed by allowing `message` (and `minStrength`) as
+  arguments.
+* If you previously used the `NoLineBreaks` or `NoSurroundingWhitespace` constraint with the `match`
+  option to invert the behavior this will no longer work, it is now fixed to always match the
+  constraint name.
 
 ## [2.15.0] - 2025-02-12
 ### Changed
-* ApiPlatformTestCase now throws an error when unsupported parameters
-  are supplied, to allow spotting skipped tests e.g. because of typos.
+* ApiPlatformTestCase now throws an error when unsupported parameters are supplied, to allow
+  spotting skipped tests e.g. because of typos.
 
 ## [2.14.0] - 2024-12-12
 ### Added
@@ -214,17 +209,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * Support Symfony 7
 
 ### Updated
-* Setting the `message` for the `AtLeastOneOf` constraint to the empty string
-  now behaves the same as `NULL` previously, meaning if the message is empty
-  the last failing constraints message is returned.
+* Setting the `message` for the `AtLeastOneOf` constraint to the empty string now behaves the same
+  as `NULL` previously, meaning if the message is empty the last failing constraints message is
+  returned.
 
 ### Removed
 * Support for Symfony 6.2
 
 ## [2.7.0] - 2023-09-11
 ### Added
-* `ArrayUtil` class with `mergeValues` to merge 2 or more arrays and keep
-  all values instead of skipping/overwriting and not produce duplicates
+* `ArrayUtil` class with `mergeValues` to merge 2 or more arrays and keep all values instead of
+  skipping/overwriting and not produce duplicates
 
 ## [2.6.0] - 2023-08-11
 ### Added
@@ -258,8 +253,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [2.3.0] - 2023-06-12
 ### Added
 - ApiPlatformTestCase: dispatched messages can be inspected with a callback
-- QueryBuilderHelper: simplify parameter & join handling, e.g. for 
-  ApiPlatform QueryExtensions
+- QueryBuilderHelper: simplify parameter & join handling, e.g. for ApiPlatform QueryExtensions
 
 ### Fixed
 - SimpleSearchFilter: usage of deprecated option w/ ApiPlatform 3
@@ -308,8 +302,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - support for Symfony 5
 - support for ApiPlatform 2
 - support for validator annotations, use attributes instead
-- `NoTlsTransport`: Most servers require TLS, just disable certificate validation
-  in tests with `?verify_peer=0` in the MAILER_DSN
+- `NoTlsTransport`: Most servers require TLS, just disable certificate validation in tests with
+  `?verify_peer=0` in the MAILER_DSN
 
 ## [1.9.0] - 2022-12-22
 ### Added

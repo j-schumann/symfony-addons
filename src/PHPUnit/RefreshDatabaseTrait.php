@@ -146,17 +146,17 @@ trait RefreshDatabaseTrait
                 // database, like import tests. Fix for PHP8: purge separately from inserting the
                 // fixtures, as execute() would wrap the TRUNCATE in a transaction which MySQL
                 // auto-commits when DDL queries are executed, which throws an exception in the
-                // entityManager ("There is no active
-                // transaction", @see https://github.com/doctrine/migrations/issues/1104)
-                // because he does not check if a transaction is still open before calling commit().
+                // entityManager ("There is no active transaction",
+                // @see https://github.com/doctrine/migrations/issues/1104) because he does not
+                // check if a transaction is still open before calling commit().
                 $executor->purge();
 
-                // A TRUNCATE on MySQL/MariaDB is the only purge that resets the identity
-                // generators for us. PostgreSQL keeps its sequences unless the TRUNCATE says
-                // RESTART IDENTITY, SQLite empties the tables with DELETE whatever the purge mode
-                // says, and where we purged with DELETE there was no TRUNCATE to reset anything.
-                // So everywhere else we do it ourselves, as tests may rely on the generated IDs
-                // (e.g. when asserting on IRIs like /items/1).
+                // A TRUNCATE on MySQL/MariaDB is the only purge that resets the identity generators
+                // for us. PostgreSQL keeps its sequences unless the TRUNCATE says RESTART IDENTITY,
+                // SQLite empties the tables with DELETE whatever the purge mode says, and where we
+                // purged with DELETE there was no TRUNCATE to reset anything. So everywhere else we
+                // do it ourselves, as tests may rely on the generated IDs (e.g. when asserting on
+                // IRIs like /items/1).
                 $purgeResetIdentities = $isMysql && !$purgeWithDelete;
                 if (!$purgeResetIdentities) {
                     static::resetIdentities($entityManager, $platform);
@@ -457,9 +457,9 @@ trait RefreshDatabaseTrait
     }
 
     /**
-     * @todo this method only works w/ DBAL >= 4.4, as the createMetadataProvider
-     * is first implemented there. But also schemaManager->listDatabases is only deprecated since
-     * 4.4, so we stay with that, until we actually want to support 5.0 w/o listDatabases.
+     * @todo this method only works w/ DBAL >= 4.4, as the createMetadataProvider is first
+     *       implemented there. But also schemaManager->listDatabases is only deprecated since 4.4,
+     *       so we stay with that, until we actually want to support 5.0 w/o listDatabases.
      *
      * Returns the list of databases the current connection sees. Must be called with the "old"
      * entityManager, that has the database name set in its connection, or we will receive "A

@@ -251,8 +251,8 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     }
 
     /**
-     * @return string[] entity classes of which exactly one record is created by
-     *                  createOneOfEach(), each of them backed by its own table
+     * @return string[] entity classes of which exactly one record is created by createOneOfEach(),
+     *                  each of them backed by its own table
      */
     private function countableClasses(): array
     {

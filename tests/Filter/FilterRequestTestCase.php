@@ -10,8 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 
 /**
- * Base for tests that use the filters through the API Platform request
- * handling, to verify the wiring of the filters, not only their queries.
+ * Base for tests that use the filters through the API Platform request handling, to verify the
+ * wiring of the filters, not only their queries.
  */
 abstract class FilterRequestTestCase extends ApiTestCase
 {
@@ -76,8 +76,8 @@ abstract class FilterRequestTestCase extends ApiTestCase
     }
 
     /**
-     * Returns the names of the query parameters documented in the OpenAPI
-     * specification for the GET operation of the given path.
+     * Returns the names of the query parameters documented in the OpenAPI specification for the GET
+     * operation of the given path.
      *
      * @return list<string>
      */

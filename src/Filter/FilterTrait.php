@@ -15,9 +15,9 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 /**
- * Replaces the deprecated AbstractFilter of API Platform: provides its
- * helpers and dispatches apply() to filterProperty() for both ways to use
- * a filter: the legacy #[ApiFilter] attribute and the #[QueryParameter].
+ * Replaces the deprecated AbstractFilter of API Platform: provides its helpers and dispatches
+ * apply() to filterProperty() for both ways to use a filter: the legacy #[ApiFilter] attribute and
+ * the #[QueryParameter].
  *
  * @internal
  */
@@ -69,8 +69,8 @@ trait FilterTrait
     }
 
     /**
-     * Used for #[QueryParameter]: The parameter explicitly names the property
-     * to filter, so the enabled properties of the filter are not checked.
+     * Used for #[QueryParameter]: The parameter explicitly names the property to filter, so the
+     * enabled properties of the filter are not checked.
      */
     protected function filterParameter(
         Parameter $parameter,

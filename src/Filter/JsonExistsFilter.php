@@ -21,10 +21,9 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 /**
  * @todo extensive tests
  *
- * Filters entities by their jsonb (Postgres-only) fields, if they contain
- * the search values. Multiple values are combined with AND (?& operator,
- * default) or OR (?| operator), see $combination. For a single value both
- * behave like the ? operator.
+ * Filters entities by their jsonb (Postgres-only) fields, if they contain the search values.
+ * Multiple values are combined with AND (?& operator, default) or OR (?| operator), see
+ * $combination. For a single value both behave like the ? operator.
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
@@ -117,8 +116,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
     }
 
     /**
-     * Returns the values as list of unique strings or NULL if the value is
-     * invalid.
+     * Returns the values as list of unique strings or NULL if the value is invalid.
      *
      * @return list<string>|null
      */

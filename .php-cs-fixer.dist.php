@@ -16,8 +16,8 @@ return $config
         new Vrok\SymfonyAddons\PhpCsFixer\WrapNamedMethodArgumentsFixer(),
     ])
     ->setRules([
-        // this has priority 100 to be executed before all other fixers, to allow the indentation
-        // to be corrected afterwards by the other fixers:
+        // this has priority 100 to be executed before all other fixers, to allow the indentation to
+        // be corrected afterwards by the other fixers:
         "VrokSymfonyAddons/wrap_named_method_arguments" => [
             'max_arguments' => 2,
         ],
@@ -36,8 +36,8 @@ return $config
                 // ... but allow alignment of keys/values in array definitions
                 '=>' => 'align_single_space_minimal_by_scope',
 
-                // There is no rule to enforce aligned assignments only for class
-                // constants, so we can only disable handling assignments completely
+                // There is no rule to enforce aligned assignments only for class constants, so we
+                // can only disable handling assignments completely
                 '='  => null,
             ],
         ],

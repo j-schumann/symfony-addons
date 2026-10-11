@@ -120,8 +120,7 @@ final class ContainsFilterTest extends KernelTestCase
     {
         $doctrine = self::getContainer()->get('doctrine');
 
-        // nested properties need not be enabled in the filter, the parameter
-        // names them explicitly
+        // nested properties need not be enabled in the filter, the parameter names them explicitly
         $filter = new ContainsFilter($doctrine);
 
         /** @var QueryBuilder $qb */

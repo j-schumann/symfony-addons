@@ -692,8 +692,8 @@ class MyEventSubscriber implements EventSubscriberInterface
 
 ## ApiPlatform Filters
 
-All filters can be used with the `#[QueryParameter]` attribute (recommended).
-With `#[QueryParameter]` the filter does not need any properties enabled, the parameter names the
+All filters can be used with the `#[QueryParameter]` attribute (recommended). With
+`#[QueryParameter]` the filter does not need any properties enabled, the parameter names the
 property to filter. Nested properties, e.g. `children.content`, are supported.
 
 ### SimpleSearchFilter
@@ -761,14 +761,14 @@ doctrine:
 ### JsonExistsFilter
 
 Postgres-only: Filters entities by their jsonb fields, if they contain the search values. For
-example for filtering Users by their role, to prevent accidental matching with
-overlapping role names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as text with `WHERE
-roles LIKE '%ROLE_ADMIN%'`.
+example for filtering Users by their role, to prevent accidental matching with overlapping role
+names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as text with
+`WHERE roles LIKE '%ROLE_ADMIN%'`.
 
-Multiple values (e.g. `?roles[]=ROLE_ADMIN&roles[]=ROLE_EDITOR`) are combined with AND by
-default (`?&` operator), a record must contain all values. Set `combination` to
-`JsonExistsFilter::OR` to match records that contain at least one of the values (`?|` operator).
-For a single value both behave like the `?` operator.
+Multiple values (e.g. `?roles[]=ROLE_ADMIN&roles[]=ROLE_EDITOR`) are combined with AND by default
+(`?&` operator), a record must contain all values. Set `combination` to `JsonExistsFilter::OR` to
+match records that contain at least one of the values (`?|` operator). For a single value both
+behave like the `?` operator.
 
 ```php
 #[GetCollection(parameters: [

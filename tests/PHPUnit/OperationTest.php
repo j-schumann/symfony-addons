@@ -8,8 +8,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 
 /**
- * To test the ApiPlatformTestCase we need a non-abstract class. So we directly
- * use the child class for our tests.
+ * To test the ApiPlatformTestCase we need a non-abstract class. So we directly use the child class
+ * for our tests.
  */
 final class OperationTest extends ApiPlatformTestCase
 {
@@ -29,13 +29,11 @@ final class OperationTest extends ApiPlatformTestCase
 
                 // API Platform sets either "title" or "hydra:title", depending on
                 // api_platform.serializer.hydra_prefix
-                // @todo Change when api_platform.serializer.hydra_prefix is
-                //       set to false
+                // @todo Change when api_platform.serializer.hydra_prefix is set to false
                 'hydra:title',
             ],
 
-            // @todo Change when api_platform.serializer.hydra_prefix is
-            //       set to false
+            // @todo Change when api_platform.serializer.hydra_prefix is set to false
             forbiddenKeys: ['hydra:member'],
             messageCount: 0,
         );

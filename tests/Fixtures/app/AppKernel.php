@@ -45,8 +45,8 @@ class AppKernel extends Kernel
 
         $loader->load(__DIR__.'/config/config.yaml');
 
-        // the fixtures for the legacy #[ApiFilter] attribute trigger a deprecation,
-        // so they are only loaded in their own environment
+        // the fixtures for the legacy #[ApiFilter] attribute trigger a deprecation, so they are
+        // only loaded in their own environment
         // @todo remove when support for #[ApiFilter] is dropped (API Platform 6)
         if ('test_api_filter' === $this->getEnvironment()) {
             $loader->load(__DIR__.'/config/api_filter.yaml');

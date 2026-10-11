@@ -7,9 +7,8 @@ use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 /**
- * Used to simplify code in ApiPlatform QueryExtensions but may be used
- * in other cases too. Placed in SymfonyAddons instead of DoctrineAddons
- * because of the dependency to the QueryNameGenerator.
+ * Used to simplify code in ApiPlatform QueryExtensions but may be used in other cases too. Placed
+ * in SymfonyAddons instead of DoctrineAddons because of the dependency to the QueryNameGenerator.
  */
 class QueryBuilderHelper
 {
@@ -28,8 +27,8 @@ class QueryBuilderHelper
     }
 
     /**
-     * Adds a simple AND condition ($alias.$field = $param) to the where clause.
-     * If no alias is given, the current root alias is used.
+     * Adds a simple AND condition ($alias.$field = $param) to the where clause. If no alias is
+     * given, the current root alias is used.
      */
     public function andWhereFieldEquals(string $field, mixed $param, ?string $alias = null): void
     {
@@ -39,8 +38,8 @@ class QueryBuilderHelper
     }
 
     /**
-     * Adds a simple AND condition ($alias.$field != $param) to the where clause.
-     * If no alias is given, the current root alias is used.
+     * Adds a simple AND condition ($alias.$field != $param) to the where clause. If no alias is
+     * given, the current root alias is used.
      */
     public function andWhereFieldNotEquals(string $field, mixed $param, ?string $alias = null): void
     {
@@ -50,8 +49,8 @@ class QueryBuilderHelper
     }
 
     /**
-     * Adds a simple AND condition ($alias.$field IN ($param)) to the where clause.
-     * If no alias is given, the current root alias is used.
+     * Adds a simple AND condition ($alias.$field IN ($param)) to the where clause. If no alias is
+     * given, the current root alias is used.
      */
     public function andWhereFieldIn(string $field, array $param, ?string $alias = null): void
     {
@@ -61,11 +60,9 @@ class QueryBuilderHelper
     }
 
     /**
-     * Returns the alias of the given relation from the queried entity
-     * (e.g. "objectRoles" of User).
-     * If the relation is not (yet) joined, NULL is returned.
-     * If the relation is not (yet) joined but autoCreate is TRUE,
-     * a new LEFT JOIN is added to the query and the alias returned.
+     * Returns the alias of the given relation from the queried entity (e.g. "objectRoles" of User).
+     * If the relation is not (yet) joined, NULL is returned. If the relation is not (yet) joined
+     * but autoCreate is TRUE, a new LEFT JOIN is added to the query and the alias returned.
      */
     public function getJoinAlias(string $relation, bool $autoCreate = false): ?string
     {
@@ -97,8 +94,8 @@ class QueryBuilderHelper
     }
 
     /**
-     * Adds a LEFT JOIN to the current query for the given relation and returns
-     * the generated alias for the joined table.
+     * Adds a LEFT JOIN to the current query for the given relation and returns the generated alias
+     * for the joined table.
      */
     public function addJoin(string $relation): string
     {

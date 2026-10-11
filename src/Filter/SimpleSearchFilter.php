@@ -20,9 +20,8 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 /**
- * Selects entities where the search term is found (case insensitive) in at least
- * one of the specified properties.
- * All specified properties type must be string.
+ * Selects entities where the search term is found (case insensitive) in at least one of the
+ * specified properties. All specified properties type must be string.
  *
  * @todo UnitTests w/ Mariadb + Postgres
  */
@@ -74,9 +73,9 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
     }
 
     /**
-     * Used for #[QueryParameter]: Searches the properties of the parameter or,
-     * if it has none, the properties of the filter. Unmapped properties are
-     * skipped, API Platform 5 adds the parameter key to the filter properties.
+     * Used for #[QueryParameter]: Searches the properties of the parameter or, if it has none, the
+     * properties of the filter. Unmapped properties are skipped, API Platform 5 adds the parameter
+     * key to the filter properties.
      */
     protected function filterParameter(
         Parameter $parameter,
@@ -140,8 +139,8 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
     }
 
     /**
-     * Only a single search term is supported, arrays (e.g. ?pattern[]=foo) are
-     * ignored and logged, like API Platform does for invalid filter values.
+     * Only a single search term is supported, arrays (e.g. ?pattern[]=foo) are ignored and logged,
+     * like API Platform does for invalid filter values.
      */
     private function isValidValue(mixed $value, string $parameterName): bool
     {
@@ -241,8 +240,8 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
 
     public function getDescription(string $resourceClass): array
     {
-        // API Platform also calls this for a #[QueryParameter], which can
-        // name the properties instead of the filter
+        // API Platform also calls this for a #[QueryParameter], which can name the properties
+        // instead of the filter
         $props = $this->getProperties();
         if (null === $props) {
             return [];

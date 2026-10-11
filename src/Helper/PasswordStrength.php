@@ -3,8 +3,8 @@
 namespace Vrok\SymfonyAddons\Helper;
 
 /**
- * Allows to calculate the strength of a password with a variant of a NIST
- * proposal developed by Thomas Hruska.
+ * Allows to calculate the strength of a password with a variant of a NIST proposal developed by
+ * Thomas Hruska.
  *
  * @see http://en.wikipedia.org/wiki/Password_strength#NIST_Special_Publication_800-63
  * @see http://cubicspot.blogspot.de/2011/11/how-to-calculate-password-strength.html
@@ -76,10 +76,9 @@ class PasswordStrength
     }
 
     /**
-     * Calculates the password strength using an entropy method.
-     * Returns a numeric value where higher = better, starting with -6 for an
-     * empty string. Gives a bonus for passphrases consisting of 4 or more
-     * words separated with a space.
+     * Calculates the password strength using an entropy method. Returns a numeric value where
+     * higher = better, starting with -6 for an empty string. Gives a bonus for passphrases
+     * consisting of 4 or more words separated with a space.
      */
     public function getStrength(string $password): float
     {
@@ -106,8 +105,8 @@ class PasswordStrength
             $mult[$code] *= 0.75;
         }
 
-        // NIST password strength rules allow up to 6 extra bits for mixed case
-        // and non-alphabetic characters
+        // NIST password strength rules allow up to 6 extra bits for mixed case and non-alphabetic
+        // characters
         $lower   = preg_match('/[a-z]/', $password);
         $upper   = preg_match('/[A-Z]/', $password);
         $numeric = preg_match('/\d/', $password);

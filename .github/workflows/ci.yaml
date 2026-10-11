@@ -14,8 +14,8 @@ jobs:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-26.04
 
-    # don't mark the whole pipeline failed if one of those fails, there might
-    # be incompatibilities with upcoming PHP versions
+    # don't mark the whole pipeline failed if one of those fails, there might be incompatibilities
+    # with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mariadb:
@@ -73,8 +73,8 @@ jobs:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-26.04
 
-    # don't mark the whole pipeline failed if one of those fails, there might
-    # be incompatibilities with upcoming PHP versions
+    # don't mark the whole pipeline failed if one of those fails, there might be incompatibilities
+    # with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mysql:
@@ -130,8 +130,8 @@ jobs:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-26.04
 
-    # don't mark the whole pipeline failed if one of those fails, there might
-    # be incompatibilities with upcoming PHP versions
+    # don't mark the whole pipeline failed if one of those fails, there might be incompatibilities
+    # with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       postgres:
@@ -186,8 +186,8 @@ jobs:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-26.04
 
-    # don't mark the whole pipeline failed if one of those fails, there might
-    # be incompatibilities with upcoming PHP versions
+    # don't mark the whole pipeline failed if one of those fails, there might be incompatibilities
+    # with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
     strategy:
       fail-fast: false
@@ -212,8 +212,8 @@ jobs:
 
       - name: Run tests on Sqlite
         env:
-          # /dev/shm is the runner's tmpfs, the counterpart to the --tmpfs
-          # datadirs of the other jobs
+          # /dev/shm is the runner's tmpfs, the counterpart to the --tmpfs datadirs of the other
+          # jobs
           DATABASE_URL: sqlite:////dev/shm/data.db
         run: vendor/bin/phpunit $PHPUNIT_COVERAGE_FLAGS --log-junit build/logs/phpunit/junit.xml
 
@@ -229,8 +229,8 @@ jobs:
     name: Test PHP ${{ matrix.php }}, ${{ matrix.database }}, ${{ matrix.dependencies }} deps
     runs-on: ubuntu-26.04
 
-    # don't mark the whole pipeline failed if one of those fails, there might
-    # be incompatibilities with upcoming PHP versions
+    # don't mark the whole pipeline failed if one of those fails, there might be incompatibilities
+    # with upcoming PHP versions
     continue-on-error: ${{ matrix.php == '8.6' }}
     services:
       mssql:
@@ -269,8 +269,7 @@ jobs:
         env:
           DATABASE_URL: sqlsrv://sa:StrongP-ssw0rd!@127.0.0.1:1433/dbtest?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0
 
-        # the sqlsrv extension is already installed, but it also requires the
-        # ODBC driver for Linux
+        # the sqlsrv extension is already installed, but it also requires the ODBC driver for Linux
         run: |
           sudo sh -c 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list

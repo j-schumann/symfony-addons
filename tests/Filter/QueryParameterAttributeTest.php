@@ -9,8 +9,8 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 /**
- * Uses the filters via #[QueryParameter] through the API Platform request
- * handling, see the #[ApiResource] of the TestEntity.
+ * Uses the filters via #[QueryParameter] through the API Platform request handling, see the
+ * #[ApiResource] of the TestEntity.
  */
 final class QueryParameterAttributeTest extends FilterRequestTestCase
 {

@@ -7,8 +7,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Overwrites Symfony's AtLeastOneOf to return the message of the last failed validator
- * instead of the combined message.
+ * Overwrites Symfony's AtLeastOneOf to return the message of the last failed validator instead of
+ * the combined message.
  */
 class AtLeastOneOfValidator extends ConstraintValidator
 {

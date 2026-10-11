@@ -36,7 +36,6 @@ runs:
         flag-name: ${{ inputs.database }}
         format: clover
 
-        # the coverage-finished job of the workflow merges the uploads of all
-        # jobs into one report
+        # the coverage-finished job of the workflow merges the uploads of all jobs into one report
         parallel: true
       continue-on-error: true
