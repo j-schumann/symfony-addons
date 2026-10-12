@@ -29,6 +29,7 @@ All BC breaks are explained in UPGRADE.md.
 * Support for API Platform 4
 * Support for doctrine/dbal < 4.5
 * `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`
+* `ApiPlatformTestCase::HYDRA_PROBLEM_*` constants
 * The internal `BaseApiTestCase`
 * Support for the `#[ApiFilter]` attribute in `SimpleSearchFilter`, `ContainsFilter` and
   `JsonExistsFilter`

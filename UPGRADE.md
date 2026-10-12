@@ -20,6 +20,9 @@
   search with the `properties` of the `#[QueryParameter]` instead of the `SimpleSearchFilter`'s
   argument, see README.md. The `SimpleSearchFilter` also lost the `searchParameterName` argument,
   the key of the `#[QueryParameter]` names the search parameter.
+* The `ApiPlatformTestCase::HYDRA_PROBLEM_*` constants are removed, they expected the `hydra:` prefix
+  that API Platform 5 no longer adds by default. Use the `PROBLEM_*` constants, or define your own
+  if you enable `api_platform.serializer.hydra_prefix`.
 * If you extended the internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase` instead.
 * If you use the `JsonExistsFilter`: it now filters by multiple values (e.g.
   `?roles[]=ROLE_A&roles[]=ROLE_B`), combined with AND by default. Before, the filter ignored such
