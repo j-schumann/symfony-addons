@@ -12,6 +12,7 @@
     },
     "require-dev": {
         "api-platform/core": "^5.0.0",
+        "doctrine/dbal": "^4.5.0",
         "doctrine/doctrine-bundle": "^3.2.0",
         "doctrine/persistence": "^4.1.1",
         "doctrine/doctrine-fixtures-bundle": "^4.1.0",
@@ -36,7 +37,6 @@
         "zalas/phpunit-globals": "^4.2.0"
     },
     "conflict": {
-        "doctrine/dbal": "<4.5",
         "twig/twig": "<3.21"
     },
     "suggest": {

@@ -3,7 +3,6 @@
 * Update API Platform to version 5, version 4 is no longer supported. If you use the split API
   Platform packages instead of `api-platform/core`, require `api-platform/test` for the
   `ApiPlatformTestCase`.
-* Update doctrine/dbal to version 4.5 or newer.
 * Replace `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE` with
   `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`. `testOperation()` compares the `contentType` exactly,
   remove a `; charset=utf-8` suffix from expected JSON based content types.

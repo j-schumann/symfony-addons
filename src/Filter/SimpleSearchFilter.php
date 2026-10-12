@@ -13,7 +13,6 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -36,10 +35,11 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
      * Column types that are cast to text before searching them on Postgres.
      */
     private const array JSON_TYPES = [
-        Types::JSON,
-        Types::JSON_OBJECT,
-        Types::JSONB,
-        Types::JSONB_OBJECT,
+        'json',
+        // DBAL >= 4.5 has dedicated types for jsonb and JSON objects
+        'json_object',
+        'jsonb',
+        'jsonb_object',
     ];
 
     private const string DESCRIPTION = 'Selects entities where each search term is found somewhere in at least one of the specified properties';
