@@ -139,11 +139,10 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
 
     private function isFunctionCallTarget(FuncCall $funcCall): bool
     {
-        if (!$funcCall->name instanceof Identifier) {
+        $functionName = $this->getName($funcCall);
+        if (null === $functionName) {
             return false;
         }
-
-        $functionName = $funcCall->name->toString();
 
         // String targets are function calls
         return array_any($this->targets, static fn (array|string $target) => \is_string($target) && $target === $functionName);
@@ -178,10 +177,7 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
 
         $methodName = $staticCall->name->toString();
 
-        $className = null;
-        if ($staticCall->class instanceof Identifier) {
-            $className = $staticCall->class->toString();
-        }
+        $className = $this->getName($staticCall->class);
 
         foreach ($this->targets as $target) {
             if (\is_array($target) && 2 === \count($target)) {

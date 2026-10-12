@@ -843,8 +843,6 @@ $this->testOperation(uri: '/test', requiredKeys: [
 ], dispatchedEvents: ['failedEvent']);
 ```
 
-Attention: This Rector is not yet unit-tested, please report any bugs you find!
-
 ### WrapNamedMethodArgumentsFixer
 
 This Fixer for php-cs-fixer allows wrapping long lines of function calls with named arguments to
@@ -895,7 +893,7 @@ $this->testOperation(
 
 Attention: Formatting (indentation) is only fixed after the arguments were wrapped, by your
 specification of `method_argument_space` and `array_indentation` (or rulesets containing those, like
-`@Symfony`). This fixer is not yet unit-tested, please report any bugs you find!
+`@Symfony`).
 
 ## Developer Doc
 ### composer.json require
@@ -918,8 +916,6 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 
 ### Open ToDos
 * tests for QueryBuilderHelper
-* tests for NamedArgumentsFromArrayRector
-* tests for WrapNamedMethodArgumentsFixer
 * compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper
 * ContainsFilter: option to match records that contain at least one of the values (OR), like
   the `combination` of the JsonExistsFilter

@@ -22,6 +22,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `twig/twig` >= 3.21
 
 ### Fixed
+* `NamedArgumentsFromArrayRector` converts calls of configured functions and static methods, before
+  only instance method calls were converted
 * `ContainsFilter` searches values that are no valid JSON as strings, before such values (e.g.
   `?roles=ROLE_ADMIN` or an empty value) caused a database error
 
