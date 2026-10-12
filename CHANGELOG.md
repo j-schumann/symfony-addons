@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.8.0] - TBD
+## [3.8.0] - 2026-10-12
 ### Deprecated
 Everything listed here is removed in 4.0, see its UPGRADE.md for the replacements.
 * Support for API Platform 4 and doctrine/dbal < 4.5
