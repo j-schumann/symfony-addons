@@ -7,19 +7,6 @@
 * Replace `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE` with `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`.
   `testOperation()` compares the `contentType` exactly, remove a `; charset=utf-8` suffix from
    expected JSON based content types.
-* The `FormatBytesExtension` uses the `#[AsTwigFilter]` attribute and is moved to 
-  `Vrok\SymfonyAddons\Twig\FormatBytesExtension`, update `twig/twig` to >= 3.21.
-  The bundle registers the extension, remove your own service definition for it if you have one: 
-  with the `twig.extension` tag it fails, because the class no longer implements Twig's
-  `ExtensionInterface`.
-* Replace the `#[ApiFilter]` attribute for the `SimpleSearchFilter`, `ContainsFilter` and
-  `JsonExistsFilter` with `#[QueryParameter]`, see README.md. Requests to a parameter of such an
-  `#[ApiFilter]` are no longer filtered: they return all records, without an error or a log entry.
-* The filters lost their constructor arguments `managerRegistry`, `logger`, `nameConverter` and
-  `properties`, only the `combination` of the `JsonExistsFilter` remains. Name the properties to
-  search with the `properties` of the `#[QueryParameter]` instead of the `SimpleSearchFilter`'s
-  argument, see README.md. The `SimpleSearchFilter` also lost the `searchParameterName` argument,
-  the key of the `#[QueryParameter]` names the search parameter.
 * The `ApiPlatformTestCase::HYDRA_PROBLEM_*` constants are removed, they expected the `hydra:` prefix
   that API Platform 5 no longer adds by default. Use the `PROBLEM_*` constants, or define your own
   if you enable `api_platform.serializer.hydra_prefix`.
@@ -29,12 +16,25 @@
   instead of changing `$params`. Set cookies with the new `cookies` argument instead of the cookie
   jar of `self::getClient()`.
 * If you extended the internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase` instead.
+* Replace the `#[ApiFilter]` attribute for the `SimpleSearchFilter`, `ContainsFilter` and
+  `JsonExistsFilter` with `#[QueryParameter]`, see README.md. Requests to a parameter of such an
+  `#[ApiFilter]` are no longer filtered: they return all records, without an error or a log entry.
+* The filters lost their constructor arguments `managerRegistry`, `logger`, `nameConverter` and
+  `properties`, only the `combination` of the `JsonExistsFilter` remains. Name the properties to
+  search with the `properties` of the `#[QueryParameter]` instead of the `SimpleSearchFilter`'s
+  argument, see README.md. The `SimpleSearchFilter` also lost the `searchParameterName` argument,
+  the key of the `#[QueryParameter]` names the search parameter.
 * If you use the `JsonExistsFilter`: it now filters by multiple values (e.g.
   `?roles[]=ROLE_A&roles[]=ROLE_B`), combined with AND by default. Before, the filter ignored such
   requests and returned all records, now they return only the matching records. It no longer uses
   the DQL function `JSON_CONTAINS_TEXT` but `JSON_CONTAINS_ALL_TEXT` or `JSON_CONTAINS_ANY_TEXT` of
   `vrok/doctrine-addons` >= 3.1, for single values too: register them as described in README.md,
   else all requests using the filter fail with an unknown DQL function.
+* The `FormatBytesExtension` uses the `#[AsTwigFilter]` attribute and is moved to 
+  `Vrok\SymfonyAddons\Twig\FormatBytesExtension`, update `twig/twig` to >= 3.21.
+  The bundle registers the extension, remove your own service definition for it if you have one: 
+  with the `twig.extension` tag it fails, because the class no longer implements Twig's
+  `ExtensionInterface`.
 * The `AutoSenderSubscriber` is removed. Remove its service definition and set the default sender
   via the mailer config instead. Like the subscriber, Symfony adds the header only to messages
   without a `From` address:

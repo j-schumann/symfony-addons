@@ -8,23 +8,23 @@ All BC breaks are explained in UPGRADE.md.
 
 ### Added
 * `ApiPlatformTestCase::testOperation()` sends cookies, see its new `cookies` argument
-* `QueryBuilderHelper::getJoinAlias()` and `addJoin()` accept the alias of a joined entity, to join
-  its relations
 * `JsonExistsFilter` supports multiple values, combined with AND (default) or OR, see the new
   `combination` constructor argument
+* `QueryBuilderHelper::getJoinAlias()` and `addJoin()` accept the alias of a joined entity, to join
+  its relations
 
 ### Changed
+* BC break: `ApiPlatformTestCase::testOperation()` compares the `contentType` exactly
 * BC break: `JsonExistsFilter` uses the DQL functions `JSON_CONTAINS_ALL_TEXT` and
   `JSON_CONTAINS_ANY_TEXT` of `vrok/doctrine-addons` >= 3.1 and no longer ignores multiple values
-* BC break: `ApiPlatformTestCase::testOperation()` compares the `contentType` exactly
 * BC break: `FormatBytesExtension` moved to `Vrok\SymfonyAddons\Twig` and uses `#[AsTwigFilter]`,
   requires `twig/twig` >= 3.21
 
 ### Fixed
-* `NamedArgumentsFromArrayRector` converts calls of configured functions and static methods, also
-  via subclasses, `self::` and `static::`, and instance method calls only for the configured class
 * `ContainsFilter` searches values that are no valid JSON as strings instead of causing a database
   error
+* `NamedArgumentsFromArrayRector` converts calls of configured functions and static methods, also
+  via subclasses, `self::` and `static::`, and instance method calls only for the configured class
 
 ### Removed
 * Support for API Platform 4
