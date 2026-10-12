@@ -4,7 +4,7 @@ namespace Vrok\SymfonyAddons\Tests\Twig;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Twig\Environment;
-use Vrok\SymfonyAddons\Twig\Extension\FormatBytesExtension;
+use Vrok\SymfonyAddons\Twig\FormatBytesExtension;
 
 final class FormatBytesExtensionTest extends KernelTestCase
 {

@@ -8,8 +8,10 @@
   `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`. `testOperation()` compares the `contentType` exactly,
   remove a `; charset=utf-8` suffix from expected JSON based content types.
 * The `FormatBytesExtension` uses the `#[AsTwigFilter]` attribute, update `twig/twig` to >= 3.21.
-  If you registered the extension yourself with the `twig.extension` tag, use `autoconfigure: true`
-  instead.
+  Its class is now `Vrok\SymfonyAddons\Twig\FormatBytesExtension`, update references to the old
+  `Vrok\SymfonyAddons\Twig\Extension\FormatBytesExtension`. The bundle registers the extension,
+  remove your own service definition for it if you have one: with the `twig.extension` tag it
+  fails, because the class no longer implements Twig's `ExtensionInterface`.
 * Replace the `#[ApiFilter]` attribute for the `SimpleSearchFilter`, `ContainsFilter` and
   `JsonExistsFilter` with `#[QueryParameter]`, see README.md. Requests to a parameter of such an
   `#[ApiFilter]` are no longer filtered: they return all records, without an error or a log entry.

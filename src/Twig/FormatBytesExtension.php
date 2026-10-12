@@ -1,6 +1,6 @@
 <?php
 
-namespace Vrok\SymfonyAddons\Twig\Extension;
+namespace Vrok\SymfonyAddons\Twig;
 
 use Twig\Attribute\AsTwigFilter;
 
