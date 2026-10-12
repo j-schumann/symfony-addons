@@ -14,6 +14,8 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
  */
 final class OperationTest extends ApiPlatformTestCase
 {
+    private ?string $jwt = null;
+
     public function testTestOperationCanBeCalled(): void
     {
         $this->testOperation(
@@ -153,5 +155,116 @@ final class OperationTest extends ApiPlatformTestCase
         $this->expectExceptionMessageIsOrContains('Entries of "dispatchedMessages" must either be a string');
 
         $this->testOperation(uri: '/test', dispatchedMessages: [[\stdClass::class]]);
+    }
+
+    public function testTestOperationSendsJwtAsBearer(): void
+    {
+        $this->jwt = 'token';
+
+        $this->testOperation(uri: '/test', email: 'test@example.com');
+
+        self::assertSame('Bearer token', self::getClient()->getRequest()->headers->get('Authorization'));
+    }
+
+    public function testTestOperationSendsJwtAsFormParameter(): void
+    {
+        $this->jwt = 'token';
+
+        $this->testOperation(
+            uri: '/test',
+            email: 'test@example.com',
+            postFormAuth: 'auth',
+            method: 'POST'
+        );
+
+        $request = self::getClient()->getRequest();
+        self::assertSame('application/x-www-form-urlencoded', $request->headers->get('content-type'));
+        self::assertSame('token', $request->request->get('auth'));
+        self::assertFalse($request->headers->has('Authorization'));
+    }
+
+    public function testTestOperationSendsFiles(): void
+    {
+        $this->testOperation(
+            uri: '/test',
+            method: 'POST',
+            files: ['file' => ['path' => __FILE__, 'originalName' => 'test.php', 'mimeType' => 'text/x-php']],
+        );
+
+        $request = self::getClient()->getRequest();
+        self::assertStringStartsWith('multipart/form-data', (string) $request->headers->get('content-type'));
+        self::assertSame('test.php', $request->files->get('file')->getClientOriginalName());
+    }
+
+    public function testTestOperationSendsPatchAsMergePatch(): void
+    {
+        $this->testOperation(
+            uri: '/test',
+            method: 'PATCH',
+            requestOptions: ['json' => []]
+        );
+
+        self::assertSame(
+            'application/merge-patch+json',
+            self::getClient()->getRequest()->headers->get('content-type')
+        );
+    }
+
+    public function testTestOperationResolvesIri(): void
+    {
+        $this->testOperation(
+            iri: [TestEntity::class, ['varcharColumn' => 'record EINS varchar']],
+            responseCode: 200,
+            json: ['@type' => 'TestEntity'],
+            schemaClass: TestEntity::class,
+        );
+
+        self::assertMatchesRegularExpression('#^/test_entities/\d+$#', self::getClient()->getRequest()->getPathInfo());
+    }
+
+    public function testTestOperationFailsWithUnknownIri(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageIs('IRI could not be resolved with the given parameters!');
+
+        $this->testOperation(iri: [TestEntity::class, ['varcharColumn' => 'unknown']]);
+    }
+
+    public function testTestOperationChecksCollectionSchema(): void
+    {
+        $this->testOperation(
+            uri: '/test_entities',
+            responseCode: 200,
+            schemaClass: TestEntity::class
+        );
+    }
+
+    public function testTestOperationDetectsDispatchedMessages(): void
+    {
+        $dispatched = [];
+
+        $this->testOperation(
+            uri: '/test_entities',
+            method: 'POST',
+            requestOptions: ['json' => ['varcharColumn' => 'new']],
+            responseCode: 202,
+            messageCount: 1,
+            dispatchedMessages: [
+                TestEntity::class,
+                [
+                    TestEntity::class,
+                    static function (TestEntity $message, array $data) use (&$dispatched): void {
+                        $dispatched[] = [$message->varcharColumn, $data];
+                    },
+                ],
+            ],
+        );
+
+        self::assertSame([['new', []]], $dispatched);
+    }
+
+    protected function getJWT(array $findUserBy): string
+    {
+        return $this->jwt ?? parent::getJWT($findUserBy);
     }
 }
