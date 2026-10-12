@@ -137,7 +137,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                                                  Instead of class names the elements can be an array of
      *                                                  [classname, callable]. This callback will be called
      *                                                  (for each matching message) with the message as first
-     *                                                  parameter and the returned JSON as second parameter.
+     *                                                  parameter and the returned JSON as second parameter,
+     *                                                  an empty array if the response has no content.
      * @param array<string>         $dispatchedEvents   array of event names, asserts that at least one
      *                                                  instance of each given event has been dispatched
      */
@@ -333,8 +334,9 @@ abstract class ApiPlatformTestCase extends ApiTestCase
                 );
 
                 if (null !== $messageCallback) {
+                    $data = '' === $response->getContent(false) ? [] : $response->toArray(false);
                     foreach ($filtered as $msg) {
-                        $messageCallback($msg['message'], $response->toArray(false));
+                        $messageCallback($msg['message'], $data);
                     }
                 }
             }
