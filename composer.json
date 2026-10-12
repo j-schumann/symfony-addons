@@ -45,6 +45,7 @@
     },
     "suggest": {
         "api-platform/test": "Required by the ApiPlatformTestCase when API Platform is installed as split packages instead of api-platform/core",
+        "lexik/jwt-authentication-bundle": "Creates the token for the email of ApiPlatformTestCase::testOperation(), unless getJWT() is overridden",
         "vrok/doctrine-addons": "^3.1.0 provides the DQL functions the ContainsFilter, the JsonExistsFilter and the SimpleSearchFilter on JSON columns in Postgres require"
     },
     "autoload": {

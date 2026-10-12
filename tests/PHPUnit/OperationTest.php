@@ -39,6 +39,14 @@ final class OperationTest extends ApiPlatformTestCase
         );
     }
 
+    public function testTestOperationFailsWithoutJwtBundle(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessageIsOrContains('getJWT() requires the lexik/jwt-authentication-bundle');
+
+        $this->testOperation(uri: '/test', email: 'test@example.com');
+    }
+
     public function testTestOperationCallsPrepare(): void
     {
         $this->expectException(\RuntimeException::class);

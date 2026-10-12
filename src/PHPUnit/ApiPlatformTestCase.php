@@ -159,7 +159,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      *                                                 tries to find an entity by the given conditions and
      *                                                 retrieves its IRI, it is then used as URI
      * @param string               $email              if given, tries to find a User with that email and sends
-     *                                                 the request authenticated as this user with lexikJWT
+     *                                                 the token of getJWT() for this user as Bearer
      * @param string               $postFormAuth       if given together with 'email', sends the JWT as
      *                                                 'application/x-www-form-urlencoded' request in the
      *                                                 given field name
@@ -512,12 +512,18 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     }
 
     /**
-     * Generates a JWT for the user given by its identifying property, e.g. email.
+     * Generates a JWT for the user given by its identifying property, e.g. email, with the
+     * lexik/jwt-authentication-bundle. Override it to create the token for another authenticator,
+     * e.g. an OIDC token signed with a test key.
      *
      * @param array<string, string> $findUserBy
      */
     protected function getJWT(array $findUserBy): string
     {
+        if (!static::getContainer()->has('lexik_jwt_authentication.jwt_manager')) {
+            throw new \LogicException('getJWT() requires the lexik/jwt-authentication-bundle, install it or override getJWT() to create the token for your authenticator.');
+        }
+
         $em = static::getContainer()->get('doctrine.orm.entity_manager');
         $user = $em->getRepository(static::$userClass)->findOneBy($findUserBy);
         if (!$user) {
