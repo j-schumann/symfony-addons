@@ -33,6 +33,9 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
         'jsonb_object',
     ];
 
+    /**
+     * @param array<string, mixed> $context
+     */
     protected function filterParameter(
         Parameter $parameter,
         QueryBuilder $queryBuilder,

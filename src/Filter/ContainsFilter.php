@@ -22,6 +22,9 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
     use FilterTrait;
     use OpenApiFilterTrait;
 
+    /**
+     * @param array<string, mixed> $context
+     */
     protected function filterParameter(
         Parameter $parameter,
         QueryBuilder $queryBuilder,

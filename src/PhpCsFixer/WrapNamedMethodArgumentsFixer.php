@@ -12,6 +12,9 @@ use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
+/**
+ * @implements ConfigurableFixerInterface<array{max_arguments?: int}, array{max_arguments: int}>
+ */
 final class WrapNamedMethodArgumentsFixer implements FixerInterface, ConfigurableFixerInterface
 {
     private const int DEFAULT_MAX_ARGUMENTS = 3;

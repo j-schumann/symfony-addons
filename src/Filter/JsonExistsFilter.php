@@ -53,6 +53,9 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
         }
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     protected function filterParameter(
         Parameter $parameter,
         QueryBuilder $queryBuilder,

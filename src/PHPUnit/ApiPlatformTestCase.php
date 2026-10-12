@@ -110,32 +110,33 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * @param array<string, mixed>  $requestOptions     options for the HTTP client, e.g. query parameters or
      *                                                  basic auth
      * @param array<string, string> $cookies            cookies to send, name => value
-     * @param array                 $files              array of files to upload
+     * @param array<string, mixed>  $files              files to upload, field name =>
+     *                                                  ['path' => .., 'originalName' => .., 'mimeType' => ..]
      * @param ?int                  $responseCode       asserts that the received status code matches
      * @param string                $contentType        asserts that the received content type header matches
-     * @param array                 $json               asserts that the returned content is JSON and
+     * @param array<mixed>          $json               asserts that the returned content is JSON and
      *                                                  contains the given array as subset
-     * @param array                 $requiredKeys       asserts the dataset contains the list of keys.
+     * @param array<mixed>          $requiredKeys       asserts the dataset contains the list of keys.
      *                                                  Used for elements where the value is not known in advance,
      *                                                  e.g. ID, slug, timestamps. Can be nested:
      *                                                  ['member' => [['id', '@id']]]
-     * @param array                 $forbiddenKeys      like requiredKeys, but the dataset may not contain those
+     * @param array<mixed>          $forbiddenKeys      like requiredKeys, but the dataset may not contain those
      * @param string                $schemaClass        asserts that the received response matches the JSON
      *                                                  schema for the given class
-     * @param array                 $createdLogs        array of ["log message", LogLevel] entries, asserts the
+     * @param array<array<mixed>>   $createdLogs        array of ["log message", LogLevel] entries, asserts the
      *                                                  messages to be present in the monolog handlers after the
      *                                                  operation ran
      * @param ?int                  $emailCount         asserts this number of emails to be sent via the
      *                                                  mailer after the operation was executed
      * @param ?int                  $messageCount       asserts this number of messages to be dispatched
      *                                                  to the message bus
-     * @param array                 $dispatchedMessages array of message classes, asserts that at least one instance
+     * @param array<mixed>          $dispatchedMessages array of message classes, asserts that at least one instance
      *                                                  of each given class has been dispatched to the message bus.
      *                                                  Instead of class names the elements can be an array of
      *                                                  [classname, callable]. This callback will be called
      *                                                  (for each matching message) with the message as first
      *                                                  parameter and the returned JSON as second parameter.
-     * @param array                 $dispatchedEvents   array of event names, asserts that at least one
+     * @param array<string>         $dispatchedEvents   array of event names, asserts that at least one
      *                                                  instance of each given event has been dispatched
      */
     protected function testOperation(
@@ -372,10 +373,10 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * Asserts that the given dataset $array does contain the list of $expected keys. The keys may
      * be nested.
      *
-     * @param array  $expected list of keys to check:
-     *                         ['hydra:member'][0]['id', '@id', 'slug']
-     * @param array  $array    the dataset to verify
-     * @param string $parent   auto-set when called recursively
+     * @param array<mixed> $expected list of keys to check:
+     *                               ['hydra:member'][0]['id', '@id', 'slug']
+     * @param array<mixed> $array    the dataset to verify
+     * @param string       $parent   auto-set when called recursively
      */
     public static function assertDatasetHasKeys(
         array $expected,
@@ -412,10 +413,10 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * Asserts that the given dataset $array does *not* contain the list of
      * $expected keys. The keys may be nested.
      *
-     * @param array  $expected list of keys to check:
-     *                         ['hydra:member'][0]['internal', 'hidden', 'private']
-     * @param array  $array    the dataset to verify
-     * @param string $parent   auto-set when called recursively
+     * @param array<mixed> $expected list of keys to check:
+     *                               ['hydra:member'][0]['internal', 'hidden', 'private']
+     * @param array<mixed> $array    the dataset to verify
+     * @param string       $parent   auto-set when called recursively
      */
     public static function assertDatasetNotHasKeys(
         array $expected,

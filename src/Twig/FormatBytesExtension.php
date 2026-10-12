@@ -6,6 +6,10 @@ use Twig\Attribute\AsTwigFilter;
 
 class FormatBytesExtension
 {
+    /**
+     * @param int|float $bytes
+     * @param int       $precision
+     */
     #[AsTwigFilter(name: 'formatBytes')]
     public function formatBytes($bytes, $precision = 2): string
     {

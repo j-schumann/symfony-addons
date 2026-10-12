@@ -2,6 +2,6 @@ includes:
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
 
 parameters:
-    level: 5
+    level: 6
     paths:
         - src
