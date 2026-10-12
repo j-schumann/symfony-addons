@@ -44,8 +44,10 @@ framework:
           to: published
 
 services:
-  Vrok\SymfonyAddons\Tests\Fixtures\TestFixtures:
+  _defaults:
     autoconfigure: true
+
+  Vrok\SymfonyAddons\Tests\Fixtures\TestFixtures: ~
 
 doctrine:
   dbal:
