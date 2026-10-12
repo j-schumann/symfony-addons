@@ -4,51 +4,38 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [4.0.0] - TBD
+All BC breaks are explained in UPGRADE.md.
+
 ### Added
 * `QueryBuilderHelper::getJoinAlias()` and `addJoin()` accept the alias of a joined entity, to join
   its relations
-* `JsonExistsFilter` supports multiple values (e.g. `?roles[]=ROLE_A&roles[]=ROLE_B`), combined
-  with AND (default) or OR, see the new `combination` constructor argument
+* `JsonExistsFilter` supports multiple values, combined with AND (default) or OR, see the new
+  `combination` constructor argument
 
 ### Changed
-* BC break: `JsonExistsFilter` uses the DQL function `JSON_CONTAINS_ALL_TEXT` (AND) or
-  `JSON_CONTAINS_ANY_TEXT` (OR) of `vrok/doctrine-addons` >= 3.1 instead of `JSON_CONTAINS_TEXT`,
-  for single values too, see UPGRADE.md
-* BC break: `JsonExistsFilter` no longer ignores multiple values, such requests return only the
-  matching records
-* BC break: `ApiPlatformTestCase::testOperation()` compares the `contentType` exactly, it no longer
-  ignores a `; charset=utf-8` suffix
-* BC break: `FormatBytesExtension` moved from `Vrok\SymfonyAddons\Twig\Extension` to
-  `Vrok\SymfonyAddons\Twig`. It declares its filter with `#[AsTwigFilter]` and no longer extends
-  Twig's `AbstractExtension`, `getName()` and `getFilters()` are removed. Requires
-  `twig/twig` >= 3.21
-* `SimpleSearchFilter` no longer sets an OpenAPI description, which replaced the `description` of
-  the `#[QueryParameter]`. `ContainsFilter` and `JsonExistsFilter` document their parameters with
-  API Platform's `OpenApiFilterTrait`, which adds a schema and respects `castToArray`
+* BC break: `JsonExistsFilter` uses the DQL functions `JSON_CONTAINS_ALL_TEXT` and
+  `JSON_CONTAINS_ANY_TEXT` of `vrok/doctrine-addons` >= 3.1 and no longer ignores multiple values
+* BC break: `ApiPlatformTestCase::testOperation()` compares the `contentType` exactly
+* BC break: `FormatBytesExtension` moved to `Vrok\SymfonyAddons\Twig` and uses `#[AsTwigFilter]`,
+  requires `twig/twig` >= 3.21
 
 ### Fixed
-* `NamedArgumentsFromArrayRector` converts calls of configured functions and static methods, before
-  only instance method calls were converted. Method calls are converted for the configured class
-  and its subclasses, including `self::` and `static::`, before instance method calls ignored the
-  class and static calls required the exact class name
-* `ContainsFilter` searches values that are no valid JSON as strings, before such values (e.g.
-  `?roles=ROLE_ADMIN` or an empty value) caused a database error
+* `NamedArgumentsFromArrayRector` converts calls of configured functions and static methods, also
+  via subclasses, `self::` and `static::`, and instance method calls only for the configured class
+* `ContainsFilter` searches values that are no valid JSON as strings instead of causing a database
+  error
 
 ### Removed
-* Support for API Platform 4, requires API Platform 5
+* Support for API Platform 4
 * Support for doctrine/dbal < 4.5
-* `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`, deprecated since 3.6, use `PROBLEM_MEDIA_TYPE`
-* The internal `BaseApiTestCase`, `ApiPlatformTestCase` extends `ApiPlatform\Test\ApiTestCase`
+* `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`
+* The internal `BaseApiTestCase`
 * Support for the `#[ApiFilter]` attribute in `SimpleSearchFilter`, `ContainsFilter` and
-  `JsonExistsFilter`, use `#[QueryParameter]`. The filters no longer implement
-  `PropertyAwareFilterInterface`, `getDescription()` returns an empty array
-* The constructor arguments `managerRegistry`, `logger`, `nameConverter` and `properties` of
-  `SimpleSearchFilter`, `ContainsFilter` and `JsonExistsFilter`, and the `searchParameterName`
-  argument of `SimpleSearchFilter`. The filters use the nested properties and name conversion
-  API Platform resolves for the parameter, API Platform sets the logger
-* `AutoSenderSubscriber`, use the `framework.mailer.headers` config, see UPGRADE.md
-* `ResetLoggerSubscriber`, Messenger's `ResetServicesListener` resets the loggers after each
-  message, see UPGRADE.md
+  `JsonExistsFilter`
+* Constructor arguments of `SimpleSearchFilter`, `ContainsFilter` and `JsonExistsFilter`, except
+  the `combination` of the `JsonExistsFilter`
+* `AutoSenderSubscriber`
+* `ResetLoggerSubscriber`
 
 ## [3.7.0] - 2026-10-09
 ### Added
