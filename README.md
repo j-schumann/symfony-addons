@@ -8,6 +8,8 @@ This is a library with additional classes for usage in combination with the Symf
 ## Mailer helpers
 ### Automatically set a sender address
 
+Deprecated since 3.8, removed in 4.0: set the sender via the `framework.mailer.headers` config.
+
 We want to replace setting the sender via mailer.yaml as envelope (@see
 https://symfonycasts.com/screencast/mailer/event-global-recipients) as this would still require each
 mail to have a FROM address set and also doesn't allow us to set a sender name.
@@ -26,6 +28,9 @@ MAILER_SENDER="Change Me <your@email>"
 
 ## Messenger helpers
 ### Resetting the logger before/after a message
+
+Deprecated since 3.8, removed in 4.0: Messenger's `ResetServicesListener` resets the loggers after
+each message.
 
 We want to group all log entries belonging to a single message to be grouped with a distinct UID and
 to flush a buffer logger after a message was processed (successfully or failed), to immediately see
@@ -696,6 +701,9 @@ All filters can be used with the `#[QueryParameter]` attribute (recommended in A
 With `#[QueryParameter]` the filter does not need any properties enabled, the parameter names the
 property to filter. Nested properties, e.g. `children.content`, are supported.
 
+Using the filters with the `#[ApiFilter]` attribute is deprecated since 3.8 and removed in 4.0, so
+are their constructor arguments (`properties`, `searchParameterName` etc.).
+
 ### SimpleSearchFilter
 
 Selects entities where the search term is found (case insensitive) in at least one of the specified
@@ -712,7 +720,7 @@ cast to string first.
     ),
 ])]
 
-// legacy
+// legacy, deprecated since 3.8
 #[ApiFilter(
     filterClass: SimpleSearchFilter::class,
     properties: [
@@ -745,7 +753,7 @@ the `@>` operator. For example for filtering for numbers in an array.
     'numbers' => new QueryParameter(filter: new ContainsFilter(), property: 'numbers'),
 ])]
 
-// legacy
+// legacy, deprecated since 3.8
 #[ApiFilter(filterClass: ContainsFilter::class, properties: ['numbers'])]
 ```
 
@@ -770,7 +778,7 @@ roles LIKE '%ROLE_ADMIN%'`.
     'role' => new QueryParameter(filter: new JsonExistsFilter(), property: 'roles'),
 ])]
 
-// legacy
+// legacy, deprecated since 3.8
 #[ApiFilter(filterClass: JsonExistsFilter::class, properties: ['roles'])]
 ```
 

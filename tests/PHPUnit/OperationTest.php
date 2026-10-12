@@ -4,6 +4,7 @@ namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
 use Monolog\Level;
 use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 
@@ -50,6 +51,8 @@ final class OperationTest extends ApiPlatformTestCase
      *
      * @todo remove with the next major version, together with PROBLEM_CONTENT_TYPE
      */
+    // ignoring the charset is deprecated since 3.8
+    #[IgnoreDeprecations]
     public function testTestOperationIgnoresCharset(): void
     {
         $response = $this->testOperation(

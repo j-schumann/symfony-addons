@@ -2,12 +2,15 @@
 
 namespace Vrok\SymfonyAddons\Tests\EventSubscriber;
 
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\Event\MessageEvent;
 use Symfony\Component\Mime\Email;
 use Vrok\SymfonyAddons\EventSubscriber\AutoSenderSubscriber;
 
+// tests the AutoSenderSubscriber, deprecated since 3.8
+#[IgnoreDeprecations]
 final class AutoSenderSubscriberTest extends TestCase
 {
     public function testRegistersEvent(): void

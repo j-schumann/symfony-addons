@@ -6,6 +6,7 @@ use Monolog\Handler\BufferHandler;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -13,6 +14,8 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 use Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber;
 
+// tests the ResetLoggerSubscriber, deprecated since 3.8
+#[IgnoreDeprecations]
 final class ResetLoggerSubscriberTest extends TestCase
 {
     private Logger $stubLogger;

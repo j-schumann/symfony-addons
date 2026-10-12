@@ -15,12 +15,15 @@ use Doctrine\Persistence\ManagerRegistry;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 use Vrok\SymfonyAddons\PHPUnit\BaseApiTestCase;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 #[Group('database')]
+// tests the #[ApiFilter] usage and constructor arguments, deprecated since 3.8
+#[IgnoreDeprecations]
 final class SimpleSearchFilterTest extends BaseApiTestCase
 {
     public function testGetDescription(): void

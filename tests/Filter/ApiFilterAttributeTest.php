@@ -20,6 +20,8 @@ use Vrok\SymfonyAddons\Tests\Fixtures\ApiFilter\ApiFilterEntity;
  */
 #[Group('database')]
 #[IgnoreDeprecations('with the "#\[ApiFilter\]" attribute is deprecated|through "Operation::\$filters" is deprecated')]
+// tests the #[ApiFilter] support, deprecated since 3.8
+#[IgnoreDeprecations]
 final class ApiFilterAttributeTest extends FilterRequestTestCase
 {
     protected function getKernelEnvironment(): string

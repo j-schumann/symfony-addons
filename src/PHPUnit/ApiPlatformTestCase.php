@@ -305,6 +305,10 @@ abstract class ApiPlatformTestCase extends BaseApiTestCase
             //       assertResponseHeaderSame()
             $receivedType = $response->getHeaders(false)['content-type'][0] ?? '';
             if ($this->normalizeContentType($receivedType) === $this->normalizeContentType($contentType)) {
+                if (strtolower(trim($receivedType)) !== strtolower(trim($contentType))) {
+                    trigger_deprecation('vrok/symfony-addons', '3.8', 'Ignoring the charset when comparing the content type "%s" with the received "%s" is deprecated, 4.0 compares them exactly.', $contentType, $receivedType);
+                }
+
                 $this->addToAssertionCount(1);
             } else {
                 self::assertResponseHeaderSame('content-type', $contentType);

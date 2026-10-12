@@ -31,12 +31,27 @@ trait FilterTrait
     protected ?array $properties = null;
     protected ?NameConverterInterface $nameConverter = null;
 
+    /**
+     * @param ManagerRegistry|null        $managerRegistry deprecated since 3.8, removed in 4.0,
+     *                                                     API Platform sets it
+     * @param LoggerInterface|null        $logger          deprecated since 3.8, removed in 4.0,
+     *                                                     API Platform sets it
+     * @param array|null                  $properties      deprecated since 3.8, removed in 4.0,
+     *                                                     name the property with the
+     *                                                     #[QueryParameter]
+     * @param NameConverterInterface|null $nameConverter   deprecated since 3.8, removed in 4.0,
+     *                                                     API Platform converts the names
+     */
     public function __construct(
         ?ManagerRegistry $managerRegistry = null,
         ?LoggerInterface $logger = null,
         ?array $properties = null,
         ?NameConverterInterface $nameConverter = null,
     ) {
+        if (null !== $properties) {
+            trigger_deprecation('vrok/symfony-addons', '3.8', 'The "properties" argument of "%s" is deprecated and removed in 4.0, name the properties with the #[QueryParameter] instead.', static::class);
+        }
+
         $this->managerRegistry = $managerRegistry;
         $this->logger = $logger;
         $this->properties = $properties;
@@ -57,7 +72,11 @@ trait FilterTrait
             return;
         }
 
-        // @todo remove when support for #[ApiFilter] is dropped (API Platform 6)
+        // @todo remove when support for #[ApiFilter] is dropped (4.0)
+        if ([] !== ($context['filters'] ?? [])) {
+            trigger_deprecation('vrok/symfony-addons', '3.8', 'Using "%s" with the #[ApiFilter] attribute is deprecated and no longer filters in 4.0, use #[QueryParameter] instead.', static::class);
+        }
+
         foreach ($context['filters'] ?? [] as $property => $value) {
             $property = $this->denormalizePropertyName($property);
             if (!$this->isPropertyEnabled($property, $resourceClass)) {
