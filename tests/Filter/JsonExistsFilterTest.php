@@ -4,160 +4,72 @@
 
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
-use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\QueryParameter;
-use Doctrine\ORM\Query\Parameter;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ManagerRegistry;
-use Monolog\Handler\TestHandler;
-use Monolog\Logger;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Monolog\Level;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
-use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
-final class JsonExistsFilterTest extends KernelTestCase
+final class JsonExistsFilterTest extends FilterTestCase
 {
-    public function testGetDescription(): void
+    public function testFilter(): void
     {
-        $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null]);
+        $this->skipUnlessPostgres();
 
-        self::assertEquals([
-            'jsonColumn'   => [
-                'property' => 'jsonColumn',
-                'required' => false,
-                'type'     => 'string',
-            ],
-            'jsonColumn[]' => [
-                'property' => 'jsonColumn',
-                'required' => false,
-                'type'     => 'string',
-            ],
-        ], $filter->getDescription(TestEntity::class));
+        self::assertCount(1, $this->search('?hasKey=ROLE_ADMIN'));
+        self::assertCount(1, $this->search('?hasKey=ROLE_ADMIN_BLOG'));
+        self::assertCount(0, $this->search('?hasKey=ROLE'));
     }
 
-    public function testApplyFilter(): void
+    public function testFilterMultipleValuesWithAndByDefault(): void
     {
-        $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null]);
-        $doctrine =  self::getContainer()->get('doctrine');
-        $queryNameGen = new QueryNameGenerator();
+        $this->skipUnlessPostgres();
 
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
+        self::assertCount(1, $this->search('?hasKey[]=ROLE_ADMIN&hasKey[]=ROLE_EDITOR'));
+        self::assertCount(0, $this->search('?hasKey[]=ROLE_ADMIN&hasKey[]=ROLE_ADMIN_BLOG'));
 
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
-            'filters' => [
-                'jsonColumn' => 'testVal',
-            ],
-        ]);
+        // duplicates are ignored
+        self::assertCount(1, $this->search('?hasKey[]=ROLE_ADMIN&hasKey[]=ROLE_ADMIN'));
+    }
 
-        $param = $qb->getParameter('jsonColumn_p1');
-        self::assertInstanceOf(Parameter::class, $param);
-        self::assertSame(['testVal'], $param->getValue());
+    public function testFilterMultipleValuesWithOr(): void
+    {
+        $this->skipUnlessPostgres();
 
-        self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
+        self::assertCount(2, $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_ADMIN_BLOG'));
+        self::assertCount(1, $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_NONE'));
+    }
+
+    public function testFilterNestedProperty(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(1, $this->search('?childHasKey=CHILD_ZWEI'));
+        self::assertCount(0, $this->search('?childHasKey=CHILD'));
+    }
+
+    public function testFilterIgnoresNestedValues(): void
+    {
+        $result = $this->search(
+            '?hasKey[0][]=ROLE_ADMIN',
+            [['Invalid filter ignored', Level::Notice]]
         );
+
+        self::assertCount(2, $result);
     }
 
-    public function testApplyQueryParameter(): void
+    public function testParametersAreDocumented(): void
     {
-        $doctrine = self::getContainer()->get('doctrine');
-        $filter = new JsonExistsFilter($doctrine);
+        $parameters = $this->getOpenApiParameters();
 
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $parameter = new QueryParameter(key: 'hasKey', property: 'jsonColumn');
-        $parameter->setValue('testVal');
-
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'parameter' => $parameter,
-            'filters'   => ['jsonColumn' => 'testVal'],
-        ]);
-
-        self::assertSame(['testVal'], $qb->getParameter('jsonColumn_p1')?->getValue());
-        self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
-        );
-    }
-
-    public function testApplyMultipleValuesWithOr(): void
-    {
-        $filter = new JsonExistsFilter($this->getDoctrine(), combination: JsonExistsFilter::OR);
-        $qb = $this->applyFilter($filter, ['ROLE_A', 'ROLE_B', 'ROLE_A']);
-
-        self::assertSame(['ROLE_A', 'ROLE_B'], $qb->getParameter('jsonColumn_p1')?->getValue());
-        self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_ANY_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
-        );
-    }
-
-    public function testApplyMultipleValuesWithAndByDefault(): void
-    {
-        $qb = $this->applyFilter(new JsonExistsFilter($this->getDoctrine()), ['ROLE_A', 'ROLE_B']);
-
-        self::assertSame(['ROLE_A', 'ROLE_B'], $qb->getParameter('jsonColumn_p1')?->getValue());
-        self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
-        );
-    }
-
-    public function testApplySingleValueArray(): void
-    {
-        $qb = $this->applyFilter(new JsonExistsFilter($this->getDoctrine()), ['ROLE_A']);
-
-        self::assertSame(['ROLE_A'], $qb->getParameter('jsonColumn_p1')?->getValue());
-        self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
-        );
-    }
-
-    public function testApplyIgnoresInvalidValues(): void
-    {
-        foreach ([[], [['nested']], null] as $value) {
-            $logHandler = new TestHandler();
-            $filter = new JsonExistsFilter($this->getDoctrine(), new Logger('test', [$logHandler]));
-            $qb = $this->applyFilter($filter, $value);
-
-            self::assertStringNotContainsString('WHERE', (string) $qb);
-            self::assertTrue($logHandler->hasNotice('Invalid filter ignored'));
+        foreach (['hasAnyKey', 'hasAnyKey[]', 'hasKey', 'hasKey[]'] as $name) {
+            self::assertArrayHasKey($name, $parameters);
         }
     }
 
-    public function testRejectsInvalidCombination(): void
+    public function testConstructFailsWithInvalidCombination(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid "combination" parameter "xor"');
+        $this->expectExceptionMessageIsOrContains('Invalid "combination" parameter "xor"');
 
         new JsonExistsFilter(combination: 'xor');
-    }
-
-    private function getDoctrine(): ManagerRegistry
-    {
-        return self::getContainer()->get('doctrine');
-    }
-
-    private function applyFilter(JsonExistsFilter $filter, mixed $value): QueryBuilder
-    {
-        /** @var QueryBuilder $qb */
-        $qb = $this->getDoctrine()->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'filters' => ['jsonColumn' => $value],
-        ]);
-
-        return $qb;
     }
 }

@@ -32,6 +32,12 @@ final class RefreshDatabaseBenchmarkTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
+    public static function setUpBeforeClass(): void
+    {
+        // measures the cleanup alone, the test persists its own records
+        self::$fixtureGroups = [];
+    }
+
     private const int DEFAULT_ITERATIONS = 50;
 
     /**

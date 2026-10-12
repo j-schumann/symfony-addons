@@ -6,8 +6,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
 /**
- * Used to decode 'application/x-www-form-urlencoded' requests for usage in
- * ApiPlatform. The decoder is auto-registered as service.
+ * Used to decode 'application/x-www-form-urlencoded' requests for usage in ApiPlatform. The decoder
+ * is auto-registered as service.
  */
 readonly class FormDecoder implements DecoderInterface
 {

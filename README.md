@@ -1,52 +1,9 @@
-# vrok/symfony-addons
+  # vrok/symfony-addons
 
 This is a library with additional classes for usage in combination with the Symfony framework.
 
 [![CI Status](https://github.com/j-schumann/symfony-addons/actions/workflows/ci.yaml/badge.svg)](https://github.com/j-schumann/symfony-addons/actions)
 [![Coverage Status](https://coveralls.io/repos/github/j-schumann/symfony-addons/badge.svg?branch=main)](https://coveralls.io/github/j-schumann/symfony-addons?branch=main)
-
-## Mailer helpers
-### Automatically set a sender address
-
-We want to replace setting the sender via mailer.yaml as envelope (@see
-https://symfonycasts.com/screencast/mailer/event-global-recipients) as this would still require each
-mail to have a FROM address set and also doesn't allow us to set a sender name.
-
-config/services.yaml:
-```yaml
-    Vrok\SymfonyAddons\EventSubscriber\AutoSenderSubscriber:
-        arguments:
-            $sender: "%env(MAILER_SENDER)%"
-```
-
-.env[.local]:
-```yaml
-MAILER_SENDER="Change Me <your@email>"
-```
-
-## Messenger helpers
-### Resetting the logger before/after a message
-
-We want to group all log entries belonging to a single message to be grouped with a distinct UID and
-to flush a buffer logger after a message was processed (successfully or failed), to immediately see
-the entries in the log:
-
-config/services.yaml:
-```yaml
-    # add a UID to the context, same UID for each HTTP request or console command
-    # and with the event subscriber also for each message 
-    Monolog\Processor\UidProcessor:
-        tags:
-            - { name: monolog.processor, handler: logstash }
-
-    # resets the UID when a message is received, flushed a buffer after a
-    # message was handled. Add this multiple times if you want to flush more
-    # channels, e.g. messenger
-    app.event.reset_app_logger:
-        class: Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber
-        tags:
-            - { name: monolog.logger, channel: app }
-```
 
 ## Validators
 
@@ -85,7 +42,7 @@ create authenticated requests and check for created logs / sent emails / dispatc
 allows to easily check for expected response content, allowed or forbidden keys in the data or to
 verify against a given schema.
 
-Requires "symfony/browser-kit" & "symfony/http-client" to be installed (and of cause ApiPlatform).
+Requires `api-platform/core`, `symfony/browser-kit`, and `symfony/http-client` to be installed.
 
 ```php
 <?php
@@ -96,18 +53,18 @@ class AuthApiTest extends ApiPlatformTestCase
 {
     public function testAuthRequiresPassword(): void
     {
-        $this->testOperation([
-            'uri'            => '/authentication_token',
-            'method'         => 'POST',
-            'requestOptions' => ['json' => ['username' => 'fakeuser']],
-            'responseCode'   => 400,
-            'contentType'    => 'application/json',
-            'json'           => [
+        $this->testOperation(
+            uri: '/authentication_token',
+            method: 'POST',
+            requestOptions: ['json' => ['username' => 'fakeuser']],
+            responseCode: 400,
+            contentType: 'application/json',
+            json: [
                 'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
                 'title'  => 'An error occurred',
                 'detail' => 'The key "password" must be provided.',
             ],
-        ]);
+        );
     }
 }
 ```
@@ -120,35 +77,13 @@ class AuthApiTest extends ApiPlatformTestCase
 </tr>
 
 <tr>
-<td>prepare</td>
-<td>Callable, to be executed _after_ the kernel was booted and the DB refreshed, but _before_ the request is made</td>
-<td>
-
-```php
-'prepare' => static function (ContainerInterface $container, array &$params): void {
-      $em = $container->get('doctrine')->getManager();
-
-      $log = new ActionLog();
-      $log->action = ActionLog::FAILED_LOGIN;
-      $log->ipAddress = '127.0.0.1';
-      $em->persist($log);
-      $em->flush();
-
-      $params['requestOptions']['query']['id'] = $log->id; 
-}
-```
-
-</td>
-</tr>
-
-<tr>
 <td>uri</td>
 <td>
 the URI / endpoint to call
 </td>
 <td>
 
-`'uri' => '/users'`
+`uri: '/users'`
 
 </td>
 </tr>
@@ -163,7 +98,7 @@ determine its IRI, which is then used as URI for the request
 </td>
 <td>
 
-`'iri' => [User::class, [email => 'test@test.de']]`
+`iri: [User::class, ['email' => 'test@test.de']]`
 
 </td>
 </tr>
@@ -171,12 +106,12 @@ determine its IRI, which is then used as URI for the request
 <tr>
 <td>email</td>
 <td>
-if given, tries to find a User with that email and sends the request authenticated as this user with
-lexikJWT bundle
+if given, tries to find a User with that email and sends the token of `getJWT()` for this user as
+Bearer, see "Authentication" below
 </td>
 <td>
 
-`'email' => 'test@test.de'`
+`email: 'test@test.de'`
 
 </td>
 </tr>
@@ -191,7 +126,7 @@ want to supply the token via GET to prevent security issues and as we cannot set
 </td>
 <td>
 
-`'postFormAuth' => 'bearer'`
+`postFormAuth: 'bearer'`
 
 </td>
 </tr>
@@ -206,7 +141,7 @@ automatically set to `application/merge-patch+json` (if not already specified)
 </td>
 <td>
 
-`'method' => 'POST'`
+`method: 'POST'`
 
 </td>
 </tr>
@@ -219,7 +154,7 @@ options for the HTTP client, e.g. query parameters or basic auth
 <td>
 
 ```php
-'requestOptions' => [
+requestOptions: [
   'json' => [
     'username' => 'Peter',
     'email'    => 'peter@example.com',
@@ -239,6 +174,18 @@ options for the HTTP client, e.g. query parameters or basic auth
 </tr>
 
 <tr>
+<td>cookies</td>
+<td>
+cookies to send with the request, name => value
+</td>
+<td>
+
+`cookies: ['BEARER' => $jwt]`
+
+</td>
+</tr>
+
+<tr>
 <td>files</td>
 <td>
 
@@ -250,7 +197,7 @@ the content-type header is automatically set to `multipart/form-data` (if not al
 <td>
 
 ```php
-'files' => [
+files: [
   'picture' => [
     'path'         => '/path/to/file.png',
     'originalName' => 'mypicture.png',
@@ -269,7 +216,7 @@ asserts that the received status code matches
 </td>
 <td>
 
-`'responseCode' => 201`
+`responseCode: 201`
 
 </td>
 </tr>
@@ -281,7 +228,7 @@ asserts that the received content type header matches, a `charset=utf-8` paramet
 </td>
 <td>
 
-`'contentType' => 'application/ld+json'`
+`contentType: 'application/ld+json'`
 
 </td>
 </tr>
@@ -294,7 +241,7 @@ asserts that the returned content is JSON and contains the given array as subset
 <td>
 
 ```php
-'json' => [
+json: [
   'username' => 'Peter',
   'email'    => 'peter@example.com',
 ]
@@ -312,7 +259,7 @@ advance, e.g. ID, slug, timestamps. Can be nested.
 <td>
 
 ```php
-'requiredKeys' => ['hydra:member'][0]['id', '@id']
+requiredKeys: ['member' => [['id', '@id']]]
 ```
 
 </td>
@@ -326,7 +273,7 @@ like requiredKeys, but the dataset may not contain those
 <td>
 
 ```php
-'forbiddenKeys' => ['hydra:member'][0]['password', 'salt']
+forbiddenKeys: ['member' => [['password', 'salt']]]
 ```
 
 </td>
@@ -342,7 +289,7 @@ schema is used.
 <td>
 
 ```php
-'schemaClass' => User::class,
+schemaClass: User::class,
 ```
 
 </td>
@@ -357,7 +304,7 @@ handlers after the operation ran
 <td>
 
 ```php
-'createdLogs'    => [
+createdLogs: [
   ['Failed to validate the provider', Level::Error],
 ],
 ```
@@ -373,7 +320,7 @@ asserts this number of emails to be sent via the mailer after the operation was 
 <td>
 
 ```php
- 'emailCount' => 2,
+emailCount: 2,
 ```
 
 </td>
@@ -387,7 +334,7 @@ asserts this number of messages to be dispatched to the message bus
 <td>
 
 ```php
- 'messageCount' => 2,
+messageCount: 2,
 ```
 
 </td>
@@ -404,7 +351,7 @@ second parameter, to trigger additional assertions for the message.
 <td>
 
 ```php
-'dispatchedMessages' => [
+dispatchedMessages: [
   TenantCreatedMessage::class,
 
   [TenantCreatedMessage::class, function (object $message, array $data): void {
@@ -425,7 +372,7 @@ has been dispatched to Symfony's EventDispatcher.
 <td>
 
 ```php
-'dispatchedEvents' => [
+dispatchedEvents: [
   'kernel.response',
   ProjectPreCreateEvent::class,
 ],
@@ -436,6 +383,19 @@ has been dispatched to Symfony's EventDispatcher.
 
 </table>
 
+#### Authentication
+
+With the `email` argument, `testOperation()` sends the token returned by `getJWT()`, which the
+lexik/jwt-authentication-bundle creates by default. This tests the real authentication, including
+the user checker and the claims of the token. Other ways:
+
+* Different token issuer, e.g. OIDC: override `getJWT()` in your test case and return a token
+  your authenticator accepts, e.g. signed with a test key that the `when@test` config trusts.
+* Token as cookie: pass it with `cookies`, e.g. `cookies: ['BEARER' => $this->getJWT([...])]`.
+* No token, e.g. to only test access rules: use the client directly:
+  `$client = static::createClient(); $client->loginUser($user);` and then `$client->request(...)`.
+  This skips the authenticator, the user checker and the claims, and only lasts for the first 
+  request of the client.
 
 ### Using the RefreshDatabaseTrait
 
@@ -692,9 +652,10 @@ class MyEventSubscriber implements EventSubscriberInterface
 
 ## ApiPlatform Filters
 
-All filters can be used with the `#[QueryParameter]` attribute (recommended in API Platform >= 4.2).
-With `#[QueryParameter]` the filter does not need any properties enabled, the parameter names the
-property to filter. Nested properties, e.g. `children.content`, are supported.
+The filters are used with the `#[QueryParameter]` attribute, the legacy `#[ApiFilter]` attribute
+is not supported. The parameter names the property to filter, nested properties, e.g.
+`children.content`, are supported. Without `property`, API Platform uses the key of the parameter
+if it matches a property of the resource.
 
 ### SimpleSearchFilter
 
@@ -705,26 +666,15 @@ cast to string first.
 
 ```php
 #[GetCollection(parameters: [
-    // the parameter names the properties to search
     'pattern' => new QueryParameter(
         filter: new SimpleSearchFilter(),
+        description: 'Search in the name, slug, description, parent and children',
         properties: ['description', 'name', 'slug', 'parent.title', 'children.content'],
     ),
 ])]
-
-// legacy
-#[ApiFilter(
-    filterClass: SimpleSearchFilter::class,
-    properties: [
-        'description',
-        'name',
-        'slug',
-        'parent.title',
-        'children.content',
-    ],
-    arguments: ['searchParameterName' => 'pattern']
-)]
 ```
+
+The filters set no OpenAPI description, use the `description` of the `#[QueryParameter]`.
 
 Requires CAST as defined Doctrine function, e.g. by `vrok/doctrine-addons`:
 ```yaml
@@ -738,15 +688,14 @@ doctrine:
 ### ContainsFilter
 
 Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter, using
-the `@>` operator. For example for filtering for numbers in an array.
+the `@>` operator. For example for filtering for numbers or strings in an array. Values that are
+valid JSON are used as they are (`?numbers=5` finds the number 5, `?roles="5"` the string "5"),
+other values are searched as strings (`?roles=ROLE_ADMIN`).
 
 ```php
 #[GetCollection(parameters: [
-    'numbers' => new QueryParameter(filter: new ContainsFilter(), property: 'numbers'),
+    'numbers' => new QueryParameter(filter: new ContainsFilter()),
 ])]
-
-// legacy
-#[ApiFilter(filterClass: ContainsFilter::class, properties: ['numbers'])]
 ```
 
 Requires CONTAINS as defined Doctrine function, provided by `vrok/doctrine-addons`:
@@ -761,14 +710,14 @@ doctrine:
 ### JsonExistsFilter
 
 Postgres-only: Filters entities by their jsonb fields, if they contain the search values. For
-example for filtering Users by their role, to prevent accidental matching with
-overlapping role names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as text with `WHERE
-roles LIKE '%ROLE_ADMIN%'`.
+example for filtering Users by their role, to prevent accidental matching with overlapping role
+names (e.g. ROLE_ADMIN and ROLE_ADMIN_BLOG) when searching as text with
+`WHERE roles LIKE '%ROLE_ADMIN%'`.
 
-Multiple values (e.g. `?roles[]=ROLE_ADMIN&roles[]=ROLE_EDITOR`) are combined with AND by
-default (`?&` operator), a record must contain all values. Set `combination` to
-`JsonExistsFilter::OR` to match records that contain at least one of the values (`?|` operator).
-For a single value both behave like the `?` operator.
+Multiple values (e.g. `?roles[]=ROLE_ADMIN&roles[]=ROLE_EDITOR`) are combined with AND by default
+(`?&` operator), a record must contain all values. Set `combination` to `JsonExistsFilter::OR` to
+match records that contain at least one of the values (`?|` operator). For a single value both
+behave like the `?` operator.
 
 ```php
 #[GetCollection(parameters: [
@@ -781,13 +730,6 @@ For a single value both behave like the `?` operator.
     // records with all the given roles
     'role' => new QueryParameter(filter: new JsonExistsFilter(), property: 'roles'),
 ])]
-
-// legacy
-#[ApiFilter(
-    filterClass: JsonExistsFilter::class,
-    properties: ['roles'],
-    arguments: ['combination' => JsonExistsFilter::OR],
-)]
 ```
 
 Requires a DQL function of `vrok/doctrine-addons` >= 3.1, depending on the `combination` of the
@@ -902,8 +844,6 @@ $this->testOperation(uri: '/test', requiredKeys: [
 ], dispatchedEvents: ['failedEvent']);
 ```
 
-Attention: This Rector is not yet unit-tested, please report any bugs you find!
-
 ### WrapNamedMethodArgumentsFixer
 
 This Fixer for php-cs-fixer allows wrapping long lines of function calls with named arguments to
@@ -954,7 +894,7 @@ $this->testOperation(
 
 Attention: Formatting (indentation) is only fixed after the arguments were wrapped, by your
 specification of `method_argument_space` and `array_indentation` (or rulesets containing those, like
-`@Symfony`). This fixer is not yet unit-tested, please report any bugs you find!
+`@Symfony`).
 
 ## Developer Doc
 ### composer.json require
@@ -965,10 +905,14 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 
 * _doctrine/doctrine-fixtures-bundle_ is required for tests of the ApiPlatformTestCase
 * _symfony/browser-kit_ is required for tests of the MultipartDecoder
-* _symfony/mailer_ is required for tests of the AutoSenderSubscriber
-* _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
-* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and
-  ResetLoggerSubscriber
+* _symfony/mailer_ is required for tests of the `emailCount` of the ApiPlatformTestCase
+* _symfony/doctrine-messenger_ is required for tests of the `messageCount` of the
+  ApiPlatformTestCase
+* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait
+* _phpstan/phpstan_ and _phpstan/phpstan-deprecation-rules_ run the static analysis
+  (`composer phpstan`), also in CI
+* _symfony/polyfill-php85_ >= 1.33 is required by rector/rector on PHP 8.4 (`array_last()`), which
+  does not require it itself
 * _symfony/string_ is required for API Platform's inflector
 * _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
 * _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore
@@ -976,14 +920,9 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
-* tests for QueryBuilderHelper
-* tests for NamedArgumentsFromArrayRector
-* tests for WrapNamedMethodArgumentsFixer
-* compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper
-
-#### Next Major
-* drop support for APIP < 5
-* drop support for doctrine/dbal < 4.5 -> remove tests/Fixtures/JsonbColumn.php, use `Types::JSONB`
-* remove PROBLEM_CONTENT_TYPE -> b/c incompatible note
-* check: change user login, how does APIP handle it?
-* switch Twig extensions to #AsTwigFilter
+* ContainsFilter: option to match records that contain at least one of the values (OR), like
+  the `combination` of the JsonExistsFilter
+* remove the `jsonb` `mapping_types` from the test config when support for doctrine/dbal 4 is
+  dropped, DBAL 5 maps jsonb columns to the jsonb type itself
+* `testOperation()`: a parameter for finding the user by another field than `email`, e.g.
+  `user: ['username' => 'alice']`, with `email` deprecated

@@ -87,8 +87,8 @@ final class MultipartDecoderTest extends KernelTestCase
         $uploadedFile = null;
 
         if ($path) {
-            // this only works because that file is never used/moved like
-            // normal handling would be with an UploadedFile
+            // this only works because that file is never used/moved like normal handling would be
+            // with an UploadedFile
             $uploadedFile = new UploadedFile(
                 $path,
                 $origName,

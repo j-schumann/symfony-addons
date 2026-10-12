@@ -20,8 +20,8 @@ trait MonologAssertsTrait
     }
 
     /**
-     * Asserts that the Logger service (monolog) has a log record with the given level
-     * that contains the given message.
+     * Asserts that the Logger service (monolog) has a log record with the given level that contains
+     * the given message.
      */
     public static function assertLoggerHasMessage(string $message, Level $level): void
     {

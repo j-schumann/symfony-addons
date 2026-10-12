@@ -5,13 +5,14 @@ namespace Vrok\SymfonyAddons\PHPUnit;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\Metadata\DatabaseMetadataRow;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -139,24 +140,26 @@ trait RefreshDatabaseTrait
                 $purgeWithDelete = $platform instanceof SQLServerPlatform
                     || ($isMysql && 'truncate' !== $purgeMode);
                 if ($purgeWithDelete) {
-                    $executor->getPurger()->setPurgeMode(ORMPurger::PURGE_MODE_DELETE);
+                    $purger = $executor->getPurger();
+                    \assert($purger instanceof ORMPurger);
+                    $purger->setPurgeMode(ORMPurger::PURGE_MODE_DELETE);
                 }
 
                 // Purge even when no fixtures are defined, e.g., for tests that require an empty
                 // database, like import tests. Fix for PHP8: purge separately from inserting the
                 // fixtures, as execute() would wrap the TRUNCATE in a transaction which MySQL
                 // auto-commits when DDL queries are executed, which throws an exception in the
-                // entityManager ("There is no active
-                // transaction", @see https://github.com/doctrine/migrations/issues/1104)
-                // because he does not check if a transaction is still open before calling commit().
+                // entityManager ("There is no active transaction",
+                // @see https://github.com/doctrine/migrations/issues/1104) because it does not
+                // check if a transaction is still open before calling commit().
                 $executor->purge();
 
-                // A TRUNCATE on MySQL/MariaDB is the only purge that resets the identity
-                // generators for us. PostgreSQL keeps its sequences unless the TRUNCATE says
-                // RESTART IDENTITY, SQLite empties the tables with DELETE whatever the purge mode
-                // says, and where we purged with DELETE there was no TRUNCATE to reset anything.
-                // So everywhere else we do it ourselves, as tests may rely on the generated IDs
-                // (e.g. when asserting on IRIs like /items/1).
+                // A TRUNCATE on MySQL/MariaDB is the only purge that resets the identity generators
+                // for us. PostgreSQL keeps its sequences unless the TRUNCATE says RESTART IDENTITY,
+                // SQLite empties the tables with DELETE whatever the purge mode says, and where we
+                // purged with DELETE there was no TRUNCATE to reset anything. So everywhere else we
+                // do it ourselves, as tests may rely on the generated IDs (e.g. when asserting on
+                // IRIs like /items/1).
                 $purgeResetIdentities = $isMysql && !$purgeWithDelete;
                 if (!$purgeResetIdentities) {
                     static::resetIdentities($entityManager, $platform);
@@ -183,6 +186,7 @@ trait RefreshDatabaseTrait
 
     protected static function ensureKernelTestCase(): void
     {
+        // @phpstan-ignore function.alreadyNarrowedType (always true in the ApiPlatformTestCase, but the trait can be used elsewhere)
         if (!is_a(static::class, KernelTestCase::class, true)) {
             throw new \LogicException(\sprintf('The test class must extend "%s" to use "%s".', KernelTestCase::class, static::class));
         }
@@ -201,7 +205,8 @@ trait RefreshDatabaseTrait
         bool $drop = false,
     ): void {
         $connection = $em->getConnection();
-        $params = $params['primary'] ?? $connection->getParams();
+        $params = $connection->getParams();
+        $params = $params['primary'] ?? $params;
 
         // name will already contain the dbname_suffix (and the TEST_TOKEN) if any is configured
         $dbName = $params['path'] ?? $params['dbname'] ?? false;
@@ -210,8 +215,13 @@ trait RefreshDatabaseTrait
         }
 
         unset($params['dbname'], $params['path']);
-        if ($connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
+        $platform = $connection->getDatabasePlatform();
+        if ($platform instanceof PostgreSQLPlatform) {
+            // @phpstan-ignore nullCoalesce.offset (the doctrine-bundle passes its default_dbname option, DBAL's type omits it)
             $params['dbname'] = $params['default_dbname'] ?? 'postgres';
+        } elseif ($platform instanceof AbstractMySQLPlatform) {
+            // DBAL requires a database to introspect the database names on MySQL/MariaDB
+            $params['dbname'] = 'information_schema';
         }
 
         $tempConnection = DriverManager::getConnection($params, $connection->getConfiguration());
@@ -228,9 +238,10 @@ trait RefreshDatabaseTrait
             return;
         }
 
-        // @todo when DBAL 5.0 comes out: switch to this method, to replace the
-        // deprecated/removed listDatabases method $dbExists = self::databaseExists($em, $dbName);
-        $dbExists = \in_array($dbName, $schemaManager->listDatabases(), true);
+        $dbExists = array_any(
+            $schemaManager->introspectDatabaseNames(),
+            static fn (UnqualifiedName $name): bool => $name->getIdentifier()->getValue() === $dbName,
+        );
 
         if ($drop && $dbExists) {
             // close the current connection in the em, it would be invalid anyway after the drop
@@ -258,7 +269,7 @@ trait RefreshDatabaseTrait
 
         // Create the database only if it doesn't already exist. Skip for SQLite as it creates
         // database files automatically and this call would throw an exception.
-        if (!$dbExists && !$schemaManager instanceof SQLiteSchemaManager) {
+        if (!$dbExists) {
             $schemaManager->createDatabase($dbName);
         }
 
@@ -425,9 +436,7 @@ trait RefreshDatabaseTrait
         $tables = [];
 
         foreach ($em->getMetadataFactory()->getAllMetadata() as $meta) {
-            if ($meta->isMappedSuperclass
-                || (isset($meta->isEmbeddedClass) && $meta->isEmbeddedClass)
-            ) {
+            if ($meta->isMappedSuperclass || $meta->isEmbeddedClass) {
                 continue;
             }
 
@@ -454,38 +463,6 @@ trait RefreshDatabaseTrait
         }
 
         return self::$identityTables = $tables;
-    }
-
-    /**
-     * @todo this method only works w/ DBAL >= 4.4, as the createMetadataProvider
-     * is first implemented there. But also schemaManager->listDatabases is only deprecated since
-     * 4.4, so we stay with that, until we actually want to support 5.0 w/o listDatabases.
-     *
-     * Returns the list of databases the current connection sees. Must be called with the "old"
-     * entityManager, that has the database name set in its connection, or we will receive "A
-     * database is required for the method: Doctrine\DBAL\Platforms\MySQL\MySQLMetadataProvider" on
-     * MariaDB and MySQL.
-     */
-    private static function databaseExists(EntityManagerInterface $em, string $dbName): bool
-    {
-        // We cannot use schemaManager->introspectDatabaseNames, as this would require the
-        // $tempConnection to have a DB name set for MySQL/MariaDB. But we can't set one, as it
-        // would fail when the database indeed does not exist, that's why we created the
-        // $tempConnection in the first place. All was working well when
-        // schemaManager->listDatabases was not yet deprecated...
-        $connection = $em->getConnection();
-
-        // So instead, we create the provider manually with the old connection, in the hope that
-        // this works even with the EM closed from previous test run exceptions...
-        $metaProvider = $connection->getDatabasePlatform()
-            ->createMetadataProvider($connection);
-
-        $dbNames = array_map(
-            static fn (DatabaseMetadataRow $n) => $n->getDatabaseName(),
-            iterator_to_array($metaProvider->getAllDatabaseNames())
-        );
-
-        return \in_array($dbName, $dbNames, true);
     }
 
     protected static function fixtureCleanup(): void

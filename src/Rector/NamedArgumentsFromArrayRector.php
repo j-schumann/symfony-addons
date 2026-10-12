@@ -5,12 +5,12 @@ namespace Vrok\SymfonyAddons\Rector;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Scalar\String_;
+use PHPStan\Type\ObjectType;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
@@ -139,11 +139,10 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
 
     private function isFunctionCallTarget(FuncCall $funcCall): bool
     {
-        if (!$funcCall->name instanceof Identifier) {
+        $functionName = $this->getName($funcCall);
+        if (null === $functionName) {
             return false;
         }
-
-        $functionName = $funcCall->name->toString();
 
         // String targets are function calls
         return array_any($this->targets, static fn (array|string $target) => \is_string($target) && $target === $functionName);
@@ -158,10 +157,13 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         $methodName = $methodCall->name->toString();
 
         foreach ($this->targets as $target) {
-            if (\is_array($target) && 2 === \count($target)) {
-                [, $targetMethod] = $target;
+            if (\is_array($target)) {
+                [$targetClass, $targetMethod] = $target;
 
-                if ($targetMethod === $methodName) {
+                if (
+                    $targetMethod === $methodName
+                    && $this->isObjectType($methodCall->var, new ObjectType($targetClass))
+                ) {
                     return true;
                 }
             }
@@ -178,16 +180,14 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
 
         $methodName = $staticCall->name->toString();
 
-        $className = null;
-        if ($staticCall->class instanceof Identifier) {
-            $className = $staticCall->class->toString();
-        }
-
         foreach ($this->targets as $target) {
-            if (\is_array($target) && 2 === \count($target)) {
+            if (\is_array($target)) {
                 [$targetClass, $targetMethod] = $target;
 
-                if ($targetClass === $className && $targetMethod === $methodName) {
+                if (
+                    $targetMethod === $methodName
+                    && $this->isObjectType($staticCall->class, new ObjectType($targetClass))
+                ) {
                     return true;
                 }
             }
@@ -199,10 +199,6 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
     private function isAssociativeArray(Array_ $array): bool
     {
         foreach ($array->items as $item) {
-            if (!$item instanceof ArrayItem) {
-                continue;
-            }
-
             if (null === $item->key) {
                 return false;
             }
@@ -223,7 +219,7 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         $namedArgs = [];
 
         foreach ($array->items as $item) {
-            if (!$item instanceof ArrayItem || !$item->key instanceof String_) {
+            if (!$item->key instanceof String_) {
                 continue;
             }
 

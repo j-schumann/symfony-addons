@@ -43,9 +43,20 @@ framework:
           from: reviewed
           to: published
 
+services:
+  _defaults:
+    autoconfigure: true
+
+  Vrok\SymfonyAddons\Tests\Fixtures\TestFixtures: ~
+
 doctrine:
   dbal:
     url: '%env(resolve:DATABASE_URL)%'
+    # DBAL 4 maps jsonb columns to the json type with the deprecated "jsonb" platform option when it
+    # reads the schema, e.g. for updateSchema()
+    # @todo remove when support for DBAL 4 is dropped, DBAL 5 maps them to the jsonb type
+    mapping_types:
+      jsonb: jsonb
   orm:
     mappings:
       Fixtures:
@@ -76,5 +87,3 @@ api_platform:
     jsonld: [ 'application/ld+json' ]
     multipart: [ 'multipart/form-data' ]
     form: [ 'application/x-www-form-urlencoded' ]
-  serializer:
-    hydra_prefix: true

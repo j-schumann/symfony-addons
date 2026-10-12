@@ -4,160 +4,54 @@
 
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
-use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\QueryParameter;
-use Doctrine\ORM\Query\Parameter;
-use Doctrine\ORM\QueryBuilder;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Vrok\SymfonyAddons\Filter\ContainsFilter;
-use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
-
-final class ContainsFilterTest extends KernelTestCase
+final class ContainsFilterTest extends FilterTestCase
 {
-    public function testGetDescription(): void
+    public function testFilter(): void
     {
-        $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null]);
+        $this->skipUnlessPostgres();
 
-        self::assertEquals([
-            'jsonColumn'   => [
-                'property' => 'jsonColumn',
-                'type'     => 'mixed',
-                'required' => false,
-            ],
-            'jsonColumn[]' => [
-                'property' => 'jsonColumn',
-                'type'     => 'mixed',
-                'required' => false,
-            ],
-        ], $filter->getDescription(TestEntity::class));
+        self::assertCount(1, $this->search('?contains=5'));
+        self::assertCount(0, $this->search('?contains=3'));
     }
 
-    public function testApplyFilter(): void
+    public function testFilterWithString(): void
     {
-        $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null]);
-        $doctrine =  self::getContainer()->get('doctrine');
-        $queryNameGen = new QueryNameGenerator();
+        $this->skipUnlessPostgres();
 
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
-            'filters' => [
-                'jsonColumn' => 'testVal',
-            ],
-        ]);
-
-        $param = $qb->getParameter('jsonColumn_p1');
-        self::assertInstanceOf(Parameter::class, $param);
-        self::assertSame('testVal', $param->getValue());
-
-        self::assertStringContainsString(
-            'WHERE CONTAINS(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
-        );
+        self::assertCount(1, $this->search('?contains=ROLE_ADMIN'));
+        self::assertCount(1, $this->search('?contains=%22ROLE_ADMIN%22'));
+        self::assertCount(0, $this->search('?contains=ROLE'));
+        self::assertCount(0, $this->search('?contains='));
     }
 
-    public function testApplyFilterForArray(): void
+    public function testFilterMultipleValues(): void
     {
-        $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new ContainsFilter($doctrine, null, ['jsonColumn' => null]);
-        $doctrine =  self::getContainer()->get('doctrine');
-        $queryNameGen = new QueryNameGenerator();
+        $this->skipUnlessPostgres();
 
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
-            'filters' => [
-                'jsonColumn' => ['testVal', 'otherVal'],
-            ],
-        ]);
-
-        $param = $qb->getParameter('jsonColumn_p1');
-        self::assertInstanceOf(Parameter::class, $param);
-        self::assertSame('testVal', $param->getValue());
-        $param = $qb->getParameter('jsonColumn_p2');
-        self::assertInstanceOf(Parameter::class, $param);
-        self::assertSame('otherVal', $param->getValue());
-
-        self::assertStringContainsString(
-            'WHERE CONTAINS(o.jsonColumn, :jsonColumn_p1) = true AND CONTAINS(o.jsonColumn, :jsonColumn_p2) = true',
-            (string) $qb
-        );
+        // records must contain all values
+        self::assertCount(1, $this->search('?contains[]=1&contains[]=5'));
+        self::assertCount(0, $this->search('?contains[]=2&contains[]=5'));
     }
 
-    public function testApplyQueryParameter(): void
+    public function testFilterNestedProperty(): void
     {
-        $doctrine = self::getContainer()->get('doctrine');
-        $filter = new ContainsFilter($doctrine);
+        $this->skipUnlessPostgres();
 
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $parameter = new QueryParameter(key: 'contains', property: 'jsonColumn');
-        $parameter->setValue(['testVal', 'otherVal']);
-
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'parameter' => $parameter,
-            'filters'   => ['jsonColumn' => ['testVal', 'otherVal']],
-        ]);
-
-        self::assertSame('testVal', $qb->getParameter('jsonColumn_p1')?->getValue());
-        self::assertSame('otherVal', $qb->getParameter('jsonColumn_p2')?->getValue());
-        self::assertStringContainsString(
-            'WHERE CONTAINS(o.jsonColumn, :jsonColumn_p1) = true AND CONTAINS(o.jsonColumn, :jsonColumn_p2) = true',
-            (string) $qb
-        );
+        self::assertCount(1, $this->search('?childContains=CHILD_EINS'));
+        self::assertCount(0, $this->search('?childContains=CHILD'));
     }
 
-    public function testApplyQueryParameterWithNestedProperty(): void
+    public function testFilterIgnoresUnmappedProperty(): void
     {
-        $doctrine = self::getContainer()->get('doctrine');
-
-        // nested properties need not be enabled in the filter, the parameter
-        // names them explicitly
-        $filter = new ContainsFilter($doctrine);
-
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $parameter = new QueryParameter(key: 'childName', property: 'children.varcharColumn');
-        $parameter->setValue('testVal');
-
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'parameter' => $parameter,
-        ]);
-
-        self::assertStringContainsString('LEFT JOIN o.children children_a1', (string) $qb);
-        self::assertStringContainsString(
-            'WHERE CONTAINS(children_a1.varcharColumn, :varcharColumn_p1) = true',
-            (string) $qb
-        );
+        self::assertCount(2, $this->search('?containsUnmapped=5'));
     }
 
-    public function testApplyQueryParameterIgnoresUnmappedProperty(): void
+    public function testParametersAreDocumented(): void
     {
-        $doctrine = self::getContainer()->get('doctrine');
-        $filter = new ContainsFilter($doctrine);
+        $parameters = $this->getOpenApiParameters();
 
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $parameter = new QueryParameter(key: 'unknown');
-        $parameter->setValue('testVal');
-
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'parameter' => $parameter,
-        ]);
-
-        self::assertStringNotContainsString('WHERE', (string) $qb);
+        foreach (['contains', 'contains[]'] as $name) {
+            self::assertArrayHasKey($name, $parameters);
+        }
     }
 }

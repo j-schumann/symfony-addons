@@ -11,13 +11,16 @@
         "symfony/yaml": "^7.4.10|^8.0.0"
     },
     "require-dev": {
-        "api-platform/core": "^4.2.0|^5.0.0",
+        "api-platform/core": "^5.0.0",
+        "doctrine/dbal": "^4.5.0",
         "doctrine/doctrine-bundle": "^3.2.0",
         "doctrine/persistence": "^4.1.1",
         "doctrine/doctrine-fixtures-bundle": "^4.1.0",
         "doctrine/orm": "^3.5.0",
-        "friendsofphp/php-cs-fixer": "^3.95",
+        "friendsofphp/php-cs-fixer": "^3.95.5",
         "monolog/monolog": "^3.8.0",
+        "phpstan/phpstan": "^2.3.1",
+        "phpstan/phpstan-deprecation-rules": "^2.0.5",
         "phpunit/phpunit": "^13.3.5",
         "rector/rector": "^2.6",
         "roave/security-advisories": "dev-latest",
@@ -28,7 +31,7 @@
         "symfony/doctrine-bridge": "^7.4.10|^8.0.0",
         "symfony/doctrine-messenger": "^7.4.10|^8.0.0",
         "symfony/monolog-bundle": "^3.11.0|^4.0.0",
-        "symfony/property-info": "^7.4.10|^8.0.0",
+        "symfony/polyfill-php85": "^1.33.0",
         "symfony/string": "^7.4.10|^8.0.0",
         "symfony/twig-bundle": "^7.4.10|^8.0.0",
         "symfony/validator": "^7.4.10|^8.0.0",
@@ -36,8 +39,16 @@
         "vrok/doctrine-addons": "^3.1.0",
         "zalas/phpunit-globals": "^4.2.0"
     },
+    "conflict": {
+        "api-platform/core": "<5.0",
+        "api-platform/metadata": "<5.0",
+        "doctrine/dbal": "<4.5",
+        "friendsofphp/php-cs-fixer": "<3.95.5",
+        "twig/twig": "<3.21"
+    },
     "suggest": {
-        "api-platform/test": "Required by the BaseApiTestCase when API Platform is installed as split packages instead of api-platform/core",
+        "api-platform/test": "Required by the ApiPlatformTestCase when API Platform is installed as split packages instead of api-platform/core",
+        "lexik/jwt-authentication-bundle": "Creates the token for the email of ApiPlatformTestCase::testOperation(), unless getJWT() is overridden",
         "vrok/doctrine-addons": "^3.1.0 provides the DQL functions the ContainsFilter, the JsonExistsFilter and the SimpleSearchFilter on JSON columns in Postgres require"
     },
     "autoload": {
@@ -53,10 +64,12 @@
     "scripts": {
         "check": [
             "@cs-check",
+            "@phpstan",
             "@test"
         ],
         "cs-check": "php-cs-fixer fix --dry-run --diff -v",
         "cs-fix": "php-cs-fixer fix -v",
+        "phpstan": "phpstan analyse",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }

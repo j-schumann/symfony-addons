@@ -12,39 +12,60 @@ use Doctrine\ORM\Mapping as ORM;
 use Vrok\SymfonyAddons\Filter\ContainsFilter;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
-use Vrok\SymfonyAddons\Tests\Fixtures\JsonbColumn;
 
 #[ApiResource(
     operations: [
         new GetCollection(
             normalizationContext: ['groups' => ['none']],
             parameters: [
-                // the parameter names the properties to search
-                'pattern'   => new QueryParameter(
+                'pattern'          => new QueryParameter(
                     filter: new SimpleSearchFilter(),
+                    description: 'Search in the text and varchar column',
                     properties: ['textColumn', 'varcharColumn'],
                 ),
-                // the filter names the properties to search
-                'search'    => new QueryParameter(
-                    filter: new SimpleSearchFilter(properties: ['varcharColumn' => null]),
-                ),
                 // nested property
-                'childName' => new QueryParameter(
+                'childName'        => new QueryParameter(
                     filter: new SimpleSearchFilter(),
                     properties: ['children.varcharColumn'],
                 ),
+                // JSON is cast to text on Postgres
+                'jsonSearch'       => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['jsonColumn'],
+                ),
+                'childJsonSearch'  => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['children.jsonColumn'],
+                ),
+                // unmapped properties are skipped
+                'searchUnmapped'   => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['unknownColumn', 'varcharColumn'],
+                ),
+                'containsUnmapped' => new QueryParameter(
+                    filter: new ContainsFilter(),
+                    property: 'unknownColumn',
+                ),
                 // Postgres only
-                'contains'  => new QueryParameter(
+                'contains'         => new QueryParameter(
                     filter: new ContainsFilter(),
                     property: 'jsonColumn',
                 ),
-                'hasAnyKey' => new QueryParameter(
+                'hasAnyKey'        => new QueryParameter(
                     filter: new JsonExistsFilter(combination: JsonExistsFilter::OR),
                     property: 'jsonColumn',
                 ),
-                'hasKey'    => new QueryParameter(
+                'hasKey'           => new QueryParameter(
                     filter: new JsonExistsFilter(),
                     property: 'jsonColumn',
+                ),
+                'childContains'    => new QueryParameter(
+                    filter: new ContainsFilter(),
+                    property: 'children.jsonColumn',
+                ),
+                'childHasKey'      => new QueryParameter(
+                    filter: new JsonExistsFilter(),
+                    property: 'children.jsonColumn',
                 ),
             ],
         ),
@@ -58,7 +79,7 @@ class TestEntity
     #[ORM\Column]
     public ?int $id = null;
 
-    #[ORM\Column(type: JsonbColumn::TYPE, options: JsonbColumn::OPTIONS)]
+    #[ORM\Column(type: Types::JSONB)]
     public array $jsonColumn = [];
 
     #[ORM\Column(type: Types::TEXT)]

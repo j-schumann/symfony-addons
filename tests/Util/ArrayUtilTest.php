@@ -12,11 +12,9 @@ final class ArrayUtilTest extends TestCase
     private const array B = ['b', 'c', 's' => ['e', 'f']];
     private const array C = [1 => '1', 'k' => 'v', 'a' => ['g']];
 
-    // We cannot / don't want to use assertSame or assertArraySubset
-    // as the indexes change and we don't care about them (except for nested
-    // arrays).
-    // So we just test that our expected values exist and no more entries
-    // than we want.
+    // We cannot / don't want to use assertSame or assertArraySubset as the indexes change and we
+    // don't care about them (except for nested arrays). So we just test that our expected values
+    // exist and no more entries than we want.
 
     public function testMergeValuesKeepsAllValues(): void
     {
@@ -139,8 +137,8 @@ final class ArrayUtilTest extends TestCase
         yield [[1, 'a', 1]];
         yield [[['a'], ['a']]];
         yield [[$dt, 'a', $dt]];
-        // @todo ambiguous, with strict types this should *not* be detected
-        // as duplicates but SORT_REGULAR reports it
+        // @todo ambiguous, with strict types this should *not* be detected as duplicates but
+        //       SORT_REGULAR reports it
         yield [['a', 1, '1']];
     }
 }

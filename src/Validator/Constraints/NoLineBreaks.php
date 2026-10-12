@@ -18,8 +18,8 @@ class NoLineBreaks extends Regex
         mixed $payload = null,
     ) {
         parent::__construct(
-            // matches any linebreak characters, including Unicode line/paragraph
-            // separators, @see https://stackoverflow.com/a/18992691/1341762
+            // matches any linebreak characters, including Unicode line/paragraph separators,
+            // @see https://stackoverflow.com/a/18992691/1341762
             pattern: '/\R/u',
             message: $message ?? 'This value contains line breaks.',
             match: false,

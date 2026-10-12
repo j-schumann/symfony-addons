@@ -8,8 +8,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 
 /**
- * To test the ApiPlatformTestCase we need a non-abstract class. So we directly
- * use the child class for our tests.
+ * To test the ApiPlatformTestCase we need a non-abstract class. So we directly use the child class
+ * for our tests.
  */
 final class OperationTest extends ApiPlatformTestCase
 {
@@ -25,65 +25,29 @@ final class OperationTest extends ApiPlatformTestCase
             requiredKeys: [
                 'detail',
                 'status',
+                'title',
                 'type',
-
-                // ApiPlatform 4.2 is backwards incompatible (again):
-                // Before, "title" and "hydra:title" were both set, so old
-                // clients, depending on the "hydra" values worked and new ones
-                // that use only "detail"+"title". Now we only get either
-                // title or hydra:title
-                // @todo Change when api_platform.serializer.hydra_prefix is
-                //       set to false
-                'hydra:title',
             ],
-
-            // @todo Change when api_platform.serializer.hydra_prefix is
-            //       set to false
-            forbiddenKeys: ['hydra:member'],
+            forbiddenKeys: ['member'],
             messageCount: 0,
         );
     }
 
-    /**
-     * ApiPlatform < 4.4 returns "application/problem+json; charset=utf-8", newer versions return
-     * "application/problem+json". The deprecated constant must still work with both.
-     *
-     * @todo remove with the next major version, together with PROBLEM_CONTENT_TYPE
-     */
-    public function testTestOperationIgnoresCharset(): void
+    public function testTestOperationFailsWithoutJwtBundle(): void
     {
-        $response = $this->testOperation(
-            uri: '/test',
-            responseCode: 404,
-            contentType: ApiPlatformTestCase::PROBLEM_CONTENT_TYPE,
-        );
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessageIsOrContains('getJWT() requires the lexik/jwt-authentication-bundle');
 
-        self::assertInstanceOf(ResponseInterface::class, $response);
+        $this->testOperation(uri: '/test', email: 'test@example.com');
     }
 
-    public function testTestOperationCallsPrepare(): void
+    public function testTestOperationSendsCookies(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageIs('I was called');
+        $this->testOperation(uri: '/test', cookies: ['BEARER' => 'token', 'other' => 'value']);
 
-        $this->testOperation(
-            prepare: static function (): never {
-                throw new \RuntimeException('I was called');
-            },
-            uri: '/test'
-        );
-    }
-
-    public function testTestOperationUsesPreparedParameters(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessageIsOrContains('Failed asserting that the Response status code is 555.');
-
-        $this->testOperation(
-            prepare: static function ($container, array &$params): void {
-                $params['responseCode'] = 555;
-            },
-            uri: '/test',
+        self::assertSame(
+            ['BEARER' => 'token', 'other' => 'value'],
+            self::getClient()->getRequest()->cookies->all()
         );
     }
 
