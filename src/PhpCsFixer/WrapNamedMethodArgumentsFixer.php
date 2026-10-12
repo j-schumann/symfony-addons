@@ -265,8 +265,8 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param  Tokens<Token>                     $tokens
-     * @return array<string, bool|int|list<int>>
+     * @param  Tokens<Token>                                                            $tokens
+     * @return array{argumentCount: int, hasNamedArgs: bool, topLevelCommas: list<int>}
      */
     private function analyzeArguments(
         Tokens $tokens,

@@ -2,6 +2,7 @@
 
 namespace Vrok\SymfonyAddons\PHPUnit;
 
+use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
@@ -17,6 +18,7 @@ use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -86,7 +88,10 @@ trait RefreshDatabaseTrait
 
         $kernel = parent::bootKernel($options);
         $container = static::getContainer();
-        $entityManager = $container->get('doctrine')->getManager();
+        /** @var ManagerRegistry $doctrine */
+        $doctrine = $container->get('doctrine');
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = $doctrine->getManager();
         $executor = static::getExecutor($entityManager);
 
         $cleanupMethod = $_ENV['DB_CLEANUP_METHOD'] ?? 'purge';
@@ -323,10 +328,12 @@ trait RefreshDatabaseTrait
             return static::$fixtures;
         }
 
+        /** @var SymfonyFixturesLoader $fixturesLoader */
         $fixturesLoader = $container->get('doctrine.fixtures.loader');
-        static::$fixtures = $fixturesLoader->getFixtures(static::$fixtureGroups);
+        $fixtures = $fixturesLoader->getFixtures(static::$fixtureGroups);
+        static::$fixtures = $fixtures;
 
-        return static::$fixtures;
+        return $fixtures;
     }
 
     /**

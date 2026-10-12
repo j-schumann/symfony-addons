@@ -35,7 +35,7 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
     ): void {
         $nestedPropertiesInfo = $parameter->getExtraProperties()['nested_properties_info'] ?? [];
         $resolved = $this->resolveField(
-            $parameter->getProperty() ?? $parameter->getKey(),
+            $parameter->getProperty() ?? $parameter->getKey() ?? '',
             reset($nestedPropertiesInfo) ?: null,
             $parameter,
             $queryBuilder,

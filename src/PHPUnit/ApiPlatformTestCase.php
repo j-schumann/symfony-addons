@@ -3,10 +3,12 @@
 namespace Vrok\SymfonyAddons\PHPUnit;
 
 use ApiPlatform\Test\ApiTestCase;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
+use Symfony\Component\Messenger\TraceableMessageBus;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
@@ -287,6 +289,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         }
 
         if (null !== $messageCount || $dispatchedMessages) {
+            /** @var TraceableMessageBus $messenger */
             $messenger = static::getContainer()->get('messenger.default_bus');
             $messages = $messenger->getDispatchedMessages();
 
@@ -462,14 +465,18 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             throw new \LogicException('getJWT() requires the lexik/jwt-authentication-bundle, install it or override getJWT() to create the token for your authenticator.');
         }
 
+        /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository(static::$userClass)->findOneBy($findUserBy);
+        /** @var class-string $userClass */
+        $userClass = static::$userClass;
+        $user = $em->getRepository($userClass)->findOneBy($findUserBy);
         if (!$user) {
             throw new \RuntimeException('User specified for JWT authentication was not found, please check your test database/fixtures!');
         }
 
         $jwtManager = static::getContainer()->get('lexik_jwt_authentication.jwt_manager');
 
+        // @phpstan-ignore method.notFound (lexik/jwt-authentication-bundle is optional)
         return $jwtManager->create($user);
     }
 }

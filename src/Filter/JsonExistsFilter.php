@@ -64,7 +64,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        $property = $parameter->getProperty() ?? $parameter->getKey();
+        $property = $parameter->getProperty() ?? $parameter->getKey() ?? '';
         $value = $this->normalizeValue($parameter->getValue(), $property);
         if (null === $value) {
             return;
