@@ -1,4 +1,4 @@
-# vrok/symfony-addons
+  # vrok/symfony-addons
 
 This is a library with additional classes for usage in combination with the Symfony framework.
 
@@ -42,7 +42,7 @@ create authenticated requests and check for created logs / sent emails / dispatc
 allows to easily check for expected response content, allowed or forbidden keys in the data or to
 verify against a given schema.
 
-Requires "symfony/browser-kit" & "symfony/http-client" to be installed (and of cause ApiPlatform).
+Requires `api-platform/core`, `symfony/browser-kit`, and `symfony/http-client` to be installed.
 
 ```php
 <?php
@@ -385,17 +385,17 @@ dispatchedEvents: [
 
 #### Authentication
 
-With `email`, `testOperation()` sends the token returned by `getJWT()`, which the
+With the `email` argument, `testOperation()` sends the token returned by `getJWT()`, which the
 lexik/jwt-authentication-bundle creates by default. This tests the real authentication, including
 the user checker and the claims of the token. Other ways:
 
-* **Another token issuer**, e.g. OIDC: override `getJWT()` in your test case and return a token
+* Different token issuer, e.g. OIDC: override `getJWT()` in your test case and return a token
   your authenticator accepts, e.g. signed with a test key that the `when@test` config trusts.
-* **Token as cookie**: pass it with `cookies`, e.g. `cookies: ['BEARER' => $this->getJWT([...])]`.
-* **No token**, e.g. to only test access rules: `testOperation()` has no option for this, use the
-  client directly: `$client = static::createClient(); $client->loginUser($user);` and then
-  `$client->request(...)`. This skips the authenticator, the user checker and the claims, and only
-  lasts for the first request of the client.
+* Token as cookie: pass it with `cookies`, e.g. `cookies: ['BEARER' => $this->getJWT([...])]`.
+* No token, e.g. to only test access rules: use the client directly:
+  `$client = static::createClient(); $client->loginUser($user);` and then `$client->request(...)`.
+  This skips the authenticator, the user checker and the claims, and only lasts for the first 
+  request of the client.
 
 ### Using the RefreshDatabaseTrait
 

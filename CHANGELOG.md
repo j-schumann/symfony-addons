@@ -3,13 +3,13 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.0.0] - TBD
+## [4.0.0] - 2026-10-12
 All BC breaks are explained in UPGRADE.md.
 
 ### Added
-* `ApiPlatformTestCase::testOperation()` sends cookies, see its new `cookies` argument
-* `JsonExistsFilter` supports multiple values, combined with AND (default) or OR, see the new
-  `combination` constructor argument
+* `ApiPlatformTestCase::testOperation()` has a new `cookies` argument
+* `JsonExistsFilter` supports multiple values, combined with AND (default) or OR, see README.md for
+  details
 * `QueryBuilderHelper::getJoinAlias()` and `addJoin()` accept the alias of a joined entity, to join
   its relations
 
