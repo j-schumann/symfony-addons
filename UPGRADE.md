@@ -9,6 +9,13 @@
 * The `FormatBytesExtension` uses the `#[AsTwigFilter]` attribute, update `twig/twig` to >= 3.21.
   If you registered the extension yourself with the `twig.extension` tag, use `autoconfigure: true`
   instead.
+* Replace the `#[ApiFilter]` attribute for the `SimpleSearchFilter`, `ContainsFilter` and
+  `JsonExistsFilter` with `#[QueryParameter]`, see README.md. Requests to a parameter of such an
+  `#[ApiFilter]` are no longer filtered: they return all records, without an error or a log entry.
+  Check every entity that still uses the attribute with these filters. The `ContainsFilter` and
+  `JsonExistsFilter` lost the `properties` constructor argument, pass the following arguments by
+  name. The `SimpleSearchFilter` lost the `searchParameterName` argument, the key of the
+  `#[QueryParameter]` names the search parameter.
 * If you extended the internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase` instead.
 * If you use the `JsonExistsFilter`: it now filters by multiple values (e.g.
   `?roles[]=ROLE_A&roles[]=ROLE_B`). Before, the filter ignored such requests and returned all

@@ -24,6 +24,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * Support for API Platform 4, requires API Platform 5
 * `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`, deprecated since 3.6, use `PROBLEM_MEDIA_TYPE`
 * The internal `BaseApiTestCase`, `ApiPlatformTestCase` extends `ApiPlatform\Test\ApiTestCase`
+* Support for the `#[ApiFilter]` attribute in `SimpleSearchFilter`, `ContainsFilter` and
+  `JsonExistsFilter`, use `#[QueryParameter]`. The filters no longer implement
+  `PropertyAwareFilterInterface`, `getDescription()` returns an empty array
+* The `properties` constructor argument of `ContainsFilter` and `JsonExistsFilter` and the
+  `searchParameterName` argument of `SimpleSearchFilter`
 
 ## [3.7.0] - 2026-10-09
 ### Added

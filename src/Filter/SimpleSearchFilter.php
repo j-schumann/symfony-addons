@@ -4,7 +4,6 @@ namespace Vrok\SymfonyAddons\Filter;
 
 use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
 use ApiPlatform\Doctrine\Common\Filter\ManagerRegistryAwareInterface;
-use ApiPlatform\Doctrine\Common\Filter\PropertyAwareFilterInterface;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
@@ -25,7 +24,7 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
  *
  * @todo UnitTests w/ Mariadb + Postgres
  */
-class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface, PropertyAwareFilterInterface
+class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface
 {
     use FilterTrait {
         FilterTrait::__construct as private initFilter;
@@ -36,6 +35,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
      */
     private const array JSON_TYPES = [
         'json',
+
         // DBAL >= 4.5 has dedicated types for jsonb and JSON objects
         'json_object',
         'jsonb',
@@ -45,45 +45,20 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
     private const string DESCRIPTION = 'Selects entities where each search term is found somewhere in at least one of the specified properties';
 
     /**
-     * Add configuration parameter
-     * {@inheritdoc}
-     *
-     * @param string $searchParameterName The parameter whose value this filter searches for
+     * @param array<string, mixed>|null $properties The properties to search (as keys), if the
+     *                                              parameter names none
      */
     public function __construct(
         ?ManagerRegistry $managerRegistry = null,
         ?LoggerInterface $logger = null,
-        ?array $properties = null,
+        private readonly ?array $properties = null,
         ?NameConverterInterface $nameConverter = null,
-        private readonly string $searchParameterName = 'pattern',
     ) {
-        $this->initFilter($managerRegistry, $logger, $properties, $nameConverter);
-    }
-
-    public function apply(
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        ?Operation $operation = null,
-        array $context = [],
-    ): void {
-        $parameter = $context['parameter'] ?? null;
-        if ($parameter instanceof Parameter) {
-            $this->filterParameter($parameter, $queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);
-
-            return;
-        }
-
-        // @todo remove when support for #[ApiFilter] is dropped (API Platform 6)
-        foreach ($context['filters'] ?? [] as $property => $value) {
-            $this->filterProperty($this->denormalizePropertyName($property), $value, $queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);
-        }
+        $this->initFilter($managerRegistry, $logger, $nameConverter);
     }
 
     /**
-     * Used for #[QueryParameter]: Searches the properties of the parameter or, if it has none, the
-     * properties of the filter. Unmapped properties are skipped, API Platform 5 adds the parameter
-     * key to the filter properties.
+     * Searches the properties of the parameter or, if it has none, the properties of the filter.
      */
     protected function filterParameter(
         Parameter $parameter,
@@ -108,39 +83,6 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
             $queryNameGenerator,
             $value,
             $queryNameGenerator->generateParameterName($parameter->getKey()),
-            $resourceClass,
-            $properties,
-        );
-    }
-
-    protected function filterProperty(
-        string $property,
-        mixed $value,
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        ?Operation $operation = null,
-        array $context = [],
-    ): void {
-        if ($property !== $this->searchParameterName || !$this->isValidValue($value, $property)) {
-            return;
-        }
-
-        $properties = array_keys($this->properties ?? []);
-        foreach ($properties as $prop) {
-            if (
-                !$this->isPropertyEnabled($prop, $resourceClass)
-                || !$this->isPropertyMapped($prop, $resourceClass, true)
-            ) {
-                return;
-            }
-        }
-
-        $this->addWhere(
-            $queryBuilder,
-            $queryNameGenerator,
-            $value,
-            $queryNameGenerator->generateParameterName($property),
             $resourceClass,
             $properties,
         );
@@ -247,24 +189,5 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
     public function getOpenApiParameters(Parameter $parameter): OpenApiParameter|array|null
     {
         return new OpenApiParameter($parameter->getKey(), 'query', self::DESCRIPTION);
-    }
-
-    public function getDescription(string $resourceClass): array
-    {
-        // API Platform also calls this for a #[QueryParameter], which can name the properties
-        // instead of the filter
-        $props = $this->getProperties();
-        if (null === $props) {
-            return [];
-        }
-
-        return [
-            $this->searchParameterName => [
-                'property' => implode(', ', array_keys($props)),
-                'type'     => 'string',
-                'required' => false,
-                'openapi'  => new OpenApiParameter($this->searchParameterName, 'query', self::DESCRIPTION),
-            ],
-        ];
     }
 }

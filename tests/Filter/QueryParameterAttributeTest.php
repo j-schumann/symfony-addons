@@ -4,7 +4,10 @@
 
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
+use ApiPlatform\Test\ApiTestCase;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\SchemaTool;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
@@ -12,15 +15,22 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
  * Uses the filters via #[QueryParameter] through the API Platform request handling, see the
  * #[ApiResource] of the TestEntity.
  */
-final class QueryParameterAttributeTest extends FilterRequestTestCase
+final class QueryParameterAttributeTest extends ApiTestCase
 {
-    protected function getEntityClasses(): array
-    {
-        return [TestEntity::class, Child::class];
-    }
+    protected static ?bool $alwaysBootKernel = false;
 
-    protected function createRecords(EntityManagerInterface $em): void
+    protected function setUp(): void
     {
+        parent::setUp();
+
+        self::bootKernel();
+        $em = $this->getEntityManager();
+
+        $tool = new SchemaTool($em);
+        $classes = [$em->getClassMetadata(TestEntity::class), $em->getClassMetadata(Child::class)];
+        $tool->dropSchema($classes);
+        $tool->createSchema($classes);
+
         $rec1 = new TestEntity();
         $rec1->textColumn = 'record EINS text';
         $rec1->varcharColumn = 'record EINS varchar';
@@ -44,6 +54,9 @@ final class QueryParameterAttributeTest extends FilterRequestTestCase
 
         $em->persist($child2);
         $em->persist($rec2);
+
+        $em->flush();
+        $em->clear();
     }
 
     public function testSimpleSearchWithParameterProperties(): void
@@ -121,8 +134,47 @@ final class QueryParameterAttributeTest extends FilterRequestTestCase
         }
     }
 
+    /**
+     * Requests the collection and returns the found records.
+     */
     private function search(string $query): array
     {
-        return $this->requestCollection('/test_entities'.$query);
+        $response = self::createClient()->request('GET', '/test_entities'.$query, [
+            'headers' => ['Accept' => 'application/json'],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        return $response->toArray();
+    }
+
+    private function getEntityManager(): EntityManagerInterface
+    {
+        return self::getContainer()->get('doctrine')->getManager();
+    }
+
+    private function skipUnlessPostgres(): void
+    {
+        $platform = $this->getEntityManager()->getConnection()->getDatabasePlatform();
+        if (!$platform instanceof PostgreSQLPlatform) {
+            self::markTestSkipped('The filter uses Postgres-only JSON operators.');
+        }
+    }
+
+    /**
+     * Returns the names of the query parameters documented in the OpenAPI specification for the GET
+     * operation of the given path.
+     *
+     * @return list<string>
+     */
+    private function getOpenApiParameterNames(string $path): array
+    {
+        $response = self::createClient()->request('GET', '/docs', [
+            'headers' => ['Accept' => 'application/vnd.openapi+json'],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        $parameters = $response->toArray()['paths'][$path]['get']['parameters'] ?? [];
+
+        return array_column($parameters, 'name');
     }
 }

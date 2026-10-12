@@ -9,7 +9,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\Test\ApiTestCase;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
-use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
@@ -21,175 +20,69 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 final class SimpleSearchFilterTest extends ApiTestCase
 {
-    public function testGetDescription(): void
+    public function testApply(): void
     {
-        $filter = new SimpleSearchFilter(
-            self::getContainer()->get('doctrine'),
-            null,
-            ['id' => null, 'jsonColumn' => null]
-        );
+        $qb = $this->applyFilter(new SimpleSearchFilter($this->getDoctrine()), ['jsonColumn'], 'testVal');
 
-        $result = $filter->getDescription(TestEntity::class);
-        self::assertArraySubset([
-            'pattern' => [
-                'property' => 'id, jsonColumn',
-                'type'     => 'string',
-                'required' => false,
-            ],
-        ], $result);
+        // lower-cased and wildcards added
+        self::assertSame('%testval%', $qb->getParameter('pattern_p1')?->getValue());
 
-        self::assertInstanceOf(
-            \ApiPlatform\OpenApi\Model\Parameter::class,
-            $result['pattern']['openapi']
-        );
-    }
-
-    public function testAcceptsSearchParameterName(): void
-    {
-        $filter = new SimpleSearchFilter(
-            self::getContainer()->get('doctrine'),
-            null,
-            ['id' => null, 'jsonColumn' => null],
-            null,
-            'searchFor'
-        );
-        self::assertArraySubset(
-            [
-                'searchFor' => [
-                    'property' => 'id, jsonColumn',
-                    'type'     => 'string',
-                    'required' => false,
-                ],
-            ],
-            $filter->getDescription(TestEntity::class)
-        );
-    }
-
-    public function testApplyFilter(): void
-    {
-        $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new SimpleSearchFilter(
-            $doctrine,
-            null,
-            ['jsonColumn' => null]
-        );
-        $doctrine =  self::getContainer()->get('doctrine');
-        $queryNameGen = new QueryNameGenerator();
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
-            'filters' => [
-                'pattern' => 'testVal',
-            ],
-        ]);
-
-        $param = $qb->getParameter('pattern_p1');
-        self::assertInstanceOf(Parameter::class, $param);
-        self::assertSame('%testval%', $param->getValue());
-
-        $platform = $doctrine->getManager()->getConnection()->getDatabasePlatform();
-
-        $dql = $platform instanceof PostgreSQLPlatform
-            ? "LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)"
+        $dql = $this->isPostgres()
+            ? "WHERE (LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)"
             : 'WHERE (LOWER(o.jsonColumn) LIKE :pattern_p1)';
         self::assertStringContainsString($dql, (string) $qb);
     }
 
-    public function testApplyFilterIgnoresArrayValue(): void
+    public function testApplyWithMultipleProperties(): void
     {
-        $doctrine = self::getContainer()->get('doctrine');
-        $logHandler = new TestHandler();
-        $filter = new SimpleSearchFilter($doctrine, new Logger('test', [$logHandler]), ['jsonColumn' => null]);
-
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'filters' => [
-                'pattern' => ['testVal'],
-            ],
-        ]);
-
-        self::assertStringNotContainsString('WHERE', (string) $qb);
-        self::assertTrue($logHandler->hasNotice('Invalid filter ignored'));
-    }
-
-    public function testApplyQueryParameterIgnoresArrayValue(): void
-    {
-        $doctrine = self::getContainer()->get('doctrine');
-        $logHandler = new TestHandler();
-        $filter = new SimpleSearchFilter($doctrine, new Logger('test', [$logHandler]));
-
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $parameter = new QueryParameter(key: 'pattern', properties: ['textColumn']);
-        $parameter->setValue(['testVal']);
-
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'parameter' => $parameter,
-        ]);
-
-        self::assertStringNotContainsString('WHERE', (string) $qb);
-        self::assertTrue($logHandler->hasNotice('Invalid filter ignored'));
-    }
-
-    public function testApplyFilterIgnoresOtherParameters(): void
-    {
-        $doctrine = self::getContainer()->get('doctrine');
-        $logHandler = new TestHandler();
-        $filter = new SimpleSearchFilter($doctrine, new Logger('test', [$logHandler]), ['jsonColumn' => null]);
-
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        // arrays for parameters of other filters are not logged
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'filters' => [
-                'numbers' => ['1', '5'],
-            ],
-        ]);
-
-        self::assertStringNotContainsString('WHERE', (string) $qb);
-        self::assertFalse($logHandler->hasNoticeRecords());
-    }
-
-    public function testApplyFilterWithMultipleFields(): void
-    {
-        $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new SimpleSearchFilter(
-            $doctrine,
-            null,
-            ['id' => null, 'jsonColumn' => null]
+        $qb = $this->applyFilter(
+            new SimpleSearchFilter($this->getDoctrine()),
+            ['id', 'jsonColumn'],
+            'testVal'
         );
-        $doctrine =  self::getContainer()->get('doctrine');
-        $queryNameGen = new QueryNameGenerator();
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
 
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
-            'filters' => [
-                'pattern' => 'testVal',
-            ],
-        ]);
-
-        // lower-cased and wildcards added:
-        $param = $qb->getParameter('pattern_p1');
-        self::assertInstanceOf(Parameter::class, $param);
-        self::assertSame('%testval%', $param->getValue());
-
-        $platform = $doctrine->getManager()->getConnection()->getDatabasePlatform();
-
-        $dql = $platform instanceof PostgreSQLPlatform
+        $dql = $this->isPostgres()
             ? "WHERE (LOWER(o.id) LIKE :pattern_p1 OR LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)"
             : 'WHERE (LOWER(o.id) LIKE :pattern_p1 OR LOWER(o.jsonColumn) LIKE :pattern_p1)';
         self::assertStringContainsString($dql, (string) $qb);
+    }
+
+    public function testApplyWithFilterProperties(): void
+    {
+        $filter = new SimpleSearchFilter($this->getDoctrine(), properties: ['varcharColumn' => null]);
+        $qb = $this->applyFilter($filter, null, 'testVal');
+
+        self::assertStringContainsString('WHERE (LOWER(o.varcharColumn) LIKE :pattern_p1)', (string) $qb);
+    }
+
+    public function testApplyIgnoresUnmappedProperty(): void
+    {
+        $qb = $this->applyFilter(new SimpleSearchFilter($this->getDoctrine()), ['unknown'], 'testVal');
+
+        self::assertStringNotContainsString('WHERE', (string) $qb);
+    }
+
+    public function testApplyIgnoresArrayValue(): void
+    {
+        $logHandler = new TestHandler();
+        $filter = new SimpleSearchFilter($this->getDoctrine(), new Logger('test', [$logHandler]));
+        $qb = $this->applyFilter($filter, ['textColumn'], ['testVal']);
+
+        self::assertStringNotContainsString('WHERE', (string) $qb);
+        self::assertTrue($logHandler->hasNotice('Invalid filter ignored'));
+    }
+
+    public function testApplyIgnoresContextWithoutParameter(): void
+    {
+        $filter = new SimpleSearchFilter($this->getDoctrine(), properties: ['varcharColumn' => null]);
+        $qb = $this->createQueryBuilder();
+
+        // the context of the removed #[ApiFilter] support
+        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'filters' => ['pattern' => 'testVal'],
+        ]);
+
+        self::assertStringNotContainsString('WHERE', (string) $qb);
     }
 
     public function testSearchInTextColumn(): void
@@ -213,22 +106,11 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $em->persist($rec2);
         $em->flush();
 
-        $filter = new SimpleSearchFilter(
-            $doctrine,
-            null,
-            ['textColumn' => null, 'varcharColumn' => null]
+        $qb = $this->applyFilter(
+            new SimpleSearchFilter($doctrine),
+            ['textColumn', 'varcharColumn'],
+            'eins TEXT'
         );
-        $doctrine =  self::getContainer()->get('doctrine');
-        $queryNameGen = new QueryNameGenerator();
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
-            'filters' => [
-                'pattern' => 'eins TEXT',
-            ],
-        ]);
 
         $result = $qb->getQuery()->getResult();
         self::assertCount(1, $result);
@@ -257,22 +139,11 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $em->persist($rec2);
         $em->flush();
 
-        $filter = new SimpleSearchFilter(
-            $doctrine,
-            null,
-            ['textColumn' => null, 'varcharColumn' => null]
+        $qb = $this->applyFilter(
+            new SimpleSearchFilter($doctrine),
+            ['textColumn', 'varcharColumn'],
+            'zwei VAR'
         );
-        $doctrine =  self::getContainer()->get('doctrine');
-        $queryNameGen = new QueryNameGenerator();
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
-            'filters' => [
-                'pattern' => 'zwei VAR',
-            ],
-        ]);
 
         $result = $qb->getQuery()->getResult();
         self::assertCount(1, $result);
@@ -299,22 +170,11 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $em->persist($rec2);
         $em->flush();
 
-        $filter = new SimpleSearchFilter(
-            $doctrine,
-            null,
-            ['jsonColumn' => null]
+        $qb = $this->applyFilter(
+            new SimpleSearchFilter($doctrine),
+            ['jsonColumn'],
+            'zwei JS'
         );
-        $doctrine =  self::getContainer()->get('doctrine');
-        $queryNameGen = new QueryNameGenerator();
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
-            'filters' => [
-                'pattern' => 'zwei JS',
-            ],
-        ]);
 
         $result = $qb->getQuery()->getResult();
         self::assertCount(1, $result);
@@ -357,27 +217,49 @@ final class SimpleSearchFilterTest extends ApiTestCase
         $em->flush();
         $em->clear();
 
-        $filter = new SimpleSearchFilter(
-            $doctrine,
-            null,
-            ['children.varcharColumn' => null]
+        $qb = $this->applyFilter(
+            new SimpleSearchFilter($doctrine),
+            ['children.varcharColumn'],
+            'ILD zwei'
         );
-        $doctrine =  self::getContainer()->get('doctrine');
-        $queryNameGen = new QueryNameGenerator();
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
-            'filters' => [
-                'pattern' => 'ILD zwei',
-            ],
-        ]);
 
         $result = $qb->getQuery()->getResult();
         self::assertCount(1, $result);
         self::assertInstanceOf(TestEntity::class, $result[0]);
         self::assertSame('record ZWEI text', $result[0]->textColumn);
+    }
+
+    private function getDoctrine(): ManagerRegistry
+    {
+        return self::getContainer()->get('doctrine');
+    }
+
+    private function isPostgres(): bool
+    {
+        return $this->getDoctrine()->getConnection()->getDatabasePlatform() instanceof PostgreSQLPlatform;
+    }
+
+    private function createQueryBuilder(): QueryBuilder
+    {
+        return $this->getDoctrine()->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+    }
+
+    /**
+     * @param list<string>|null $properties
+     */
+    private function applyFilter(SimpleSearchFilter $filter, ?array $properties, mixed $value): QueryBuilder
+    {
+        $parameter = new QueryParameter(key: 'pattern', properties: $properties);
+        $parameter->setValue($value);
+
+        $qb = $this->createQueryBuilder();
+
+        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'parameter' => $parameter,
+        ]);
+
+        return $qb;
     }
 
     private function setupSchema(): void

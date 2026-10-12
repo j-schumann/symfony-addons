@@ -692,9 +692,9 @@ class MyEventSubscriber implements EventSubscriberInterface
 
 ## ApiPlatform Filters
 
-All filters can be used with the `#[QueryParameter]` attribute (recommended). With
-`#[QueryParameter]` the filter does not need any properties enabled, the parameter names the
-property to filter. Nested properties, e.g. `children.content`, are supported.
+The filters are used with the `#[QueryParameter]` attribute, the legacy `#[ApiFilter]` attribute
+is not supported. The parameter names the property to filter, nested properties, e.g.
+`children.content`, are supported.
 
 ### SimpleSearchFilter
 
@@ -710,20 +710,12 @@ cast to string first.
         filter: new SimpleSearchFilter(),
         properties: ['description', 'name', 'slug', 'parent.title', 'children.content'],
     ),
-])]
 
-// legacy
-#[ApiFilter(
-    filterClass: SimpleSearchFilter::class,
-    properties: [
-        'description',
-        'name',
-        'slug',
-        'parent.title',
-        'children.content',
-    ],
-    arguments: ['searchParameterName' => 'pattern']
-)]
+    // the filter names the properties to search, used if the parameter names none
+    'search' => new QueryParameter(
+        filter: new SimpleSearchFilter(properties: ['name' => null, 'slug' => null]),
+    ),
+])]
 ```
 
 Requires CAST as defined Doctrine function, e.g. by `vrok/doctrine-addons`:
@@ -744,9 +736,6 @@ the `@>` operator. For example for filtering for numbers in an array.
 #[GetCollection(parameters: [
     'numbers' => new QueryParameter(filter: new ContainsFilter(), property: 'numbers'),
 ])]
-
-// legacy
-#[ApiFilter(filterClass: ContainsFilter::class, properties: ['numbers'])]
 ```
 
 Requires CONTAINS as defined Doctrine function, provided by `vrok/doctrine-addons`:
@@ -781,13 +770,6 @@ behave like the `?` operator.
     // records with all the given roles
     'role' => new QueryParameter(filter: new JsonExistsFilter(), property: 'roles'),
 ])]
-
-// legacy
-#[ApiFilter(
-    filterClass: JsonExistsFilter::class,
-    properties: ['roles'],
-    arguments: ['combination' => JsonExistsFilter::OR],
-)]
 ```
 
 Requires a DQL function of `vrok/doctrine-addons` >= 3.1, depending on the `combination` of the

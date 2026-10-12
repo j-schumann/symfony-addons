@@ -4,7 +4,6 @@ namespace Vrok\SymfonyAddons\Filter;
 
 use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
 use ApiPlatform\Doctrine\Common\Filter\ManagerRegistryAwareInterface;
-use ApiPlatform\Doctrine\Common\Filter\PropertyAwareFilterInterface;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
@@ -27,7 +26,7 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
-class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface, PropertyAwareFilterInterface
+class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface
 {
     use FilterTrait {
         FilterTrait::__construct as private initFilter;
@@ -57,7 +56,6 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
     public function __construct(
         ?ManagerRegistry $managerRegistry = null,
         ?LoggerInterface $logger = null,
-        ?array $properties = null,
         ?NameConverterInterface $nameConverter = null,
         private readonly string $combination = self::AND,
     ) {
@@ -65,23 +63,23 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
             throw new InvalidArgumentException(\sprintf('Invalid "combination" parameter "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
         }
 
-        $this->initFilter($managerRegistry, $logger, $properties, $nameConverter);
+        $this->initFilter($managerRegistry, $logger, $nameConverter);
     }
 
-    protected function filterProperty(
-        string $property,
-        mixed $value,
+    protected function filterParameter(
+        Parameter $parameter,
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
         array $context = [],
     ): void {
+        $property = $this->getParameterProperty($parameter);
         if (!$this->isPropertyMapped($property, $resourceClass)) {
             return;
         }
 
-        $value = $this->normalizeValue($value, $property);
+        $value = $this->normalizeValue($parameter->getValue(), $property);
         if (null === $value) {
             return;
         }
@@ -164,34 +162,5 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
                 explode: true
             ),
         ];
-    }
-
-    public function getDescription(string $resourceClass): array
-    {
-        $description = [];
-
-        $properties = $this->getProperties();
-        $properties ??= array_fill_keys(
-            $this->getClassMetadata($resourceClass)->getFieldNames(),
-            null
-        );
-
-        foreach (array_keys($properties) as $property) {
-            if (!$this->isPropertyMapped($property, $resourceClass)) {
-                continue;
-            }
-
-            $propertyName = $this->normalizePropertyName($property);
-            $filterParameterNames = [$propertyName, $propertyName.'[]'];
-            foreach ($filterParameterNames as $filterParameterName) {
-                $description[$filterParameterName] = [
-                    'property' => $propertyName,
-                    'required' => false,
-                    'type'     => 'string',
-                ];
-            }
-        }
-
-        return $description;
     }
 }

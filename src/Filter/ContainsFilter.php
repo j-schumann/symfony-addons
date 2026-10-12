@@ -4,7 +4,6 @@ namespace Vrok\SymfonyAddons\Filter;
 
 use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
 use ApiPlatform\Doctrine\Common\Filter\ManagerRegistryAwareInterface;
-use ApiPlatform\Doctrine\Common\Filter\PropertyAwareFilterInterface;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
@@ -23,24 +22,24 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
-class ContainsFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface, PropertyAwareFilterInterface
+class ContainsFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface
 {
     use FilterTrait;
 
-    protected function filterProperty(
-        string $property,
-        mixed $value,
+    protected function filterParameter(
+        Parameter $parameter,
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
         array $context = [],
     ): void {
+        $property = $this->getParameterProperty($parameter);
         if (!$this->isPropertyMapped($property, $resourceClass)) {
             return;
         }
 
-        $value = $this->normalizeValue($value, $property);
+        $value = $this->normalizeValue($parameter->getValue(), $property);
         if (null === $value) {
             return;
         }
@@ -89,31 +88,5 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, ManagerRe
                 explode: true
             ),
         ];
-    }
-
-    public function getDescription(string $resourceClass): array
-    {
-        $description = [];
-
-        $properties = $this->getProperties();
-        $properties ??= array_fill_keys($this->getClassMetadata($resourceClass)->getFieldNames(), null);
-
-        foreach (array_keys($properties) as $property) {
-            if (!$this->isPropertyMapped($property, $resourceClass)) {
-                continue;
-            }
-
-            $propertyName = $this->normalizePropertyName($property);
-            $filterParameterNames = [$propertyName, $propertyName.'[]'];
-            foreach ($filterParameterNames as $filterParameterName) {
-                $description[$filterParameterName] = [
-                    'property' => $propertyName,
-                    'type'     => 'mixed',
-                    'required' => false,
-                ];
-            }
-        }
-
-        return $description;
     }
 }

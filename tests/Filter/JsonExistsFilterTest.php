@@ -8,7 +8,6 @@ use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\QueryParameter;
-use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Monolog\Handler\TestHandler;
@@ -19,68 +18,9 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 final class JsonExistsFilterTest extends KernelTestCase
 {
-    public function testGetDescription(): void
+    public function testApply(): void
     {
-        $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null]);
-
-        self::assertEquals([
-            'jsonColumn'   => [
-                'property' => 'jsonColumn',
-                'required' => false,
-                'type'     => 'string',
-            ],
-            'jsonColumn[]' => [
-                'property' => 'jsonColumn',
-                'required' => false,
-                'type'     => 'string',
-            ],
-        ], $filter->getDescription(TestEntity::class));
-    }
-
-    public function testApplyFilter(): void
-    {
-        $doctrine =  self::getContainer()->get('doctrine');
-        $filter = new JsonExistsFilter($doctrine, null, ['jsonColumn' => null]);
-        $doctrine =  self::getContainer()->get('doctrine');
-        $queryNameGen = new QueryNameGenerator();
-
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $filter->apply($qb, $queryNameGen, TestEntity::class, new Get(), [
-            'filters' => [
-                'jsonColumn' => 'testVal',
-            ],
-        ]);
-
-        $param = $qb->getParameter('jsonColumn_p1');
-        self::assertInstanceOf(Parameter::class, $param);
-        self::assertSame(['testVal'], $param->getValue());
-
-        self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
-        );
-    }
-
-    public function testApplyQueryParameter(): void
-    {
-        $doctrine = self::getContainer()->get('doctrine');
-        $filter = new JsonExistsFilter($doctrine);
-
-        /** @var QueryBuilder $qb */
-        $qb = $doctrine->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $parameter = new QueryParameter(key: 'hasKey', property: 'jsonColumn');
-        $parameter->setValue('testVal');
-
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'parameter' => $parameter,
-            'filters'   => ['jsonColumn' => 'testVal'],
-        ]);
+        $qb = $this->applyFilter(new JsonExistsFilter($this->getDoctrine()), 'testVal');
 
         self::assertSame(['testVal'], $qb->getParameter('jsonColumn_p1')?->getValue());
         self::assertStringContainsString(
@@ -135,6 +75,20 @@ final class JsonExistsFilterTest extends KernelTestCase
         }
     }
 
+    public function testApplyIgnoresContextWithoutParameter(): void
+    {
+        /** @var QueryBuilder $qb */
+        $qb = $this->getDoctrine()->getManager()->getRepository(TestEntity::class)
+            ->createQueryBuilder('o');
+
+        // the context of the removed #[ApiFilter] support
+        new JsonExistsFilter($this->getDoctrine())->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
+            'filters' => ['jsonColumn' => 'testVal'],
+        ]);
+
+        self::assertStringNotContainsString('WHERE', (string) $qb);
+    }
+
     public function testRejectsInvalidCombination(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -154,8 +108,11 @@ final class JsonExistsFilterTest extends KernelTestCase
         $qb = $this->getDoctrine()->getManager()->getRepository(TestEntity::class)
             ->createQueryBuilder('o');
 
+        $parameter = new QueryParameter(key: 'hasKey', property: 'jsonColumn');
+        $parameter->setValue($value);
+
         $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'filters' => ['jsonColumn' => $value],
+            'parameter' => $parameter,
         ]);
 
         return $qb;
