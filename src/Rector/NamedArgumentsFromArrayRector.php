@@ -181,13 +181,14 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
 
         $methodName = $staticCall->name->toString();
 
-        $className = $this->getName($staticCall->class);
-
         foreach ($this->targets as $target) {
             if (\is_array($target) && 2 === \count($target)) {
                 [$targetClass, $targetMethod] = $target;
 
-                if ($targetClass === $className && $targetMethod === $methodName) {
+                if (
+                    $targetMethod === $methodName
+                    && $this->isObjectType($staticCall->class, new ObjectType($targetClass))
+                ) {
                     return true;
                 }
             }
