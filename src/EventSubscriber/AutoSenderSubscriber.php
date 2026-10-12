@@ -17,11 +17,15 @@ use Symfony\Component\Mime\Message;
  * (@see https://symfonycasts.com/screencast/mailer/event-global-recipients)
  * as this would still require each mail to have a FROM address set and also
  * doesn't allow us to set a sender name.
+ *
+ * @deprecated since 3.8, removed in 4.0, set the sender via the
+ *             framework.mailer.headers config instead
  */
 class AutoSenderSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly string $sender)
     {
+        trigger_deprecation('vrok/symfony-addons', '3.8', 'The "%s" is deprecated and removed in 4.0, set the sender via the "framework.mailer.headers" config instead.', self::class);
     }
 
     /**

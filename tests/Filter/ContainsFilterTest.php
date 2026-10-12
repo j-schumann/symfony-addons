@@ -10,11 +10,14 @@ use ApiPlatform\Metadata\QueryParameter;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\Filter\ContainsFilter;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 #[Group('database')]
+// tests the #[ApiFilter] usage and constructor arguments, deprecated since 3.8
+#[IgnoreDeprecations]
 final class ContainsFilterTest extends KernelTestCase
 {
     public function testGetDescription(): void

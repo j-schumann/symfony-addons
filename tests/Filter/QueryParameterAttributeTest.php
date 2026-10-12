@@ -6,6 +6,7 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
@@ -14,6 +15,8 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
  * handling, see the #[ApiResource] of the TestEntity.
  */
 #[Group('database')]
+// the TestEntity uses the "properties" argument of the SimpleSearchFilter, deprecated since 3.8
+#[IgnoreDeprecations]
 final class QueryParameterAttributeTest extends FilterRequestTestCase
 {
     protected function getEntityClasses(): array

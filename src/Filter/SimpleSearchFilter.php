@@ -41,7 +41,9 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
      * Add configuration parameter
      * {@inheritdoc}
      *
-     * @param string $searchParameterName The parameter whose value this filter searches for
+     * @param string $searchParameterName The parameter whose value this filter searches for,
+     *                                    deprecated since 3.8 and removed in 4.0, the key of the
+     *                                    #[QueryParameter] names the search parameter
      */
     public function __construct(
         ?ManagerRegistry $managerRegistry = null,
@@ -50,6 +52,10 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
         ?NameConverterInterface $nameConverter = null,
         private readonly string $searchParameterName = 'pattern',
     ) {
+        if ('pattern' !== $searchParameterName) {
+            trigger_deprecation('vrok/symfony-addons', '3.8', 'The "searchParameterName" argument of "%s" is deprecated and removed in 4.0, the key of the #[QueryParameter] names the search parameter.', self::class);
+        }
+
         $this->initFilter($managerRegistry, $logger, $properties, $nameConverter);
     }
 
@@ -67,7 +73,11 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
             return;
         }
 
-        // @todo remove when support for #[ApiFilter] is dropped (API Platform 6)
+        // @todo remove when support for #[ApiFilter] is dropped (4.0)
+        if ([] !== ($context['filters'] ?? [])) {
+            trigger_deprecation('vrok/symfony-addons', '3.8', 'Using "%s" with the #[ApiFilter] attribute is deprecated and no longer filters in 4.0, use #[QueryParameter] instead.', self::class);
+        }
+
         foreach ($context['filters'] ?? [] as $property => $value) {
             $this->filterProperty($this->denormalizePropertyName($property), $value, $queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);
         }

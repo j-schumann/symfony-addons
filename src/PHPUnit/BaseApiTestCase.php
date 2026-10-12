@@ -9,6 +9,8 @@ namespace Vrok\SymfonyAddons\PHPUnit;
 if (class_exists(\ApiPlatform\Test\ApiTestCase::class)) {
     /**
      * @internal
+     *
+     * @deprecated since 3.8, removed in 4.0, extend ApiPlatform\Test\ApiTestCase
      */
     abstract class BaseApiTestCase extends \ApiPlatform\Test\ApiTestCase
     {
@@ -16,6 +18,8 @@ if (class_exists(\ApiPlatform\Test\ApiTestCase::class)) {
 } else {
     /**
      * @internal
+     *
+     * @deprecated since 3.8, removed in 4.0, extend ApiPlatform\Test\ApiTestCase
      */
     abstract class BaseApiTestCase extends \ApiPlatform\Symfony\Bundle\Test\ApiTestCase
     {

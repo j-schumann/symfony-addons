@@ -5,6 +5,11 @@ namespace Vrok\SymfonyAddons\Twig\Extension;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+/**
+ * @deprecated since 3.8, moves to Vrok\SymfonyAddons\Twig\FormatBytesExtension
+ *             in 4.0 and no longer extends AbstractExtension, getName() and
+ *             getFilters() are removed
+ */
 class FormatBytesExtension extends AbstractExtension
 {
     public function getName(): string

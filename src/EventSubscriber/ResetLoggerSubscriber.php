@@ -16,10 +16,18 @@ use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
  * flush them all at once, without registering this subscriber multiple times?
  * @todo How can we reset the UidProcessor only once without depending on the
  * handler name?
+ *
+ * @deprecated since 3.8, removed in 4.0, Messenger's ResetServicesListener
+ *             resets the loggers after each message
  */
 class ResetLoggerSubscriber implements EventSubscriberInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
+
+    public function __construct()
+    {
+        trigger_deprecation('vrok/symfony-addons', '3.8', 'The "%s" is deprecated and removed in 4.0, Messenger\'s ResetServicesListener resets the loggers after each message.', self::class);
+    }
 
     /**
      * @return array<string, string>
