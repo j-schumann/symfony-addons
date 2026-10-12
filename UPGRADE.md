@@ -23,6 +23,11 @@
 * The `ApiPlatformTestCase::HYDRA_PROBLEM_*` constants are removed, they expected the `hydra:` prefix
   that API Platform 5 no longer adds by default. Use the `PROBLEM_*` constants, or define your own
   if you enable `api_platform.serializer.hydra_prefix`.
+* `testOperation()` lost the `prepare` argument. It only boots the kernel, which refreshes the
+  database, if no kernel is booted yet, so changes made before the call persist: prepare the
+  database before the call, e.g. via `static::getContainer()`, and pass the values as arguments
+  instead of changing `$params`. Set cookies with the new `cookies` argument instead of the cookie
+  jar of `self::getClient()`.
 * If you extended the internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase` instead.
 * If you use the `JsonExistsFilter`: it now filters by multiple values (e.g.
   `?roles[]=ROLE_A&roles[]=ROLE_B`), combined with AND by default. Before, the filter ignored such

@@ -77,28 +77,6 @@ class AuthApiTest extends ApiPlatformTestCase
 </tr>
 
 <tr>
-<td>prepare</td>
-<td>Callable, to be executed _after_ the kernel was booted and the DB refreshed, but _before_ the request is made</td>
-<td>
-
-```php
-prepare: static function (ContainerInterface $container, array &$params): void {
-      $em = $container->get('doctrine')->getManager();
-
-      $log = new ActionLog();
-      $log->action = ActionLog::FAILED_LOGIN;
-      $log->ipAddress = '127.0.0.1';
-      $em->persist($log);
-      $em->flush();
-
-      $params['requestOptions']['query']['id'] = $log->id; 
-}
-```
-
-</td>
-</tr>
-
-<tr>
 <td>uri</td>
 <td>
 the URI / endpoint to call
@@ -191,6 +169,18 @@ requestOptions: [
   'headers' => ['content-type' => 'application/json'],
 ]
 ```
+
+</td>
+</tr>
+
+<tr>
+<td>cookies</td>
+<td>
+cookies to send with the request, name => value
+</td>
+<td>
+
+`cookies: ['BEARER' => $jwt]`
 
 </td>
 </tr>
@@ -401,6 +391,7 @@ the user checker and the claims of the token. Other ways:
 
 * **Another token issuer**, e.g. OIDC: override `getJWT()` in your test case and return a token
   your authenticator accepts, e.g. signed with a test key that the `when@test` config trusts.
+* **Token as cookie**: pass it with `cookies`, e.g. `cookies: ['BEARER' => $this->getJWT([...])]`.
 * **No token**, e.g. to only test access rules: `testOperation()` has no option for this, use the
   client directly: `$client = static::createClient(); $client->loginUser($user);` and then
   `$client->request(...)`. This skips the authenticator, the user checker and the claims, and only

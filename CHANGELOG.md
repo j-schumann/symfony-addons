@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 All BC breaks are explained in UPGRADE.md.
 
 ### Added
+* `ApiPlatformTestCase::testOperation()` sends cookies, see its new `cookies` argument
 * `QueryBuilderHelper::getJoinAlias()` and `addJoin()` accept the alias of a joined entity, to join
   its relations
 * `JsonExistsFilter` supports multiple values, combined with AND (default) or OR, see the new
@@ -30,6 +31,7 @@ All BC breaks are explained in UPGRADE.md.
 * Support for doctrine/dbal < 4.5
 * `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`
 * `ApiPlatformTestCase::HYDRA_PROBLEM_*` constants
+* The `prepare` argument of `ApiPlatformTestCase::testOperation()`
 * The internal `BaseApiTestCase`
 * Support for the `#[ApiFilter]` attribute in `SimpleSearchFilter`, `ContainsFilter` and
   `JsonExistsFilter`

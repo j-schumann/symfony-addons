@@ -41,29 +41,13 @@ final class OperationTest extends ApiPlatformTestCase
         $this->testOperation(uri: '/test', email: 'test@example.com');
     }
 
-    public function testTestOperationCallsPrepare(): void
+    public function testTestOperationSendsCookies(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageIs('I was called');
+        $this->testOperation(uri: '/test', cookies: ['BEARER' => 'token', 'other' => 'value']);
 
-        $this->testOperation(
-            prepare: static function (): never {
-                throw new \RuntimeException('I was called');
-            },
-            uri: '/test'
-        );
-    }
-
-    public function testTestOperationUsesPreparedParameters(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessageIsOrContains('Failed asserting that the Response status code is 555.');
-
-        $this->testOperation(
-            prepare: static function ($container, array &$params): void {
-                $params['responseCode'] = 555;
-            },
-            uri: '/test',
+        self::assertSame(
+            ['BEARER' => 'token', 'other' => 'value'],
+            self::getClient()->getRequest()->cookies->all()
         );
     }
 
