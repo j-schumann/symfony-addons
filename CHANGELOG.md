@@ -30,6 +30,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `PropertyAwareFilterInterface`, `getDescription()` returns an empty array
 * The `properties` constructor argument of `ContainsFilter` and `JsonExistsFilter` and the
   `searchParameterName` argument of `SimpleSearchFilter`
+* `AutoSenderSubscriber`, use the `framework.mailer.headers` config, see UPGRADE.md
+* `ResetLoggerSubscriber`, Messenger's `ResetServicesListener` resets the loggers after each
+  message, see UPGRADE.md
 
 ## [3.7.0] - 2026-10-09
 ### Added

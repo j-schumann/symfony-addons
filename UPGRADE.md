@@ -35,6 +35,26 @@
 * Multiple values for the `JsonExistsFilter` are combined with AND by default: a record must
   contain all values. To match records that contain at least one of them, set the `combination`
   argument to `JsonExistsFilter::OR`, see README.md.
+* The `AutoSenderSubscriber` is removed. Remove its service definition and set the default sender
+  via the mailer config instead. Like the subscriber, Symfony adds the header only to messages
+  without a `From` address:
+  ```yaml
+  framework:
+    mailer:
+      headers:
+        From: '%env(MAILER_SENDER)%'
+  ```
+* The `ResetLoggerSubscriber` is removed, remove its service definitions. Messenger's
+  `ResetServicesListener` resets all services tagged with `kernel.reset` after each message,
+  unless the worker runs with `--no-reset`: this flushes the `BufferHandler`s and renews the UID
+  of the `UidProcessor`. The `UidProcessor` gets this tag only when it is autoconfigured, add the
+  tag yourself if your service definition disables `autoconfigure`:
+  ```yaml
+  Monolog\Processor\UidProcessor:
+    tags:
+      - { name: monolog.processor, handler: logstash }
+      - { name: kernel.reset, method: reset }
+  ```
 
 # Upgrade to 3.0
 

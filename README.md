@@ -5,49 +5,6 @@ This is a library with additional classes for usage in combination with the Symf
 [![CI Status](https://github.com/j-schumann/symfony-addons/actions/workflows/ci.yaml/badge.svg)](https://github.com/j-schumann/symfony-addons/actions)
 [![Coverage Status](https://coveralls.io/repos/github/j-schumann/symfony-addons/badge.svg?branch=main)](https://coveralls.io/github/j-schumann/symfony-addons?branch=main)
 
-## Mailer helpers
-### Automatically set a sender address
-
-We want to replace setting the sender via mailer.yaml as envelope (@see
-https://symfonycasts.com/screencast/mailer/event-global-recipients) as this would still require each
-mail to have a FROM address set and also doesn't allow us to set a sender name.
-
-config/services.yaml:
-```yaml
-    Vrok\SymfonyAddons\EventSubscriber\AutoSenderSubscriber:
-        arguments:
-            $sender: "%env(MAILER_SENDER)%"
-```
-
-.env[.local]:
-```yaml
-MAILER_SENDER="Change Me <your@email>"
-```
-
-## Messenger helpers
-### Resetting the logger before/after a message
-
-We want to group all log entries belonging to a single message to be grouped with a distinct UID and
-to flush a buffer logger after a message was processed (successfully or failed), to immediately see
-the entries in the log:
-
-config/services.yaml:
-```yaml
-    # add a UID to the context, same UID for each HTTP request or console command
-    # and with the event subscriber also for each message 
-    Monolog\Processor\UidProcessor:
-        tags:
-            - { name: monolog.processor, handler: logstash }
-
-    # resets the UID when a message is received, flushed a buffer after a
-    # message was handled. Add this multiple times if you want to flush more
-    # channels, e.g. messenger
-    app.event.reset_app_logger:
-        class: Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber
-        tags:
-            - { name: monolog.logger, channel: app }
-```
-
 ## Validators
 
 ### AtLeastOneOf
@@ -947,10 +904,10 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 
 * _doctrine/doctrine-fixtures-bundle_ is required for tests of the ApiPlatformTestCase
 * _symfony/browser-kit_ is required for tests of the MultipartDecoder
-* _symfony/mailer_ is required for tests of the AutoSenderSubscriber
-* _symfony/doctrine-messenger_ is required for tests of the ResetLoggerSubscriber
-* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait and
-  ResetLoggerSubscriber
+* _symfony/mailer_ is required for tests of the `emailCount` of the ApiPlatformTestCase
+* _symfony/doctrine-messenger_ is required for tests of the `messageCount` of the
+  ApiPlatformTestCase
+* _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait
 * _symfony/string_ is required for API Platform's inflector
 * _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
 * _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore
