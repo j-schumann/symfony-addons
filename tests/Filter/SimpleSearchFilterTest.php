@@ -5,13 +5,9 @@
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use Monolog\Level;
-use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
-use Vrok\SymfonyAddons\Tests\Helpers\FilterRequestTrait;
 
-final class SimpleSearchFilterTest extends ApiPlatformTestCase
+final class SimpleSearchFilterTest extends FilterTestCase
 {
-    use FilterRequestTrait;
-
     public function testSearch(): void
     {
         self::assertCount(2, $this->search('?pattern=RECORD'));

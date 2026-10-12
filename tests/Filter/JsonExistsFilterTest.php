@@ -7,13 +7,9 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use Monolog\Level;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
-use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
-use Vrok\SymfonyAddons\Tests\Helpers\FilterRequestTrait;
 
-final class JsonExistsFilterTest extends ApiPlatformTestCase
+final class JsonExistsFilterTest extends FilterTestCase
 {
-    use FilterRequestTrait;
-
     public function testFilter(): void
     {
         $this->skipUnlessPostgres();

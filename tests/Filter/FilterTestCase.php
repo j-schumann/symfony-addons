@@ -1,19 +1,20 @@
 <?php
 
-namespace Vrok\SymfonyAddons\Tests\Helpers;
+namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 
 /**
  * Requests the collection of the TestEntity, whose #[ApiResource] configures the filters as
  * #[QueryParameter], see the TestFixtures for the records.
  */
-trait FilterRequestTrait
+abstract class FilterTestCase extends ApiPlatformTestCase
 {
     /**
      * Returns the found records.
      */
-    private function search(string $query, array $createdLogs = []): array
+    protected function search(string $query, array $createdLogs = []): array
     {
         return $this->testOperation(
             uri: '/test_entities'.$query,
@@ -29,7 +30,7 @@ trait FilterRequestTrait
      *
      * @return array<string, array<string, mixed>>
      */
-    private function getOpenApiParameters(): array
+    protected function getOpenApiParameters(): array
     {
         $response = $this->testOperation(
             uri: '/docs',
@@ -42,7 +43,7 @@ trait FilterRequestTrait
         return array_column($parameters, null, 'name');
     }
 
-    private function skipUnlessPostgres(): void
+    protected function skipUnlessPostgres(): void
     {
         $platform = self::getContainer()->get('doctrine')->getConnection()->getDatabasePlatform();
         if (!$platform instanceof PostgreSQLPlatform) {

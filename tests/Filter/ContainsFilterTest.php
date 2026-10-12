@@ -4,13 +4,8 @@
 
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
-use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
-use Vrok\SymfonyAddons\Tests\Helpers\FilterRequestTrait;
-
-final class ContainsFilterTest extends ApiPlatformTestCase
+final class ContainsFilterTest extends FilterTestCase
 {
-    use FilterRequestTrait;
-
     public function testFilter(): void
     {
         $this->skipUnlessPostgres();
