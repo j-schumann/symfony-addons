@@ -5,13 +5,14 @@ namespace Vrok\SymfonyAddons\PHPUnit;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\Metadata\DatabaseMetadataRow;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -210,8 +211,12 @@ trait RefreshDatabaseTrait
         }
 
         unset($params['dbname'], $params['path']);
-        if ($connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
+        $platform = $connection->getDatabasePlatform();
+        if ($platform instanceof PostgreSQLPlatform) {
             $params['dbname'] = $params['default_dbname'] ?? 'postgres';
+        } elseif ($platform instanceof AbstractMySQLPlatform) {
+            // DBAL requires a database to introspect the database names on MySQL/MariaDB
+            $params['dbname'] = 'information_schema';
         }
 
         $tempConnection = DriverManager::getConnection($params, $connection->getConfiguration());
@@ -228,9 +233,10 @@ trait RefreshDatabaseTrait
             return;
         }
 
-        // @todo when DBAL 5.0 comes out: switch to this method, to replace the
-        // deprecated/removed listDatabases method $dbExists = self::databaseExists($em, $dbName);
-        $dbExists = \in_array($dbName, $schemaManager->listDatabases(), true);
+        $dbExists = array_any(
+            $schemaManager->introspectDatabaseNames(),
+            static fn (UnqualifiedName $name): bool => $name->getIdentifier()->getValue() === $dbName,
+        );
 
         if ($drop && $dbExists) {
             // close the current connection in the em, it would be invalid anyway after the drop
@@ -454,37 +460,6 @@ trait RefreshDatabaseTrait
         }
 
         return self::$identityTables = $tables;
-    }
-
-    /**
-     * @todo schemaManager->listDatabases is deprecated, but we stay with it until we actually want
-     *       to support DBAL 5.0 w/o listDatabases.
-     *
-     * Returns the list of databases the current connection sees. Must be called with the "old"
-     * entityManager, that has the database name set in its connection, or we will receive "A
-     * database is required for the method: Doctrine\DBAL\Platforms\MySQL\MySQLMetadataProvider" on
-     * MariaDB and MySQL.
-     */
-    private static function databaseExists(EntityManagerInterface $em, string $dbName): bool
-    {
-        // We cannot use schemaManager->introspectDatabaseNames, as this would require the
-        // $tempConnection to have a DB name set for MySQL/MariaDB. But we can't set one, as it
-        // would fail when the database indeed does not exist, that's why we created the
-        // $tempConnection in the first place. All was working well when
-        // schemaManager->listDatabases was not yet deprecated...
-        $connection = $em->getConnection();
-
-        // So instead, we create the provider manually with the old connection, in the hope that
-        // this works even with the EM closed from previous test run exceptions...
-        $metaProvider = $connection->getDatabasePlatform()
-            ->createMetadataProvider($connection);
-
-        $dbNames = array_map(
-            static fn (DatabaseMetadataRow $n) => $n->getDatabaseName(),
-            iterator_to_array($metaProvider->getAllDatabaseNames())
-        );
-
-        return \in_array($dbName, $dbNames, true);
     }
 
     protected static function fixtureCleanup(): void

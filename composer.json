@@ -39,6 +39,7 @@
     "conflict": {
         "api-platform/core": "<5.0",
         "api-platform/metadata": "<5.0",
+        "doctrine/dbal": "<4.5",
         "twig/twig": "<3.21"
     },
     "suggest": {
