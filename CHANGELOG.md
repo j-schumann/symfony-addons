@@ -37,8 +37,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * Support for the `#[ApiFilter]` attribute in `SimpleSearchFilter`, `ContainsFilter` and
   `JsonExistsFilter`, use `#[QueryParameter]`. The filters no longer implement
   `PropertyAwareFilterInterface`, `getDescription()` returns an empty array
-* The `properties` constructor argument of `ContainsFilter` and `JsonExistsFilter` and the
-  `searchParameterName` argument of `SimpleSearchFilter`
+* The constructor arguments `managerRegistry`, `logger`, `nameConverter` and `properties` of
+  `SimpleSearchFilter`, `ContainsFilter` and `JsonExistsFilter`, and the `searchParameterName`
+  argument of `SimpleSearchFilter`. The filters use the nested properties and name conversion
+  API Platform resolves for the parameter, API Platform sets the logger
 * `AutoSenderSubscriber`, use the `framework.mailer.headers` config, see UPGRADE.md
 * `ResetLoggerSubscriber`, Messenger's `ResetServicesListener` resets the loggers after each
   message, see UPGRADE.md

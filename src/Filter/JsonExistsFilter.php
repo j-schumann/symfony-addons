@@ -3,7 +3,6 @@
 namespace Vrok\SymfonyAddons\Filter;
 
 use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
-use ApiPlatform\Doctrine\Common\Filter\ManagerRegistryAwareInterface;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
@@ -11,11 +10,7 @@ use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
-use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ManagerRegistry;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 /**
  * Filters entities by their jsonb (Postgres-only) fields, if they contain the search values.
@@ -24,11 +19,9 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
-class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface
+class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApiParameterFilterInterface
 {
-    use FilterTrait {
-        FilterTrait::__construct as private initFilter;
-    }
+    use FilterTrait;
 
     /**
      * Records must contain all the values.
@@ -52,16 +45,11 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
      * @param string $combination How multiple values are combined, self::AND or self::OR
      */
     public function __construct(
-        ?ManagerRegistry $managerRegistry = null,
-        ?LoggerInterface $logger = null,
-        ?NameConverterInterface $nameConverter = null,
         private readonly string $combination = self::AND,
     ) {
         if (!isset(self::FUNCTIONS[$combination])) {
             throw new InvalidArgumentException(\sprintf('Invalid "combination" parameter "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
         }
-
-        $this->initFilter($managerRegistry, $logger, $nameConverter);
     }
 
     protected function filterParameter(
@@ -72,29 +60,25 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        $property = $this->getParameterProperty($parameter);
-        if (!$this->isPropertyMapped($property, $resourceClass)) {
-            return;
-        }
-
+        $property = $parameter->getProperty() ?? $parameter->getKey();
         $value = $this->normalizeValue($parameter->getValue(), $property);
         if (null === $value) {
             return;
         }
 
-        $alias = $queryBuilder->getRootAliases()[0];
-        $field = $property;
-
-        if ($this->isPropertyNested($property, $resourceClass)) {
-            [$alias, $field] = $this->addJoinsForNestedProperty(
-                $property,
-                $alias,
-                $queryBuilder,
-                $queryNameGenerator,
-                $resourceClass,
-                Join::LEFT_JOIN
-            );
+        $nestedPropertiesInfo = $parameter->getExtraProperties()['nested_properties_info'] ?? [];
+        $resolved = $this->resolveField(
+            $property,
+            reset($nestedPropertiesInfo) ?: null,
+            $parameter,
+            $queryBuilder,
+            $queryNameGenerator,
+        );
+        if (null === $resolved) {
+            return;
         }
+
+        [$alias, $field] = $resolved;
 
         $valueParameter = $queryNameGenerator->generateParameterName($field);
 

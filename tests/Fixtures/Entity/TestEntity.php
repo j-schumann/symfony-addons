@@ -18,14 +18,9 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
         new GetCollection(
             normalizationContext: ['groups' => ['none']],
             parameters: [
-                // the parameter names the properties to search
                 'pattern'          => new QueryParameter(
                     filter: new SimpleSearchFilter(),
                     properties: ['textColumn', 'varcharColumn'],
-                ),
-                // the filter names the properties to search
-                'search'           => new QueryParameter(
-                    filter: new SimpleSearchFilter(properties: ['varcharColumn' => null]),
                 ),
                 // nested property
                 'childName'        => new QueryParameter(

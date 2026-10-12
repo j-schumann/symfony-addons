@@ -15,9 +15,13 @@
 * Replace the `#[ApiFilter]` attribute for the `SimpleSearchFilter`, `ContainsFilter` and
   `JsonExistsFilter` with `#[QueryParameter]`, see README.md. Requests to a parameter of such an
   `#[ApiFilter]` are no longer filtered: they return all records, without an error or a log entry.
-  Check every entity that still uses the attribute with these filters. The `ContainsFilter` and
-  `JsonExistsFilter` lost the `properties` constructor argument, pass the following arguments by
-  name. The `SimpleSearchFilter` lost the `searchParameterName` argument, the key of the
+  Check every entity that still uses the attribute with these filters.
+* The filters lost their constructor arguments `managerRegistry`, `logger`, `nameConverter` and
+  `properties`, only the `combination` of the `JsonExistsFilter` remains. API Platform sets the
+  logger and converts the property names. Name the properties to search with the `properties` of
+  the `#[QueryParameter]` instead of the `SimpleSearchFilter`'s argument:
+  `new QueryParameter(filter: new SimpleSearchFilter(), properties: ['name', 'slug'])`. The
+  `SimpleSearchFilter` also lost the `searchParameterName` argument, the key of the
   `#[QueryParameter]` names the search parameter.
 * If you extended the internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase` instead.
 * If you use the `JsonExistsFilter`: it now filters by multiple values (e.g.

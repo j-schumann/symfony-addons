@@ -3,14 +3,12 @@
 namespace Vrok\SymfonyAddons\Filter;
 
 use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
-use ApiPlatform\Doctrine\Common\Filter\ManagerRegistryAwareInterface;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
-use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -19,7 +17,7 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
-class ContainsFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface
+class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiParameterFilterInterface
 {
     use FilterTrait;
 
@@ -31,17 +29,19 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, ManagerRe
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        $property = $this->getParameterProperty($parameter);
-        if (!$this->isPropertyMapped($property, $resourceClass)) {
+        $nestedPropertiesInfo = $parameter->getExtraProperties()['nested_properties_info'] ?? [];
+        $resolved = $this->resolveField(
+            $parameter->getProperty() ?? $parameter->getKey(),
+            reset($nestedPropertiesInfo) ?: null,
+            $parameter,
+            $queryBuilder,
+            $queryNameGenerator,
+        );
+        if (null === $resolved) {
             return;
         }
 
-        $alias = $queryBuilder->getRootAliases()[0];
-        $field = $property;
-
-        if ($this->isPropertyNested($property, $resourceClass)) {
-            [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::LEFT_JOIN);
-        }
+        [$alias, $field] = $resolved;
 
         // @todo one condition per value, could a single @> with a JSON array of all values replace
         //       them?

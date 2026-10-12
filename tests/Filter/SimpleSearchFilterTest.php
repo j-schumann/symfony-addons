@@ -20,14 +20,6 @@ final class SimpleSearchFilterTest extends ApiPlatformTestCase
         self::assertCount(0, $this->search('?pattern=drei'));
     }
 
-    public function testSearchWithFilterProperties(): void
-    {
-        self::assertCount(1, $this->search('?search=eins%20varchar'));
-
-        // textColumn is not searched
-        self::assertCount(0, $this->search('?search=eins%20text'));
-    }
-
     public function testSearchWithNestedProperty(): void
     {
         self::assertCount(2, $this->search('?childName=child'));
@@ -59,7 +51,7 @@ final class SimpleSearchFilterTest extends ApiPlatformTestCase
     {
         $names = $this->getOpenApiParameterNames();
 
-        foreach (['childName', 'pattern', 'search'] as $name) {
+        foreach (['childName', 'pattern'] as $name) {
             self::assertContains($name, $names);
         }
     }

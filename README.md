@@ -662,15 +662,9 @@ cast to string first.
 
 ```php
 #[GetCollection(parameters: [
-    // the parameter names the properties to search
     'pattern' => new QueryParameter(
         filter: new SimpleSearchFilter(),
         properties: ['description', 'name', 'slug', 'parent.title', 'children.content'],
-    ),
-
-    // the filter names the properties to search, used if the parameter names none
-    'search' => new QueryParameter(
-        filter: new SimpleSearchFilter(properties: ['name' => null, 'slug' => null]),
     ),
 ])]
 ```
