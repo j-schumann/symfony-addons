@@ -6,6 +6,7 @@ use Monolog\Level;
 use PHPUnit\Framework\AssertionFailedError;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
+use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
 /**
  * To test the ApiPlatformTestCase we need a non-abstract class. So we directly use the child class
@@ -128,5 +129,29 @@ final class OperationTest extends ApiPlatformTestCase
         $this->expectExceptionMessageIsOrContains('Expected 1 messages to be dispatched, found 0');
 
         $this->testOperation(uri: '/test', messageCount: 1);
+    }
+
+    public function testTestOperationFailsWithIriAndUri(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessageIs('Setting both $iri and $uri is not allowed because it serves no purpose.');
+
+        $this->testOperation(uri: '/test', iri: [TestEntity::class, ['id' => 1]]);
+    }
+
+    public function testTestOperationChecksDispatchedMessages(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessageIsOrContains("The expected 'stdClass' was not dispatched");
+
+        $this->testOperation(uri: '/test', dispatchedMessages: [\stdClass::class]);
+    }
+
+    public function testTestOperationFailsWithInvalidDispatchedMessage(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageIsOrContains('Entries of "dispatchedMessages" must either be a string');
+
+        $this->testOperation(uri: '/test', dispatchedMessages: [[\stdClass::class]]);
     }
 }

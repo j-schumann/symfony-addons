@@ -42,6 +42,10 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                     filter: new SimpleSearchFilter(),
                     properties: ['unknownColumn', 'varcharColumn'],
                 ),
+                'onlyUnmapped'     => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['unknownColumn'],
+                ),
                 'containsUnmapped' => new QueryParameter(
                     filter: new ContainsFilter(),
                     property: 'unknownColumn',

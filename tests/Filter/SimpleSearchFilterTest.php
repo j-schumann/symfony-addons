@@ -4,7 +4,10 @@
 
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
+use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Parameter;
 use Monolog\Level;
+use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 
 final class SimpleSearchFilterTest extends FilterTestCase
 {
@@ -58,5 +61,19 @@ final class SimpleSearchFilterTest extends FilterTestCase
         }
 
         self::assertSame('Search in the text and varchar column', $parameters['pattern']['description']);
+    }
+
+    public function testSearchIgnoresOnlyUnmappedProperties(): void
+    {
+        self::assertCount(2, $this->search('?onlyUnmapped=eins'));
+    }
+
+    public function testGetOpenApiParameters(): void
+    {
+        $parameter = new SimpleSearchFilter()->getOpenApiParameters(new QueryParameter(key: 'q'));
+
+        self::assertInstanceOf(Parameter::class, $parameter);
+        self::assertSame('q', $parameter->getName());
+        self::assertSame('query', $parameter->getIn());
     }
 }

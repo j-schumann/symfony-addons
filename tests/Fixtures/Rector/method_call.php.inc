@@ -18,11 +18,12 @@ class OtherClass
     }
 }
 
-function run(MyChild $obj, OtherClass $other, $unknown): void
+function run(MyChild $obj, OtherClass $other, $unknown, string $method): void
 {
     $obj->instanceMethod(['p' => 1, 'q' => 2]);
     $other->instanceMethod(['p' => 1]);
     $unknown->instanceMethod(['p' => 1]);
+    $obj->$method(['p' => 1, 'q' => 2]);
 }
 
 ?>
@@ -47,11 +48,12 @@ class OtherClass
     }
 }
 
-function run(MyChild $obj, OtherClass $other, $unknown): void
+function run(MyChild $obj, OtherClass $other, $unknown, string $method): void
 {
     $obj->instanceMethod(p: 1, q: 2);
     $other->instanceMethod(['p' => 1]);
     $unknown->instanceMethod(['p' => 1]);
+    $obj->$method(['p' => 1, 'q' => 2]);
 }
 
 ?>

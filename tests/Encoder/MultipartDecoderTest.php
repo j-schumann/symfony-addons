@@ -55,6 +55,13 @@ final class MultipartDecoderTest extends KernelTestCase
         );
     }
 
+    public function testDecodeWithoutRequest(): void
+    {
+        $decoder = new MultipartDecoder(new RequestStack());
+
+        self::assertNull($decoder->decode('', 'multipart'));
+    }
+
     public function testSupports(): void
     {
         $decoder = new MultipartDecoder(new RequestStack());

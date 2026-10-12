@@ -27,6 +27,7 @@ class OtherClass
 MyClass::staticMethod(['x' => 1, 'y' => 2]);
 MyChild::staticMethod(['x' => 1, 'y' => 2]);
 OtherClass::staticMethod(['x' => 1]);
+MyClass::$method(['x' => 1, 'y' => 2]);
 
 ?>
 -----
@@ -59,5 +60,6 @@ class OtherClass
 MyClass::staticMethod(x: 1, y: 2);
 MyChild::staticMethod(x: 1, y: 2);
 OtherClass::staticMethod(['x' => 1]);
+MyClass::$method(['x' => 1, 'y' => 2]);
 
 ?>
