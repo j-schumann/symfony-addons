@@ -3,13 +3,13 @@
 namespace Vrok\SymfonyAddons\Filter;
 
 use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
+use ApiPlatform\Doctrine\Common\Filter\OpenApiFilterTrait;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
-use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -22,6 +22,7 @@ use Doctrine\ORM\QueryBuilder;
 class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApiParameterFilterInterface
 {
     use FilterTrait;
+    use OpenApiFilterTrait;
 
     /**
      * Records must contain all the values.
@@ -121,18 +122,5 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
         ]);
 
         return null;
-    }
-
-    public function getOpenApiParameters(Parameter $parameter): OpenApiParameter|array|null
-    {
-        return [
-            new OpenApiParameter($parameter->getKey(), 'query'),
-            new OpenApiParameter(
-                $parameter->getKey().'[]',
-                'query',
-                style: 'deepObject',
-                explode: true
-            ),
-        ];
     }
 }

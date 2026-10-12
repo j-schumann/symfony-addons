@@ -24,12 +24,12 @@ trait FilterRequestTrait
     }
 
     /**
-     * Returns the names of the query parameters documented in the OpenAPI specification for the
-     * collection of the TestEntity.
+     * Returns the query parameters documented in the OpenAPI specification for the collection of
+     * the TestEntity, indexed by name.
      *
-     * @return list<string>
+     * @return array<string, array<string, mixed>>
      */
-    private function getOpenApiParameterNames(): array
+    private function getOpenApiParameters(): array
     {
         $response = $this->testOperation(
             uri: '/docs',
@@ -39,7 +39,7 @@ trait FilterRequestTrait
 
         $parameters = $response->toArray()['paths']['/test_entities']['get']['parameters'] ?? [];
 
-        return array_column($parameters, 'name');
+        return array_column($parameters, null, 'name');
     }
 
     private function skipUnlessPostgres(): void

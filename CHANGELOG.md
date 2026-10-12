@@ -22,6 +22,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `Vrok\SymfonyAddons\Twig`. It declares its filter with `#[AsTwigFilter]` and no longer extends
   Twig's `AbstractExtension`, `getName()` and `getFilters()` are removed. Requires
   `twig/twig` >= 3.21
+* `SimpleSearchFilter` no longer sets an OpenAPI description, which replaced the `description` of
+  the `#[QueryParameter]`. `ContainsFilter` and `JsonExistsFilter` document their parameters with
+  API Platform's `OpenApiFilterTrait`, which adds a schema and respects `castToArray`
 
 ### Fixed
 * `NamedArgumentsFromArrayRector` converts calls of configured functions and static methods, before

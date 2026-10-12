@@ -53,10 +53,10 @@ final class ContainsFilterTest extends ApiPlatformTestCase
 
     public function testParametersAreDocumented(): void
     {
-        $names = $this->getOpenApiParameterNames();
+        $parameters = $this->getOpenApiParameters();
 
         foreach (['contains', 'contains[]'] as $name) {
-            self::assertContains($name, $names);
+            self::assertArrayHasKey($name, $parameters);
         }
     }
 }

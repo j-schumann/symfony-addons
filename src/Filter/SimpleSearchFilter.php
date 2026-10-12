@@ -33,8 +33,6 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
         'jsonb_object',
     ];
 
-    private const string DESCRIPTION = 'Selects entities where each search term is found somewhere in at least one of the specified properties';
-
     protected function filterParameter(
         Parameter $parameter,
         QueryBuilder $queryBuilder,
@@ -102,6 +100,6 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
 
     public function getOpenApiParameters(Parameter $parameter): OpenApiParameter|array|null
     {
-        return new OpenApiParameter($parameter->getKey(), 'query', self::DESCRIPTION);
+        return new OpenApiParameter($parameter->getKey(), 'query');
     }
 }

@@ -49,10 +49,12 @@ final class SimpleSearchFilterTest extends ApiPlatformTestCase
 
     public function testParametersAreDocumented(): void
     {
-        $names = $this->getOpenApiParameterNames();
+        $parameters = $this->getOpenApiParameters();
 
         foreach (['childName', 'pattern'] as $name) {
-            self::assertContains($name, $names);
+            self::assertArrayHasKey($name, $parameters);
         }
+
+        self::assertSame('Search in the text and varchar column', $parameters['pattern']['description']);
     }
 }

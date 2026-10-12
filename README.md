@@ -664,10 +664,13 @@ cast to string first.
 #[GetCollection(parameters: [
     'pattern' => new QueryParameter(
         filter: new SimpleSearchFilter(),
+        description: 'Search in the name, slug and description of the project and its tasks',
         properties: ['description', 'name', 'slug', 'parent.title', 'children.content'],
     ),
 ])]
 ```
+
+The filters set no OpenAPI description, use the `description` of the `#[QueryParameter]`.
 
 Requires CAST as defined Doctrine function, e.g. by `vrok/doctrine-addons`:
 ```yaml

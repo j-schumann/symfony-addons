@@ -3,12 +3,12 @@
 namespace Vrok\SymfonyAddons\Filter;
 
 use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
+use ApiPlatform\Doctrine\Common\Filter\OpenApiFilterTrait;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
-use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -20,6 +20,7 @@ use Doctrine\ORM\QueryBuilder;
 class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiParameterFilterInterface
 {
     use FilterTrait;
+    use OpenApiFilterTrait;
 
     protected function filterParameter(
         Parameter $parameter,
@@ -56,18 +57,5 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
                 ->andWhere(\sprintf('CONTAINS(%s.%s, :%s) = true', $alias, $field, $valueParameter))
                 ->setParameter($valueParameter, $json);
         }
-    }
-
-    public function getOpenApiParameters(Parameter $parameter): OpenApiParameter|array|null
-    {
-        return [
-            new OpenApiParameter($parameter->getKey(), 'query'),
-            new OpenApiParameter(
-                $parameter->getKey().'[]',
-                'query',
-                style: 'deepObject',
-                explode: true
-            ),
-        ];
     }
 }

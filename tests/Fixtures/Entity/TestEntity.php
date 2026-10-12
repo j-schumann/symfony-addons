@@ -20,6 +20,7 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
             parameters: [
                 'pattern'          => new QueryParameter(
                     filter: new SimpleSearchFilter(),
+                    description: 'Search in the text and varchar column',
                     properties: ['textColumn', 'varcharColumn'],
                 ),
                 // nested property

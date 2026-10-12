@@ -62,10 +62,10 @@ final class JsonExistsFilterTest extends ApiPlatformTestCase
 
     public function testParametersAreDocumented(): void
     {
-        $names = $this->getOpenApiParameterNames();
+        $parameters = $this->getOpenApiParameters();
 
         foreach (['hasAnyKey', 'hasAnyKey[]', 'hasKey', 'hasKey[]'] as $name) {
-            self::assertContains($name, $names);
+            self::assertArrayHasKey($name, $parameters);
         }
     }
 
