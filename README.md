@@ -651,7 +651,8 @@ class MyEventSubscriber implements EventSubscriberInterface
 
 The filters are used with the `#[QueryParameter]` attribute, the legacy `#[ApiFilter]` attribute
 is not supported. The parameter names the property to filter, nested properties, e.g.
-`children.content`, are supported.
+`children.content`, are supported. Without `property`, API Platform uses the key of the parameter
+if it matches a property of the resource.
 
 ### SimpleSearchFilter
 
@@ -690,7 +691,7 @@ other values are searched as strings (`?roles=ROLE_ADMIN`).
 
 ```php
 #[GetCollection(parameters: [
-    'numbers' => new QueryParameter(filter: new ContainsFilter(), property: 'numbers'),
+    'numbers' => new QueryParameter(filter: new ContainsFilter()),
 ])]
 ```
 
