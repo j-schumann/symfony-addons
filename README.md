@@ -911,8 +911,6 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
-* tests for QueryBuilderHelper
-* compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper
 * ContainsFilter: option to match records that contain at least one of the values (OR), like
   the `combination` of the JsonExistsFilter
 * remove the `jsonb` `mapping_types` from the test config when support for doctrine/dbal 4 is

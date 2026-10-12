@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [4.0.0] - TBD
 ### Added
+* `QueryBuilderHelper::getJoinAlias()` and `addJoin()` accept the alias of a joined entity, to join
+  its relations
 * `JsonExistsFilter` supports multiple values (e.g. `?roles[]=ROLE_A&roles[]=ROLE_B`), combined
   with AND (default) or OR, see the new `combination` constructor argument
 

@@ -9,6 +9,7 @@ use Doctrine\ORM\QueryBuilder;
 /**
  * Used to simplify code in ApiPlatform QueryExtensions but may be used in other cases too. Placed
  * in SymfonyAddons instead of DoctrineAddons because of the dependency to the QueryNameGenerator.
+ * API Platform's own ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper is @internal.
  */
 class QueryBuilderHelper
 {
@@ -60,48 +61,41 @@ class QueryBuilderHelper
     }
 
     /**
-     * Returns the alias of the given relation from the queried entity (e.g. "objectRoles" of User).
-     * If the relation is not (yet) joined, NULL is returned. If the relation is not (yet) joined
-     * but autoCreate is TRUE, a new LEFT JOIN is added to the query and the alias returned.
+     * Returns the alias of the given relation (e.g. "objectRoles" of User), of the queried entity or,
+     * if an alias is given, of the entity joined with that alias. If the relation is not (yet)
+     * joined, NULL is returned. If the relation is not (yet) joined but autoCreate is TRUE, a new
+     * LEFT JOIN is added to the query and the alias returned.
      */
-    public function getJoinAlias(string $relation, bool $autoCreate = false): ?string
-    {
-        $rootAlias = $this->getRootAlias();
-        $joinAlias = null;
+    public function getJoinAlias(
+        string $relation,
+        bool $autoCreate = false,
+        ?string $alias = null,
+    ): ?string {
+        $alias ??= $this->getRootAlias();
 
-        // get all current joins
-        $joinDqlPart = $this->queryBuilder->getDQLPart('join');
-
-        foreach ($joinDqlPart as $root => $joins) {
-            if ($root !== $rootAlias) {
-                continue;
-            }
-
+        // the joins are grouped by root alias, also the joins of joined entities
+        foreach ($this->queryBuilder->getDQLPart('join') as $joins) {
             /** @var Join $join */
             foreach ($joins as $join) {
-                if ("$rootAlias.$relation" === $join->getJoin()) {
-                    $joinAlias = $join->getAlias();
-                    break 2;
+                if ("$alias.$relation" === $join->getJoin()) {
+                    return $join->getAlias();
                 }
             }
         }
 
-        if ($autoCreate && !$joinAlias) {
-            return $this->addJoin($relation);
-        }
-
-        return $joinAlias;
+        return $autoCreate ? $this->addJoin($relation, $alias) : null;
     }
 
     /**
-     * Adds a LEFT JOIN to the current query for the given relation and returns the generated alias
-     * for the joined table.
+     * Adds a LEFT JOIN to the current query for the given relation, of the queried entity or, if an
+     * alias is given, of the entity joined with that alias. Returns the generated alias for the
+     * joined table.
      */
-    public function addJoin(string $relation): string
+    public function addJoin(string $relation, ?string $alias = null): string
     {
-        $rootAlias = $this->getRootAlias();
+        $alias ??= $this->getRootAlias();
         $joinAlias = $this->queryNameGenerator->generateJoinAlias($relation);
-        $this->queryBuilder->leftJoin("$rootAlias.$relation", $joinAlias);
+        $this->queryBuilder->leftJoin("$alias.$relation", $joinAlias);
 
         return $joinAlias;
     }
