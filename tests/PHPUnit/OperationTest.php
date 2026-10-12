@@ -25,16 +25,10 @@ final class OperationTest extends ApiPlatformTestCase
             requiredKeys: [
                 'detail',
                 'status',
+                'title',
                 'type',
-
-                // API Platform sets either "title" or "hydra:title", depending on
-                // api_platform.serializer.hydra_prefix
-                // @todo Change when api_platform.serializer.hydra_prefix is set to false
-                'hydra:title',
             ],
-
-            // @todo Change when api_platform.serializer.hydra_prefix is set to false
-            forbiddenKeys: ['hydra:member'],
+            forbiddenKeys: ['member'],
             messageCount: 0,
         );
     }

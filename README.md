@@ -53,18 +53,18 @@ class AuthApiTest extends ApiPlatformTestCase
 {
     public function testAuthRequiresPassword(): void
     {
-        $this->testOperation([
-            'uri'            => '/authentication_token',
-            'method'         => 'POST',
-            'requestOptions' => ['json' => ['username' => 'fakeuser']],
-            'responseCode'   => 400,
-            'contentType'    => 'application/json',
-            'json'           => [
+        $this->testOperation(
+            uri: '/authentication_token',
+            method: 'POST',
+            requestOptions: ['json' => ['username' => 'fakeuser']],
+            responseCode: 400,
+            contentType: 'application/json',
+            json: [
                 'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
                 'title'  => 'An error occurred',
                 'detail' => 'The key "password" must be provided.',
             ],
-        ]);
+        );
     }
 }
 ```
@@ -82,7 +82,7 @@ class AuthApiTest extends ApiPlatformTestCase
 <td>
 
 ```php
-'prepare' => static function (ContainerInterface $container, array &$params): void {
+prepare: static function (ContainerInterface $container, array &$params): void {
       $em = $container->get('doctrine')->getManager();
 
       $log = new ActionLog();
@@ -105,7 +105,7 @@ the URI / endpoint to call
 </td>
 <td>
 
-`'uri' => '/users'`
+`uri: '/users'`
 
 </td>
 </tr>
@@ -120,7 +120,7 @@ determine its IRI, which is then used as URI for the request
 </td>
 <td>
 
-`'iri' => [User::class, [email => 'test@test.de']]`
+`iri: [User::class, ['email' => 'test@test.de']]`
 
 </td>
 </tr>
@@ -133,7 +133,7 @@ Bearer, see "Authentication" below
 </td>
 <td>
 
-`'email' => 'test@test.de'`
+`email: 'test@test.de'`
 
 </td>
 </tr>
@@ -148,7 +148,7 @@ want to supply the token via GET to prevent security issues and as we cannot set
 </td>
 <td>
 
-`'postFormAuth' => 'bearer'`
+`postFormAuth: 'bearer'`
 
 </td>
 </tr>
@@ -163,7 +163,7 @@ automatically set to `application/merge-patch+json` (if not already specified)
 </td>
 <td>
 
-`'method' => 'POST'`
+`method: 'POST'`
 
 </td>
 </tr>
@@ -176,7 +176,7 @@ options for the HTTP client, e.g. query parameters or basic auth
 <td>
 
 ```php
-'requestOptions' => [
+requestOptions: [
   'json' => [
     'username' => 'Peter',
     'email'    => 'peter@example.com',
@@ -207,7 +207,7 @@ the content-type header is automatically set to `multipart/form-data` (if not al
 <td>
 
 ```php
-'files' => [
+files: [
   'picture' => [
     'path'         => '/path/to/file.png',
     'originalName' => 'mypicture.png',
@@ -226,7 +226,7 @@ asserts that the received status code matches
 </td>
 <td>
 
-`'responseCode' => 201`
+`responseCode: 201`
 
 </td>
 </tr>
@@ -238,7 +238,7 @@ asserts that the received content type header matches, a `charset=utf-8` paramet
 </td>
 <td>
 
-`'contentType' => 'application/ld+json'`
+`contentType: 'application/ld+json'`
 
 </td>
 </tr>
@@ -251,7 +251,7 @@ asserts that the returned content is JSON and contains the given array as subset
 <td>
 
 ```php
-'json' => [
+json: [
   'username' => 'Peter',
   'email'    => 'peter@example.com',
 ]
@@ -269,7 +269,7 @@ advance, e.g. ID, slug, timestamps. Can be nested.
 <td>
 
 ```php
-'requiredKeys' => ['hydra:member'][0]['id', '@id']
+requiredKeys: ['member' => [['id', '@id']]]
 ```
 
 </td>
@@ -283,7 +283,7 @@ like requiredKeys, but the dataset may not contain those
 <td>
 
 ```php
-'forbiddenKeys' => ['hydra:member'][0]['password', 'salt']
+forbiddenKeys: ['member' => [['password', 'salt']]]
 ```
 
 </td>
@@ -299,7 +299,7 @@ schema is used.
 <td>
 
 ```php
-'schemaClass' => User::class,
+schemaClass: User::class,
 ```
 
 </td>
@@ -314,7 +314,7 @@ handlers after the operation ran
 <td>
 
 ```php
-'createdLogs'    => [
+createdLogs: [
   ['Failed to validate the provider', Level::Error],
 ],
 ```
@@ -330,7 +330,7 @@ asserts this number of emails to be sent via the mailer after the operation was 
 <td>
 
 ```php
- 'emailCount' => 2,
+emailCount: 2,
 ```
 
 </td>
@@ -344,7 +344,7 @@ asserts this number of messages to be dispatched to the message bus
 <td>
 
 ```php
- 'messageCount' => 2,
+messageCount: 2,
 ```
 
 </td>
@@ -361,7 +361,7 @@ second parameter, to trigger additional assertions for the message.
 <td>
 
 ```php
-'dispatchedMessages' => [
+dispatchedMessages: [
   TenantCreatedMessage::class,
 
   [TenantCreatedMessage::class, function (object $message, array $data): void {
@@ -382,7 +382,7 @@ has been dispatched to Symfony's EventDispatcher.
 <td>
 
 ```php
-'dispatchedEvents' => [
+dispatchedEvents: [
   'kernel.response',
   ProjectPreCreateEvent::class,
 ],
