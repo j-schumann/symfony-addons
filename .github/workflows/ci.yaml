@@ -1,7 +1,10 @@
 name: "Continuous Integration"
 
 on:
+  # pushes to feature branches are covered by their pull requests, running
+  # both would test every commit twice
   push:
+    branches: [ develop, main ]
   pull_request:
   workflow_dispatch:
 
