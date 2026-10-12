@@ -20,6 +20,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   extends Twig's `AbstractExtension`, `getName()` and `getFilters()` are removed. Requires
   `twig/twig` >= 3.21
 
+### Fixed
+* `ContainsFilter` searches values that are no valid JSON as strings, before such values (e.g.
+  `?roles=ROLE_ADMIN` or an empty value) caused a database error
+
 ### Removed
 * Support for API Platform 4, requires API Platform 5
 * Support for doctrine/dbal < 4.5

@@ -50,11 +50,15 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, ManagerRe
         //       Records that "contain one of" the given values instead of "contains all the
         //       values"?
         foreach ((array) $parameter->getValue() as $singleValue) {
+            // @> requires JSON: keep numbers, quoted strings etc., encode plain strings like ROLE_A
+            $json = \is_string($singleValue) && json_validate($singleValue)
+                ? $singleValue
+                : json_encode($singleValue, \JSON_THROW_ON_ERROR);
             $valueParameter = $queryNameGenerator->generateParameterName($field);
 
             $queryBuilder
                 ->andWhere(\sprintf('CONTAINS(%s.%s, :%s) = true', $alias, $field, $valueParameter))
-                ->setParameter($valueParameter, $singleValue);
+                ->setParameter($valueParameter, $json);
         }
     }
 

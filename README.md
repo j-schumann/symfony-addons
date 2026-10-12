@@ -687,7 +687,9 @@ doctrine:
 ### ContainsFilter
 
 Postgres-only: Filters entities by their jsonb fields, if they contain the search parameter, using
-the `@>` operator. For example for filtering for numbers in an array.
+the `@>` operator. For example for filtering for numbers or strings in an array. Values that are
+valid JSON are used as they are (`?numbers=5` finds the number 5, `?roles="5"` the string "5"),
+other values are searched as strings (`?roles=ROLE_ADMIN`).
 
 ```php
 #[GetCollection(parameters: [

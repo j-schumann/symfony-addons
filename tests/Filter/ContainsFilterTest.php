@@ -19,6 +19,16 @@ final class ContainsFilterTest extends ApiPlatformTestCase
         self::assertCount(0, $this->search('?contains=3'));
     }
 
+    public function testFilterWithString(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(1, $this->search('?contains=ROLE_ADMIN'));
+        self::assertCount(1, $this->search('?contains=%22ROLE_ADMIN%22'));
+        self::assertCount(0, $this->search('?contains=ROLE'));
+        self::assertCount(0, $this->search('?contains='));
+    }
+
     public function testFilterMultipleValues(): void
     {
         $this->skipUnlessPostgres();
@@ -32,8 +42,8 @@ final class ContainsFilterTest extends ApiPlatformTestCase
     {
         $this->skipUnlessPostgres();
 
-        self::assertCount(1, $this->search('?childContains=%22CHILD_EINS%22'));
-        self::assertCount(0, $this->search('?childContains=%22CHILD%22'));
+        self::assertCount(1, $this->search('?childContains=CHILD_EINS'));
+        self::assertCount(0, $this->search('?childContains=CHILD'));
     }
 
     public function testFilterIgnoresUnmappedProperty(): void
