@@ -46,6 +46,11 @@ framework:
 doctrine:
   dbal:
     url: '%env(resolve:DATABASE_URL)%'
+    # DBAL 4 maps jsonb columns to the json type with the deprecated "jsonb" platform option when it
+    # reads the schema, e.g. for updateSchema()
+    # @todo remove when support for DBAL 4 is dropped, DBAL 5 maps them to the jsonb type
+    mapping_types:
+      jsonb: jsonb
   orm:
     mappings:
       Fixtures:

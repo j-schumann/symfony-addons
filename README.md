@@ -962,6 +962,8 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * tests for NamedArgumentsFromArrayRector
 * tests for WrapNamedMethodArgumentsFixer
 * compare code to ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper
+* remove the `jsonb` `mapping_types` from the test config when support for doctrine/dbal 4 is
+  dropped, DBAL 5 maps jsonb columns to the jsonb type itself
 
 #### Next Major
 * check: change user login, how does APIP handle it?
