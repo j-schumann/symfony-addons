@@ -6,7 +6,6 @@ use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
 use ApiPlatform\Doctrine\Common\Filter\ManagerRegistryAwareInterface;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
@@ -39,11 +38,6 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, ManagerRe
             return;
         }
 
-        $value = $this->normalizeValue($parameter->getValue(), $property);
-        if (null === $value) {
-            return;
-        }
-
         $alias = $queryBuilder->getRootAliases()[0];
         $field = $property;
 
@@ -55,26 +49,13 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, ManagerRe
         //       to give the array directly to the @> operator? Also, is it possible to filter for
         //       Records that "contain one of" the given values instead of "contains all the
         //       values"?
-        foreach ((array) $value as $singleValue) {
+        foreach ((array) $parameter->getValue() as $singleValue) {
             $valueParameter = $queryNameGenerator->generateParameterName($field);
 
             $queryBuilder
                 ->andWhere(\sprintf('CONTAINS(%s.%s, :%s) = true', $alias, $field, $valueParameter))
                 ->setParameter($valueParameter, $singleValue);
         }
-    }
-
-    protected function normalizeValue(mixed $value, string $property): mixed
-    {
-        if (null === $value) {
-            $this->getLogger()->notice('Invalid filter ignored', [
-                'exception' => new InvalidArgumentException(\sprintf('A value is required for %1$s', $property)),
-            ]);
-
-            return null;
-        }
-
-        return $value;
     }
 
     public function getOpenApiParameters(Parameter $parameter): OpenApiParameter|array|null

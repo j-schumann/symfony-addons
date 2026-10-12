@@ -120,16 +120,6 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, Manager
      */
     protected function normalizeValue(mixed $value, string $property): mixed
     {
-        if (null === $value) {
-            $this->getLogger()->notice('Invalid filter ignored', [
-                'exception' => new InvalidArgumentException(
-                    \sprintf('A value is required for %1$s', $property)
-                ),
-            ]);
-
-            return null;
-        }
-
         if (\is_scalar($value)) {
             return [(string) $value];
         }

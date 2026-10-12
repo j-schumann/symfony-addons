@@ -94,10 +94,6 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, Manag
      */
     private function isValidValue(mixed $value, string $parameterName): bool
     {
-        if (null === $value) {
-            return false;
-        }
-
         if (!\is_scalar($value)) {
             $this->getLogger()->notice('Invalid filter ignored', [
                 'exception' => new InvalidArgumentException(\sprintf('Invalid value for "%s" parameter, only a single search term is supported', $parameterName)),

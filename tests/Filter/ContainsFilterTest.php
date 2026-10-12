@@ -28,6 +28,14 @@ final class ContainsFilterTest extends ApiPlatformTestCase
         self::assertCount(0, $this->search('?contains[]=2&contains[]=5'));
     }
 
+    public function testFilterNestedProperty(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(1, $this->search('?childContains=%22CHILD_EINS%22'));
+        self::assertCount(0, $this->search('?childContains=%22CHILD%22'));
+    }
+
     public function testFilterIgnoresUnmappedProperty(): void
     {
         self::assertCount(2, $this->search('?containsUnmapped=5'));

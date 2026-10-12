@@ -42,6 +42,14 @@ final class JsonExistsFilterTest extends ApiPlatformTestCase
         self::assertCount(1, $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_NONE'));
     }
 
+    public function testFilterNestedProperty(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(1, $this->search('?childHasKey=CHILD_ZWEI'));
+        self::assertCount(0, $this->search('?childHasKey=CHILD'));
+    }
+
     public function testFilterIgnoresNestedValues(): void
     {
         $result = $this->search(

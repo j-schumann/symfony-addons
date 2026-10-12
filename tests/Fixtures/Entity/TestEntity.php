@@ -59,6 +59,14 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                     filter: new JsonExistsFilter(),
                     property: 'jsonColumn',
                 ),
+                'childContains'    => new QueryParameter(
+                    filter: new ContainsFilter(),
+                    property: 'children.jsonColumn',
+                ),
+                'childHasKey'      => new QueryParameter(
+                    filter: new JsonExistsFilter(),
+                    property: 'children.jsonColumn',
+                ),
             ],
         ),
     ],
