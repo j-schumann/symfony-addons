@@ -4,117 +4,68 @@
 
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
-use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\QueryParameter;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ManagerRegistry;
-use Monolog\Handler\TestHandler;
-use Monolog\Logger;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Monolog\Level;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
-use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
+use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
+use Vrok\SymfonyAddons\Tests\Helpers\FilterRequestTrait;
 
-final class JsonExistsFilterTest extends KernelTestCase
+final class JsonExistsFilterTest extends ApiPlatformTestCase
 {
-    public function testApply(): void
-    {
-        $qb = $this->applyFilter(new JsonExistsFilter($this->getDoctrine()), 'testVal');
+    use FilterRequestTrait;
 
-        self::assertSame(['testVal'], $qb->getParameter('jsonColumn_p1')?->getValue());
-        self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
-        );
+    public function testFilter(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(1, $this->search('?hasKey=ROLE_ADMIN'));
+        self::assertCount(1, $this->search('?hasKey=ROLE_ADMIN_BLOG'));
+        self::assertCount(0, $this->search('?hasKey=ROLE'));
     }
 
-    public function testApplyMultipleValuesWithOr(): void
+    public function testFilterMultipleValuesWithAndByDefault(): void
     {
-        $filter = new JsonExistsFilter($this->getDoctrine(), combination: JsonExistsFilter::OR);
-        $qb = $this->applyFilter($filter, ['ROLE_A', 'ROLE_B', 'ROLE_A']);
+        $this->skipUnlessPostgres();
 
-        self::assertSame(['ROLE_A', 'ROLE_B'], $qb->getParameter('jsonColumn_p1')?->getValue());
-        self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_ANY_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
-        );
+        self::assertCount(1, $this->search('?hasKey[]=ROLE_ADMIN&hasKey[]=ROLE_EDITOR'));
+        self::assertCount(0, $this->search('?hasKey[]=ROLE_ADMIN&hasKey[]=ROLE_ADMIN_BLOG'));
+
+        // duplicates are ignored
+        self::assertCount(1, $this->search('?hasKey[]=ROLE_ADMIN&hasKey[]=ROLE_ADMIN'));
     }
 
-    public function testApplyMultipleValuesWithAndByDefault(): void
+    public function testFilterMultipleValuesWithOr(): void
     {
-        $qb = $this->applyFilter(new JsonExistsFilter($this->getDoctrine()), ['ROLE_A', 'ROLE_B']);
+        $this->skipUnlessPostgres();
 
-        self::assertSame(['ROLE_A', 'ROLE_B'], $qb->getParameter('jsonColumn_p1')?->getValue());
-        self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
-        );
+        self::assertCount(2, $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_ADMIN_BLOG'));
+        self::assertCount(1, $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_NONE'));
     }
 
-    public function testApplySingleValueArray(): void
+    public function testFilterIgnoresNestedValues(): void
     {
-        $qb = $this->applyFilter(new JsonExistsFilter($this->getDoctrine()), ['ROLE_A']);
-
-        self::assertSame(['ROLE_A'], $qb->getParameter('jsonColumn_p1')?->getValue());
-        self::assertStringContainsString(
-            'WHERE JSON_CONTAINS_ALL_TEXT(o.jsonColumn, :jsonColumn_p1) = true',
-            (string) $qb
+        $result = $this->search(
+            '?hasKey[0][]=ROLE_ADMIN',
+            [['Invalid filter ignored', Level::Notice]]
         );
+
+        self::assertCount(2, $result);
     }
 
-    public function testApplyIgnoresInvalidValues(): void
+    public function testParametersAreDocumented(): void
     {
-        foreach ([[], [['nested']], null] as $value) {
-            $logHandler = new TestHandler();
-            $filter = new JsonExistsFilter($this->getDoctrine(), new Logger('test', [$logHandler]));
-            $qb = $this->applyFilter($filter, $value);
+        $names = $this->getOpenApiParameterNames();
 
-            self::assertStringNotContainsString('WHERE', (string) $qb);
-            self::assertTrue($logHandler->hasNotice('Invalid filter ignored'));
+        foreach (['hasAnyKey', 'hasAnyKey[]', 'hasKey', 'hasKey[]'] as $name) {
+            self::assertContains($name, $names);
         }
     }
 
-    public function testApplyIgnoresContextWithoutParameter(): void
-    {
-        /** @var QueryBuilder $qb */
-        $qb = $this->getDoctrine()->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        // the context of the removed #[ApiFilter] support
-        new JsonExistsFilter($this->getDoctrine())->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'filters' => ['jsonColumn' => 'testVal'],
-        ]);
-
-        self::assertStringNotContainsString('WHERE', (string) $qb);
-    }
-
-    public function testRejectsInvalidCombination(): void
+    public function testConstructFailsWithInvalidCombination(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageIsOrContains('Invalid "combination" parameter "xor"');
 
         new JsonExistsFilter(combination: 'xor');
-    }
-
-    private function getDoctrine(): ManagerRegistry
-    {
-        return self::getContainer()->get('doctrine');
-    }
-
-    private function applyFilter(JsonExistsFilter $filter, mixed $value): QueryBuilder
-    {
-        /** @var QueryBuilder $qb */
-        $qb = $this->getDoctrine()->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-
-        $parameter = new QueryParameter(key: 'hasKey', property: 'jsonColumn');
-        $parameter->setValue($value);
-
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'parameter' => $parameter,
-        ]);
-
-        return $qb;
     }
 }

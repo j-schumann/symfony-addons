@@ -43,6 +43,10 @@ framework:
           from: reviewed
           to: published
 
+services:
+  Vrok\SymfonyAddons\Tests\Fixtures\TestFixtures:
+    autoconfigure: true
+
 doctrine:
   dbal:
     url: '%env(resolve:DATABASE_URL)%'

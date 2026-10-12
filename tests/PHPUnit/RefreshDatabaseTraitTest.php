@@ -25,6 +25,12 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
+    public static function setUpBeforeClass(): void
+    {
+        // the tests count the records they created themselves
+        self::$fixtureGroups = [];
+    }
+
     #[Env('DB_CLEANUP_METHOD', 'purge')]
     public function testCleanupWithPurge(): void
     {

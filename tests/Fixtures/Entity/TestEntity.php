@@ -19,29 +19,43 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
             normalizationContext: ['groups' => ['none']],
             parameters: [
                 // the parameter names the properties to search
-                'pattern'   => new QueryParameter(
+                'pattern'          => new QueryParameter(
                     filter: new SimpleSearchFilter(),
                     properties: ['textColumn', 'varcharColumn'],
                 ),
                 // the filter names the properties to search
-                'search'    => new QueryParameter(
+                'search'           => new QueryParameter(
                     filter: new SimpleSearchFilter(properties: ['varcharColumn' => null]),
                 ),
                 // nested property
-                'childName' => new QueryParameter(
+                'childName'        => new QueryParameter(
                     filter: new SimpleSearchFilter(),
                     properties: ['children.varcharColumn'],
                 ),
+                // JSON is cast to text on Postgres
+                'jsonSearch'       => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['jsonColumn'],
+                ),
+                // unmapped properties are skipped
+                'searchUnmapped'   => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['unknownColumn', 'varcharColumn'],
+                ),
+                'containsUnmapped' => new QueryParameter(
+                    filter: new ContainsFilter(),
+                    property: 'unknownColumn',
+                ),
                 // Postgres only
-                'contains'  => new QueryParameter(
+                'contains'         => new QueryParameter(
                     filter: new ContainsFilter(),
                     property: 'jsonColumn',
                 ),
-                'hasAnyKey' => new QueryParameter(
+                'hasAnyKey'        => new QueryParameter(
                     filter: new JsonExistsFilter(combination: JsonExistsFilter::OR),
                     property: 'jsonColumn',
                 ),
-                'hasKey'    => new QueryParameter(
+                'hasKey'           => new QueryParameter(
                     filter: new JsonExistsFilter(),
                     property: 'jsonColumn',
                 ),

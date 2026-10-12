@@ -4,276 +4,63 @@
 
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
-use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\QueryParameter;
-use ApiPlatform\Test\ApiTestCase;
-use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\Persistence\ManagerRegistry;
-use Monolog\Handler\TestHandler;
-use Monolog\Logger;
-use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
-use Vrok\SymfonyAddons\Tests\Fixtures\Entity\Child;
-use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
+use Monolog\Level;
+use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
+use Vrok\SymfonyAddons\Tests\Helpers\FilterRequestTrait;
 
-final class SimpleSearchFilterTest extends ApiTestCase
+final class SimpleSearchFilterTest extends ApiPlatformTestCase
 {
-    public function testApply(): void
+    use FilterRequestTrait;
+
+    public function testSearch(): void
     {
-        $qb = $this->applyFilter(new SimpleSearchFilter($this->getDoctrine()), ['jsonColumn'], 'testVal');
-
-        // lower-cased and wildcards added
-        self::assertSame('%testval%', $qb->getParameter('pattern_p1')?->getValue());
-
-        $dql = $this->isPostgres()
-            ? "WHERE (LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)"
-            : 'WHERE (LOWER(o.jsonColumn) LIKE :pattern_p1)';
-        self::assertStringContainsString($dql, (string) $qb);
+        self::assertCount(2, $this->search('?pattern=RECORD'));
+        self::assertCount(1, $this->search('?pattern=zwei%20text'));
+        self::assertCount(1, $this->search('?pattern=eins%20varchar'));
+        self::assertCount(0, $this->search('?pattern=drei'));
     }
 
-    public function testApplyWithMultipleProperties(): void
+    public function testSearchWithFilterProperties(): void
     {
-        $qb = $this->applyFilter(
-            new SimpleSearchFilter($this->getDoctrine()),
-            ['id', 'jsonColumn'],
-            'testVal'
-        );
+        self::assertCount(1, $this->search('?search=eins%20varchar'));
 
-        $dql = $this->isPostgres()
-            ? "WHERE (LOWER(o.id) LIKE :pattern_p1 OR LOWER(CAST(o.jsonColumn, 'text')) LIKE :pattern_p1)"
-            : 'WHERE (LOWER(o.id) LIKE :pattern_p1 OR LOWER(o.jsonColumn) LIKE :pattern_p1)';
-        self::assertStringContainsString($dql, (string) $qb);
+        // textColumn is not searched
+        self::assertCount(0, $this->search('?search=eins%20text'));
     }
 
-    public function testApplyWithFilterProperties(): void
+    public function testSearchWithNestedProperty(): void
     {
-        $filter = new SimpleSearchFilter($this->getDoctrine(), properties: ['varcharColumn' => null]);
-        $qb = $this->applyFilter($filter, null, 'testVal');
-
-        self::assertStringContainsString('WHERE (LOWER(o.varcharColumn) LIKE :pattern_p1)', (string) $qb);
-    }
-
-    public function testApplyIgnoresUnmappedProperty(): void
-    {
-        $qb = $this->applyFilter(new SimpleSearchFilter($this->getDoctrine()), ['unknown'], 'testVal');
-
-        self::assertStringNotContainsString('WHERE', (string) $qb);
-    }
-
-    public function testApplyIgnoresArrayValue(): void
-    {
-        $logHandler = new TestHandler();
-        $filter = new SimpleSearchFilter($this->getDoctrine(), new Logger('test', [$logHandler]));
-        $qb = $this->applyFilter($filter, ['textColumn'], ['testVal']);
-
-        self::assertStringNotContainsString('WHERE', (string) $qb);
-        self::assertTrue($logHandler->hasNotice('Invalid filter ignored'));
-    }
-
-    public function testApplyIgnoresContextWithoutParameter(): void
-    {
-        $filter = new SimpleSearchFilter($this->getDoctrine(), properties: ['varcharColumn' => null]);
-        $qb = $this->createQueryBuilder();
-
-        // the context of the removed #[ApiFilter] support
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'filters' => ['pattern' => 'testVal'],
-        ]);
-
-        self::assertStringNotContainsString('WHERE', (string) $qb);
-    }
-
-    public function testSearchInTextColumn(): void
-    {
-        $this->setupSchema();
-
-        /** @var ManagerRegistry $doctrine */
-        $doctrine =  self::getContainer()->get('doctrine');
-        $em = $doctrine->getManager();
-
-        $rec1 = new TestEntity();
-        $rec1->textColumn = 'record EINS text';
-        $rec1->varcharColumn = 'record EINS varchar';
-
-        $em->persist($rec1);
-
-        $rec2 = new TestEntity();
-        $rec2->textColumn = 'record ZWEI text';
-        $rec2->varcharColumn = 'record ZWEI varchar';
-
-        $em->persist($rec2);
-        $em->flush();
-
-        $qb = $this->applyFilter(
-            new SimpleSearchFilter($doctrine),
-            ['textColumn', 'varcharColumn'],
-            'eins TEXT'
-        );
-
-        $result = $qb->getQuery()->getResult();
-        self::assertCount(1, $result);
-        self::assertInstanceOf(TestEntity::class, $result[0]);
-        self::assertSame('record EINS text', $result[0]->textColumn);
-    }
-
-    public function testSearchInVarcharColumn(): void
-    {
-        $this->setupSchema();
-
-        /** @var ManagerRegistry $doctrine */
-        $doctrine =  self::getContainer()->get('doctrine');
-        $em = $doctrine->getManager();
-
-        $rec1 = new TestEntity();
-        $rec1->textColumn = 'record EINS text';
-        $rec1->varcharColumn = 'record EINS varchar';
-
-        $em->persist($rec1);
-
-        $rec2 = new TestEntity();
-        $rec2->textColumn = 'record ZWEI text';
-        $rec2->varcharColumn = 'record ZWEI varchar';
-
-        $em->persist($rec2);
-        $em->flush();
-
-        $qb = $this->applyFilter(
-            new SimpleSearchFilter($doctrine),
-            ['textColumn', 'varcharColumn'],
-            'zwei VAR'
-        );
-
-        $result = $qb->getQuery()->getResult();
-        self::assertCount(1, $result);
-        self::assertInstanceOf(TestEntity::class, $result[0]);
-        self::assertSame('record ZWEI text', $result[0]->textColumn);
+        self::assertCount(2, $this->search('?childName=child'));
+        self::assertCount(1, $this->search('?childName=zwei'));
     }
 
     public function testSearchInJsonColumn(): void
     {
-        $this->setupSchema();
+        self::assertCount(2, $this->search('?jsonSearch=role_admin'));
+        self::assertCount(1, $this->search('?jsonSearch=ADMIN_BLOG'));
+    }
 
-        /** @var ManagerRegistry $doctrine */
-        $doctrine =  self::getContainer()->get('doctrine');
-        $em = $doctrine->getManager();
+    public function testSearchSkipsUnmappedProperty(): void
+    {
+        self::assertCount(1, $this->search('?searchUnmapped=eins'));
+    }
 
-        $rec1 = new TestEntity();
-        $rec1->jsonColumn = ['record EINS json'];
-
-        $em->persist($rec1);
-
-        $rec2 = new TestEntity();
-        $rec2->jsonColumn = ['record ZWEI json'];
-
-        $em->persist($rec2);
-        $em->flush();
-
-        $qb = $this->applyFilter(
-            new SimpleSearchFilter($doctrine),
-            ['jsonColumn'],
-            'zwei JS'
+    public function testSearchIgnoresArrayValue(): void
+    {
+        $result = $this->search(
+            '?pattern[]=eins',
+            [['Invalid filter ignored', Level::Notice]]
         );
 
-        $result = $qb->getQuery()->getResult();
-        self::assertCount(1, $result);
-        self::assertInstanceOf(TestEntity::class, $result[0]);
-        self::assertSame(['record ZWEI json'], $result[0]->jsonColumn);
+        self::assertCount(2, $result);
     }
 
-    public function testSearchInAssociation(): void
+    public function testParametersAreDocumented(): void
     {
-        $this->setupSchema();
+        $names = $this->getOpenApiParameterNames();
 
-        /** @var ManagerRegistry $doctrine */
-        $doctrine =  self::getContainer()->get('doctrine');
-        $em = $doctrine->getManager();
-
-        $rec1 = new TestEntity();
-        $rec1->textColumn = 'record EINS text';
-        $rec1->varcharColumn = 'record EINS varchar';
-
-        $em->persist($rec1);
-
-        $child1 = new Child();
-        $child1->varcharColumn = 'child EINS varchar';
-        $child1->testEntity = $rec1;
-
-        $rec1->children->add($child1);
-
-        $rec2 = new TestEntity();
-        $rec2->textColumn = 'record ZWEI text';
-        $rec2->varcharColumn = 'record ZWEI varchar';
-
-        $em->persist($rec2);
-
-        $child2 = new Child();
-        $child2->varcharColumn = 'child ZWEI varchar';
-        $child2->testEntity = $rec2;
-
-        $rec2->children->add($child2);
-
-        $em->flush();
-        $em->clear();
-
-        $qb = $this->applyFilter(
-            new SimpleSearchFilter($doctrine),
-            ['children.varcharColumn'],
-            'ILD zwei'
-        );
-
-        $result = $qb->getQuery()->getResult();
-        self::assertCount(1, $result);
-        self::assertInstanceOf(TestEntity::class, $result[0]);
-        self::assertSame('record ZWEI text', $result[0]->textColumn);
-    }
-
-    private function getDoctrine(): ManagerRegistry
-    {
-        return self::getContainer()->get('doctrine');
-    }
-
-    private function isPostgres(): bool
-    {
-        return $this->getDoctrine()->getConnection()->getDatabasePlatform() instanceof PostgreSQLPlatform;
-    }
-
-    private function createQueryBuilder(): QueryBuilder
-    {
-        return $this->getDoctrine()->getManager()->getRepository(TestEntity::class)
-            ->createQueryBuilder('o');
-    }
-
-    /**
-     * @param list<string>|null $properties
-     */
-    private function applyFilter(SimpleSearchFilter $filter, ?array $properties, mixed $value): QueryBuilder
-    {
-        $parameter = new QueryParameter(key: 'pattern', properties: $properties);
-        $parameter->setValue($value);
-
-        $qb = $this->createQueryBuilder();
-
-        $filter->apply($qb, new QueryNameGenerator(), TestEntity::class, new Get(), [
-            'parameter' => $parameter,
-        ]);
-
-        return $qb;
-    }
-
-    private function setupSchema(): void
-    {
-        /** @var ManagerRegistry $doctrine */
-        $doctrine =  self::getContainer()->get('doctrine');
-        $em = $doctrine->getManager();
-
-        $tool = new SchemaTool($em);
-        $classes = [
-            $em->getClassMetadata(TestEntity::class),
-            $em->getClassMetadata(Child::class),
-        ];
-        $tool->dropSchema($classes);
-        $tool->createSchema($classes);
+        foreach (['childName', 'pattern', 'search'] as $name) {
+            self::assertContains($name, $names);
+        }
     }
 }
