@@ -37,6 +37,24 @@ All BC breaks are explained in UPGRADE.md.
 * `AutoSenderSubscriber`
 * `ResetLoggerSubscriber`
 
+## [3.8.0] - 2026-10-12
+### Deprecated
+Everything listed here is removed in 4.0, see its UPGRADE.md for the replacements.
+* Support for API Platform 4 and doctrine/dbal < 4.5
+* Using `SimpleSearchFilter`, `ContainsFilter` and `JsonExistsFilter` with the `#[ApiFilter]`
+  attribute, use `#[QueryParameter]`
+* The `properties` constructor argument of these filters, name the properties with the
+  `#[QueryParameter]`. Also their `managerRegistry`, `logger` and `nameConverter` arguments,
+  API Platform sets these
+* The `searchParameterName` constructor argument of `SimpleSearchFilter`, the key of the
+  `#[QueryParameter]` names the search parameter
+* `ApiPlatformTestCase::testOperation()` ignoring a `charset` when comparing the `contentType`
+* The internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase`
+* `FormatBytesExtension` extending Twig's `AbstractExtension`, it moves to
+  `Vrok\SymfonyAddons\Twig\FormatBytesExtension` in 4.0
+* `AutoSenderSubscriber`, use the `framework.mailer.headers` config
+* `ResetLoggerSubscriber`, Messenger's `ResetServicesListener` resets the loggers after each message
+
 ## [3.7.0] - 2026-10-09
 ### Added
 * Support for API Platform 5
