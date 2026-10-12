@@ -5,7 +5,6 @@ namespace Vrok\SymfonyAddons\Rector;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
@@ -158,7 +157,7 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         $methodName = $methodCall->name->toString();
 
         foreach ($this->targets as $target) {
-            if (\is_array($target) && 2 === \count($target)) {
+            if (\is_array($target)) {
                 [$targetClass, $targetMethod] = $target;
 
                 if (
@@ -182,7 +181,7 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         $methodName = $staticCall->name->toString();
 
         foreach ($this->targets as $target) {
-            if (\is_array($target) && 2 === \count($target)) {
+            if (\is_array($target)) {
                 [$targetClass, $targetMethod] = $target;
 
                 if (
@@ -200,10 +199,6 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
     private function isAssociativeArray(Array_ $array): bool
     {
         foreach ($array->items as $item) {
-            if (!$item instanceof ArrayItem) {
-                continue;
-            }
-
             if (null === $item->key) {
                 return false;
             }
@@ -224,7 +219,7 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         $namedArgs = [];
 
         foreach ($array->items as $item) {
-            if (!$item instanceof ArrayItem || !$item->key instanceof String_) {
+            if (!$item->key instanceof String_) {
                 continue;
             }
 

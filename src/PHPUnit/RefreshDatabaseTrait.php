@@ -140,7 +140,9 @@ trait RefreshDatabaseTrait
                 $purgeWithDelete = $platform instanceof SQLServerPlatform
                     || ($isMysql && 'truncate' !== $purgeMode);
                 if ($purgeWithDelete) {
-                    $executor->getPurger()->setPurgeMode(ORMPurger::PURGE_MODE_DELETE);
+                    $purger = $executor->getPurger();
+                    \assert($purger instanceof ORMPurger);
+                    $purger->setPurgeMode(ORMPurger::PURGE_MODE_DELETE);
                 }
 
                 // Purge even when no fixtures are defined, e.g., for tests that require an empty
@@ -184,6 +186,7 @@ trait RefreshDatabaseTrait
 
     protected static function ensureKernelTestCase(): void
     {
+        // @phpstan-ignore function.alreadyNarrowedType (always true in the ApiPlatformTestCase, but the trait can be used elsewhere)
         if (!is_a(static::class, KernelTestCase::class, true)) {
             throw new \LogicException(\sprintf('The test class must extend "%s" to use "%s".', KernelTestCase::class, static::class));
         }
@@ -202,7 +205,8 @@ trait RefreshDatabaseTrait
         bool $drop = false,
     ): void {
         $connection = $em->getConnection();
-        $params = $params['primary'] ?? $connection->getParams();
+        $params = $connection->getParams();
+        $params = $params['primary'] ?? $params;
 
         // name will already contain the dbname_suffix (and the TEST_TOKEN) if any is configured
         $dbName = $params['path'] ?? $params['dbname'] ?? false;
@@ -213,6 +217,7 @@ trait RefreshDatabaseTrait
         unset($params['dbname'], $params['path']);
         $platform = $connection->getDatabasePlatform();
         if ($platform instanceof PostgreSQLPlatform) {
+            // @phpstan-ignore nullCoalesce.offset (the doctrine-bundle passes its default_dbname option, DBAL's type omits it)
             $params['dbname'] = $params['default_dbname'] ?? 'postgres';
         } elseif ($platform instanceof AbstractMySQLPlatform) {
             // DBAL requires a database to introspect the database names on MySQL/MariaDB
@@ -264,7 +269,7 @@ trait RefreshDatabaseTrait
 
         // Create the database only if it doesn't already exist. Skip for SQLite as it creates
         // database files automatically and this call would throw an exception.
-        if (!$dbExists && !$schemaManager instanceof SQLiteSchemaManager) {
+        if (!$dbExists) {
             $schemaManager->createDatabase($dbName);
         }
 
@@ -431,9 +436,7 @@ trait RefreshDatabaseTrait
         $tables = [];
 
         foreach ($em->getMetadataFactory()->getAllMetadata() as $meta) {
-            if ($meta->isMappedSuperclass
-                || (isset($meta->isEmbeddedClass) && $meta->isEmbeddedClass)
-            ) {
+            if ($meta->isMappedSuperclass || $meta->isEmbeddedClass) {
                 continue;
             }
 

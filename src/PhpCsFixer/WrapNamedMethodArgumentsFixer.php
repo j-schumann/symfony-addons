@@ -108,7 +108,7 @@ $this->method(arg1: $value1, arg2: $value2);',
             }
 
             $closeParenIndex = $tokens->findBlockEnd(
-                Tokens::BLOCK_TYPE_PARENTHESIS_BRACE,
+                Tokens::BLOCK_TYPE_PARENTHESIS,
                 $openParenIndex
             );
 
@@ -139,8 +139,8 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token>      $tokens
-     * @param bool|int|list<int> $topLevelCommas
+     * @param Tokens<Token> $tokens
+     * @param list<int>     $topLevelCommas
      */
     private function areArgumentsAlreadyFormatted(Tokens $tokens, int $openParenIndex, int $closeParenIndex, array $topLevelCommas): bool
     {
@@ -254,14 +254,8 @@ $this->method(arg1: $value1, arg2: $value2);',
             }
         }
 
-        // Count spaces - find the smallest non-zero indentation
+        // Count spaces - find the smallest indentation
         $spaceCounts = array_map(strlen(...), $indentations);
-        $spaceCounts = array_filter($spaceCounts, static fn ($count) => $count > 0);
-
-        if ([] === $spaceCounts) {
-            return '    '; // Default to 4 spaces
-        }
-
         $minSpaces = min($spaceCounts);
 
         return str_repeat(' ', $minSpaces);
@@ -340,8 +334,8 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token>      $tokens
-     * @param bool|int|list<int> $topLevelCommas
+     * @param Tokens<Token> $tokens
+     * @param list<int>     $topLevelCommas
      */
     private function addNewlinesAfterCommas(Tokens $tokens, array $topLevelCommas, string $argumentIndent): void
     {
