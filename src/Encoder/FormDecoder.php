@@ -17,6 +17,11 @@ readonly class FormDecoder implements DecoderInterface
     {
     }
 
+    /**
+     * @param array<string, mixed> $context
+     *
+     * @return array<string, mixed>|null
+     */
     public function decode(string $data, string $format, array $context = []): ?array
     {
         $request = $this->requestStack->getCurrentRequest();
@@ -28,6 +33,9 @@ readonly class FormDecoder implements DecoderInterface
         return $request->request->all();
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function supportsDecoding(string $format, array $context = []): bool
     {
         return self::FORMAT === $format;

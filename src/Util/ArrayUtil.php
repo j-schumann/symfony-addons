@@ -21,7 +21,9 @@ class ArrayUtil
      * ApiPlatformTestCase::assertDatasetHasKeys, so we can combine different
      * lists of (nested) keys that should be present in a response.
      *
-     * @param ...$args 2 or more arrays to merge
+     * @param array<mixed> ...$args 2 or more arrays to merge
+     *
+     * @return array<mixed>
      */
     public static function mergeValues(array ...$args): array
     {
@@ -55,6 +57,8 @@ class ArrayUtil
 
     /**
      * Returns true if the given array has duplicate values, else false.
+     *
+     * @param array<mixed> $array
      */
     public static function hasDuplicates(array $array): bool
     {

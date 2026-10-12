@@ -33,6 +33,9 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
         'jsonb_object',
     ];
 
+    /**
+     * @param array<string, mixed> $context
+     */
     protected function filterParameter(
         Parameter $parameter,
         QueryBuilder $queryBuilder,
@@ -49,7 +52,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
         $isPostgres = $queryBuilder->getEntityManager()->getConnection()->getDatabasePlatform()
             instanceof PostgreSQLPlatform;
         $nestedPropertiesInfo = $parameter->getExtraProperties()['nested_properties_info'] ?? [];
-        $parameterName = $queryNameGenerator->generateParameterName($parameter->getKey());
+        $parameterName = $queryNameGenerator->generateParameterName($parameter->getKey() ?? '');
 
         $orExp = $queryBuilder->expr()->orX();
         foreach ($parameter->getProperties() ?? [] as $property) {
@@ -100,6 +103,6 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
 
     public function getOpenApiParameters(Parameter $parameter): OpenApiParameter|array|null
     {
-        return new OpenApiParameter($parameter->getKey(), 'query');
+        return new OpenApiParameter($parameter->getKey() ?? '', 'query');
     }
 }

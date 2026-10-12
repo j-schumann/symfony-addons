@@ -14,7 +14,8 @@ abstract class WorkflowHelper
      * Returns a list of transitions that are (theoretically) possible from the current state of the
      * given object, together with a list of blockers if there are any.
      *
-     * @return array [transitionName => ['blockers' => [code => message]]]
+     * @return array<string, array{blockers: array<string, string>}> transitionName =>
+     *                                                               ['blockers' => [code => message]]
      */
     public static function getTransitionList(object $object, WorkflowInterface $workflow): array
     {

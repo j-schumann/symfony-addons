@@ -31,6 +31,9 @@ class PropertyMarkingStore implements MarkingStoreInterface
         return new Marking($marking);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function setMarking(object $subject, Marking $marking, array $context = []): void
     {
         $newValue = $marking->getPlaces();

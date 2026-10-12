@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  */
 class AtLeastOneOfValidator extends ConstraintValidator
 {
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof AtLeastOneOf) {
             throw new UnexpectedTypeException($constraint, AtLeastOneOf::class);
@@ -22,7 +22,9 @@ class AtLeastOneOfValidator extends ConstraintValidator
 
         $lastMessage = '';
 
-        foreach ($constraint->constraints as $item) {
+        /** @var Constraint[] $constraints normalized to an array by the Composite constructor */
+        $constraints = $constraint->constraints;
+        foreach ($constraints as $item) {
             $executionContext = clone $this->context;
             $executionContext->setNode($value, $this->context->getObject(), $this->context->getMetadata(), $this->context->getPropertyPath());
             $violations = $validator->inContext($executionContext)->validate($value, $item, $this->context->getGroup())->getViolations();

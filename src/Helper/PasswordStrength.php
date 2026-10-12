@@ -43,6 +43,8 @@ class PasswordStrength
 
     /**
      * Allows to set the threshold values for each rating.
+     *
+     * @param array<string, int> $thresholds
      */
     public function setThresholds(array $thresholds): self
     {

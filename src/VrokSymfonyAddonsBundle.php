@@ -8,6 +8,9 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 class VrokSymfonyAddonsBundle extends AbstractBundle
 {
+    /**
+     * @param array<string, mixed> $config
+     */
     public function loadExtension(
         array $config,
         ContainerConfigurator $container,

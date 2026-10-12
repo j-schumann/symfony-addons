@@ -12,6 +12,9 @@ use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
+/**
+ * @implements ConfigurableFixerInterface<array{max_arguments?: int}, array{max_arguments: int}>
+ */
 final class WrapNamedMethodArgumentsFixer implements FixerInterface, ConfigurableFixerInterface
 {
     private const int DEFAULT_MAX_ARGUMENTS = 3;
@@ -262,8 +265,8 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param  Tokens<Token>                     $tokens
-     * @return array<string, bool|int|list<int>>
+     * @param  Tokens<Token>                                                            $tokens
+     * @return array{argumentCount: int, hasNamedArgs: bool, topLevelCommas: list<int>}
      */
     private function analyzeArguments(
         Tokens $tokens,

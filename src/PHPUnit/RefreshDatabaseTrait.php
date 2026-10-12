@@ -2,7 +2,9 @@
 
 namespace Vrok\SymfonyAddons\PHPUnit;
 
+use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
+use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
@@ -16,6 +18,7 @@ use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -53,17 +56,19 @@ trait RefreshDatabaseTrait
     private const array PURGE_MODES = ['delete', 'truncate'];
 
     /**
-     * @var array fixture group(s) to apply
+     * @var array<string> fixture group(s) to apply
      */
     protected static array $fixtureGroups = ['test'];
 
     /**
-     * @var array|null fixture cache
+     * @var array<FixtureInterface>|null fixture cache
      */
     protected static ?array $fixtures = null;
 
     /**
-     * @var array|null cache for the tables that have an auto-increment column
+     * Cache for the tables that have an auto-increment column.
+     *
+     * @var array<string, array{name: string, column: string}>|null
      */
     private static ?array $identityTables = null;
 
@@ -74,6 +79,8 @@ trait RefreshDatabaseTrait
 
     /**
      * Called on each test that calls bootKernel() or uses createClient().
+     *
+     * @param array<string, mixed> $options
      */
     protected static function bootKernel(array $options = []): KernelInterface
     {
@@ -81,7 +88,10 @@ trait RefreshDatabaseTrait
 
         $kernel = parent::bootKernel($options);
         $container = static::getContainer();
-        $entityManager = $container->get('doctrine')->getManager();
+        /** @var ManagerRegistry $doctrine */
+        $doctrine = $container->get('doctrine');
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = $doctrine->getManager();
         $executor = static::getExecutor($entityManager);
 
         $cleanupMethod = $_ENV['DB_CLEANUP_METHOD'] ?? 'purge';
@@ -303,6 +313,8 @@ trait RefreshDatabaseTrait
 
     /**
      * Use a static fixture cache as we need them before each test.
+     *
+     * @return array<FixtureInterface>
      */
     protected static function getFixtures(ContainerInterface $container): array
     {
@@ -316,10 +328,12 @@ trait RefreshDatabaseTrait
             return static::$fixtures;
         }
 
+        /** @var SymfonyFixturesLoader $fixturesLoader */
         $fixturesLoader = $container->get('doctrine.fixtures.loader');
-        static::$fixtures = $fixturesLoader->getFixtures(static::$fixtureGroups);
+        $fixtures = $fixturesLoader->getFixtures(static::$fixtureGroups);
+        static::$fixtures = $fixtures;
 
-        return static::$fixtures;
+        return $fixtures;
     }
 
     /**

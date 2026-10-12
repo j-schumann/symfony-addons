@@ -22,6 +22,9 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
     use FilterTrait;
     use OpenApiFilterTrait;
 
+    /**
+     * @param array<string, mixed> $context
+     */
     protected function filterParameter(
         Parameter $parameter,
         QueryBuilder $queryBuilder,
@@ -32,7 +35,7 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
     ): void {
         $nestedPropertiesInfo = $parameter->getExtraProperties()['nested_properties_info'] ?? [];
         $resolved = $this->resolveField(
-            $parameter->getProperty() ?? $parameter->getKey(),
+            $parameter->getProperty() ?? $parameter->getKey() ?? '',
             reset($nestedPropertiesInfo) ?: null,
             $parameter,
             $queryBuilder,
