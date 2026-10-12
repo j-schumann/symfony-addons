@@ -23,7 +23,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 * `NamedArgumentsFromArrayRector` converts calls of configured functions and static methods, before
-  only instance method calls were converted
+  only instance method calls were converted. Instance method calls are only converted on objects of
+  the configured class or its subclasses, before the class was ignored
 * `ContainsFilter` searches values that are no valid JSON as strings, before such values (e.g.
   `?roles=ROLE_ADMIN` or an empty value) caused a database error
 

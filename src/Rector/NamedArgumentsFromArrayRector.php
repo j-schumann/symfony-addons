@@ -11,6 +11,7 @@ use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Scalar\String_;
+use PHPStan\Type\ObjectType;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
@@ -158,9 +159,12 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
 
         foreach ($this->targets as $target) {
             if (\is_array($target) && 2 === \count($target)) {
-                [, $targetMethod] = $target;
+                [$targetClass, $targetMethod] = $target;
 
-                if ($targetMethod === $methodName) {
+                if (
+                    $targetMethod === $methodName
+                    && $this->isObjectType($methodCall->var, new ObjectType($targetClass))
+                ) {
                     return true;
                 }
             }
