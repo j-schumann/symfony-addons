@@ -28,6 +28,12 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertCount(1, $this->search('?jsonSearch=ADMIN_BLOG'));
     }
 
+    public function testSearchInNestedJsonColumn(): void
+    {
+        self::assertCount(2, $this->search('?childJsonSearch=child_'));
+        self::assertCount(1, $this->search('?childJsonSearch=CHILD_EINS'));
+    }
+
     public function testSearchSkipsUnmappedProperty(): void
     {
         self::assertCount(1, $this->search('?searchUnmapped=eins'));

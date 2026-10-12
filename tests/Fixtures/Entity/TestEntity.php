@@ -33,6 +33,10 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                     filter: new SimpleSearchFilter(),
                     properties: ['jsonColumn'],
                 ),
+                'childJsonSearch'  => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['children.jsonColumn'],
+                ),
                 // unmapped properties are skipped
                 'searchUnmapped'   => new QueryParameter(
                     filter: new SimpleSearchFilter(),
