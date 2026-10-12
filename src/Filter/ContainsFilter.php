@@ -14,10 +14,8 @@ use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 /**
- * @todo extensive tests
- *
  * Filters entities by their jsonb (Postgres-only) fields, if they contain the search parameter,
- * using the @> operator
+ * using the @> operator.
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
@@ -45,10 +43,8 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, ManagerRe
             [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::LEFT_JOIN);
         }
 
-        // @todo very primitive handling of multiple values, is there a better way in Postgres, e.g.
-        //       to give the array directly to the @> operator? Also, is it possible to filter for
-        //       Records that "contain one of" the given values instead of "contains all the
-        //       values"?
+        // @todo one condition per value, could a single @> with a JSON array of all values replace
+        //       them?
         foreach ((array) $parameter->getValue() as $singleValue) {
             // @> requires JSON: keep numbers, quoted strings etc., encode plain strings like ROLE_A
             $json = \is_string($singleValue) && json_validate($singleValue)

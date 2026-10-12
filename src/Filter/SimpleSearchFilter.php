@@ -20,9 +20,7 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 /**
  * Selects entities where the search term is found (case insensitive) in at least one of the
- * specified properties. All specified properties type must be string.
- *
- * @todo UnitTests w/ Mariadb + Postgres
+ * specified properties. All specified properties must be string or JSON columns.
  */
 class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, ManagerRegistryAwareInterface, OpenApiParameterFilterInterface
 {

@@ -18,8 +18,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 /**
- * @todo extensive tests
- *
  * Filters entities by their jsonb (Postgres-only) fields, if they contain the search values.
  * Multiple values are combined with AND (?& operator, default) or OR (?| operator), see
  * $combination. For a single value both behave like the ? operator.
