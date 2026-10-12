@@ -664,7 +664,7 @@ cast to string first.
 #[GetCollection(parameters: [
     'pattern' => new QueryParameter(
         filter: new SimpleSearchFilter(),
-        description: 'Search in the name, slug and description of the project and its tasks',
+        description: 'Search in the name, slug, description, parent and children',
         properties: ['description', 'name', 'slug', 'parent.title', 'children.content'],
     ),
 ])]
