@@ -128,8 +128,8 @@ determine its IRI, which is then used as URI for the request
 <tr>
 <td>email</td>
 <td>
-if given, tries to find a User with that email and sends the request authenticated as this user with
-lexikJWT bundle
+if given, tries to find a User with that email and sends the token of `getJWT()` for this user as
+Bearer, see "Authentication" below
 </td>
 <td>
 
@@ -393,6 +393,18 @@ has been dispatched to Symfony's EventDispatcher.
 
 </table>
 
+#### Authentication
+
+With `email`, `testOperation()` sends the token returned by `getJWT()`, which the
+lexik/jwt-authentication-bundle creates by default. This tests the real authentication, including
+the user checker and the claims of the token. Other ways:
+
+* **Another token issuer**, e.g. OIDC: override `getJWT()` in your test case and return a token
+  your authenticator accepts, e.g. signed with a test key that the `when@test` config trusts.
+* **No token**, e.g. to only test access rules: `testOperation()` has no option for this, use the
+  client directly: `$client = static::createClient(); $client->loginUser($user);` and then
+  `$client->request(...)`. This skips the authenticator, the user checker and the claims, and only
+  lasts for the first request of the client.
 
 ### Using the RefreshDatabaseTrait
 
@@ -919,6 +931,5 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
   the `combination` of the JsonExistsFilter
 * remove the `jsonb` `mapping_types` from the test config when support for doctrine/dbal 4 is
   dropped, DBAL 5 maps jsonb columns to the jsonb type itself
-
-#### Next Major
-* check: change user login, how does APIP handle it?
+* `testOperation()`: a parameter for finding the user by another field than `email`, e.g.
+  `user: ['username' => 'alice']`, with `email` deprecated
