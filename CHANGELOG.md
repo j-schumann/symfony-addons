@@ -21,6 +21,8 @@ All BC breaks are explained in UPGRADE.md.
   requires `twig/twig` >= 3.21
 
 ### Fixed
+* `RefreshDatabaseTrait` uses the parameters of the primary connection of a primary/replica
+  connection to recreate the database
 * `ContainsFilter` searches values that are no valid JSON as strings instead of causing a database
   error
 * `NamedArgumentsFromArrayRector` converts calls of configured functions and static methods, also
@@ -29,6 +31,7 @@ All BC breaks are explained in UPGRADE.md.
 ### Removed
 * Support for API Platform 4
 * Support for doctrine/dbal < 4.5
+* Support for friendsofphp/php-cs-fixer < 3.95.5 in the `WrapNamedMethodArgumentsFixer`
 * `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE`
 * `ApiPlatformTestCase::HYDRA_PROBLEM_*` constants
 * The `prepare` argument of `ApiPlatformTestCase::testOperation()`

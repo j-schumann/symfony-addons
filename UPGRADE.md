@@ -4,6 +4,7 @@
   Platform packages instead of `api-platform/core`, require `api-platform/test` for the
   `ApiPlatformTestCase`.
 * Update doctrine/dbal to version 4.5 or newer.
+* If you use the `WrapNamedMethodArgumentsFixer`, update friendsofphp/php-cs-fixer to 3.95.5 or newer.
 * Replace `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE` with `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`.
   `testOperation()` compares the `contentType` exactly, remove a `; charset=utf-8` suffix from
    expected JSON based content types.

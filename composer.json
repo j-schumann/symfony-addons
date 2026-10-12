@@ -17,8 +17,10 @@
         "doctrine/persistence": "^4.1.1",
         "doctrine/doctrine-fixtures-bundle": "^4.1.0",
         "doctrine/orm": "^3.5.0",
-        "friendsofphp/php-cs-fixer": "^3.95",
+        "friendsofphp/php-cs-fixer": "^3.95.5",
         "monolog/monolog": "^3.8.0",
+        "phpstan/phpstan": "^2.3.1",
+        "phpstan/phpstan-deprecation-rules": "^2.0.5",
         "phpunit/phpunit": "^13.3.5",
         "rector/rector": "^2.6",
         "roave/security-advisories": "dev-latest",
@@ -41,6 +43,7 @@
         "api-platform/core": "<5.0",
         "api-platform/metadata": "<5.0",
         "doctrine/dbal": "<4.5",
+        "friendsofphp/php-cs-fixer": "<3.95.5",
         "twig/twig": "<3.21"
     },
     "suggest": {
@@ -61,10 +64,12 @@
     "scripts": {
         "check": [
             "@cs-check",
+            "@phpstan",
             "@test"
         ],
         "cs-check": "php-cs-fixer fix --dry-run --diff -v",
         "cs-fix": "php-cs-fixer fix -v",
+        "phpstan": "phpstan analyse",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }

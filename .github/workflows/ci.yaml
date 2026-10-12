@@ -288,6 +288,22 @@ jobs:
           dependencies: ${{ matrix.dependencies }}
           php: ${{ matrix.php }}
 
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Common PHP setup
+        uses: ./.github/actions/php-setup
+        with:
+          dependencies: highest
+          php: '8.5'
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --no-progress
+
   coverage-finished:
     name: Merge the coverage results
     needs: [ phpunit-mariadb, phpunit-mysql, phpunit-postgres, phpunit-sqlite, phpunit-sqlsrv ]
