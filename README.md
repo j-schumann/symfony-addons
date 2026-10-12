@@ -902,6 +902,8 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * _symfony/doctrine-messenger_ is required for tests of the `messageCount` of the
   ApiPlatformTestCase
 * _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait
+* _symfony/polyfill-php85_ >= 1.33 is required by rector/rector on PHP 8.4 (`array_last()`), which
+  does not require it itself
 * _symfony/string_ is required for API Platform's inflector
 * _symfony/twig-bundle_ is required for tests of the FormatBytesExtension
 * _symfony/workflow_ is required for tests of the WorkflowHelper and PropertyMarkingStore
