@@ -4,7 +4,6 @@ namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
 use Monolog\Level;
 use PHPUnit\Framework\AssertionFailedError;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
@@ -198,7 +197,7 @@ final class OperationTest extends ApiPlatformTestCase
         $this->testOperation(uri: '/test', forbiddenKeys: ['detail']);
     }
 
-    public function testTestOperationChecksCollectionSchema(): void
+    public function testTestOperationMatchesCollectionSchema(): void
     {
         $this->testOperation(
             uri: '/test_entities',
@@ -206,14 +205,38 @@ final class OperationTest extends ApiPlatformTestCase
             schemaClass: TestEntity::class
         );
     }
+
+    public function testTestOperationChecksCollectionSchema(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessageIsOrContains('member: The property member is required');
+
+        $this->testOperation(uri: '/test', schemaClass: TestEntity::class);
+    }
+
+    public function testTestOperationChecksItemSchema(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessageIsOrContains('@id: The property @id is required');
+
+        // the JSON (not JSON-LD) error has no @id and @type, which the item schema requires
+        $this->testOperation(
+            uri: '/test',
+            method: 'PATCH',
+            requestOptions: [
+                'headers' => ['Accept' => 'application/json'],
+                'json'    => [],
+            ],
+            schemaClass: TestEntity::class,
+        );
+    }
     // endregion
 
     // region Events, logs, emails and messages
     public function testTestOperationDetectsDispatchedEvents(): void
     {
-        $response = $this->testOperation(uri: '/test', dispatchedEvents: ['kernel.request']);
-
-        self::assertInstanceOf(ResponseInterface::class, $response);
+        // fails the test with an assertion failure if the event is not detected
+        $this->testOperation(uri: '/test', dispatchedEvents: ['kernel.request']);
     }
 
     public function testTestOperationDetectsNotDispatchedEvents(): void
