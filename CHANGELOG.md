@@ -22,8 +22,10 @@ All BC breaks are explained in UPGRADE.md.
 * BC break: the constructors of `CronDailyCommand`, `CronHourlyCommand` and `CronMonthlyCommand`
   take the event dispatcher before the logger
 * BC break: `JsonExistsFilter::normalizeValue()` declares `?array` as return type
-* BC break: the `$constraints` of the `AtLeastOneOf` constructor are typed
-  `array|Constraint|null`, an options array is no longer accepted
+* BC break: the `AtLeastOneOf` constructor types `$constraints` as `array|Constraint|null` and
+  accepts `includeInternalMessages`
+* `WrapNamedMethodArgumentsFixer` only wraps a call that has named arguments itself, named
+  arguments in a nested call no longer wrap the outer call
 
 ### Fixed
 * `RefreshDatabaseTrait` uses the parameters of the primary connection of a primary/replica
@@ -38,6 +40,21 @@ All BC breaks are explained in UPGRADE.md.
   arguments and the closing parenthesis
 * `WrapNamedMethodArgumentsFixer` no longer wraps calls with only positional arguments that contain
   a ternary or a return type
+* `WrapNamedMethodArgumentsFixer` ignores commas inside strings and heredocs, which it broke onto a
+  new line, handles attributes and `${…}` in arguments, no longer counts a trailing comma as an
+  argument, keeps the base indentation for the closing parenthesis and wraps every call of a long
+  file in one run
+* `AtLeastOneOfValidator` skips nested constraints of other validation groups and restores its
+  context after validating the nested constraints, nested `AtLeastOneOf`, `Sequentially` or `All`
+  reported no violations on Symfony 7.4 and 8.0
+* `AtLeastOneOf`, `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace` and `PasswordStrength` can be
+  configured with options in YAML/XML on Symfony 7.4, `AtLeastOneOf` keeps a configured `message`
+  and accepts `message: ~`
+* `ApiPlatformTestCase::testOperation()` keeps the default options of the client, e.g. the JSON-LD
+  content type, when `email` is given
+* `ApiPlatformTestCase::tearDownAfterClass()` calls the parent method
+* `NamedArgumentsFromArrayRector` skips calls whose argument is already named and matches function
+  and method names case-insensitively
 
 ### Removed
 * Support for API Platform 4
