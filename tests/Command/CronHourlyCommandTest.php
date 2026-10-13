@@ -24,7 +24,7 @@ final class CronHourlyCommandTest extends KernelTestCase
             ->method('dispatch')
             ->with(new CronHourlyEvent());
 
-        $command = new CronHourlyCommand($logger, $dispatcher);
+        $command = new CronHourlyCommand($dispatcher, $logger);
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
 

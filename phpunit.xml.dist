@@ -7,28 +7,29 @@
         cacheDirectory=".phpunit.cache"
         colors="true"
         displayDetailsOnIncompleteTests="true"
-        displayDetailsOnSkippedTests="true"
         displayDetailsOnPhpunitDeprecations="true"
         displayDetailsOnPhpunitNotices="true"
+        displayDetailsOnSkippedTests="true"
         displayDetailsOnTestsThatTriggerDeprecations="true"
         displayDetailsOnTestsThatTriggerErrors="true"
         displayDetailsOnTestsThatTriggerNotices="true"
         displayDetailsOnTestsThatTriggerWarnings="true"
         executionOrder="defects"
-        failOnWarning="true"
+        failOnDeprecation="true"
         failOnNotice="true"
+        failOnPhpunitDeprecation="true"
+        failOnPhpunitNotice="true"
+        failOnPhpunitWarning="true"
+        failOnWarning="true"
         stopOnError="true"
         testdox="true"
 >
-  <coverage/>
   <php>
-    <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0"/>
     <env name="APP_ENV" value="test"/>
     <ini name="display_errors" value="1"/>
     <ini name="display_startup_errors" value="1"/>
     <ini name="error_reporting" value="-1"/>
     <ini name="memory_limit" value="512M"/>
-    <server name="KERNEL_DIR" value="tests/Fixtures/app/"/>
     <server name="KERNEL_CLASS" value="AppKernel"/>
   </php>
 
@@ -47,6 +48,7 @@
   </groups>
 
   <source
+          ignoreIndirectDeprecations="true"
           ignoreSuppressionOfDeprecations="true"
           restrictNotices="true"
           restrictWarnings="true"

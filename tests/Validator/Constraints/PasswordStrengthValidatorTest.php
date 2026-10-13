@@ -18,7 +18,7 @@ final class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * @return \Iterator<array<int, string>>
+     * @return \Iterator<array{string}>
      */
     public static function getValid(): \Iterator
     {
@@ -27,7 +27,7 @@ final class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * @return \Iterator<array<int, string>>
+     * @return \Iterator<array{string}>
      */
     public static function getInvalid(): \Iterator
     {

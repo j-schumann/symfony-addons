@@ -15,7 +15,4 @@ abstract class SuperclassBase
     #[ORM\GeneratedValue]
     #[ORM\Column]
     public ?int $id = null;
-
-    #[ORM\Column]
-    public string $varcharColumn = '';
 }

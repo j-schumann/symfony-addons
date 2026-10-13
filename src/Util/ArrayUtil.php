@@ -10,16 +10,15 @@ class ArrayUtil
      * still kept.
      *
      * Reason:
-     * 1) a + $b goes by keys, if the key is already present in $a, the value from $b is skipped
-     * 2) array_merge($a, $b) obviously does not work with multidimensional arrays
+     * 1) $a + $b goes by keys, if the key is already present in $a, the value from $b is skipped
+     * 2) array_merge($a, $b) does not work with multidimensional arrays
      * 3) array_merge_recursive($a, $b) correctly ignores the numeric keys but duplicates equal
      *    values
      * 4) array_replace_recursive goes by keys, if the key is present in $a and $b, the value from
      *    $a is overwritten
      *
-     * This function is meant to be used for example with
-     * ApiPlatformTestCase::assertDatasetHasKeys, so we can combine different
-     * lists of (nested) keys that should be present in a response.
+     * This function is meant to be used for example with ApiPlatformTestCase::assertDatasetHasKeys,
+     * so we can combine different lists of (nested) keys that should be present in a response.
      *
      * @param array<mixed> ...$args 2 or more arrays to merge
      *
@@ -56,8 +55,6 @@ class ArrayUtil
     }
 
     /**
-     * Returns true if the given array has duplicate values, else false.
-     *
      * @param array<mixed> $array
      */
     public static function hasDuplicates(array $array): bool

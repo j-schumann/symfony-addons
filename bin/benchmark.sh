@@ -5,8 +5,8 @@
 #
 # Locally, run it inside the php container of .dev-symfony/docker-compose.yml:
 #
-# docker compose -f .dev-symfony/docker-compose.yml up -d docker exec -w /var/www/html php-symfony
-# bin/benchmark.sh
+# docker compose -f .dev-symfony/docker-compose.yml up -d
+# docker exec -w /var/www/html php-symfony bin/benchmark.sh
 #
 # For the tmpfs comparison, start the containers with the override as well:
 #
@@ -16,11 +16,13 @@
 #
 # In CI the workflow provides the services and sets the DATABASE_URL_* variables.
 #
-# Environment: BENCH_PLATFORMS   space separated subset of the platforms below BENCH_ITERATIONS
-# kernel boots per cell (default 200) BENCH_STORAGE     label for the report only, e.g. "disk" or
-# "tmpfs" BENCH_REPORT      file to append the markdown report to BENCH_MAX_CELL_SECONDS  give up on
-# a cell after this long (default 600) DATABASE_URL_<PLATFORM>  overrides the built-in DSN for that
-# platform
+# Environment:
+#   BENCH_PLATFORMS          space separated subset of the platforms below
+#   BENCH_ITERATIONS         kernel boots per cell (default 200)
+#   BENCH_STORAGE            label for the report only, e.g. "disk" or "tmpfs"
+#   BENCH_REPORT             file to append the markdown report to
+#   BENCH_MAX_CELL_SECONDS   give up on a cell after this long (default 600)
+#   DATABASE_URL_<PLATFORM>  overrides the built-in DSN for that platform
 
 set -u -o pipefail
 
@@ -76,7 +78,8 @@ CPUS="$(nproc 2>/dev/null || echo '?')"
 RAM="$(awk '/^MemTotal:/ {printf "%.0f GB", $2 / 1048576}' /proc/meminfo 2>/dev/null)"
 RAM="${RAM:-unknown}"
 
-echo "Refresh benchmark: ${ITERATIONS} kernel boots per cell, storage=${STORAGE}, ${CPUS} CPU, ${RAM} RAM"
+echo "Refresh benchmark: ${ITERATIONS} kernel boots per cell, storage=${STORAGE}," \
+    "${CPUS} CPU, ${RAM} RAM"
 echo
 
 for platform in $PLATFORMS; do
@@ -141,7 +144,8 @@ for platform in $PLATFORMS; do
         seen_mode="$(sed -n 's/.*"purgeMode": "\([^"]*\)".*/\1/p' "$out")"
         if [ "$seen_method" != "$method" ] || [ "$seen_mode" != "$purge_mode" ]; then
             echo "MISCONFIGURED: asked for $method/$purge_mode, run saw $seen_method/$seen_mode"
-            echo "      the settings never reached the trait, aborting rather than reporting bogus numbers"
+            echo "      the settings never reached the trait, aborting rather than reporting" \
+                "bogus numbers"
             exit 1
         fi
 

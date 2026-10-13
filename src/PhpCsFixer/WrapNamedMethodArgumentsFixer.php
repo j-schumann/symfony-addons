@@ -18,6 +18,7 @@ use PhpCsFixer\Tokenizer\Tokens;
 final class WrapNamedMethodArgumentsFixer implements FixerInterface, ConfigurableFixerInterface
 {
     private const int DEFAULT_MAX_ARGUMENTS = 3;
+    private const string IDENTIFIER_PATTERN = '/^[a-z_\x80-\xff][a-z0-9_\x80-\xff]*$/i';
     private const array NESTING_OPEN_TOKENS = ['(', '[', '{'];
     private const array NESTING_CLOSE_TOKENS = [')', ']', '}'];
 
@@ -115,9 +116,9 @@ $this->method(arg1: $value1, arg2: $value2);',
                 $openParenIndex
             );
 
-            if ($this->shouldFormatMethodCall($tokens, $openParenIndex, $closeParenIndex)) {
+            if ($this->shouldFormatCall($tokens, $openParenIndex, $closeParenIndex)) {
                 $indentation = $this->detectIndentation($tokens, $i);
-                $this->formatMethodCall($tokens, $openParenIndex, $closeParenIndex, $indentation);
+                $this->formatCall($tokens, $openParenIndex, $closeParenIndex, $indentation);
             }
         }
     }
@@ -125,40 +126,45 @@ $this->method(arg1: $value1, arg2: $value2);',
     /**
      * @param Tokens<Token> $tokens
      */
-    private function shouldFormatMethodCall(
+    private function shouldFormatCall(
         Tokens $tokens,
         int $openParenIndex,
         int $closeParenIndex,
     ): bool {
         $analysisResult = $this->analyzeArguments($tokens, $openParenIndex, $closeParenIndex);
 
-        // Only format if we have named args and exceed the threshold
-        if (!$analysisResult['hasNamedArgs'] || $analysisResult['argumentCount'] <= $this->maxArguments) {
+        if (
+            !$analysisResult['hasNamedArgs']
+            || $analysisResult['argumentCount'] <= $this->maxArguments
+        ) {
             return false;
         }
 
-        // Check if arguments are already on separate lines
-        return !$this->areArgumentsAlreadyFormatted($tokens, $openParenIndex, $closeParenIndex, $analysisResult['topLevelCommas']);
+        return !$this->areArgumentsAlreadyFormatted(
+            $tokens,
+            $openParenIndex,
+            $closeParenIndex,
+            $analysisResult['topLevelCommas'],
+        );
     }
 
     /**
      * @param Tokens<Token> $tokens
      * @param list<int>     $topLevelCommas
      */
-    private function areArgumentsAlreadyFormatted(Tokens $tokens, int $openParenIndex, int $closeParenIndex, array $topLevelCommas): bool
-    {
-        // Check if there's a newline after the opening parenthesis
-        $nextIndex = $openParenIndex + 1;
-        if ($nextIndex < $closeParenIndex && $tokens[$nextIndex]->isWhitespace() && str_contains($tokens[$nextIndex]->getContent(), "\n")) {
-            // There's a newline after opening paren, likely already formatted
-            return true;
-        }
-
-        // Check if there are newlines after commas
-        foreach ($topLevelCommas as $commaIndex) {
-            $nextIndex = $commaIndex + 1;
-            if ($nextIndex < $closeParenIndex && $tokens[$nextIndex]->isWhitespace() && str_contains($tokens[$nextIndex]->getContent(), "\n")) {
-                // Found newline after comma, likely already formatted
+    private function areArgumentsAlreadyFormatted(
+        Tokens $tokens,
+        int $openParenIndex,
+        int $closeParenIndex,
+        array $topLevelCommas,
+    ): bool {
+        foreach ([$openParenIndex, ...$topLevelCommas] as $index) {
+            $nextIndex = $index + 1;
+            if (
+                $nextIndex < $closeParenIndex
+                && $tokens[$nextIndex]->isWhitespace()
+                && str_contains($tokens[$nextIndex]->getContent(), "\n")
+            ) {
                 return true;
             }
         }
@@ -167,12 +173,11 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param  Tokens<Token>         $tokens
-     * @return array<string, string>
+     * @param  Tokens<Token>                         $tokens
+     * @return array{base: string, argument: string}
      */
     private function detectIndentation(Tokens $tokens, int $functionNameIndex): array
     {
-        // Find the start of the line containing the function call
         $lineStartIndex = $functionNameIndex;
         while ($lineStartIndex > 0) {
             $prevIndex = $lineStartIndex - 1;
@@ -186,21 +191,18 @@ $this->method(arg1: $value1, arg2: $value2);',
             --$lineStartIndex;
         }
 
-        // Detect current line indentation
         $baseIndent = '';
         if ($lineStartIndex > 0) {
-            $whitespace = $tokens[$lineStartIndex - 1]->getContent();
-            $lines = explode("\n", $whitespace);
-            $baseIndent = end($lines); // Get indentation after the last newline
+            $lines = explode("\n", $tokens[$lineStartIndex - 1]->getContent());
+            $baseIndent = end($lines);
         }
 
-        // Detect indentation unit (try to find consistent indentation in the file)
+        // try to find a consistent indentation in the file
         $indentUnit = $this->detectIndentationUnit($tokens);
 
         return [
-            'base'     => $baseIndent,
-            'unit'     => $indentUnit,
             'argument' => $baseIndent.$indentUnit,
+            'base'     => $baseIndent,
         ];
     }
 
@@ -228,7 +230,6 @@ $this->method(arg1: $value1, arg2: $value2);',
                     continue;
                 }
 
-                // Count leading spaces/tabs
                 $indent = '';
                 $len = \strlen($line);
                 for ($j = 0; $j < $len; ++$j) {
@@ -245,23 +246,17 @@ $this->method(arg1: $value1, arg2: $value2);',
             }
         }
 
-        // Analyze indentations to find the unit
         if ([] === $indentations) {
-            return '    '; // Default to 4 spaces
+            return '    ';
         }
 
-        // Check if using tabs
         foreach ($indentations as $indent) {
             if (str_contains($indent, "\t")) {
                 return "\t";
             }
         }
 
-        // Count spaces - find the smallest indentation
-        $spaceCounts = array_map(strlen(...), $indentations);
-        $minSpaces = min($spaceCounts);
-
-        return str_repeat(' ', $minSpaces);
+        return str_repeat(' ', min(array_map(strlen(...), $indentations)));
     }
 
     /**
@@ -288,8 +283,8 @@ $this->method(arg1: $value1, arg2: $value2);',
                 --$nestingLevel;
             } elseif (',' === $content && 0 === $nestingLevel) {
                 $topLevelCommas[] = $i;
-            } elseif (':' === $content) {
-                $hasNamedArgs = true;
+            } elseif (':' === $content && 0 === $nestingLevel) {
+                $hasNamedArgs = $hasNamedArgs || $this->isArgumentName($tokens, $i);
             }
 
             if (!$token->isWhitespace()) {
@@ -305,25 +300,62 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param Tokens<Token>        $tokens
-     * @param array<string, mixed> $indentation
+     * A named argument is an identifier (keywords like `class` included) directly after the
+     * opening parenthesis or a comma, followed by the colon. Other colons belong to ternaries or
+     * return types.
+     *
+     * @param Tokens<Token> $tokens
      */
-    private function formatMethodCall(Tokens $tokens, int $openParenIndex, int $closeParenIndex, array $indentation): void
+    private function isArgumentName(Tokens $tokens, int $colonIndex): bool
     {
+        $nameIndex = $tokens->getPrevMeaningfulToken($colonIndex);
+        if (
+            null === $nameIndex
+            || !preg_match(self::IDENTIFIER_PATTERN, $tokens[$nameIndex]->getContent())
+        ) {
+            return false;
+        }
+
+        $beforeNameIndex = $tokens->getPrevMeaningfulToken($nameIndex);
+
+        return null !== $beforeNameIndex && $tokens[$beforeNameIndex]->equalsAny(['(', ',']);
+    }
+
+    /**
+     * @param Tokens<Token>                         $tokens
+     * @param array{base: string, argument: string} $indentation
+     */
+    private function formatCall(
+        Tokens $tokens,
+        int $openParenIndex,
+        int $closeParenIndex,
+        array $indentation,
+    ): void {
         $analysisResult = $this->analyzeArguments($tokens, $openParenIndex, $closeParenIndex);
         $topLevelCommas = $analysisResult['topLevelCommas'];
 
         // Work backwards to avoid index shifts
-        $this->addNewlineBeforeClosingParenthesis($tokens, $closeParenIndex, $indentation['base']);
+        $this->addNewlineBeforeClosingParenthesis(
+            $tokens,
+            $closeParenIndex,
+            $indentation['base'],
+        );
         $this->addNewlinesAfterCommas($tokens, $topLevelCommas, $indentation['argument']);
-        $this->addNewlineAfterOpeningParenthesis($tokens, $openParenIndex, $indentation['argument']);
+        $this->addNewlineAfterOpeningParenthesis(
+            $tokens,
+            $openParenIndex,
+            $indentation['argument'],
+        );
     }
 
     /**
      * @param Tokens<Token> $tokens
      */
-    private function addNewlineBeforeClosingParenthesis(Tokens $tokens, int $closeParenIndex, string $baseIndent): void
-    {
+    private function addNewlineBeforeClosingParenthesis(
+        Tokens $tokens,
+        int $closeParenIndex,
+        string $baseIndent,
+    ): void {
         $prevIndex = $tokens->getPrevMeaningfulToken($closeParenIndex);
         if (null === $prevIndex) {
             return;
@@ -340,36 +372,50 @@ $this->method(arg1: $value1, arg2: $value2);',
      * @param Tokens<Token> $tokens
      * @param list<int>     $topLevelCommas
      */
-    private function addNewlinesAfterCommas(Tokens $tokens, array $topLevelCommas, string $argumentIndent): void
-    {
+    private function addNewlinesAfterCommas(
+        Tokens $tokens,
+        array $topLevelCommas,
+        string $argumentIndent,
+    ): void {
         foreach (array_reverse($topLevelCommas) as $commaIndex) {
-            $nextTokenIndex = $commaIndex + 1;
-            if ($nextTokenIndex < \count($tokens) && $tokens[$nextTokenIndex]->isWhitespace()) {
-                $tokens[$nextTokenIndex] = new Token([\T_WHITESPACE, "\n".$argumentIndent]);
-            } else {
-                $tokens->insertAt($commaIndex + 1, new Token([\T_WHITESPACE, "\n".$argumentIndent]));
-            }
+            $this->setNewlineAfter($tokens, $commaIndex, $argumentIndent);
         }
     }
 
     /**
      * @param Tokens<Token> $tokens
      */
-    private function addNewlineAfterOpeningParenthesis(Tokens $tokens, int $openParenIndex, string $argumentIndent): void
+    private function addNewlineAfterOpeningParenthesis(
+        Tokens $tokens,
+        int $openParenIndex,
+        string $argumentIndent,
+    ): void {
+        $this->setNewlineAfter($tokens, $openParenIndex, $argumentIndent);
+    }
+
+    /**
+     * Replaces the whitespace after the given token, or inserts it if there is none.
+     *
+     * @param Tokens<Token> $tokens
+     */
+    private function setNewlineAfter(Tokens $tokens, int $index, string $indent): void
     {
-        $nextTokenIndex = $openParenIndex + 1;
-        if ($nextTokenIndex < \count($tokens) && $tokens[$nextTokenIndex]->isWhitespace()) {
-            $tokens[$nextTokenIndex] = new Token([\T_WHITESPACE, "\n".$argumentIndent]);
+        $newline = new Token([\T_WHITESPACE, "\n".$indent]);
+        if ($tokens[$index + 1]->isWhitespace()) {
+            $tokens[$index + 1] = $newline;
         } else {
-            $tokens->insertAt($openParenIndex + 1, new Token([\T_WHITESPACE, "\n".$argumentIndent]));
+            $tokens->insertAt($index + 1, $newline);
         }
     }
 
     /**
      * @param Tokens<Token> $tokens
      */
-    private function replaceWhitespaceWithNewline(Tokens $tokens, int $whitespaceIndex, string $indent): void
-    {
+    private function replaceWhitespaceWithNewline(
+        Tokens $tokens,
+        int $whitespaceIndex,
+        string $indent,
+    ): void {
         if ($tokens[$whitespaceIndex]->isWhitespace()) {
             $content = $tokens[$whitespaceIndex]->getContent();
             if (!str_contains($content, "\n")) {

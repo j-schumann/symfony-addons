@@ -30,7 +30,10 @@ trait MonologAssertsTrait
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
-                self::assertTrue($handler->hasRecordThatContains($message, $level), 'Logger has no message with the given level that contains the given string!');
+                self::assertTrue(
+                    $handler->hasRecordThatContains($message, $level),
+                    'Logger has no message with the given level that contains the given string!'
+                );
 
                 return;
             }

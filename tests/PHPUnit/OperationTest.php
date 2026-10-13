@@ -4,7 +4,6 @@ namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
 use Monolog\Level;
 use PHPUnit\Framework\AssertionFailedError;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 
@@ -16,6 +15,128 @@ final class OperationTest extends ApiPlatformTestCase
 {
     private ?string $jwt = null;
 
+    // region Request options
+    public function testTestOperationSendsCookies(): void
+    {
+        $this->testOperation(uri: '/test', cookies: ['BEARER' => 'token', 'other' => 'value']);
+
+        self::assertSame(
+            ['BEARER' => 'token', 'other' => 'value'],
+            self::getClient()->getRequest()->cookies->all()
+        );
+    }
+
+    public function testTestOperationFailsWithoutJwtBundle(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessageIsOrContains('getJWT() requires the lexik/jwt-authentication-bundle');
+
+        $this->testOperation(uri: '/test', email: 'test@example.com');
+    }
+
+    public function testTestOperationSendsJwtAsBearer(): void
+    {
+        $this->jwt = 'token';
+
+        $this->testOperation(uri: '/test', email: 'test@example.com');
+
+        self::assertSame(
+            'Bearer token',
+            self::getClient()->getRequest()->headers->get('Authorization')
+        );
+    }
+
+    public function testTestOperationSendsJwtAsFormParameter(): void
+    {
+        $this->jwt = 'token';
+
+        $this->testOperation(
+            uri: '/test',
+            email: 'test@example.com',
+            postFormAuth: 'auth',
+            method: 'POST'
+        );
+
+        $request = self::getClient()->getRequest();
+        self::assertSame(
+            'application/x-www-form-urlencoded',
+            $request->headers->get('content-type')
+        );
+        self::assertSame('token', $request->request->get('auth'));
+        self::assertFalse($request->headers->has('Authorization'));
+    }
+
+    public function testTestOperationSendsFiles(): void
+    {
+        $this->testOperation(
+            uri: '/test',
+            method: 'POST',
+            files: [
+                'file' => [
+                    'mimeType'     => 'text/x-php',
+                    'originalName' => 'test.php',
+                    'path'         => __FILE__,
+                ],
+            ],
+        );
+
+        $request = self::getClient()->getRequest();
+        self::assertStringStartsWith(
+            'multipart/form-data',
+            (string) $request->headers->get('content-type')
+        );
+        self::assertSame('test.php', $request->files->get('file')->getClientOriginalName());
+    }
+
+    public function testTestOperationSendsPatchAsMergePatch(): void
+    {
+        $this->testOperation(
+            uri: '/test',
+            method: 'PATCH',
+            requestOptions: ['json' => []]
+        );
+
+        self::assertSame(
+            'application/merge-patch+json',
+            self::getClient()->getRequest()->headers->get('content-type')
+        );
+    }
+    // endregion
+
+    // region IRI resolution
+    public function testTestOperationResolvesIri(): void
+    {
+        $this->testOperation(
+            iri: [TestEntity::class, ['varcharColumn' => 'record EINS varchar']],
+            responseCode: 200,
+            json: ['@type' => 'TestEntity'],
+            schemaClass: TestEntity::class,
+        );
+
+        self::assertMatchesRegularExpression(
+            '#^/test_entities/\d+$#',
+            self::getClient()->getRequest()->getPathInfo()
+        );
+    }
+
+    public function testTestOperationFailsWithIriAndUri(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessageIs('Setting both $iri and $uri is not allowed because it serves no purpose.');
+
+        $this->testOperation(uri: '/test', iri: [TestEntity::class, ['id' => 1]]);
+    }
+
+    public function testTestOperationFailsWithUnknownIri(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageIs('IRI could not be resolved with the given parameters!');
+
+        $this->testOperation(iri: [TestEntity::class, ['varcharColumn' => 'unknown']]);
+    }
+    // endregion
+
+    // region Response assertions
     public function testTestOperationCanBeCalled(): void
     {
         $this->testOperation(
@@ -33,24 +154,6 @@ final class OperationTest extends ApiPlatformTestCase
             ],
             forbiddenKeys: ['member'],
             messageCount: 0,
-        );
-    }
-
-    public function testTestOperationFailsWithoutJwtBundle(): void
-    {
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessageIsOrContains('getJWT() requires the lexik/jwt-authentication-bundle');
-
-        $this->testOperation(uri: '/test', email: 'test@example.com');
-    }
-
-    public function testTestOperationSendsCookies(): void
-    {
-        $this->testOperation(uri: '/test', cookies: ['BEARER' => 'token', 'other' => 'value']);
-
-        self::assertSame(
-            ['BEARER' => 'token', 'other' => 'value'],
-            self::getClient()->getRequest()->cookies->all()
         );
     }
 
@@ -94,11 +197,46 @@ final class OperationTest extends ApiPlatformTestCase
         $this->testOperation(uri: '/test', forbiddenKeys: ['detail']);
     }
 
+    public function testTestOperationMatchesCollectionSchema(): void
+    {
+        $this->testOperation(
+            uri: '/test_entities',
+            responseCode: 200,
+            schemaClass: TestEntity::class
+        );
+    }
+
+    public function testTestOperationChecksCollectionSchema(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessageIsOrContains('member: The property member is required');
+
+        $this->testOperation(uri: '/test', schemaClass: TestEntity::class);
+    }
+
+    public function testTestOperationChecksItemSchema(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessageIsOrContains('@id: The property @id is required');
+
+        // the JSON (not JSON-LD) error has no @id and @type, which the item schema requires
+        $this->testOperation(
+            uri: '/test',
+            method: 'PATCH',
+            requestOptions: [
+                'headers' => ['Accept' => 'application/json'],
+                'json'    => [],
+            ],
+            schemaClass: TestEntity::class,
+        );
+    }
+    // endregion
+
+    // region Events, logs, emails and messages
     public function testTestOperationDetectsDispatchedEvents(): void
     {
-        $response = $this->testOperation(uri: '/test', dispatchedEvents: ['kernel.request']);
-
-        self::assertInstanceOf(ResponseInterface::class, $response);
+        // fails the test with an assertion failure if the event is not detected
+        $this->testOperation(uri: '/test', dispatchedEvents: ['kernel.request']);
     }
 
     public function testTestOperationDetectsNotDispatchedEvents(): void
@@ -133,112 +271,6 @@ final class OperationTest extends ApiPlatformTestCase
         $this->testOperation(uri: '/test', messageCount: 1);
     }
 
-    public function testTestOperationFailsWithIriAndUri(): void
-    {
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessageIs('Setting both $iri and $uri is not allowed because it serves no purpose.');
-
-        $this->testOperation(uri: '/test', iri: [TestEntity::class, ['id' => 1]]);
-    }
-
-    public function testTestOperationChecksDispatchedMessages(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-        $this->expectExceptionMessageIsOrContains("The expected 'stdClass' was not dispatched");
-
-        $this->testOperation(uri: '/test', dispatchedMessages: [\stdClass::class]);
-    }
-
-    public function testTestOperationFailsWithInvalidDispatchedMessage(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessageIsOrContains('Entries of "dispatchedMessages" must either be a string');
-
-        $this->testOperation(uri: '/test', dispatchedMessages: [[\stdClass::class]]);
-    }
-
-    public function testTestOperationSendsJwtAsBearer(): void
-    {
-        $this->jwt = 'token';
-
-        $this->testOperation(uri: '/test', email: 'test@example.com');
-
-        self::assertSame('Bearer token', self::getClient()->getRequest()->headers->get('Authorization'));
-    }
-
-    public function testTestOperationSendsJwtAsFormParameter(): void
-    {
-        $this->jwt = 'token';
-
-        $this->testOperation(
-            uri: '/test',
-            email: 'test@example.com',
-            postFormAuth: 'auth',
-            method: 'POST'
-        );
-
-        $request = self::getClient()->getRequest();
-        self::assertSame('application/x-www-form-urlencoded', $request->headers->get('content-type'));
-        self::assertSame('token', $request->request->get('auth'));
-        self::assertFalse($request->headers->has('Authorization'));
-    }
-
-    public function testTestOperationSendsFiles(): void
-    {
-        $this->testOperation(
-            uri: '/test',
-            method: 'POST',
-            files: ['file' => ['path' => __FILE__, 'originalName' => 'test.php', 'mimeType' => 'text/x-php']],
-        );
-
-        $request = self::getClient()->getRequest();
-        self::assertStringStartsWith('multipart/form-data', (string) $request->headers->get('content-type'));
-        self::assertSame('test.php', $request->files->get('file')->getClientOriginalName());
-    }
-
-    public function testTestOperationSendsPatchAsMergePatch(): void
-    {
-        $this->testOperation(
-            uri: '/test',
-            method: 'PATCH',
-            requestOptions: ['json' => []]
-        );
-
-        self::assertSame(
-            'application/merge-patch+json',
-            self::getClient()->getRequest()->headers->get('content-type')
-        );
-    }
-
-    public function testTestOperationResolvesIri(): void
-    {
-        $this->testOperation(
-            iri: [TestEntity::class, ['varcharColumn' => 'record EINS varchar']],
-            responseCode: 200,
-            json: ['@type' => 'TestEntity'],
-            schemaClass: TestEntity::class,
-        );
-
-        self::assertMatchesRegularExpression('#^/test_entities/\d+$#', self::getClient()->getRequest()->getPathInfo());
-    }
-
-    public function testTestOperationFailsWithUnknownIri(): void
-    {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageIs('IRI could not be resolved with the given parameters!');
-
-        $this->testOperation(iri: [TestEntity::class, ['varcharColumn' => 'unknown']]);
-    }
-
-    public function testTestOperationChecksCollectionSchema(): void
-    {
-        $this->testOperation(
-            uri: '/test_entities',
-            responseCode: 200,
-            schemaClass: TestEntity::class
-        );
-    }
-
     public function testTestOperationDetectsDispatchedMessages(): void
     {
         $dispatched = [];
@@ -262,6 +294,23 @@ final class OperationTest extends ApiPlatformTestCase
 
         self::assertSame([['new', []]], $dispatched);
     }
+
+    public function testTestOperationDetectsNotDispatchedMessages(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessageIsOrContains("The expected 'stdClass' was not dispatched");
+
+        $this->testOperation(uri: '/test', dispatchedMessages: [\stdClass::class]);
+    }
+
+    public function testTestOperationFailsWithInvalidDispatchedMessage(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageIsOrContains('Entries of "dispatchedMessages" must either be a string');
+
+        $this->testOperation(uri: '/test', dispatchedMessages: [[\stdClass::class]]);
+    }
+    // endregion
 
     protected function getJWT(array $findUserBy): string
     {

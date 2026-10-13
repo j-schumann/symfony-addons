@@ -1,4 +1,4 @@
-  # vrok/symfony-addons
+# vrok/symfony-addons
 
 This is a library with additional classes for usage in combination with the Symfony framework.
 
@@ -10,14 +10,14 @@ This is a library with additional classes for usage in combination with the Symf
 ### AtLeastOneOf
 Works like Symfony's own AtLeastOneOf constraint, but instead of returning a message like `This
 value should satisfy at least ...` it returns the message of the last failed validation. Can be used
-for obviously optional form fields where only simple messages should be displayed when `AtLeastOne`
-is used with `Blank` as first constraint. See `AtLeastOneOfValidatorTest` for examples.
+for optional form fields where only simple messages should be displayed when `AtLeastOneOf` is
+used with `Blank` as first constraint. See `AtLeastOneOfValidatorTest` for examples.
 
 ### NoHtml
 This validator tries to detect if a string contains HTML, to allow only plain text. See
 `NoHtmlValidatorTest` for examples of allowed / forbidden values.
 
-### NoLineBreak
+### NoLineBreaks
 This validator raises a violation if it detects one or more linebreak characters in the validated
 string. Detects unicode linebreaks, see `NoLineBreaksValidatorTest` for details.
 
@@ -28,7 +28,7 @@ in the validated string. Linebreaks and spaces are valid within the string. Uses
 
 ### PasswordStrength
 This validator evaluates the strength of a given password string by determining its entropy instead
-of requireing something like "must contain at least one uppercase & one digit & one special char".
+of requiring something like "must contain at least one uppercase & one digit & one special char".
 Allows to set a `minStrength` to vary the requirements. See
 `Vrok\SymfonyAddons\Helper\PasswordStrength` for details on the calculation.
 
@@ -43,6 +43,8 @@ allows to easily check for expected response content, allowed or forbidden keys 
 verify against a given schema.
 
 Requires `api-platform/core`, `symfony/browser-kit`, and `symfony/http-client` to be installed.
+`schemaClass` additionally requires `justinrainbow/json-schema`, `email` requires
+`lexik/jwt-authentication-bundle` unless `getJWT()` is overridden.
 
 ```php
 <?php
@@ -119,7 +121,7 @@ Bearer, see "Authentication" below
 <tr>
 <td>postFormAuth</td>
 <td>
-if given (and 'email' is set) the JWT from Lexik is sent as 'application/x-www-form-urlencoded'
+if given (and 'email' is set) the token of `getJWT()` is sent as 'application/x-www-form-urlencoded'
 request in a form field.<br /> This is used for download endpoints where the browser should present
 the user with the file to download instead of loading it into memory via Javascript. (As we don't
 want to supply the token via GET to prevent security issues and as we cannot set a cookie.)
@@ -159,12 +161,12 @@ requestOptions: [
     'username' => 'Peter',
     'email'    => 'peter@example.com',
   ],
-  
+
   // or:
   'query' =>  [
     'order' => ['createdAt' => 'asc'],
   ],
-  
+
   // or:
   'headers' => ['content-type' => 'application/json'],
 ]
@@ -224,7 +226,7 @@ asserts that the received status code matches
 <tr>
 <td>contentType</td>
 <td>
-asserts that the received content type header matches, a `charset=utf-8` parameter is ignored
+asserts that the received content type header matches exactly
 </td>
 <td>
 
@@ -346,7 +348,8 @@ messageCount: 2,
 Array of message classes, asserts that at least one instance of each given class has been dispatched
 to the message bus. An Element can also be an array of [FQCN, callable], in that case the callback
 is called for each matching message with that message as first parameter and the JSON response as
-second parameter, to trigger additional assertions for the message.
+second parameter (an empty array for a response without content), to trigger additional assertions
+for the message.
 </td>
 <td>
 
@@ -394,14 +397,14 @@ the user checker and the claims of the token. Other ways:
 * Token as cookie: pass it with `cookies`, e.g. `cookies: ['BEARER' => $this->getJWT([...])]`.
 * No token, e.g. to only test access rules: use the client directly:
   `$client = static::createClient(); $client->loginUser($user);` and then `$client->request(...)`.
-  This skips the authenticator, the user checker and the claims, and only lasts for the first 
+  This skips the authenticator, the user checker and the claims, and only lasts for the first
   request of the client.
 
 ### Using the RefreshDatabaseTrait
 
-(Re-)Creates the DB schema for each test, removes existing data and fills the tables with predefined
-fixtures. Install `doctrine/doctrine-fixtures-bundle` and create fixtures, the trait uses the _test_
-group per default.
+Brings the DB schema up to date, removes existing data before each test and fills the tables with
+predefined fixtures. Install `doctrine/doctrine-fixtures-bundle` and create fixtures, the trait uses
+the _test_ group per default.
 
 Just include the trait in your testcase and call `bootKernel()` or `createClient()`, e.g. in the
 setUp method:
@@ -433,11 +436,14 @@ class DatabaseTest extends KernelTestCase
 Optionally define which fixtures to use for this test class:
 
 ```php
-protected static $fixtureGroups = ['test', 'other'];
+public static function setUpBeforeClass(): void
+{
+    static::$fixtureGroups = ['test', 'other'];
+}
 ```
 
 Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values are _purge_,
-_dropSchema_ and _dropDatabase_, for more details see `RefreshDatabaseTrait::$cleanupMethod`.
+_dropSchema_ and _dropDatabase_, for more details see the docblock of the `RefreshDatabaseTrait`.
 Suggested method is _purge_ for all database platforms, see benchmark below. Results may vary
 depending on your DB schema and/or server setup, so check if different settings work better for you.
 
@@ -447,9 +453,9 @@ other platforms.
 
 #### Benchmark
 
-The numbers below come from the _Refresh Benchmark_ CI workflow (see `bin/benchmark.sh`) and are 
-median milliseconds per `bootKernel()` (200 iterations), on a GitHub-hosted `ubuntu-latest` runner
-(**4 CPU, 16 GB RAM**), against this package's own 14 entity test schema.
+The numbers below come from the _Refresh Benchmark_ CI workflow (see `bin/benchmark.sh`) and are
+median milliseconds per `bootKernel()` (200 iterations), on a GitHub-hosted Ubuntu runner
+(**4 CPU, 16 GB RAM**), against this package's own test schema.
 
 <table>
 <thead>
@@ -476,7 +482,7 @@ modes run the same code.
 * Putting the database on tmpfs is worth far more than the choice of cleanup method.
 * Using further optimizations like `--innodb-doublewrite=OFF --innodb-flush-log-at-trx-commit=2
   --skip-log-bin` for MySQL/MariaDB, `-c fsync=off -c synchronous_commit=off -c
-  full_page_writes=off`for PostgreSQL or `ALTER DATABASE model SET DELAYED_DURABILITY = FORCED` for
+  full_page_writes=off` for PostgreSQL or `ALTER DATABASE model SET DELAYED_DURABILITY = FORCED` for
   SQL Server produces no better results or performs even worse, so check before using them.
 
 #### Running the databases on tmpfs
@@ -534,13 +540,13 @@ three would make the path relative.
 
 ### Using the MonologAssertsTrait
 
-For use with an Symfony project using the monolog-bundle. Requires `monolog/monolog` of v3.0 or
+For use with a Symfony project using the monolog-bundle. Requires `monolog/monolog` of v3.0 or
 higher.
 
 Include the trait in your testcase and call `prepareLogger` before triggering the action that should
 create logs and use `assertLoggerHasMessage` afterwards to check if a log record was created with
 the given message & severity:
- ```php
+```php
 use Monolog\Level;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -551,16 +557,16 @@ class LoggerTest extends KernelTestCase
     use MonologAssertsTrait;
 
     public function testLog(): void
-    {      
+    {
         self::prepareLogger();
 
         $logger = static::getContainer()->get(LoggerInterface::class);
         $logger->error('Failed to do something');
-        
+
         self::assertLoggerHasMessage('Failed to do something', Level::Error);
     }
 }
- ```
+```
 
 ## Workflow helpers
 
@@ -580,7 +586,7 @@ framework:
       marking_store:
         # We need to use a service as there is no option to register a new "type"
         service: workflow.application.marking_store
-``` 
+```
 
 services.yaml:
 ```yaml
@@ -590,7 +596,7 @@ services.yaml:
     workflow.application.marking_store:
       class: Vrok\SymfonyAddons\Workflow\PropertyMarkingStore
       arguments: [true, 'state']
-``` 
+```
 
 ### WorkflowHelper
 
@@ -599,14 +605,14 @@ what transitions are possible from the current state and/or why a transition is 
 
 ```php
     public function __invoke(
-        Entity $data
+        Entity $data,
         WorkflowInterface $entityStateMachine,
     ): array
     {
       $result = $data->toArray();
-      
+
       $result['transitions'] = WorkflowHelper::getTransitionList($data, $entityStateMachine);
-      
+
       return $result;
     }
 ```
@@ -631,7 +637,7 @@ bin/console cron:monthly
 ```
 
 When these are called, they trigger an event (`CronHourlyEvent`, `CronDailyEvent`,
-`CronMonthlyEvent`) that can be used by one ore more event listeners/subscribers to do maintenance,
+`CronMonthlyEvent`) that can be used by one or more event listeners/subscribers to do maintenance,
 push messages to the messenger etc. It is your responsibility to execute these commands via crontab
 correctly!
 
@@ -639,6 +645,7 @@ correctly!
 use Vrok\SymfonyAddons\Event\CronDailyEvent;
 
 class MyEventSubscriber implements EventSubscriberInterface
+{
     public static function getSubscribedEvents(): array
     {
         return [
@@ -676,7 +683,8 @@ cast to string first.
 
 The filters set no OpenAPI description, use the `description` of the `#[QueryParameter]`.
 
-Requires CAST as defined Doctrine function, e.g. by `vrok/doctrine-addons`:
+Searching JSON columns on PostgreSQL requires CAST as defined Doctrine function, e.g. by
+`vrok/doctrine-addons`:
 ```yaml
 doctrine:
   orm:
@@ -759,7 +767,7 @@ uploads with additional data (e.g. in ApiPlatform):
 
 The decoder is automatically called for `multipart` requests and simply returns all POST parameters
 and uploaded files together. To enable this add the `multipart` format to your
-`config\api_platform.yaml`:
+`config/packages/api_platform.yaml`:
 
 ```yaml
 api_platform:
@@ -777,7 +785,7 @@ in ApiPlatform:
 ```
 
 The decoder is automatically called for `form` requests and simply returns all POST parameters. To
-enable this add the `form` format to your `config\api_platform.yaml`:
+enable this add the `form` format to your `config/packages/api_platform.yaml`:
 
 ```yaml
 api_platform:
@@ -808,7 +816,7 @@ Outputs: 9.34 MiB
 This Rector allows migrating function calls that previously used an array of options (like
 `ApiPlatformTestCase#testOperation`) to use named arguments instead.
 
-This can be configured to target static functions, static class methods or instance methods. Example
+This can be configured to target functions, static class methods or instance methods. Example
 for the `rector.php`:
 ```php
 use Vrok\SymfonyAddons\Rector\NamedArgumentsFromArrayRector;
@@ -904,6 +912,12 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 ### composer.json dev
 
 * _doctrine/doctrine-fixtures-bundle_ is required for tests of the ApiPlatformTestCase
+* _friendsofphp/php-cs-fixer_ checks the code style (`composer cs-check`, also in CI) and is
+  required for the tests of the WrapNamedMethodArgumentsFixer
+* _justinrainbow/json-schema_ is required for tests of the `schemaClass` of the ApiPlatformTestCase
+* _rector/rector_ is required for the refactoring rules and the tests of the
+  NamedArgumentsFromArrayRector
+* _zalas/phpunit-globals_ sets ENV variables per test via attributes
 * _symfony/browser-kit_ is required for tests of the MultipartDecoder
 * _symfony/mailer_ is required for tests of the `emailCount` of the ApiPlatformTestCase
 * _symfony/doctrine-messenger_ is required for tests of the `messageCount` of the
@@ -911,6 +925,9 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait
 * _phpstan/phpstan_ and _phpstan/phpstan-deprecation-rules_ run the static analysis
   (`composer phpstan`), also in CI
+* _symfony/clock_ provides `DatePoint` for fixed dates in the tests
+* _symfony/error-handler_ >= 7.4.17 / 8.1.5 restores the exception handler it registers, older
+  versions make the kernel tests risky
 * _symfony/polyfill-php85_ >= 1.33 is required by rector/rector on PHP 8.4 (`array_last()`), which
   does not require it itself
 * _symfony/string_ is required for API Platform's inflector

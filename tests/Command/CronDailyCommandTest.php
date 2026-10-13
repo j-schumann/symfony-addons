@@ -24,7 +24,7 @@ final class CronDailyCommandTest extends KernelTestCase
             ->method('dispatch')
             ->with(new CronDailyEvent());
 
-        $command = new CronDailyCommand($logger, $dispatcher);
+        $command = new CronDailyCommand($dispatcher, $logger);
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
 

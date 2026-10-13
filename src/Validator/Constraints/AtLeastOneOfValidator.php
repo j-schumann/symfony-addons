@@ -26,8 +26,15 @@ class AtLeastOneOfValidator extends ConstraintValidator
         $constraints = $constraint->constraints;
         foreach ($constraints as $item) {
             $executionContext = clone $this->context;
-            $executionContext->setNode($value, $this->context->getObject(), $this->context->getMetadata(), $this->context->getPropertyPath());
-            $violations = $validator->inContext($executionContext)->validate($value, $item, $this->context->getGroup())->getViolations();
+            $executionContext->setNode(
+                $value,
+                $this->context->getObject(),
+                $this->context->getMetadata(),
+                $this->context->getPropertyPath(),
+            );
+            $violations = $validator->inContext($executionContext)
+                ->validate($value, $item, $this->context->getGroup())
+                ->getViolations();
 
             if (\count($this->context->getViolations()) === \count($violations)) {
                 return;

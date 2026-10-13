@@ -4,17 +4,18 @@ namespace Vrok\SymfonyAddons\Tests\Util;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\DatePoint;
 use Vrok\SymfonyAddons\Util\ArrayUtil;
 
+/**
+ * The tests don't use assertSame or assertArraySubset as the indexes change and only matter for
+ * nested arrays. They check that the expected values exist and that there are no more entries.
+ */
 final class ArrayUtilTest extends TestCase
 {
     private const array A = ['a', 'b', 's' => ['d', 'e']];
     private const array B = ['b', 'c', 's' => ['e', 'f']];
     private const array C = [1 => '1', 'k' => 'v', 'a' => ['g']];
-
-    // We cannot / don't want to use assertSame or assertArraySubset as the indexes change and we
-    // don't care about them (except for nested arrays). So we just test that our expected values
-    // exist and no more entries than we want.
 
     public function testMergeValuesKeepsAllValues(): void
     {
@@ -96,7 +97,7 @@ final class ArrayUtilTest extends TestCase
      * @param \DateTimeImmutable[]|string[][]|string[]|int[] $value
      */
     #[DataProvider('provideNonDuplicates')]
-    public function testHasDuplicatesReturnsFalseCorrectly(array $value): void
+    public function testHasDuplicatesWithoutDuplicates(array $value): void
     {
         self::assertFalse(ArrayUtil::hasDuplicates($value));
     }
@@ -105,7 +106,7 @@ final class ArrayUtilTest extends TestCase
      * @param \DateTimeImmutable[]|string[][]|string[]|int[] $value
      */
     #[DataProvider('provideDuplicates')]
-    public function testHasDuplicatesDetectsDuplicatesCorrectly(array $value): void
+    public function testHasDuplicates(array $value): void
     {
         self::assertTrue(ArrayUtil::hasDuplicates($value));
     }
@@ -117,22 +118,22 @@ final class ArrayUtilTest extends TestCase
     }
 
     /**
-     * @return \Iterator<array<array<int, array<int, mixed>>, mixed>>
+     * @return \Iterator<array{list<mixed>}>
      */
     public static function provideNonDuplicates(): \Iterator
     {
         yield [['a', 1, 'b']];
-        yield [[new \DateTimeImmutable(), new \DateTimeImmutable()]];
+        yield [[new DatePoint('2026-01-01 10:00:00'), new DatePoint('2026-01-01 10:00:01')]];
         yield [[['a'], ['b']]];
         yield [[[1 => 'a'], [2 => 'a']]];
     }
 
     /**
-     * @return \Iterator<array<array<int, array<int, mixed>>, mixed>>
+     * @return \Iterator<array{list<mixed>}>
      */
     public static function provideDuplicates(): \Iterator
     {
-        $dt = new \DateTimeImmutable();
+        $dt = new DatePoint('2026-01-01 10:00:00');
         yield [['a', 1, 'a']];
         yield [[1, 'a', 1]];
         yield [[['a'], ['a']]];

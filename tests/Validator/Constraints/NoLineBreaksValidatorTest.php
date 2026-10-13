@@ -17,30 +17,33 @@ final class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * @return \Iterator<array<int, string>>
+     * @return \Iterator<array{string}>
      */
     public static function getValid(): \Iterator
     {
         yield ["test\tstring"]; // tab
-        yield ['0 d']; // tab
+        yield ['0 d']; // space
         yield [' test ']; // spaces
         yield ['1119<br>0231'];
         yield ['1684<br />5312'];
     }
 
+    /**
+     * @return \Iterator<array{string}>
+     */
     public static function getInvalid(): \Iterator
     {
-        yield ["new\nline", Regex::REGEX_FAILED_ERROR];
-        yield ["new\rline", Regex::REGEX_FAILED_ERROR];
-        yield ["new\r\nline", Regex::REGEX_FAILED_ERROR];
-        yield ["new\fline", Regex::REGEX_FAILED_ERROR];
-        yield ["\nnewline", Regex::REGEX_FAILED_ERROR];
-        yield ["newline\n", Regex::REGEX_FAILED_ERROR];
-        yield ["new\x0bline", Regex::REGEX_FAILED_ERROR]; // vertical tab
-        yield ["new\xc2\x85line", Regex::REGEX_FAILED_ERROR]; // NEL, Next Line
-        yield ["test\vspace", Regex::REGEX_FAILED_ERROR]; // vertical space
-        yield ["new\xe2\x80\xa8line", Regex::REGEX_FAILED_ERROR]; // Unicode LS
-        yield ["new\xe2\x80\xa9line", Regex::REGEX_FAILED_ERROR]; // Unicode PS
+        yield ["new\nline"];
+        yield ["new\rline"];
+        yield ["new\r\nline"];
+        yield ["new\fline"];
+        yield ["\nnewline"];
+        yield ["newline\n"];
+        yield ["new\x0bline"]; // vertical tab
+        yield ["new\xc2\x85line"]; // NEL, Next Line
+        yield ["test\vspace"]; // vertical space
+        yield ["new\xe2\x80\xa8line"]; // Unicode LS
+        yield ["new\xe2\x80\xa9line"]; // Unicode PS
     }
 
     public function testNullIsValid(): void
@@ -93,7 +96,7 @@ final class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
     }
 
     #[DataProvider('getInvalid')]
-    public function testInvalid(string $value, string $code): void
+    public function testInvalid(string $value): void
     {
         $constraint = new NoLineBreaks();
 
@@ -102,7 +105,7 @@ final class NoLineBreaksValidatorTest extends ConstraintValidatorTestCase
         $violation = $this->buildViolation($constraint->message)
             ->setParameter('{{ value }}', '"'.$value.'"')
             ->setParameter('{{ pattern }}', $constraint->pattern)
-            ->setCode($code);
+            ->setCode(Regex::REGEX_FAILED_ERROR);
 
         $violation->assertRaised();
     }

@@ -83,7 +83,6 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
             return null;
         }
 
-        // Check if there's exactly one argument and it's an array
         if (1 !== \count($node->args)) {
             return null;
         }
@@ -93,17 +92,8 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
             return null;
         }
 
-        $array = $firstArg->value;
-
-        // Check if all array items have string keys (associative array)
-        if (!$this->isAssociativeArray($array)) {
-            return null;
-        }
-
-        // Convert array items to named arguments
-        $namedArgs = $this->convertArrayItemsToNamedArgs($array);
-
-        if ([] === $namedArgs) {
+        $namedArgs = $this->convertArrayItemsToNamedArgs($firstArg->value);
+        if (null === $namedArgs || [] === $namedArgs) {
             return null;
         }
 
@@ -127,11 +117,11 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         }
 
         if ($node instanceof MethodCall) {
-            return $this->isMethodCallTarget($node);
+            return $this->isClassMethodTarget($node->name, $node->var);
         }
 
         if ($node instanceof StaticCall) {
-            return $this->isStaticCallTarget($node);
+            return $this->isClassMethodTarget($node->name, $node->class);
         }
 
         return false;
@@ -144,93 +134,54 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
             return false;
         }
 
-        // String targets are function calls
-        return array_any($this->targets, static fn (array|string $target) => \is_string($target) && $target === $functionName);
-    }
-
-    private function isMethodCallTarget(MethodCall $methodCall): bool
-    {
-        if (!$methodCall->name instanceof Identifier) {
-            return false;
-        }
-
-        $methodName = $methodCall->name->toString();
-
-        foreach ($this->targets as $target) {
-            if (\is_array($target)) {
-                [$targetClass, $targetMethod] = $target;
-
-                if (
-                    $targetMethod === $methodName
-                    && $this->isObjectType($methodCall->var, new ObjectType($targetClass))
-                ) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private function isStaticCallTarget(StaticCall $staticCall): bool
-    {
-        if (!$staticCall->name instanceof Identifier) {
-            return false;
-        }
-
-        $methodName = $staticCall->name->toString();
-
-        foreach ($this->targets as $target) {
-            if (\is_array($target)) {
-                [$targetClass, $targetMethod] = $target;
-
-                if (
-                    $targetMethod === $methodName
-                    && $this->isObjectType($staticCall->class, new ObjectType($targetClass))
-                ) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private function isAssociativeArray(Array_ $array): bool
-    {
-        foreach ($array->items as $item) {
-            if (null === $item->key) {
-                return false;
-            }
-
-            if (!$item->key instanceof String_) {
-                return false;
-            }
-        }
-
-        return true;
+        // string targets are function calls
+        return array_any(
+            $this->targets,
+            static fn (array|string $target): bool => $target === $functionName,
+        );
     }
 
     /**
-     * @return Arg[]
+     * @param Node $name   the method name, an Identifier unless the call is dynamic
+     * @param Node $object the variable of an instance call or the class of a static call
      */
-    private function convertArrayItemsToNamedArgs(Array_ $array): array
+    private function isClassMethodTarget(Node $name, Node $object): bool
+    {
+        if (!$name instanceof Identifier) {
+            return false;
+        }
+
+        $methodName = $name->toString();
+
+        foreach ($this->targets as $target) {
+            if (\is_array($target)) {
+                [$targetClass, $targetMethod] = $target;
+
+                if (
+                    $targetMethod === $methodName
+                    && $this->isObjectType($object, new ObjectType($targetClass))
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return Arg[]|null null if not every item has a string key
+     */
+    private function convertArrayItemsToNamedArgs(Array_ $array): ?array
     {
         $namedArgs = [];
 
         foreach ($array->items as $item) {
             if (!$item->key instanceof String_) {
-                continue;
+                return null;
             }
 
-            $paramName = $item->key->value;
-            $namedArgs[] = new Arg(
-                $item->value,
-                false, // byRef
-                false, // unpack
-                [],    // attributes
-                new Identifier($paramName) // name
-            );
+            $namedArgs[] = new Arg($item->value, name: new Identifier($item->key->value));
         }
 
         return $namedArgs;

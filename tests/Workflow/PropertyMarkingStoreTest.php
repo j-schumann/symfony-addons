@@ -13,7 +13,6 @@ final class PropertyMarkingStoreTest extends KernelTestCase
     public function testGetNullMarking(): void
     {
         $subject = new TestEntity();
-        $subject->id = null;
 
         $store = new PropertyMarkingStore(true, 'id');
         $result = $store->getMarking($subject);

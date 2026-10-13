@@ -42,7 +42,7 @@ return RectorConfig::configure()
         // renames ChallengeConcretization $concretization to $challengeConcretization
         // renames $email = new TemplatedEmail() to $templatedEmail
         naming: false,
-        // unwanted: changes if ($user) to if ($user instanceof \Symfony\Component\Security\Core\User\UserInterface)
+        // unwanted: changes if ($user) to if ($user instanceof UserInterface)
         instanceOf: false,
         // unwanted: splits IF statements to force returns
         earlyReturn: false,
@@ -97,8 +97,5 @@ return RectorConfig::configure()
         DeclareStrictTypesRector::class,
         DeclareStrictTypesTestsRector::class,
         SafeDeclareStrictTypesRector::class,
-
-        // Auto-generated, config reference dump
-        __DIR__.'/tests/Fixtures/app/config/reference.php',
     ])
 ;

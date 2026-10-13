@@ -63,8 +63,8 @@ class QueryBuilderHelper
     }
 
     /**
-     * Returns the alias of the given relation (e.g. "objectRoles" of User), of the queried entity or,
-     * if an alias is given, of the entity joined with that alias. If the relation is not (yet)
+     * Returns the alias of the given relation (e.g. "objectRoles" of User), of the queried entity
+     * or, if an alias is given, of the entity joined with that alias. If the relation is not (yet)
      * joined, NULL is returned. If the relation is not (yet) joined but autoCreate is TRUE, a new
      * LEFT JOIN is added to the query and the alias returned.
      */

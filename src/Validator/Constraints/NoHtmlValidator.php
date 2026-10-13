@@ -7,9 +7,6 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
-/**
- * Checks that the given value contains no HTML tags.
- */
 class NoHtmlValidator extends ConstraintValidator
 {
     public function validate(mixed $value, Constraint $constraint): void
@@ -35,8 +32,6 @@ class NoHtmlValidator extends ConstraintValidator
                 ->setParameter('{{ value }}', $this->formatValue($value))
                 ->setCode(NoHtml::CONTAINS_HTML_ERROR)
                 ->addViolation();
-
-            return;
         }
     }
 }

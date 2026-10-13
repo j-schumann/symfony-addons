@@ -3,10 +3,7 @@
 $finder = PhpCsFixer\Finder::create()
     ->in(['src', 'tests'])
     ->exclude('var/cache')
-    ->notPath([
-        'config/bundles.php',
-        'config/reference.php',
-    ])
+    ->notPath('config/reference.php')
 ;
 
 $config = new PhpCsFixer\Config();

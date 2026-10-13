@@ -32,12 +32,6 @@ final class RefreshDatabaseBenchmarkTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
-    public static function setUpBeforeClass(): void
-    {
-        // measures the cleanup alone, the test persists its own records
-        self::$fixtureGroups = [];
-    }
-
     private const int DEFAULT_ITERATIONS = 50;
 
     /**
@@ -45,17 +39,23 @@ final class RefreshDatabaseBenchmarkTest extends KernelTestCase
      */
     private static array $timings = [];
 
+    public static function setUpBeforeClass(): void
+    {
+        // measures the cleanup alone, the test persists its own records
+        self::$fixtureGroups = [];
+    }
+
     public static function iterations(): iterable
     {
         $count = (int) ($_ENV['BENCH_ITERATIONS'] ?? self::DEFAULT_ITERATIONS);
 
         for ($i = 1; $i <= max(1, $count); ++$i) {
-            yield "iteration $i" => [$i];
+            yield "iteration $i" => [];
         }
     }
 
     #[DataProvider('iterations')]
-    public function testRefresh(int $iteration): void
+    public function testRefresh(): void
     {
         $start = microtime(true);
         self::bootKernel();
@@ -78,7 +78,6 @@ final class RefreshDatabaseBenchmarkTest extends KernelTestCase
         $em->flush();
 
         self::assertNotNull($testEntity->id);
-        self::assertSame($iteration, $iteration);
     }
 
     #[\Override]

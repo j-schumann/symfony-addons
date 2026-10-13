@@ -23,7 +23,7 @@ final class WorkflowHelperTest extends KernelTestCase
         self::assertSame(['review' => ['blockers' => []]], $list);
     }
 
-    public function testGetTransitionWithBlocker(): void
+    public function testGetTransitionListWithBlocker(): void
     {
         $subject = new TestEntity();
         $subject->varcharColumn = 'draft';
@@ -52,7 +52,7 @@ final class WorkflowHelperTest extends KernelTestCase
         ], $list);
     }
 
-    public function testGetTransitionWithBlockedEvent(): void
+    public function testGetTransitionListWithBlockedEvent(): void
     {
         $subject = new TestEntity();
         $subject->varcharColumn = 'draft';

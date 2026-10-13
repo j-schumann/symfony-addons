@@ -168,7 +168,7 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
 
     /**
      * All tables have to be emptied, including those that own no identity and are thus not part of
-     * the list above.
+     * getIdentityTables().
      */
     #[Env('DB_CLEANUP_METHOD', 'purge')]
     public function testPurgeEmptiesAllMappedTables(): void
@@ -289,24 +289,23 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     }
 
     /**
-     * @return string[] entity classes of which exactly one record is created by createOneOfEach(),
-     *                  each of them backed by its own table
+     * @return string[] entity classes of which createOneOfEach() creates exactly one record
      */
     private function countableClasses(): array
     {
         return [
-            TestEntity::class,
+            AssignedIdEntity::class,
             Child::class,
-            SuperclassChildA::class,
-            SuperclassChildB::class,
-            SingleTableChildA::class,
-            SingleTableChildB::class,
+            CompositeKeyEntity::class,
             JoinedChildA::class,
             JoinedChildB::class,
-            AssignedIdEntity::class,
-            CompositeKeyEntity::class,
             ReservedWordEntity::class,
             SelfReferencingEntity::class,
+            SingleTableChildA::class,
+            SingleTableChildB::class,
+            SuperclassChildA::class,
+            SuperclassChildB::class,
+            TestEntity::class,
         ];
     }
 
@@ -335,18 +334,18 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
         $selfReferencing->parent = $selfReferencing;
 
         $records = [
-            'testEntity'        => $testEntity,
+            'assignedId'        => $assigned,
             'child'             => $child,
-            'superclassChildA'  => new SuperclassChildA(),
-            'superclassChildB'  => new SuperclassChildB(),
-            'singleTableChildA' => new SingleTableChildA(),
-            'singleTableChildB' => new SingleTableChildB(),
+            'compositeKey'      => $composite,
             'joinedChildA'      => new JoinedChildA(),
             'joinedChildB'      => new JoinedChildB(),
             'reservedWord'      => new ReservedWordEntity(),
-            'assignedId'        => $assigned,
-            'compositeKey'      => $composite,
             'selfReferencing'   => $selfReferencing,
+            'singleTableChildA' => new SingleTableChildA(),
+            'singleTableChildB' => new SingleTableChildB(),
+            'superclassChildA'  => new SuperclassChildA(),
+            'superclassChildB'  => new SuperclassChildB(),
+            'testEntity'        => $testEntity,
         ];
 
         foreach ($records as $record) {
@@ -359,8 +358,6 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
     }
 
     /**
-     * Returns the list of (autoincrement) IDs for the given list of entities.
-     *
      * @param array<string, object> $records
      *
      * @return array<string, int>

@@ -28,7 +28,6 @@ final class FormDecoderTest extends KernelTestCase
                 $decoder = new FormDecoder($stack);
                 $res = $decoder->decode('', 'form');
 
-                // all params and the file where combined
                 self::assertIsArray($res);
                 self::assertCount(2, $res);
                 self::assertSame('Notes', $res['content']);
@@ -41,13 +40,13 @@ final class FormDecoderTest extends KernelTestCase
             'POST',
             '/irrelevant',
             [
-                'content'  => 'Notes',
                 'category' => '123',
+                'content'  => 'Notes',
             ],
             [],
             [
-                'HTTP_ACCEPT'  => 'application/ld+json',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'HTTP_ACCEPT'  => 'application/ld+json',
                 'HTTP_ORIGIN'  => 'https://example.net',
             ]
         );

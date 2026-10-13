@@ -35,7 +35,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
     public const string OR = 'or';
 
     /**
-     * DQL functions of vrok/doctrine-addons >= 3.1 per combination.
+     * DQL functions of vrok/doctrine-addons per combination.
      */
     private const array FUNCTIONS = [
         self::AND => 'JSON_CONTAINS_ALL_TEXT',
@@ -104,7 +104,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
      *
      * @return list<string>|null
      */
-    protected function normalizeValue(mixed $value, string $property): mixed
+    protected function normalizeValue(mixed $value, string $property): ?array
     {
         if (\is_scalar($value)) {
             return [(string) $value];

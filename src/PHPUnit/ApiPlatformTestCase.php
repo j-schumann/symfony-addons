@@ -23,18 +23,18 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * Used when getting a JWT for the authentication in testOperation(). Set in your test classes
      * accordingly.
      */
-    protected static string $userClass = '\App\Entity\User';
-
-    // region JSON responses
-    protected const UNAUTHENTICATED_RESPONSE = [
-        'code'    => 401,
-        'message' => 'JWT Token not found',
-    ];
+    protected static string $userClass = 'App\Entity\User';
 
     /**
      * Media type of RFC 7807 compliant error responses.
      */
     public const PROBLEM_MEDIA_TYPE = 'application/problem+json';
+
+    // region Error responses
+    protected const UNAUTHENTICATED_RESPONSE = [
+        'code'    => 401,
+        'message' => 'JWT Token not found',
+    ];
 
     public const PROBLEM_400 = [
         // 'detail' => 'The key "username" must be provided.', // varies
@@ -67,7 +67,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         'type'   => '/errors/404',
     ];
     public const PROBLEM_405 = [
-        // 'detail' => 'No route found for "PATCH [...]": Method Not Allowed (Allow: GET)', // varies
+        // 'detail' => 'No route found for "PATCH /x": Method Not Allowed (Allow: GET)', // varies
         'status' => 405,
         'title'  => 'An error occurred',
         // 'type'   => 'https://tools.ietf.org/html/rfc2616#section-10', // varies
@@ -95,8 +95,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     // endregion
 
     /**
-     * The params *must* contain either 'iri' or 'uri', all other settings are
-     * optional.
+     * The params *must* contain either 'iri' or 'uri', all other settings are optional.
      *
      * @param string                $uri                the endpoint to call, e.g. '/tenants'
      * @param array<int, mixed>     $iri                [classname, [field => value]],
@@ -125,7 +124,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
      * @param array<mixed>          $forbiddenKeys      like requiredKeys, but the dataset may not contain those
      * @param string                $schemaClass        asserts that the received response matches the JSON
      *                                                  schema for the given class
-     * @param array<array<mixed>>   $createdLogs        array of ["log message", LogLevel] entries, asserts the
+     * @param array<array<mixed>>   $createdLogs        array of ["log message", Level] entries, asserts the
      *                                                  messages to be present in the monolog handlers after the
      *                                                  operation ran
      * @param ?int                  $emailCount         asserts this number of emails to be sent via the
@@ -170,13 +169,13 @@ abstract class ApiPlatformTestCase extends ApiTestCase
 
             if ('' !== $postFormAuth) {
                 $client->setDefaultOptions([
-                    'headers' => [
-                        'content-type' => 'application/x-www-form-urlencoded',
-                    ],
                     'extra'   => [
                         'parameters' => [
                             $postFormAuth => $token,
                         ],
+                    ],
+                    'headers' => [
+                        'content-type' => 'application/x-www-form-urlencoded',
                     ],
                 ]);
             } else {
@@ -295,11 +294,11 @@ abstract class ApiPlatformTestCase extends ApiTestCase
             $messages = $messenger->getDispatchedMessages();
 
             if (null !== $messageCount) {
-                $found = \count($messages);
+                $count = \count($messages);
                 self::assertSame(
                     $messageCount,
-                    $found,
-                    "Expected $messageCount messages to be dispatched, found $found"
+                    $count,
+                    "Expected $messageCount messages to be dispatched, found $count"
                 );
             }
 
@@ -346,7 +345,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     }
 
     /**
-     * Creates a copy of the file given via $path and returns a UploadedFile to be given to
+     * Creates a copy of the file given via $path and returns an UploadedFile to be given to
      * testOperation() / the kernelBrowser to unit test file uploads.
      */
     public static function prepareUploadedFile(
@@ -415,8 +414,8 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     }
 
     /**
-     * Asserts that the given dataset $array does *not* contain the list of
-     * $expected keys. The keys may be nested.
+     * Asserts that the given dataset $array does *not* contain the list of $expected keys. The keys
+     * may be nested.
      *
      * @param array<mixed> $expected list of keys to check:
      *                               ['hydra:member'][0]['internal', 'hidden', 'private']

@@ -39,15 +39,17 @@ class AppKernel extends Kernel
         return __DIR__;
     }
 
-    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
-    {
+    protected function configureContainer(
+        ContainerBuilder $container,
+        LoaderInterface $loader,
+    ): void {
         $container->setParameter('kernel.project_dir', __DIR__);
 
         $loader->load(__DIR__.'/config/config.yaml');
 
         $profiler = [
-            'enabled' => true,
             'collect' => false,
+            'enabled' => true,
         ];
 
         // Symfony 7.4 deprecates not setting this to true, 8.0 only allows true (the default) and
@@ -58,14 +60,14 @@ class AppKernel extends Kernel
         }
 
         $container->prependExtensionConfig('framework', [
+            'http_method_override' => false,
+            'profiler'             => $profiler,
             'property_access'      => ['enabled' => true],
+            'router'               => ['utf8' => true],
             'secret'               => 'symfony.vrok',
-            'validation'           => [],
             'serializer'           => [],
             'test'                 => null,
-            'profiler'             => $profiler,
-            'router'               => ['utf8' => true],
-            'http_method_override' => false,
+            'validation'           => [],
         ]);
     }
 

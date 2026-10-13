@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.0.0] - 2026-10-12
+## [4.0.0] - 2026-10-13
 All BC breaks are explained in UPGRADE.md.
 
 ### Added
@@ -19,6 +19,11 @@ All BC breaks are explained in UPGRADE.md.
   `JSON_CONTAINS_ANY_TEXT` of `vrok/doctrine-addons` >= 3.1 and no longer ignores multiple values
 * BC break: `FormatBytesExtension` moved to `Vrok\SymfonyAddons\Twig` and uses `#[AsTwigFilter]`,
   requires `twig/twig` >= 3.21
+* BC break: the constructors of `CronDailyCommand`, `CronHourlyCommand` and `CronMonthlyCommand`
+  take the event dispatcher before the logger
+* BC break: `JsonExistsFilter::normalizeValue()` declares `?array` as return type
+* BC break: the `$constraints` of the `AtLeastOneOf` constructor are typed
+  `array|Constraint|null`, an options array is no longer accepted
 
 ### Fixed
 * `RefreshDatabaseTrait` uses the parameters of the primary connection of a primary/replica
@@ -31,6 +36,8 @@ All BC breaks are explained in UPGRADE.md.
   empty array for a response without content instead of causing an exception
 * `WrapNamedMethodArgumentsFixer` keeps the indentation of an indented call for the wrapped
   arguments and the closing parenthesis
+* `WrapNamedMethodArgumentsFixer` no longer wraps calls with only positional arguments that contain
+  a ternary or a return type
 
 ### Removed
 * Support for API Platform 4
@@ -77,7 +84,7 @@ Everything listed here is removed in 4.0, see its UPGRADE.md for the replacement
   (e.g. as dev dependency), it is not installed automatically.
 * The filters no longer extend the `AbstractFilter` deprecated in API Platform 4.4, this can be a
   backwards compatibility break if you extend the filters or check for `instanceof AbstractFilter`.
-* `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an exception 
+* `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an exception
   when no properties are set
 
 ### Fixed
@@ -274,7 +281,7 @@ Everything listed here is removed in 4.0, see its UPGRADE.md for the replacement
 
 ## [2.5.0] - 2023-07-20
 ### Added
-* `PropertyMarkingStore`, `WorkflowHelper` for use with Symfony workflows 
+* `PropertyMarkingStore`, `WorkflowHelper` for use with Symfony workflows
 * `FormatBytesExtension` for Twig
 * `MultipartDecoder` for file uploads (with ApiPlatform)
 
@@ -418,4 +425,4 @@ Everything listed here is removed in 4.0, see its UPGRADE.md for the replacement
 
 ## [1.1.4] - 2020-12-07
 ### Fixed
-- usage of deprectated SF method 
+- usage of deprecated SF method

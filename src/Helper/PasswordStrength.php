@@ -32,8 +32,6 @@ class PasswordStrength
     ];
 
     /**
-     * Returns the current threshold settings.
-     *
      * @return array<string, int>
      */
     public function getThresholds(): array
@@ -42,7 +40,7 @@ class PasswordStrength
     }
 
     /**
-     * Allows to set the threshold values for each rating.
+     * Merges the given thresholds into the current ones.
      *
      * @param array<string, int> $thresholds
      */
@@ -151,9 +149,6 @@ class PasswordStrength
         return $result + $extrabits;
     }
 
-    /**
-     * Returns the rating for the given password.
-     */
     public function ratePassword(string $password): string
     {
         return $this->getRating($this->getStrength($password));

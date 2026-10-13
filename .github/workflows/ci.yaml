@@ -304,6 +304,22 @@ jobs:
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --no-progress
 
+  php-cs-fixer:
+    name: PHP CS Fixer
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Common PHP setup
+        uses: ./.github/actions/php-setup
+        with:
+          dependencies: highest
+          php: '8.5'
+
+      - name: Check the code style
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+
   coverage-finished:
     name: Merge the coverage results
     needs: [ phpunit-mariadb, phpunit-mysql, phpunit-postgres, phpunit-sqlite, phpunit-sqlsrv ]

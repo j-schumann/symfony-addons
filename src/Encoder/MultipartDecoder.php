@@ -5,7 +5,9 @@ namespace Vrok\SymfonyAddons\Encoder;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
-// @see https://api-platform.com/docs/core/file-upload/#handling-the-multipart-deserialization
+/**
+ * @see https://api-platform.com/docs/core/file-upload/#handling-the-multipart-deserialization
+ */
 readonly class MultipartDecoder implements DecoderInterface
 {
     public const string FORMAT = 'multipart';
