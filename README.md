@@ -912,8 +912,8 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 ### composer.json dev
 
 * _doctrine/doctrine-fixtures-bundle_ is required for tests of the ApiPlatformTestCase
-* _friendsofphp/php-cs-fixer_ is required for the code style and the tests of the
-  WrapNamedMethodArgumentsFixer
+* _friendsofphp/php-cs-fixer_ checks the code style (`composer cs-check`, also in CI) and is
+  required for the tests of the WrapNamedMethodArgumentsFixer
 * _justinrainbow/json-schema_ is required for tests of the `schemaClass` of the ApiPlatformTestCase
 * _rector/rector_ is required for the refactoring rules and the tests of the
   NamedArgumentsFromArrayRector

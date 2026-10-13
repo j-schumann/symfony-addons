@@ -28,17 +28,17 @@ jobs:
   # cannot read the matrix context.
   disk:
     name: Benchmark (disk)
-    if: ${{ inputs.storage == '' || inputs.storage == 'both' || inputs.storage == 'disk' }}
+    if: ${{ inputs.storage == 'both' || inputs.storage == 'disk' }}
     runs-on: ubuntu-26.04
 
     services:
       mariadb:
-        image: mariadb:13@sha256:f1bba652ba57bea3099ca2fe1af692af537c27d96e0bcde39dce29e2ba1ec4f3
         env:
-          MARIADB_ROOT_PASSWORD: root
           MARIADB_DATABASE: db_test
-          MARIADB_USER: db_test
           MARIADB_PASSWORD: db_test
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_USER: db_test
+        image: mariadb:13@sha256:f1bba652ba57bea3099ca2fe1af692af537c27d96e0bcde39dce29e2ba1ec4f3
         options: >-
           --health-cmd="healthcheck.sh --connect --innodb_initialized"
           --health-interval=10s
@@ -48,12 +48,12 @@ jobs:
           - 3307:3306
 
       mysql:
-        image: mysql:lts@sha256:e2bde46db6563855d7177adb5f0b57b9dc663f5a20927a90f4259d3312068497
         env:
-          MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: db_test
-          MYSQL_USER: db_test
           MYSQL_PASSWORD: db_test
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: db_test
+        image: mysql:lts@sha256:091c9c7c4b6a6b4d2329d54b7f40d323741785ca990469df9a1d706be0db43e7
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval=10s
@@ -63,11 +63,11 @@ jobs:
           - 3306:3306
 
       postgres:
-        image: postgres:18@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
         env:
           POSTGRES_DB: db_test
-          POSTGRES_USER: db_test
           POSTGRES_PASSWORD: db_test
+          POSTGRES_USER: db_test
+        image: postgres:18@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
         options: >-
           --health-cmd="pg_isready"
           --health-interval=10s
@@ -80,10 +80,10 @@ jobs:
         image: kcollins/mssql:latest@sha256:95c2666d3a7c5dfaaf7247585057285ab7617fdcba213fff70f30ad92ce2a44a
         env:
           ACCEPT_EULA: "Y"
-          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
           MSSQL_DATABASE: db_test
-          MSSQL_USER: db_test
           MSSQL_PASSWORD: db_test
+          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
+          MSSQL_USER: db_test
         ports:
           - 1433:1433
 
@@ -94,8 +94,8 @@ jobs:
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
         with:
-          php: '8.5'
           dependencies: highest
+          php: '8.5'
 
       - name: Install the ODBC driver for SQL Server
         run: |
@@ -107,12 +107,12 @@ jobs:
       - name: Run benchmark
         env:
           BENCH_ITERATIONS: ${{ inputs.iterations }}
-          BENCH_STORAGE: disk
           BENCH_REPORT: ${{ github.workspace }}/benchmark-disk.md
-          DATABASE_URL_SQLITE: "sqlite:///%kernel.project_dir%/var/bench.db"
+          BENCH_STORAGE: disk
           DATABASE_URL_MARIADB: "mysql://db_test:db_test@127.0.0.1:3307/db_test?serverVersion=mariadb-12.0.0&charset=utf8mb4"
           DATABASE_URL_MYSQL: "mysql://db_test:db_test@127.0.0.1:3306/db_test?serverVersion=9.0&charset=utf8mb4"
           DATABASE_URL_POSTGRES: "pgsql://db_test:db_test@127.0.0.1:5432/db_test?serverVersion=18"
+          DATABASE_URL_SQLITE: "sqlite:///%kernel.project_dir%/var/bench.db"
           DATABASE_URL_SQLSRV: "sqlsrv://sa:StrongP-ssw0rd!@127.0.0.1:1433/db_test?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0"
         run: bin/benchmark.sh
 
@@ -124,23 +124,23 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
+          if-no-files-found: ignore
           name: benchmark-disk
           path: benchmark-disk.md
-          if-no-files-found: ignore
 
   tmpfs:
     name: Benchmark (tmpfs)
-    if: ${{ inputs.storage == '' || inputs.storage == 'both' || inputs.storage == 'tmpfs' }}
+    if: ${{ inputs.storage == 'both' || inputs.storage == 'tmpfs' }}
     runs-on: ubuntu-26.04
 
     services:
       mariadb:
-        image: mariadb:13@sha256:f1bba652ba57bea3099ca2fe1af692af537c27d96e0bcde39dce29e2ba1ec4f3
         env:
-          MARIADB_ROOT_PASSWORD: root
           MARIADB_DATABASE: db_test
-          MARIADB_USER: db_test
           MARIADB_PASSWORD: db_test
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_USER: db_test
+        image: mariadb:13@sha256:f1bba652ba57bea3099ca2fe1af692af537c27d96e0bcde39dce29e2ba1ec4f3
         options: >-
           --tmpfs /var/lib/mysql:rw,size=1g
           --health-cmd="healthcheck.sh --connect --innodb_initialized"
@@ -151,12 +151,12 @@ jobs:
           - 3307:3306
 
       mysql:
-        image: mysql:lts@sha256:e2bde46db6563855d7177adb5f0b57b9dc663f5a20927a90f4259d3312068497
         env:
-          MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: db_test
-          MYSQL_USER: db_test
           MYSQL_PASSWORD: db_test
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: db_test
+        image: mysql:lts@sha256:091c9c7c4b6a6b4d2329d54b7f40d323741785ca990469df9a1d706be0db43e7
         options: >-
           --tmpfs /var/lib/mysql:rw,size=1g
           --health-cmd="mysqladmin ping"
@@ -167,11 +167,11 @@ jobs:
           - 3306:3306
 
       postgres:
-        image: postgres:18@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
         env:
           POSTGRES_DB: db_test
-          POSTGRES_USER: db_test
           POSTGRES_PASSWORD: db_test
+          POSTGRES_USER: db_test
+        image: postgres:18@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
         options: >-
           --tmpfs /var/lib/postgresql/18/docker:rw,size=1g
           --health-cmd="pg_isready"
@@ -185,10 +185,10 @@ jobs:
         image: kcollins/mssql:latest@sha256:95c2666d3a7c5dfaaf7247585057285ab7617fdcba213fff70f30ad92ce2a44a
         env:
           ACCEPT_EULA: "Y"
-          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
           MSSQL_DATABASE: db_test
-          MSSQL_USER: db_test
           MSSQL_PASSWORD: db_test
+          MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
+          MSSQL_USER: db_test
         options: --tmpfs /var/opt/mssql/data:rw,size=2g
         ports:
           - 1433:1433
@@ -200,8 +200,8 @@ jobs:
       - name: Common PHP setup
         uses: ./.github/actions/php-setup
         with:
-          php: '8.5'
           dependencies: highest
+          php: '8.5'
 
       - name: Install the ODBC driver for SQL Server
         run: |
@@ -213,12 +213,12 @@ jobs:
       - name: Run benchmark
         env:
           BENCH_ITERATIONS: ${{ inputs.iterations }}
-          BENCH_STORAGE: tmpfs
           BENCH_REPORT: ${{ github.workspace }}/benchmark-tmpfs.md
-          DATABASE_URL_SQLITE: "sqlite:////dev/shm/bench.db"
+          BENCH_STORAGE: tmpfs
           DATABASE_URL_MARIADB: "mysql://db_test:db_test@127.0.0.1:3307/db_test?serverVersion=mariadb-12.0.0&charset=utf8mb4"
           DATABASE_URL_MYSQL: "mysql://db_test:db_test@127.0.0.1:3306/db_test?serverVersion=9.0&charset=utf8mb4"
           DATABASE_URL_POSTGRES: "pgsql://db_test:db_test@127.0.0.1:5432/db_test?serverVersion=18"
+          DATABASE_URL_SQLITE: "sqlite:////dev/shm/bench.db"
           DATABASE_URL_SQLSRV: "sqlsrv://sa:StrongP-ssw0rd!@127.0.0.1:1433/db_test?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0"
         run: bin/benchmark.sh
 
@@ -230,6 +230,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
+          if-no-files-found: ignore
           name: benchmark-tmpfs
           path: benchmark-tmpfs.md
-          if-no-files-found: ignore
