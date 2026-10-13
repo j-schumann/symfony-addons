@@ -25,6 +25,14 @@ class AtLeastOneOfValidator extends ConstraintValidator
         /** @var Constraint[] $constraints normalized to an array by the Composite constructor */
         $constraints = $constraint->constraints;
         foreach ($constraints as $item) {
+            // @phpstan-ignore argument.type (the Composite constructor sets the groups of all nested constraints)
+            if (!\in_array($this->context->getGroup(), $item->groups, true)) {
+                continue;
+            }
+
+            // a nested constraint re-initializes the shared validator instance with the cloned
+            // context, restore ours afterwards
+            $context = $this->context;
             $executionContext = clone $this->context;
             $executionContext->setNode(
                 $value,
@@ -35,6 +43,7 @@ class AtLeastOneOfValidator extends ConstraintValidator
             $violations = $validator->inContext($executionContext)
                 ->validate($value, $item, $this->context->getGroup())
                 ->getViolations();
+            $this->context = $context;
 
             if (\count($this->context->getViolations()) === \count($violations)) {
                 return;

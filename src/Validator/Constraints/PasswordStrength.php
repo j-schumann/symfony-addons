@@ -2,6 +2,7 @@
 
 namespace Vrok\SymfonyAddons\Validator\Constraints;
 
+use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 
 #[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD)]
@@ -16,6 +17,7 @@ class PasswordStrength extends Constraint
     public string $message = 'This password is not secure enough.';
     public float $minStrength = 25;
 
+    #[HasNamedArguments]
     public function __construct(
         ?float $minStrength = null,
         ?string $message = null,

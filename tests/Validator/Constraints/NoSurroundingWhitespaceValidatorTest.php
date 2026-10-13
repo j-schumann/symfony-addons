@@ -3,10 +3,14 @@
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\RegexValidator;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
+use Symfony\Component\Validator\Validation;
+use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 use Vrok\SymfonyAddons\Validator\Constraints\NoSurroundingWhitespace;
 
 final class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTestCase
@@ -131,5 +135,21 @@ final class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTest
             ->setParameter('{{ pattern }}', $constraint->pattern)
             ->setCode(Regex::REGEX_FAILED_ERROR)
             ->assertRaised();
+    }
+
+    public function testConstraintFromYamlMapping(): void
+    {
+        $metadata = Validation::createValidatorBuilder()
+            ->addYamlMapping(__DIR__.'/../../Fixtures/Validator/constraints.yaml')
+            ->getValidator()
+            ->getMetadataFor(TestEntity::class);
+        \assert($metadata instanceof ClassMetadata);
+        $constraints = array_values(array_filter(
+            $metadata->getPropertyMetadata('varcharColumn')[0]->getConstraints(),
+            static fn (Constraint $c): bool => $c instanceof NoSurroundingWhitespace,
+        ));
+
+        self::assertCount(1, $constraints);
+        self::assertSame('trimmed', $constraints[0]->message);
     }
 }

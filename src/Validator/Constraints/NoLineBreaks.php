@@ -2,6 +2,7 @@
 
 namespace Vrok\SymfonyAddons\Validator\Constraints;
 
+use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\RegexValidator;
 
@@ -11,6 +12,7 @@ use Symfony\Component\Validator\Constraints\RegexValidator;
 #[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD)]
 class NoLineBreaks extends Regex
 {
+    #[HasNamedArguments]
     public function __construct(
         ?string $message = null,
         ?callable $normalizer = null,

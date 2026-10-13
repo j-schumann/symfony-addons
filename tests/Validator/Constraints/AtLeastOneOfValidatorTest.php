@@ -3,6 +3,7 @@
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\AtLeastOneOf as BaseAtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Blank;
@@ -11,8 +12,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Sequentially;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Symfony\Component\Validator\Validation;
+use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 use Vrok\SymfonyAddons\Validator\Constraints\AtLeastOneOf;
 use Vrok\SymfonyAddons\Validator\Constraints\AtLeastOneOfValidator;
 
@@ -207,6 +210,65 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $this->expectException(UnexpectedTypeException::class);
 
         $this->validator->validate('value', new NotBlank());
+    }
+
+    public function testValidateSkipsConstraintsOfOtherGroups(): void
+    {
+        $constraint = new AtLeastOneOf(constraints: [
+            new Blank(groups: ['create']),
+            new Length(min: 5, minMessage: 'minMessage'),
+        ]);
+
+        $violations = Validation::createValidator()->validate('abc', $constraint);
+
+        self::assertCount(1, $violations);
+        self::assertSame('minMessage', $violations->get(0)->getMessage());
+    }
+
+    public function testValidateWithNestedAtLeastOneOf(): void
+    {
+        $constraint = new AtLeastOneOf(constraints: [
+            new AtLeastOneOf(constraints: [new Length(min: 10), new Blank()]),
+            new Length(min: 5, minMessage: 'minMessage'),
+        ]);
+
+        $violations = Validation::createValidator()->validate('abc', $constraint);
+
+        self::assertCount(1, $violations);
+        self::assertSame('minMessage', $violations->get(0)->getMessage());
+    }
+
+    public function testConstraintFromYamlMapping(): void
+    {
+        $metadata = Validation::createValidatorBuilder()
+            ->addYamlMapping(__DIR__.'/../../Fixtures/Validator/constraints.yaml')
+            ->getValidator()
+            ->getMetadataFor(TestEntity::class);
+        \assert($metadata instanceof ClassMetadata);
+        $constraints = array_values(array_filter(
+            $metadata->getPropertyMetadata('varcharColumn')[0]->getConstraints(),
+            static fn (Constraint $c): bool => $c instanceof AtLeastOneOf,
+        ));
+
+        self::assertCount(1, $constraints);
+        self::assertSame('custom', $constraints[0]->message);
+    }
+
+    public function testConstraintFromYamlMappingWithoutMessage(): void
+    {
+        $metadata = Validation::createValidatorBuilder()
+            ->addYamlMapping(__DIR__.'/../../Fixtures/Validator/constraints.yaml')
+            ->getValidator()
+            ->getMetadataFor(TestEntity::class);
+        \assert($metadata instanceof ClassMetadata);
+        $constraints = array_values(array_filter(
+            $metadata->getPropertyMetadata('jsonColumn')[0]->getConstraints(),
+            static fn (Constraint $c): bool => $c instanceof AtLeastOneOf,
+        ));
+
+        self::assertCount(1, $constraints);
+        self::assertSame('', $constraints[0]->message);
+        self::assertTrue($constraints[0]->includeInternalMessages);
     }
 
     private static function violation(
