@@ -12,7 +12,7 @@
 #
 # docker compose -f .dev-symfony/docker-compose.yml \
 #                  -f .dev-symfony/docker-compose.tmpfs.yml up -d
-# BENCH_STORAGE=tmpfs docker exec -w /var/www/html php-symfony bin/benchmark.sh
+# docker exec -e BENCH_STORAGE=tmpfs -w /var/www/html php-symfony bin/benchmark.sh
 #
 # In CI the workflow provides the services and sets the DATABASE_URL_* variables.
 #

@@ -3,10 +3,14 @@
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
+use Symfony\Component\Validator\Validation;
+use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
 use Vrok\SymfonyAddons\Validator\Constraints\PasswordStrength;
 use Vrok\SymfonyAddons\Validator\Constraints\PasswordStrengthValidator;
 
@@ -111,5 +115,22 @@ final class PasswordStrengthValidatorTest extends ConstraintValidatorTestCase
         $this->expectException(UnexpectedTypeException::class);
 
         $this->validator->validate('value', new NotBlank());
+    }
+
+    public function testConstraintFromYamlMapping(): void
+    {
+        $metadata = Validation::createValidatorBuilder()
+            ->addYamlMapping(__DIR__.'/../../Fixtures/Validator/constraints.yaml')
+            ->getValidator()
+            ->getMetadataFor(TestEntity::class);
+        \assert($metadata instanceof ClassMetadata);
+        $constraints = array_values(array_filter(
+            $metadata->getPropertyMetadata('textColumn')[0]->getConstraints(),
+            static fn (Constraint $c): bool => $c instanceof PasswordStrength,
+        ));
+
+        self::assertCount(1, $constraints);
+        self::assertSame('too weak', $constraints[0]->message);
+        self::assertSame(30.0, $constraints[0]->minStrength);
     }
 }

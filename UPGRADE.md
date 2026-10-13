@@ -17,8 +17,14 @@
   database before the call, e.g. via `static::getContainer()`, and pass the values as arguments
   instead of changing `$params`. Set cookies with the new `cookies` argument instead of the cookie
   jar of `self::getClient()`.
-* If you create the `CronDailyCommand`, `CronHourlyCommand` or `CronMonthlyCommand` yourself, pass
-  the event dispatcher first and the logger second.
+* If you create the `CronDailyCommand`, `CronHourlyCommand` or `CronMonthlyCommand` yourself or
+  call their constructor from a subclass, pass the event dispatcher first and the logger second.
+* If you override `JsonExistsFilter::normalizeValue()`, declare `?array` as return type.
+* The `AtLeastOneOf` constructor types `$constraints` as `array|Constraint|null` and `$message` as
+  `?string`, a subclass that overrides the constructor has to follow.
+* If you assign `$fixtureGroups` of the `RefreshDatabaseTrait` in `setUpBeforeClass()`, redeclare
+  the property in the test class instead, see README.md. The assignment changes the groups for
+  every test class sharing the property.
 * If you extended the internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase` instead.
 * Replace the `#[ApiFilter]` attribute for the `SimpleSearchFilter`, `ContainsFilter` and
   `JsonExistsFilter` with `#[QueryParameter]`, see README.md. Requests to a parameter of such an

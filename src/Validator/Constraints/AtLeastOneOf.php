@@ -2,6 +2,7 @@
 
 namespace Vrok\SymfonyAddons\Validator\Constraints;
 
+use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\AtLeastOneOf as BaseAtLeastOneOf;
 
@@ -14,19 +15,22 @@ class AtLeastOneOf extends BaseAtLeastOneOf
      *
      * @param Constraint[]|Constraint|null $constraints
      */
+    #[HasNamedArguments]
     public function __construct(
         array|Constraint|null $constraints = null,
         ?array $groups = null,
         mixed $payload = null,
-        string $message = '',
+        ?string $message = null,
         ?string $messageCollection = null,
+        ?bool $includeInternalMessages = null,
     ) {
         parent::__construct(
             $constraints,
             $groups,
             $payload,
-            $message,
-            $messageCollection
+            $message ?? '',
+            $messageCollection,
+            $includeInternalMessages,
         );
     }
 }

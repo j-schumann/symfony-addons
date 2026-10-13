@@ -167,23 +167,13 @@ abstract class ApiPlatformTestCase extends ApiTestCase
         if ('' !== $email) {
             $token = $this->getJWT(['email' => $email]);
 
+            // request options instead of setDefaultOptions(), which would replace the client
+            // defaults of createClient(), e.g. the JSON-LD content type
             if ('' !== $postFormAuth) {
-                $client->setDefaultOptions([
-                    'extra'   => [
-                        'parameters' => [
-                            $postFormAuth => $token,
-                        ],
-                    ],
-                    'headers' => [
-                        'content-type' => 'application/x-www-form-urlencoded',
-                    ],
-                ]);
+                $requestOptions['extra']['parameters'][$postFormAuth] ??= $token;
+                $requestOptions['headers']['content-type'] ??= 'application/x-www-form-urlencoded';
             } else {
-                $client->setDefaultOptions([
-                    'headers' => [
-                        'Authorization' => \sprintf('Bearer %s', $token),
-                    ],
-                ]);
+                $requestOptions['headers']['Authorization'] ??= \sprintf('Bearer %s', $token);
             }
         }
 
@@ -371,6 +361,7 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     public static function tearDownAfterClass(): void
     {
         self::fixtureCleanup();
+        parent::tearDownAfterClass();
     }
 
     /**

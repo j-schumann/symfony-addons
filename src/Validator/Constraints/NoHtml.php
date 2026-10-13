@@ -2,6 +2,7 @@
 
 namespace Vrok\SymfonyAddons\Validator\Constraints;
 
+use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 
 #[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD)]
@@ -15,6 +16,7 @@ class NoHtml extends Constraint
 
     public string $message = 'The value must not contain HTML Tags.';
 
+    #[HasNamedArguments]
     public function __construct(
         ?string $message = null,
         ?array $groups = null,

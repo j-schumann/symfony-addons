@@ -1,0 +1,27 @@
+# Configures the constraints with options, as an application does in its validation mapping. The
+# loader passes the options as named arguments only to constructors with #[HasNamedArguments].
+Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity:
+  properties:
+    jsonColumn:
+      - Vrok\SymfonyAddons\Validator\Constraints\AtLeastOneOf:
+          constraints:
+            - Blank: ~
+          includeInternalMessages: true
+          message: ~
+    textColumn:
+      - Vrok\SymfonyAddons\Validator\Constraints\NoHtml:
+          message: 'no html'
+      - Vrok\SymfonyAddons\Validator\Constraints\NoLineBreaks:
+          groups: [g1]
+          message: 'no line breaks'
+      - Vrok\SymfonyAddons\Validator\Constraints\PasswordStrength:
+          message: 'too weak'
+          minStrength: 30
+    varcharColumn:
+      - Vrok\SymfonyAddons\Validator\Constraints\AtLeastOneOf:
+          constraints:
+            - Length:
+                min: 10
+          message: 'custom'
+      - Vrok\SymfonyAddons\Validator\Constraints\NoSurroundingWhitespace:
+          message: 'trimmed'

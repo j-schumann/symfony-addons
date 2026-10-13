@@ -248,11 +248,10 @@ trait RefreshDatabaseTrait
             return;
         }
 
-        $dbNames = array_map(
-            static fn (UnqualifiedName $name): string => $name->getIdentifier()->getValue(),
+        $dbExists = array_any(
             $schemaManager->introspectDatabaseNames(),
+            static fn (UnqualifiedName $n): bool => $n->getIdentifier()->getValue() === $dbName,
         );
-        $dbExists = \in_array($dbName, $dbNames, true);
 
         if ($drop && $dbExists) {
             // close the current connection in the em, it would be invalid anyway after the drop
