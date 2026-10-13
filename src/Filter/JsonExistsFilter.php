@@ -104,7 +104,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
      *
      * @return list<string>|null
      */
-    protected function normalizeValue(mixed $value, string $property): mixed
+    protected function normalizeValue(mixed $value, string $property): ?array
     {
         if (\is_scalar($value)) {
             return [(string) $value];

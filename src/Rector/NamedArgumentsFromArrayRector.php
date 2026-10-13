@@ -117,11 +117,11 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         }
 
         if ($node instanceof MethodCall) {
-            return $this->isMethodCallTarget($node);
+            return $this->isClassMethodTarget($node->name, $node->var);
         }
 
         if ($node instanceof StaticCall) {
-            return $this->isStaticCallTarget($node);
+            return $this->isClassMethodTarget($node->name, $node->class);
         }
 
         return false;
@@ -141,13 +141,17 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         );
     }
 
-    private function isMethodCallTarget(MethodCall $methodCall): bool
+    /**
+     * @param Node $name   the method name, an Identifier unless the call is dynamic
+     * @param Node $object the variable of an instance call or the class of a static call
+     */
+    private function isClassMethodTarget(Node $name, Node $object): bool
     {
-        if (!$methodCall->name instanceof Identifier) {
+        if (!$name instanceof Identifier) {
             return false;
         }
 
-        $methodName = $methodCall->name->toString();
+        $methodName = $name->toString();
 
         foreach ($this->targets as $target) {
             if (\is_array($target)) {
@@ -155,31 +159,7 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
 
                 if (
                     $targetMethod === $methodName
-                    && $this->isObjectType($methodCall->var, new ObjectType($targetClass))
-                ) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private function isStaticCallTarget(StaticCall $staticCall): bool
-    {
-        if (!$staticCall->name instanceof Identifier) {
-            return false;
-        }
-
-        $methodName = $staticCall->name->toString();
-
-        foreach ($this->targets as $target) {
-            if (\is_array($target)) {
-                [$targetClass, $targetMethod] = $target;
-
-                if (
-                    $targetMethod === $methodName
-                    && $this->isObjectType($staticCall->class, new ObjectType($targetClass))
+                    && $this->isObjectType($object, new ObjectType($targetClass))
                 ) {
                     return true;
                 }

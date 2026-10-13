@@ -7,6 +7,4 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class SingleTableChildA extends SingleTableRoot
 {
-    #[ORM\Column(nullable: true)]
-    public ?string $childAColumn = null;
 }

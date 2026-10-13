@@ -21,6 +21,9 @@ All BC breaks are explained in UPGRADE.md.
   requires `twig/twig` >= 3.21
 * BC break: the constructors of `CronDailyCommand`, `CronHourlyCommand` and `CronMonthlyCommand`
   take the event dispatcher before the logger
+* BC break: `JsonExistsFilter::normalizeValue()` declares `?array` as return type
+* BC break: the `$constraints` of the `AtLeastOneOf` constructor are typed
+  `array|Constraint|null`, an options array is no longer accepted
 
 ### Fixed
 * `RefreshDatabaseTrait` uses the parameters of the primary connection of a primary/replica
