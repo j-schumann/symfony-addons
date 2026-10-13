@@ -4,6 +4,7 @@ namespace Vrok\SymfonyAddons\Tests\Util;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\DatePoint;
 use Vrok\SymfonyAddons\Util\ArrayUtil;
 
 /**
@@ -122,7 +123,7 @@ final class ArrayUtilTest extends TestCase
     public static function provideNonDuplicates(): \Iterator
     {
         yield [['a', 1, 'b']];
-        yield [[new \DateTimeImmutable(), new \DateTimeImmutable()]];
+        yield [[new DatePoint('2026-01-01 10:00:00'), new DatePoint('2026-01-01 10:00:01')]];
         yield [[['a'], ['b']]];
         yield [[[1 => 'a'], [2 => 'a']]];
     }
@@ -132,7 +133,7 @@ final class ArrayUtilTest extends TestCase
      */
     public static function provideDuplicates(): \Iterator
     {
-        $dt = new \DateTimeImmutable();
+        $dt = new DatePoint('2026-01-01 10:00:00');
         yield [['a', 1, 'a']];
         yield [[1, 'a', 1]];
         yield [[['a'], ['a']]];

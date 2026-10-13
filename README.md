@@ -925,6 +925,9 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait
 * _phpstan/phpstan_ and _phpstan/phpstan-deprecation-rules_ run the static analysis
   (`composer phpstan`), also in CI
+* _symfony/clock_ provides `DatePoint` for fixed dates in the tests
+* _symfony/error-handler_ >= 7.4.17 / 8.1.5 restores the exception handler it registers, older
+  versions make the kernel tests risky
 * _symfony/polyfill-php85_ >= 1.33 is required by rector/rector on PHP 8.4 (`array_last()`), which
   does not require it itself
 * _symfony/string_ is required for API Platform's inflector
