@@ -17,10 +17,7 @@ use Doctrine\ORM\QueryBuilder;
  * Selects entities where the search term is found (case insensitive) in at least one of the
  * specified properties. All specified properties must be string or JSON columns.
  */
-class SimpleSearchFilter implements
-    FilterInterface,
-    LoggerAwareInterface,
-    OpenApiParameterFilterInterface
+class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenApiParameterFilterInterface
 {
     use FilterTrait;
 
