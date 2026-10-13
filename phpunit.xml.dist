@@ -49,6 +49,7 @@
 
   <source
           ignoreSuppressionOfDeprecations="true"
+          restrictDeprecations="true"
           restrictNotices="true"
           restrictWarnings="true"
   >
