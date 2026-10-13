@@ -4,13 +4,14 @@
   Platform packages instead of `api-platform/core`, require `api-platform/test` for the
   `ApiPlatformTestCase`.
 * Update doctrine/dbal to version 4.5 or newer.
-* If you use the `WrapNamedMethodArgumentsFixer`, update friendsofphp/php-cs-fixer to 3.95.5 or newer.
-* Replace `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE` with `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`.
-  `testOperation()` compares the `contentType` exactly, remove a `; charset=utf-8` suffix from
-   expected JSON based content types.
-* The `ApiPlatformTestCase::HYDRA_PROBLEM_*` constants are removed, they expected the `hydra:` prefix
-  that API Platform 5 no longer adds by default. Use the `PROBLEM_*` constants, or define your own
-  if you enable `api_platform.serializer.hydra_prefix`.
+* If you use the `WrapNamedMethodArgumentsFixer`, update friendsofphp/php-cs-fixer to 3.95.5 or
+  newer.
+* Replace `ApiPlatformTestCase::PROBLEM_CONTENT_TYPE` with
+  `ApiPlatformTestCase::PROBLEM_MEDIA_TYPE`. `testOperation()` compares the `contentType` exactly,
+  remove a `; charset=utf-8` suffix from expected JSON based content types.
+* The `ApiPlatformTestCase::HYDRA_PROBLEM_*` constants are removed, they expected the `hydra:`
+  prefix that API Platform 5 no longer adds by default. Use the `PROBLEM_*` constants, or define
+  your own if you enable `api_platform.serializer.hydra_prefix`.
 * `testOperation()` lost the `prepare` argument. It only boots the kernel, which refreshes the
   database, if no kernel is booted yet, so changes made before the call persist: prepare the
   database before the call, e.g. via `static::getContainer()`, and pass the values as arguments
@@ -31,9 +32,9 @@
   the DQL function `JSON_CONTAINS_TEXT` but `JSON_CONTAINS_ALL_TEXT` or `JSON_CONTAINS_ANY_TEXT` of
   `vrok/doctrine-addons` >= 3.1, for single values too: register them as described in README.md,
   else all requests using the filter fail with an unknown DQL function.
-* The `FormatBytesExtension` uses the `#[AsTwigFilter]` attribute and is moved to 
+* The `FormatBytesExtension` uses the `#[AsTwigFilter]` attribute and is moved to
   `Vrok\SymfonyAddons\Twig\FormatBytesExtension`, update `twig/twig` to >= 3.21.
-  The bundle registers the extension, remove your own service definition for it if you have one: 
+  The bundle registers the extension, remove your own service definition for it if you have one:
   with the `twig.extension` tag it fails, because the class no longer implements Twig's
   `ExtensionInterface`.
 * The `AutoSenderSubscriber` is removed. Remove its service definition and set the default sender

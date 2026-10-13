@@ -79,7 +79,7 @@ Everything listed here is removed in 4.0, see its UPGRADE.md for the replacement
   (e.g. as dev dependency), it is not installed automatically.
 * The filters no longer extend the `AbstractFilter` deprecated in API Platform 4.4, this can be a
   backwards compatibility break if you extend the filters or check for `instanceof AbstractFilter`.
-* `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an exception 
+* `SimpleSearchFilter::getDescription()` returns an empty array instead of throwing an exception
   when no properties are set
 
 ### Fixed
@@ -276,7 +276,7 @@ Everything listed here is removed in 4.0, see its UPGRADE.md for the replacement
 
 ## [2.5.0] - 2023-07-20
 ### Added
-* `PropertyMarkingStore`, `WorkflowHelper` for use with Symfony workflows 
+* `PropertyMarkingStore`, `WorkflowHelper` for use with Symfony workflows
 * `FormatBytesExtension` for Twig
 * `MultipartDecoder` for file uploads (with ApiPlatform)
 
@@ -420,4 +420,4 @@ Everything listed here is removed in 4.0, see its UPGRADE.md for the replacement
 
 ## [1.1.4] - 2020-12-07
 ### Fixed
-- usage of deprectated SF method 
+- usage of deprecated SF method
