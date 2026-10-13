@@ -436,11 +436,14 @@ class DatabaseTest extends KernelTestCase
 Optionally define which fixtures to use for this test class:
 
 ```php
-public static function setUpBeforeClass(): void
-{
-    static::$fixtureGroups = ['test', 'other'];
-}
+protected static array $fixtureGroups = ['test', 'other'];
 ```
+
+Redeclare the property in the test class instead of assigning it in `setUpBeforeClass()`: the
+property is static, an assignment would change the groups for every other test class sharing it.
+The trait caches the loaded fixtures in a static property too: if you use the trait in your own
+base class instead of the `ApiPlatformTestCase`, call `static::fixtureCleanup()` in its
+`tearDownAfterClass()`, so the next test class loads its own fixture groups.
 
 Supports setting the cleanup method after tests via `DB_CLEANUP_METHOD`. Allowed values are _purge_,
 _dropSchema_ and _dropDatabase_, for more details see the docblock of the `RefreshDatabaseTrait`.
@@ -642,6 +645,7 @@ push messages to the messenger etc. It is your responsibility to execute these c
 correctly!
 
 ```php
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Vrok\SymfonyAddons\Event\CronDailyEvent;
 
 class MyEventSubscriber implements EventSubscriberInterface
@@ -653,6 +657,11 @@ class MyEventSubscriber implements EventSubscriberInterface
                 ['onCronDaily', 100],
             ],
         ];
+    }
+
+    public function onCronDaily(CronDailyEvent $event): void
+    {
+        // e.g. remove outdated records
     }
 }
 ```
@@ -767,11 +776,13 @@ uploads with additional data (e.g. in ApiPlatform):
 
 The decoder is automatically called for `multipart` requests and simply returns all POST parameters
 and uploaded files together. To enable this add the `multipart` format to your
-`config/packages/api_platform.yaml`:
+`config/packages/api_platform.yaml`. The `formats` replace API Platform's default list, so keep the
+formats you already use, the first one is the default:
 
 ```yaml
 api_platform:
     formats:
+        jsonld: ['application/ld+json']
         multipart: ['multipart/form-data']
 ```
 
@@ -785,12 +796,15 @@ in ApiPlatform:
 ```
 
 The decoder is automatically called for `form` requests and simply returns all POST parameters. To
-enable this add the `form` format to your `config/packages/api_platform.yaml`:
+enable this add the `form` format to your `config/packages/api_platform.yaml`. The `formats`
+replace API Platform's default list, so keep the formats you already use, the first one is the
+default:
 
 ```yaml
 api_platform:
     formats:
-      form: ['application/x-www-form-urlencoded']
+        jsonld: ['application/ld+json']
+        form: ['application/x-www-form-urlencoded']
 ```
 
 ## Twig Extensions
