@@ -15,44 +15,34 @@ All BC breaks are explained in UPGRADE.md.
 
 ### Changed
 * BC break: `ApiPlatformTestCase::testOperation()` compares the `contentType` exactly
-* BC break: `JsonExistsFilter` uses the DQL functions `JSON_CONTAINS_ALL_TEXT` and
-  `JSON_CONTAINS_ANY_TEXT` of `vrok/doctrine-addons` >= 3.1 and no longer ignores multiple values
-* BC break: `FormatBytesExtension` moved to `Vrok\SymfonyAddons\Twig` and uses `#[AsTwigFilter]`,
-  requires `twig/twig` >= 3.21
-* BC break: the constructors of `CronDailyCommand`, `CronHourlyCommand` and `CronMonthlyCommand`
-  take the event dispatcher before the logger
-* BC break: `JsonExistsFilter::normalizeValue()` declares `?array` as return type
 * BC break: the `AtLeastOneOf` constructor types `$constraints` as `array|Constraint|null` and
   accepts `includeInternalMessages`
+* BC break: `CronDailyCommand`, `CronHourlyCommand` and `CronMonthlyCommand` take the event
+  dispatcher before the logger
+* BC break: `FormatBytesExtension` moved to `Vrok\SymfonyAddons\Twig` and uses `#[AsTwigFilter]`,
+  requires `twig/twig` >= 3.21
+* BC break: `JsonExistsFilter` uses the DQL functions `JSON_CONTAINS_ALL_TEXT` and
+  `JSON_CONTAINS_ANY_TEXT` of `vrok/doctrine-addons` >= 3.1 and no longer ignores multiple values,
+  `normalizeValue()` declares `?array` as return type
 
 ### Fixed
-* `RefreshDatabaseTrait` uses the parameters of the primary connection of a primary/replica
-  connection to recreate the database
+* `ApiPlatformTestCase`: `testOperation()` keeps the default options of the client, e.g. the
+  JSON-LD content type, when `email` is given, the `dispatchedMessages` callbacks receive an empty
+  array for a response without content, `tearDownAfterClass()` calls the parent method
+* `AtLeastOneOf`, `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace` and `PasswordStrength` accept
+  options in YAML/XML on Symfony 7.4, `AtLeastOneOf` keeps a configured `message`
+* `AtLeastOneOfValidator` skips nested constraints of other validation groups and reports
+  violations of nested `AtLeastOneOf`, `Sequentially` or `All` on Symfony 7.4 and 8.0
 * `ContainsFilter` searches values that are no valid JSON as strings instead of causing a database
   error
-* `NamedArgumentsFromArrayRector` converts calls of configured functions and static methods, also
-  via subclasses, `self::` and `static::`, and instance method calls only for the configured class
-* The callbacks in the `dispatchedMessages` of `ApiPlatformTestCase::testOperation()` receive an
-  empty array for a response without content instead of causing an exception
-* `WrapNamedMethodArgumentsFixer` keeps the indentation of an indented call for the wrapped
-  arguments and the closing parenthesis
-* `WrapNamedMethodArgumentsFixer` no longer wraps calls with only positional arguments that contain
-  a ternary or a return type
-* `WrapNamedMethodArgumentsFixer` ignores commas inside strings and heredocs, which it broke onto a
-  new line, handles attributes and `${…}` in arguments, no longer counts a trailing comma as an
-  argument, keeps the base indentation for the closing parenthesis and wraps every call of a long
-  file in one run
-* `AtLeastOneOfValidator` skips nested constraints of other validation groups and restores its
-  context after validating the nested constraints, nested `AtLeastOneOf`, `Sequentially` or `All`
-  reported no violations on Symfony 7.4 and 8.0
-* `AtLeastOneOf`, `NoHtml`, `NoLineBreaks`, `NoSurroundingWhitespace` and `PasswordStrength` can be
-  configured with options in YAML/XML on Symfony 7.4, `AtLeastOneOf` keeps a configured `message`
-  and accepts `message: ~`
-* `ApiPlatformTestCase::testOperation()` keeps the default options of the client, e.g. the JSON-LD
-  content type, when `email` is given
-* `ApiPlatformTestCase::tearDownAfterClass()` calls the parent method
-* `NamedArgumentsFromArrayRector` skips calls whose argument is already named and matches function
-  and method names case-insensitively
+* `NamedArgumentsFromArrayRector` converts configured functions and static methods, also via
+  subclasses, `self::` and `static::`, instance methods only of the configured class, skips already
+  named arguments and compares names case-insensitively
+* `RefreshDatabaseTrait` recreates the database of a primary/replica connection with the parameters
+  of the primary connection
+* `WrapNamedMethodArgumentsFixer` keeps the indentation of indented calls, ignores ternaries, return
+  types and commas in strings, handles attributes, `${…}` and trailing commas and wraps every call
+  of a long file in one run
 
 ### Removed
 * Support for API Platform 4
