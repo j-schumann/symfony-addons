@@ -17,7 +17,10 @@ use Doctrine\ORM\QueryBuilder;
  * Selects entities where the search term is found (case insensitive) in at least one of the
  * specified properties. All specified properties must be string or JSON columns.
  */
-class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenApiParameterFilterInterface
+class SimpleSearchFilter implements
+    FilterInterface,
+    LoggerAwareInterface,
+    OpenApiParameterFilterInterface
 {
     use FilterTrait;
 
@@ -27,7 +30,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
     private const array JSON_TYPES = [
         'json',
 
-        // DBAL >= 4.5 has dedicated types for jsonb and JSON objects
+        // DBAL has dedicated types for jsonb and JSON objects
         'json_object',
         'jsonb',
         'jsonb_object',
@@ -92,7 +95,10 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
     {
         if (!\is_scalar($value)) {
             $this->getLogger()->notice('Invalid filter ignored', [
-                'exception' => new InvalidArgumentException(\sprintf('Invalid value for "%s" parameter, only a single search term is supported', $parameterName)),
+                'exception' => new InvalidArgumentException(\sprintf(
+                    'Invalid value for "%s" parameter, only a single search term is supported',
+                    $parameterName,
+                )),
             ]);
 
             return false;

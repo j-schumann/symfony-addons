@@ -9,8 +9,6 @@ use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MariaDBPlatform;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
@@ -30,7 +28,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  *
  * static::$fixtureGroups can be customized in setUpBeforeClass()
  *
- * The cleanup method for the database can be overwritten by setting the ENV DB_CLEANUP_METHOD (e.g.
+ * The cleanup method for the database can be overridden by setting the ENV DB_CLEANUP_METHOD (e.g.
  * in phpunit.xml.dist).
  *
  * "purge" will update the DB schema once and afterward only purges all tables, may require
@@ -95,7 +93,10 @@ trait RefreshDatabaseTrait
         $executor = static::getExecutor($entityManager);
 
         $cleanupMethod = $_ENV['DB_CLEANUP_METHOD'] ?? 'purge';
-        if (!\is_string($cleanupMethod) || !\in_array($cleanupMethod, self::CLEANUP_METHODS, true)) {
+        if (
+            !\is_string($cleanupMethod)
+            || !\in_array($cleanupMethod, self::CLEANUP_METHODS, true)
+        ) {
             $given = \is_string($cleanupMethod) ? $cleanupMethod : get_debug_type($cleanupMethod);
             $allowed = implode(', ', self::CLEANUP_METHODS);
             throw new \InvalidArgumentException("Unknown DB_CLEANUP_METHOD '$given', allowed values are: $allowed");
@@ -126,7 +127,7 @@ trait RefreshDatabaseTrait
 
                 $connection = $executor->getObjectManager()->getConnection();
                 $platform = $connection->getDatabasePlatform();
-                $isMysql = $platform instanceof MySQLPlatform || $platform instanceof MariaDBPlatform;
+                $isMysql = $platform instanceof AbstractMySQLPlatform;
                 $purgeMode = $_ENV['DB_PURGE_MODE'] ?? 'delete';
                 if (!\is_string($purgeMode) || !\in_array($purgeMode, self::PURGE_MODES, true)) {
                     $given = \is_string($purgeMode) ? $purgeMode : get_debug_type($purgeMode);
@@ -156,9 +157,9 @@ trait RefreshDatabaseTrait
                 }
 
                 // Purge even when no fixtures are defined, e.g., for tests that require an empty
-                // database, like import tests. Fix for PHP8: purge separately from inserting the
-                // fixtures, as execute() would wrap the TRUNCATE in a transaction which MySQL
-                // auto-commits when DDL queries are executed, which throws an exception in the
+                // database, like import tests. Purge separately from inserting the fixtures, as
+                // execute() would wrap the TRUNCATE in a transaction which MySQL auto-commits when
+                // DDL queries are executed, which throws an exception in the
                 // entityManager ("There is no active transaction",
                 // @see https://github.com/doctrine/migrations/issues/1104) because it does not
                 // check if a transaction is still open before calling commit().
@@ -185,7 +186,6 @@ trait RefreshDatabaseTrait
                 break;
         }
 
-        // now load any fixtures configured for "test" (or overwritten groups)
         $fixtures = static::getFixtures($container);
         if ([] !== $fixtures) {
             $executor->execute($fixtures, true);
@@ -248,10 +248,11 @@ trait RefreshDatabaseTrait
             return;
         }
 
-        $dbExists = array_any(
+        $dbNames = array_map(
+            static fn (UnqualifiedName $name): string => $name->getIdentifier()->getValue(),
             $schemaManager->introspectDatabaseNames(),
-            static fn (UnqualifiedName $name): bool => $name->getIdentifier()->getValue() === $dbName,
         );
+        $dbExists = \in_array($dbName, $dbNames, true);
 
         if ($drop && $dbExists) {
             // close the current connection in the em, it would be invalid anyway after the drop
@@ -277,8 +278,6 @@ trait RefreshDatabaseTrait
             $dbExists = false;
         }
 
-        // Create the database only if it doesn't already exist. Skip for SQLite as it creates
-        // database files automatically and this call would throw an exception.
         if (!$dbExists) {
             $schemaManager->createDatabase($dbName);
         }
@@ -366,7 +365,7 @@ trait RefreshDatabaseTrait
 
         $connection = $em->getConnection();
 
-        if ($platform instanceof MySQLPlatform || $platform instanceof MariaDBPlatform) {
+        if ($platform instanceof AbstractMySQLPlatform) {
             foreach (array_keys($identityTables) as $table) {
                 // the value is clamped to MAX(id) + 1, so this is a no-op for a table that was
                 // excluded from the purge and still has rows

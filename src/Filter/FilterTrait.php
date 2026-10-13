@@ -35,7 +35,14 @@ trait FilterTrait
     ): void {
         $parameter = $context['parameter'] ?? null;
         if ($parameter instanceof Parameter) {
-            $this->filterParameter($parameter, $queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);
+            $this->filterParameter(
+                $parameter,
+                $queryBuilder,
+                $queryNameGenerator,
+                $resourceClass,
+                $operation,
+                $context,
+            );
         }
     }
 

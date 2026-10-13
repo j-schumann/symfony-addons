@@ -8,9 +8,6 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Vrok\SymfonyAddons\Helper\PasswordStrength as StrengthCalculator;
 
-/**
- * Checks the strength of a given password.
- */
 class PasswordStrengthValidator extends ConstraintValidator
 {
     public function validate(mixed $value, Constraint $constraint): void
@@ -35,8 +32,6 @@ class PasswordStrengthValidator extends ConstraintValidator
                 ->buildViolation($constraint->message)
                 ->setCode(PasswordStrength::PASSWORD_TOO_WEAK_ERROR)
                 ->addViolation();
-
-            return;
         }
     }
 }

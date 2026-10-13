@@ -19,7 +19,10 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
-class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApiParameterFilterInterface
+class JsonExistsFilter implements
+    FilterInterface,
+    LoggerAwareInterface,
+    OpenApiParameterFilterInterface
 {
     use FilterTrait;
     use OpenApiFilterTrait;
@@ -35,7 +38,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
     public const string OR = 'or';
 
     /**
-     * DQL functions of vrok/doctrine-addons >= 3.1 per combination.
+     * DQL functions of vrok/doctrine-addons per combination.
      */
     private const array FUNCTIONS = [
         self::AND => 'JSON_CONTAINS_ALL_TEXT',
@@ -49,7 +52,12 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
         private readonly string $combination = self::AND,
     ) {
         if (!isset(self::FUNCTIONS[$combination])) {
-            throw new InvalidArgumentException(\sprintf('Invalid "combination" parameter "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
+            throw new InvalidArgumentException(\sprintf(
+                'Invalid "combination" parameter "%s", use "%s" or "%s"',
+                $combination,
+                self::AND,
+                self::OR,
+            ));
         }
     }
 

@@ -83,7 +83,6 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
             return null;
         }
 
-        // Check if there's exactly one argument and it's an array
         if (1 !== \count($node->args)) {
             return null;
         }
@@ -93,17 +92,8 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
             return null;
         }
 
-        $array = $firstArg->value;
-
-        // Check if all array items have string keys (associative array)
-        if (!$this->isAssociativeArray($array)) {
-            return null;
-        }
-
-        // Convert array items to named arguments
-        $namedArgs = $this->convertArrayItemsToNamedArgs($array);
-
-        if ([] === $namedArgs) {
+        $namedArgs = $this->convertArrayItemsToNamedArgs($firstArg->value);
+        if (null === $namedArgs || [] === $namedArgs) {
             return null;
         }
 
@@ -144,8 +134,11 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
             return false;
         }
 
-        // String targets are function calls
-        return array_any($this->targets, static fn (array|string $target) => \is_string($target) && $target === $functionName);
+        // string targets are function calls
+        return array_any(
+            $this->targets,
+            static fn (array|string $target): bool => $target === $functionName,
+        );
     }
 
     private function isMethodCallTarget(MethodCall $methodCall): bool
@@ -196,41 +189,19 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         return false;
     }
 
-    private function isAssociativeArray(Array_ $array): bool
-    {
-        foreach ($array->items as $item) {
-            if (null === $item->key) {
-                return false;
-            }
-
-            if (!$item->key instanceof String_) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     /**
-     * @return Arg[]
+     * @return Arg[]|null null if not every item has a string key
      */
-    private function convertArrayItemsToNamedArgs(Array_ $array): array
+    private function convertArrayItemsToNamedArgs(Array_ $array): ?array
     {
         $namedArgs = [];
 
         foreach ($array->items as $item) {
             if (!$item->key instanceof String_) {
-                continue;
+                return null;
             }
 
-            $paramName = $item->key->value;
-            $namedArgs[] = new Arg(
-                $item->value,
-                false, // byRef
-                false, // unpack
-                [],    // attributes
-                new Identifier($paramName) // name
-            );
+            $namedArgs[] = new Arg($item->value, name: new Identifier($item->key->value));
         }
 
         return $namedArgs;

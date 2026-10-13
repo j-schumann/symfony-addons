@@ -17,7 +17,10 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
-class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiParameterFilterInterface
+class ContainsFilter implements
+    FilterInterface,
+    LoggerAwareInterface,
+    OpenApiParameterFilterInterface
 {
     use FilterTrait;
     use OpenApiFilterTrait;

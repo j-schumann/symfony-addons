@@ -18,9 +18,9 @@ class NoSurroundingWhitespace extends Regex
         mixed $payload = null,
     ) {
         parent::__construct(
-            // Matches string without leading/trailing whitespace and newline characters separators,
-            // @see https://stackoverflow.com/a/38935454/1341762. We cannot use \R in the
-            // lookbehind: lookbehind assertion is not fixed length at offset 14
+            // Matches strings without leading/trailing whitespace or line separators,
+            // @see https://stackoverflow.com/a/38935454/1341762. \R is not allowed in the
+            // lookbehind, PCRE requires a fixed length there.
             pattern: '/^(?!(\R|\s)).*(?<!(\n|\r|\f|\x0b|\x85|\x{2028}|\x{2029}|\s))$/Dsu',
             message: $message ?? 'This value contains leading/trailing whitespace.',
             match: true,
@@ -28,12 +28,6 @@ class NoSurroundingWhitespace extends Regex
             groups: $groups,
             payload: $payload,
         );
-    }
-
-    #[\Override]
-    public function getTargets(): string
-    {
-        return self::PROPERTY_CONSTRAINT;
     }
 
     #[\Override]
