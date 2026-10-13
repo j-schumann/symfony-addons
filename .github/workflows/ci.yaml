@@ -318,7 +318,7 @@ jobs:
           php: '8.5'
 
       - name: Check the code style
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+        run: composer cs-check
 
   coverage-finished:
     name: Merge the coverage results
