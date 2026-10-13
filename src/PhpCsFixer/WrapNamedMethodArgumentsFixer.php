@@ -9,6 +9,7 @@ use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverInterface;
 use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
@@ -18,9 +19,6 @@ use PhpCsFixer\Tokenizer\Tokens;
 final class WrapNamedMethodArgumentsFixer implements FixerInterface, ConfigurableFixerInterface
 {
     private const int DEFAULT_MAX_ARGUMENTS = 3;
-    private const string IDENTIFIER_PATTERN = '/^[a-z_\x80-\xff][a-z0-9_\x80-\xff]*$/i';
-    private const array NESTING_OPEN_TOKENS = ['(', '[', '{'];
-    private const array NESTING_CLOSE_TOKENS = [')', ']', '}'];
 
     private int $maxArguments = self::DEFAULT_MAX_ARGUMENTS;
 
@@ -98,7 +96,8 @@ $this->method(arg1: $value1, arg2: $value2);',
      */
     public function fix(\SplFileInfo $file, Tokens $tokens): void
     {
-        for ($i = 0, $tokenCount = $tokens->count(); $i < $tokenCount; ++$i) {
+        // formatCall() inserts tokens, so the count must be read on every iteration
+        for ($i = 0; $i < $tokens->count(); ++$i) {
             if (!$tokens[$i]->isGivenKind(\T_STRING)) {
                 continue;
             }
@@ -116,49 +115,41 @@ $this->method(arg1: $value1, arg2: $value2);',
                 $openParenIndex
             );
 
-            if ($this->shouldFormatCall($tokens, $openParenIndex, $closeParenIndex)) {
-                $indentation = $this->detectIndentation($tokens, $i);
-                $this->formatCall($tokens, $openParenIndex, $closeParenIndex, $indentation);
+            $analysis = $this->analyzeArguments($tokens, $openParenIndex, $closeParenIndex);
+            if (
+                !$analysis['hasNamedArgs']
+                || $analysis['argumentCount'] <= $this->maxArguments
+                || $this->areArgumentsAlreadyFormatted(
+                    $tokens,
+                    $openParenIndex,
+                    $closeParenIndex,
+                    $analysis['separators'],
+                )
+            ) {
+                continue;
             }
+
+            $this->formatCall(
+                $tokens,
+                $openParenIndex,
+                $closeParenIndex,
+                $analysis['separators'],
+                $this->detectIndentation($tokens, $i),
+            );
         }
     }
 
     /**
      * @param Tokens<Token> $tokens
-     */
-    private function shouldFormatCall(
-        Tokens $tokens,
-        int $openParenIndex,
-        int $closeParenIndex,
-    ): bool {
-        $analysisResult = $this->analyzeArguments($tokens, $openParenIndex, $closeParenIndex);
-
-        if (
-            !$analysisResult['hasNamedArgs']
-            || $analysisResult['argumentCount'] <= $this->maxArguments
-        ) {
-            return false;
-        }
-
-        return !$this->areArgumentsAlreadyFormatted(
-            $tokens,
-            $openParenIndex,
-            $closeParenIndex,
-            $analysisResult['topLevelCommas'],
-        );
-    }
-
-    /**
-     * @param Tokens<Token> $tokens
-     * @param list<int>     $topLevelCommas
+     * @param list<int>     $separators
      */
     private function areArgumentsAlreadyFormatted(
         Tokens $tokens,
         int $openParenIndex,
         int $closeParenIndex,
-        array $topLevelCommas,
+        array $separators,
     ): bool {
-        foreach ([$openParenIndex, ...$topLevelCommas] as $index) {
+        foreach ([$openParenIndex, ...$separators] as $index) {
             $nextIndex = $index + 1;
             if (
                 $nextIndex < $closeParenIndex
@@ -260,92 +251,77 @@ $this->method(arg1: $value1, arg2: $value2);',
     }
 
     /**
-     * @param  Tokens<Token>                                                            $tokens
-     * @return array{argumentCount: int, hasNamedArgs: bool, topLevelCommas: list<int>}
+     * Nested blocks (calls, arrays, closures, attributes, braces in strings) are skipped as a
+     * whole, so only the commas and named-argument colons of this call are found. Commas inside
+     * strings are part of string tokens and never equal the ',' token.
+     *
+     * @param  Tokens<Token>                                                        $tokens
+     * @return array{argumentCount: int, hasNamedArgs: bool, separators: list<int>}
      */
     private function analyzeArguments(
         Tokens $tokens,
         int $openParenIndex,
         int $closeParenIndex,
     ): array {
-        $topLevelCommas = [];
-        $nestingLevel = 0;
-        $hasContent = false;
+        $commas = [];
         $hasNamedArgs = false;
+        $lastMeaningfulIndex = null;
 
         for ($i = $openParenIndex + 1; $i < $closeParenIndex; ++$i) {
             $token = $tokens[$i];
-            $content = $token->getContent();
-
-            if (\in_array($content, self::NESTING_OPEN_TOKENS, true)) {
-                ++$nestingLevel;
-            } elseif (\in_array($content, self::NESTING_CLOSE_TOKENS, true)) {
-                --$nestingLevel;
-            } elseif (',' === $content && 0 === $nestingLevel) {
-                $topLevelCommas[] = $i;
-            } elseif (':' === $content && 0 === $nestingLevel) {
-                $hasNamedArgs = $hasNamedArgs || $this->isArgumentName($tokens, $i);
+            if ($token->isWhitespace() || $token->isComment()) {
+                continue;
             }
 
-            if (!$token->isWhitespace()) {
-                $hasContent = true;
+            $lastMeaningfulIndex = $i;
+            $blockType = Tokens::detectBlockType($token);
+            if (null !== $blockType && $blockType['isStart']) {
+                $i = $tokens->findBlockEnd($blockType['type'], $i);
+                $lastMeaningfulIndex = $i;
+            } elseif ($token->equals(',')) {
+                $commas[] = $i;
+            } elseif ($token->isGivenKind(CT::T_NAMED_ARGUMENT_COLON)) {
+                $hasNamedArgs = true;
             }
         }
 
+        // a trailing comma separates no further argument
+        if ([] !== $commas && end($commas) === $lastMeaningfulIndex) {
+            array_pop($commas);
+        }
+
         return [
-            'argumentCount'  => $hasContent ? \count($topLevelCommas) + 1 : 0,
-            'hasNamedArgs'   => $hasNamedArgs,
-            'topLevelCommas' => $topLevelCommas,
+            'argumentCount' => null === $lastMeaningfulIndex ? 0 : \count($commas) + 1,
+            'hasNamedArgs'  => $hasNamedArgs,
+            'separators'    => $commas,
         ];
     }
 
     /**
-     * A named argument is an identifier (keywords like `class` included) directly after the
-     * opening parenthesis or a comma, followed by the colon. Other colons belong to ternaries or
-     * return types.
+     * Works backwards, so the indices of the earlier tokens stay valid.
      *
-     * @param Tokens<Token> $tokens
-     */
-    private function isArgumentName(Tokens $tokens, int $colonIndex): bool
-    {
-        $nameIndex = $tokens->getPrevMeaningfulToken($colonIndex);
-        if (
-            null === $nameIndex
-            || !preg_match(self::IDENTIFIER_PATTERN, $tokens[$nameIndex]->getContent())
-        ) {
-            return false;
-        }
-
-        $beforeNameIndex = $tokens->getPrevMeaningfulToken($nameIndex);
-
-        return null !== $beforeNameIndex && $tokens[$beforeNameIndex]->equalsAny(['(', ',']);
-    }
-
-    /**
      * @param Tokens<Token>                         $tokens
+     * @param list<int>                             $separators
      * @param array{base: string, argument: string} $indentation
      */
     private function formatCall(
         Tokens $tokens,
         int $openParenIndex,
         int $closeParenIndex,
+        array $separators,
         array $indentation,
     ): void {
-        $analysisResult = $this->analyzeArguments($tokens, $openParenIndex, $closeParenIndex);
-        $topLevelCommas = $analysisResult['topLevelCommas'];
-
-        // Work backwards to avoid index shifts
         $this->addNewlineBeforeClosingParenthesis(
             $tokens,
             $closeParenIndex,
             $indentation['base'],
         );
-        $this->addNewlinesAfterCommas($tokens, $topLevelCommas, $indentation['argument']);
-        $this->addNewlineAfterOpeningParenthesis(
-            $tokens,
-            $openParenIndex,
-            $indentation['argument'],
-        );
+
+        foreach (array_reverse($separators) as $commaIndex) {
+            $this->setNewlineAfter($tokens, $commaIndex, $indentation['argument']);
+        }
+
+        $this->setNewlineAfter($tokens, $openParenIndex, $indentation['argument']);
     }
 
     /**
@@ -366,31 +342,6 @@ $this->method(arg1: $value1, arg2: $value2);',
         } else {
             $this->replaceWhitespaceWithNewline($tokens, $prevIndex + 1, $baseIndent);
         }
-    }
-
-    /**
-     * @param Tokens<Token> $tokens
-     * @param list<int>     $topLevelCommas
-     */
-    private function addNewlinesAfterCommas(
-        Tokens $tokens,
-        array $topLevelCommas,
-        string $argumentIndent,
-    ): void {
-        foreach (array_reverse($topLevelCommas) as $commaIndex) {
-            $this->setNewlineAfter($tokens, $commaIndex, $argumentIndent);
-        }
-    }
-
-    /**
-     * @param Tokens<Token> $tokens
-     */
-    private function addNewlineAfterOpeningParenthesis(
-        Tokens $tokens,
-        int $openParenIndex,
-        string $argumentIndent,
-    ): void {
-        $this->setNewlineAfter($tokens, $openParenIndex, $argumentIndent);
     }
 
     /**
