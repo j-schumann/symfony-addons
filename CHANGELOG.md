@@ -31,6 +31,8 @@ All BC breaks are explained in UPGRADE.md.
   empty array for a response without content instead of causing an exception
 * `WrapNamedMethodArgumentsFixer` keeps the indentation of an indented call for the wrapped
   arguments and the closing parenthesis
+* `WrapNamedMethodArgumentsFixer` no longer wraps calls with only positional arguments that contain
+  a ternary or a return type
 
 ### Removed
 * Support for API Platform 4

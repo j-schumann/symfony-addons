@@ -288,8 +288,8 @@ $this->method(arg1: $value1, arg2: $value2);',
                 --$nestingLevel;
             } elseif (',' === $content && 0 === $nestingLevel) {
                 $topLevelCommas[] = $i;
-            } elseif (':' === $content) {
-                $hasNamedArgs = true;
+            } elseif (':' === $content && 0 === $nestingLevel) {
+                $hasNamedArgs = $hasNamedArgs || $this->isArgumentName($tokens, $i);
             }
 
             if (!$token->isWhitespace()) {
@@ -302,6 +302,28 @@ $this->method(arg1: $value1, arg2: $value2);',
             'hasNamedArgs'   => $hasNamedArgs,
             'topLevelCommas' => $topLevelCommas,
         ];
+    }
+
+    /**
+     * A named argument is an identifier (keywords like `class` included) directly after the
+     * opening parenthesis or a comma, followed by the colon. Other colons belong to ternaries or
+     * return types.
+     *
+     * @param Tokens<Token> $tokens
+     */
+    private function isArgumentName(Tokens $tokens, int $colonIndex): bool
+    {
+        $nameIndex = $tokens->getPrevMeaningfulToken($colonIndex);
+        if (
+            null === $nameIndex
+            || !preg_match('/^[a-z_\x80-\xff][a-z0-9_\x80-\xff]*$/i', $tokens[$nameIndex]->getContent())
+        ) {
+            return false;
+        }
+
+        $beforeNameIndex = $tokens->getPrevMeaningfulToken($nameIndex);
+
+        return null !== $beforeNameIndex && $tokens[$beforeNameIndex]->equalsAny(['(', ',']);
     }
 
     /**

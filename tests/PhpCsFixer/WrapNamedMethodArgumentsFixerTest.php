@@ -36,6 +36,21 @@ final class WrapNamedMethodArgumentsFixerTest extends TestCase
             "<?php\n\$this->method(\n    a: 1,\n    b: 2,\n    c: 3\n);\n",
         ];
 
+        yield 'ternary in positional arguments' => [
+            "<?php\n\$this->method(\$a ? FOO : 2, \$b, \$c);\n",
+            "<?php\n\$this->method(\$a ? FOO : 2, \$b, \$c);\n",
+        ];
+
+        yield 'closure return type in positional arguments' => [
+            "<?php\n\$this->method(fn (): int => 1, \$b, \$c);\n",
+            "<?php\n\$this->method(fn (): int => 1, \$b, \$c);\n",
+        ];
+
+        yield 'keyword as argument name' => [
+            "<?php\n\$this->method(class: 1, default: 2, c: 3);\n",
+            "<?php\n\$this->method(\n    class: 1,\n    default: 2,\n    c: 3\n);\n",
+        ];
+
         yield 'partially wrapped' => [
             "<?php\n\$this->method(a: 1,\n    b: 2, c: 3);\n",
             "<?php\n\$this->method(a: 1,\n    b: 2, c: 3);\n",
