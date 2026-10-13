@@ -19,6 +19,8 @@ All BC breaks are explained in UPGRADE.md.
   `JSON_CONTAINS_ANY_TEXT` of `vrok/doctrine-addons` >= 3.1 and no longer ignores multiple values
 * BC break: `FormatBytesExtension` moved to `Vrok\SymfonyAddons\Twig` and uses `#[AsTwigFilter]`,
   requires `twig/twig` >= 3.21
+* BC break: the constructors of `CronDailyCommand`, `CronHourlyCommand` and `CronMonthlyCommand`
+  take the event dispatcher before the logger
 
 ### Fixed
 * `RefreshDatabaseTrait` uses the parameters of the primary connection of a primary/replica

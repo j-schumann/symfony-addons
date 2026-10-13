@@ -17,6 +17,8 @@
   database before the call, e.g. via `static::getContainer()`, and pass the values as arguments
   instead of changing `$params`. Set cookies with the new `cookies` argument instead of the cookie
   jar of `self::getClient()`.
+* If you create the `CronDailyCommand`, `CronHourlyCommand` or `CronMonthlyCommand` yourself, pass
+  the event dispatcher first and the logger second.
 * If you extended the internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase` instead.
 * Replace the `#[ApiFilter]` attribute for the `SimpleSearchFilter`, `ContainsFilter` and
   `JsonExistsFilter` with `#[QueryParameter]`, see README.md. Requests to a parameter of such an

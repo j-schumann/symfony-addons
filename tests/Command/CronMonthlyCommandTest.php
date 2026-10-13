@@ -24,7 +24,7 @@ final class CronMonthlyCommandTest extends KernelTestCase
             ->method('dispatch')
             ->with(new CronMonthlyEvent());
 
-        $command = new CronMonthlyCommand($logger, $dispatcher);
+        $command = new CronMonthlyCommand($dispatcher, $logger);
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
 

@@ -17,8 +17,8 @@ use Vrok\SymfonyAddons\Event\CronDailyEvent;
 class CronDailyCommand extends Command
 {
     public function __construct(
-        private readonly LoggerInterface $logger,
         private readonly EventDispatcherInterface $dispatcher,
+        private readonly LoggerInterface $logger,
     ) {
         parent::__construct();
     }
