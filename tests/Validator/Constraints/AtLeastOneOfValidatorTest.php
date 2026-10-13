@@ -142,7 +142,10 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(self::violation('minMessage', $value, $constraint), $violations->get(0));
+        self::assertEquals(
+            $this->violation('minMessage', $value, $constraint),
+            $violations->get(0)
+        );
     }
 
     #[DataProvider('getInvalidSequentially')]
@@ -160,7 +163,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(self::violation($message, $value, $constraint), $violations->get(0));
+        self::assertEquals($this->violation($message, $value, $constraint), $violations->get(0));
     }
 
     /**
@@ -181,7 +184,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(self::violation($message, $value, $constraint), $violations->get(0));
+        self::assertEquals($this->violation($message, $value, $constraint), $violations->get(0));
     }
 
     public function testCustomMessage(): void
@@ -200,7 +203,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
 
         self::assertCount(1, $violations);
         self::assertEquals(
-            self::violation('customMessage', $value, $constraint),
+            $this->violation('customMessage', $value, $constraint),
             $violations->get(0)
         );
     }
@@ -244,7 +247,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
             ->addYamlMapping(__DIR__.'/../../Fixtures/Validator/constraints.yaml')
             ->getValidator()
             ->getMetadataFor(TestEntity::class);
-        \assert($metadata instanceof ClassMetadata);
+        self::assertInstanceOf(ClassMetadata::class, $metadata);
         $constraints = array_values(array_filter(
             $metadata->getPropertyMetadata('varcharColumn')[0]->getConstraints(),
             static fn (Constraint $c): bool => $c instanceof AtLeastOneOf,
@@ -260,7 +263,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
             ->addYamlMapping(__DIR__.'/../../Fixtures/Validator/constraints.yaml')
             ->getValidator()
             ->getMetadataFor(TestEntity::class);
-        \assert($metadata instanceof ClassMetadata);
+        self::assertInstanceOf(ClassMetadata::class, $metadata);
         $constraints = array_values(array_filter(
             $metadata->getPropertyMetadata('jsonColumn')[0]->getConstraints(),
             static fn (Constraint $c): bool => $c instanceof AtLeastOneOf,
@@ -271,7 +274,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         self::assertTrue($constraints[0]->includeInternalMessages);
     }
 
-    private static function violation(
+    private function violation(
         string $message,
         mixed $value,
         AtLeastOneOf $constraint,

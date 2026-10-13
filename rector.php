@@ -4,16 +4,17 @@ use Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector;
 use Rector\CodingStyle\Rector\ClassLike\NewlineBetweenClassLikeStmtsRector;
 use Rector\Config\RectorConfig;
 use Rector\Doctrine\Set\DoctrineSetList;
-use Rector\Php74\Rector\Ternary\ParenthesizeNestedTernaryRector;
-use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
-use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\AddSeeTestAnnotationRector;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitSelfCallRector;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector;
 use Rector\PHPUnit\CodeQuality\Rector\StmtsAwareInterface\DeclareStrictTypesTestsRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
+use Rector\Php74\Rector\Ternary\ParenthesizeNestedTernaryRector;
+use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
 use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
+use Rector\TypeDeclaration\Rector\FunctionLike\AddParamTypeSplFixedArrayRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\SafeDeclareStrictTypesRector;
 
@@ -65,6 +66,9 @@ return RectorConfig::configure()
 
         // mostly unnecessary as they are callbacks to array_filter etc.
         AddArrowFunctionReturnTypeRector::class,
+
+        // rewrites the aligned @param Tokens<Token> tables of the fixer into fully qualified names
+        AddParamTypeSplFixedArrayRector::class,
 
         // Adds `@see <TestClass>` docblocks to source classes — unwanted annotation noise.
         AddSeeTestAnnotationRector::class,
