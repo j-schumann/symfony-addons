@@ -53,6 +53,13 @@ final class FormDecoderTest extends KernelTestCase
         );
     }
 
+    public function testDecodeWithoutRequest(): void
+    {
+        $decoder = new FormDecoder(new RequestStack());
+
+        self::assertNull($decoder->decode('', 'form'));
+    }
+
     public function testSupports(): void
     {
         $decoder = new FormDecoder(new RequestStack());

@@ -188,8 +188,8 @@ $this->method(arg1: $value1, arg2: $value2);',
 
         // Detect current line indentation
         $baseIndent = '';
-        if ($lineStartIndex > 0 && $tokens[$lineStartIndex]->isWhitespace()) {
-            $whitespace = $tokens[$lineStartIndex]->getContent();
+        if ($lineStartIndex > 0) {
+            $whitespace = $tokens[$lineStartIndex - 1]->getContent();
             $lines = explode("\n", $whitespace);
             $baseIndent = end($lines); // Get indentation after the last newline
         }

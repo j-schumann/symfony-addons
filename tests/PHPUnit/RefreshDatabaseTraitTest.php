@@ -2,8 +2,11 @@
 
 namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
+use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
@@ -254,6 +257,35 @@ final class RefreshDatabaseTraitTest extends KernelTestCase
         }
 
         self::assertSame(1, (int) $connection->fetchOne('SELECT @@FOREIGN_KEY_CHECKS'));
+    }
+
+    #[Env('DB_CLEANUP_METHOD', 'purge')]
+    public function testRecreateDatabaseWithPrimaryReplicaConnection(): void
+    {
+        self::bootKernel();
+
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $em->persist(new TestEntity());
+        $em->flush();
+
+        // the database name is only part of the primary's and the replica's parameters
+        $params = $em->getConnection()->getParams();
+        $connection = DriverManager::getConnection(
+            [
+                'driver'       => $params['driver'],
+                'wrapperClass' => PrimaryReadReplicaConnection::class,
+                'primary'      => $params,
+                'replica'      => [$params],
+            ],
+            $em->getConfiguration(),
+        );
+        $em->getConnection()->close();
+
+        self::recreateDatabase(new EntityManager($connection, $em->getConfiguration()), true);
+
+        self::updateSchema($em);
+        self::assertSame(0, $em->getRepository(TestEntity::class)->count());
     }
 
     /**

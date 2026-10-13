@@ -78,6 +78,7 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
         yield [['nested' => ['deep' => ['irrelevant' => 1]]], ['nested' => ['deep' => 'value']]];
         yield [['nested' => ['deep' => null]], ['nested' => ['deep' => 'value']]];
         yield [['nested' => []], ['nested' => ['deep' => 'value']]];
+        yield [['irrelevant' => 1], ['simple', 'nested' => ['deep' => 'value']]];
     }
 
     /**
@@ -112,5 +113,17 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessageIsOrContains($msg);
         ApiPlatformTestCase::assertDatasetNotHasKeys($keys, $data);
+    }
+
+    public function testPrepareUploadedFile(): void
+    {
+        $file = ApiPlatformTestCase::prepareUploadedFile(__FILE__, 'test.php', 'text/x-php');
+
+        self::assertNotSame(__FILE__, $file->getPathname());
+        self::assertFileEquals(__FILE__, $file->getPathname());
+        self::assertSame('test.php', $file->getClientOriginalName());
+        self::assertSame('text/x-php', $file->getClientMimeType());
+
+        unlink($file->getPathname());
     }
 }

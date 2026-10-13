@@ -3,6 +3,8 @@
 namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Vrok\SymfonyAddons\Validator\Constraints\NoHtml;
@@ -100,5 +102,12 @@ final class NoHtmlValidatorTest extends ConstraintValidatorTestCase
             ->setParameter('{{ value }}', "\"$value\"")
             ->setCode(NoHtml::CONTAINS_HTML_ERROR)
             ->assertRaised();
+    }
+
+    public function testValidateFailsWithOtherConstraint(): void
+    {
+        $this->expectException(UnexpectedTypeException::class);
+
+        $this->validator->validate('value', new NotBlank());
     }
 }

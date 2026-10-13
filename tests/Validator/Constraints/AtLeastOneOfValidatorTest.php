@@ -7,8 +7,10 @@ use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\AtLeastOneOf as AtLeastOneOfAlias;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Sequentially;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Symfony\Component\Validator\Validation;
 use Vrok\SymfonyAddons\Validator\Constraints\AtLeastOneOf;
@@ -195,5 +197,12 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
 
         self::assertCount(1, $violations);
         self::assertEquals(new ConstraintViolation('customMessage', 'customMessage', [], $value, '', $value, null, AtLeastOneOfAlias::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+    }
+
+    public function testValidateFailsWithOtherConstraint(): void
+    {
+        $this->expectException(UnexpectedTypeException::class);
+
+        $this->validator->validate('value', new NotBlank());
     }
 }

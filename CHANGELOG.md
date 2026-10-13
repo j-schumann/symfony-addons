@@ -27,6 +27,10 @@ All BC breaks are explained in UPGRADE.md.
   error
 * `NamedArgumentsFromArrayRector` converts calls of configured functions and static methods, also
   via subclasses, `self::` and `static::`, and instance method calls only for the configured class
+* The callbacks in the `dispatchedMessages` of `ApiPlatformTestCase::testOperation()` receive an
+  empty array for a response without content instead of causing an exception
+* `WrapNamedMethodArgumentsFixer` keeps the indentation of an indented call for the wrapped
+  arguments and the closing parenthesis
 
 ### Removed
 * Support for API Platform 4

@@ -3,7 +3,9 @@
 namespace Vrok\SymfonyAddons\Tests\Fixtures\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -15,6 +17,13 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 
 #[ApiResource(
     operations: [
+        new Get(normalizationContext: ['groups' => ['none']]),
+        // dispatches the entity to the message bus instead of persisting it
+        new Post(
+            status: 202,
+            output: false,
+            messenger: true
+        ),
         new GetCollection(
             normalizationContext: ['groups' => ['none']],
             parameters: [
@@ -41,6 +50,10 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                 'searchUnmapped'   => new QueryParameter(
                     filter: new SimpleSearchFilter(),
                     properties: ['unknownColumn', 'varcharColumn'],
+                ),
+                'onlyUnmapped'     => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['unknownColumn'],
                 ),
                 'containsUnmapped' => new QueryParameter(
                     filter: new ContainsFilter(),
