@@ -264,7 +264,6 @@ $this->method(arg1: $value1, arg2: $value2);',
         int $closeParenIndex,
     ): array {
         $commas = [];
-        $hasNamedArgs = false;
         $lastMeaningfulIndex = null;
 
         for ($i = $openParenIndex + 1; $i < $closeParenIndex; ++$i) {
@@ -280,8 +279,6 @@ $this->method(arg1: $value1, arg2: $value2);',
                 $lastMeaningfulIndex = $i;
             } elseif ($token->equals(',')) {
                 $commas[] = $i;
-            } elseif ($token->isGivenKind(CT::T_NAMED_ARGUMENT_COLON)) {
-                $hasNamedArgs = true;
             }
         }
 
@@ -292,7 +289,12 @@ $this->method(arg1: $value1, arg2: $value2);',
 
         return [
             'argumentCount' => null === $lastMeaningfulIndex ? 0 : \count($commas) + 1,
-            'hasNamedArgs'  => $hasNamedArgs,
+            // named arguments of a nested call count too, the outer call is wrapped as well
+            'hasNamedArgs'  => [] !== $tokens->findGivenKind(
+                CT::T_NAMED_ARGUMENT_COLON,
+                $openParenIndex,
+                $closeParenIndex,
+            ),
             'separators'    => $commas,
         ];
     }

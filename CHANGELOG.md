@@ -24,8 +24,6 @@ All BC breaks are explained in UPGRADE.md.
 * BC break: `JsonExistsFilter::normalizeValue()` declares `?array` as return type
 * BC break: the `AtLeastOneOf` constructor types `$constraints` as `array|Constraint|null` and
   accepts `includeInternalMessages`
-* `WrapNamedMethodArgumentsFixer` only wraps a call that has named arguments itself, named
-  arguments in a nested call no longer wrap the outer call
 
 ### Fixed
 * `RefreshDatabaseTrait` uses the parameters of the primary connection of a primary/replica

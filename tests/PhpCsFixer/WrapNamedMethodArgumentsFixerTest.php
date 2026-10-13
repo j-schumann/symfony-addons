@@ -108,12 +108,12 @@ final class WrapNamedMethodArgumentsFixerTest extends TestCase
 
         yield 'named arguments only in a nested call' => [
             "<?php\n\$this->method(\$a, \$b, \$c, foo(x: 1));\n",
-            "<?php\n\$this->method(\$a, \$b, \$c, foo(x: 1));\n",
+            "<?php\n\$this->method(\n    \$a,\n    \$b,\n    \$c,\n    foo(x: 1)\n);\n",
         ];
 
-        yield 'nested call wrapped, positional outer call kept' => [
+        yield 'nested call with named arguments wraps the outer call too' => [
             "<?php\n\$this->outer(\$x, \$this->inner(a: 1, b: 2, c: 3), \$y);\n",
-            "<?php\n\$this->outer(\$x, \$this->inner(\n    a: 1,\n    b: 2,\n    c: 3\n), \$y);\n",
+            "<?php\n\$this->outer(\n    \$x,\n    \$this->inner(\n        a: 1,\n        b: 2,\n        c: 3\n    ),\n    \$y\n);\n",
         ];
     }
 
