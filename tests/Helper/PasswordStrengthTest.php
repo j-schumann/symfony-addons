@@ -9,7 +9,7 @@ use Vrok\SymfonyAddons\Helper\PasswordStrength;
 final class PasswordStrengthTest extends TestCase
 {
     /**
-     * @return \Iterator<(array<int, float> | array<int, string>)>
+     * @return \Iterator<array{string, float}>
      */
     public static function getValues(): \Iterator
     {
@@ -78,6 +78,9 @@ final class PasswordStrengthTest extends TestCase
         self::assertSame(PasswordStrength::RATING_WEAK, $pwStrength->ratePassword('123asd'));
         self::assertSame(PasswordStrength::RATING_OK, $pwStrength->ratePassword('myPassword'));
         self::assertSame(PasswordStrength::RATING_GOOD, $pwStrength->ratePassword('myL0ngPassw'));
-        self::assertSame(PasswordStrength::RATING_GREAT, $pwStrength->ratePassword('my very l0ng Pa$$word'));
+        self::assertSame(
+            PasswordStrength::RATING_GREAT,
+            $pwStrength->ratePassword('my very l0ng Pa$$word')
+        );
     }
 }

@@ -56,7 +56,10 @@ final class QueryBuilderHelperTest extends KernelTestCase
             'SELECT o FROM '.TestEntity::class.' o WHERE o.varcharColumn IN (:varcharColumn_p1)',
             $this->queryBuilder->getDQL()
         );
-        self::assertSame(['a', 'b'], $this->queryBuilder->getParameter('varcharColumn_p1')?->getValue());
+        self::assertSame(
+            ['a', 'b'],
+            $this->queryBuilder->getParameter('varcharColumn_p1')?->getValue()
+        );
     }
 
     public function testGetJoinAlias(): void

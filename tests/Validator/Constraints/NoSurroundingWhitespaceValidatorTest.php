@@ -16,6 +16,9 @@ final class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTest
         return new RegexValidator();
     }
 
+    /**
+     * @return \Iterator<array{string}>
+     */
     public static function getValid(): \Iterator
     {
         yield ["test\tstring"]; // tab inside
@@ -34,34 +37,37 @@ final class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTest
         yield ["new\xe2\x80\xa9line"]; // Unicode PS
     }
 
+    /**
+     * @return \Iterator<array{string}>
+     */
     public static function getInvalid(): \Iterator
     {
         // whitespace character at the beginning or end:
-        yield [' asd', Regex::REGEX_FAILED_ERROR];
-        yield ['asd  ', Regex::REGEX_FAILED_ERROR];
-        yield ["\tasd", Regex::REGEX_FAILED_ERROR];
-        yield ["asd\t", Regex::REGEX_FAILED_ERROR];
-        yield [' asd', Regex::REGEX_FAILED_ERROR]; // THSP leading
-        yield ['asd ', Regex::REGEX_FAILED_ERROR]; // THSP trailing
-        yield [' asd', Regex::REGEX_FAILED_ERROR]; // NQSP
-        yield [' asd', Regex::REGEX_FAILED_ERROR]; // MQSP
-        yield ['asd ', Regex::REGEX_FAILED_ERROR]; // ENSP
-        yield ['asd ', Regex::REGEX_FAILED_ERROR]; // EMSP
-        yield ['asd ', Regex::REGEX_FAILED_ERROR]; // 3/MSP
+        yield [' asd'];
+        yield ['asd  '];
+        yield ["\tasd"];
+        yield ["asd\t"];
+        yield [' asd']; // THSP leading
+        yield ['asd ']; // THSP trailing
+        yield [' asd']; // NQSP
+        yield [' asd']; // MQSP
+        yield ['asd ']; // ENSP
+        yield ['asd ']; // EMSP
+        yield ['asd ']; // 3/MSP
 
         // leading/trailing newline characters:
-        yield ["a\nb\n", Regex::REGEX_FAILED_ERROR]; // trailing newline
-        yield ["\na\nb", Regex::REGEX_FAILED_ERROR]; // leading newline
-        yield ["new\x0b", Regex::REGEX_FAILED_ERROR]; // vertical tab
-        yield ["\x0btest", Regex::REGEX_FAILED_ERROR]; // vertical tab
-        yield ["new\xc2\x85", Regex::REGEX_FAILED_ERROR]; // NEL, Next Line
-        yield ["\xc2\x85test", Regex::REGEX_FAILED_ERROR]; // NEL, Next Line
-        yield ["test\v", Regex::REGEX_FAILED_ERROR]; // vertical space
-        yield ["\vtest", Regex::REGEX_FAILED_ERROR]; // vertical space
-        yield ["new\xe2\x80\xa8", Regex::REGEX_FAILED_ERROR]; // Unicode LS
-        yield ["\xe2\x80\xa8test", Regex::REGEX_FAILED_ERROR]; // Unicode LS
-        yield ["new\xe2\x80\xa9", Regex::REGEX_FAILED_ERROR]; // Unicode PS
-        yield ["\xe2\x80\xa9test", Regex::REGEX_FAILED_ERROR]; // Unicode PS
+        yield ["a\nb\n"]; // trailing newline
+        yield ["\na\nb"]; // leading newline
+        yield ["new\x0b"]; // vertical tab
+        yield ["\x0btest"]; // vertical tab
+        yield ["new\xc2\x85"]; // NEL, Next Line
+        yield ["\xc2\x85test"]; // NEL, Next Line
+        yield ["test\v"]; // vertical space
+        yield ["\vtest"]; // vertical space
+        yield ["new\xe2\x80\xa8"]; // Unicode LS
+        yield ["\xe2\x80\xa8test"]; // Unicode LS
+        yield ["new\xe2\x80\xa9"]; // Unicode PS
+        yield ["\xe2\x80\xa9test"]; // Unicode PS
     }
 
     public function testNullIsValid(): void
@@ -114,7 +120,7 @@ final class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTest
     }
 
     #[DataProvider('getInvalid')]
-    public function testInvalid(string $value, string $code): void
+    public function testInvalid(string $value): void
     {
         $constraint = new NoSurroundingWhitespace();
 
@@ -123,7 +129,7 @@ final class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTest
         $this->buildViolation($constraint->message)
             ->setParameter('{{ value }}', '"'.$value.'"')
             ->setParameter('{{ pattern }}', $constraint->pattern)
-            ->setCode($code)
+            ->setCode(Regex::REGEX_FAILED_ERROR)
             ->assertRaised();
     }
 }

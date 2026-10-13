@@ -17,21 +17,24 @@ final class NoHtmlValidatorTest extends ConstraintValidatorTestCase
         return new NoHtmlValidator();
     }
 
+    /**
+     * @return \Iterator<array{string}>
+     */
     public static function getValid(): \Iterator
     {
         yield ['teststring'];
         yield ['0'];
         yield [' test '];
         yield ['11 < 12'];
-        // ['is 11<12 ?'], fails but should be valid
+        // @todo 'is 11<12 ?' is rejected but should be valid
         yield ['12 > 11'];
         yield ['11 < 12 and 13 > 11'];
         yield ['What is?>'];
-        // [' close <3 heart, and 13 > 12'], fails but should be valid
+        // @todo ' close <3 heart, and 13 > 12' is rejected but should be valid
     }
 
     /**
-     * @return \Iterator<array<int, string>>
+     * @return \Iterator<array{string}>
      */
     public static function getInvalid(): \Iterator
     {

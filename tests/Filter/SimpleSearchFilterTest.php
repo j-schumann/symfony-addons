@@ -42,6 +42,11 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertCount(1, $this->search('?searchUnmapped=eins'));
     }
 
+    public function testSearchIgnoresParameterWithOnlyUnmappedProperties(): void
+    {
+        self::assertCount(2, $this->search('?onlyUnmapped=eins'));
+    }
+
     public function testSearchIgnoresArrayValue(): void
     {
         $result = $this->search(
@@ -60,12 +65,10 @@ final class SimpleSearchFilterTest extends FilterTestCase
             self::assertArrayHasKey($name, $parameters);
         }
 
-        self::assertSame('Search in the text and varchar column', $parameters['pattern']['description']);
-    }
-
-    public function testSearchIgnoresOnlyUnmappedProperties(): void
-    {
-        self::assertCount(2, $this->search('?onlyUnmapped=eins'));
+        self::assertSame(
+            'Search in the text and varchar column',
+            $parameters['pattern']['description']
+        );
     }
 
     public function testGetOpenApiParameters(): void

@@ -3,7 +3,6 @@
 namespace Vrok\SymfonyAddons\Tests\Encoder;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -30,7 +29,7 @@ final class MultipartDecoderTest extends KernelTestCase
                 $decoder = new MultipartDecoder($stack);
                 $res = $decoder->decode('', 'multipart');
 
-                // all params and the file where combined
+                // all params and the file were combined
                 self::assertIsArray($res);
                 self::assertCount(3, $res);
                 self::assertSame('Notes', $res['content']);
@@ -41,16 +40,21 @@ final class MultipartDecoderTest extends KernelTestCase
                 return new Response();
             });
 
-        $this->uploadFile(
-            $mockedClient,
-            __FILE__,
-            'normal.jpg',
-            'image/jpg',
-            '/irrelevant',
+        // the file is never moved, unlike the normal handling of an UploadedFile
+        $file = new UploadedFile(__FILE__, 'normal.jpg', 'image/jpg', null, true);
+
+        $mockedClient->request(
             'POST',
+            '/irrelevant',
             [
-                'content'  => 'Notes',
                 'category' => '123',
+                'content'  => 'Notes',
+            ],
+            ['file' => $file],
+            [
+                'CONTENT_TYPE' => 'multipart/form-data',
+                'HTTP_ACCEPT'  => 'application/ld+json',
+                'HTTP_ORIGIN'  => 'https://example.net',
             ]
         );
     }
@@ -74,47 +78,5 @@ final class MultipartDecoderTest extends KernelTestCase
         /** @var Serializer $serializer */
         $serializer = self::getContainer()->get('serializer');
         self::assertTrue($serializer->supportsDecoding('multipart'));
-    }
-
-    /**
-     * Uses a given KernelBrowser (@see self::createKernelBrowsser) to upload
-     * a file to the API.
-     *
-     * @param array<string, string> $params
-     */
-    private function uploadFile(
-        AbstractBrowser $client,
-        ?string $path,
-        ?string $origName,
-        ?string $mimeType,
-        string $url,
-        string $method = 'POST',
-        array $params = [],
-    ): void {
-        $uploadedFile = null;
-
-        if ($path) {
-            // this only works because that file is never used/moved like normal handling would be
-            // with an UploadedFile
-            $uploadedFile = new UploadedFile(
-                $path,
-                $origName,
-                $mimeType,
-                null,
-                true
-            );
-        }
-
-        $client->request(
-            $method,
-            $url,
-            $params,
-            null !== $uploadedFile ? ['file' => $uploadedFile] : [],
-            [
-                'HTTP_ACCEPT'  => 'application/ld+json',
-                'CONTENT_TYPE' => 'multipart/form-data',
-                'HTTP_ORIGIN'  => 'https://example.net',
-            ]
-        );
     }
 }

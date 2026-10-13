@@ -4,7 +4,7 @@ namespace Vrok\SymfonyAddons\Tests\Validator\Constraints;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Constraints\All;
-use Symfony\Component\Validator\Constraints\AtLeastOneOf as AtLeastOneOfAlias;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf as BaseAtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -24,7 +24,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * @return \Iterator<(array<int, null> | array<int, string>)>
+     * @return \Iterator<array{?string}>
      */
     public static function getValid(): \Iterator
     {
@@ -34,7 +34,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * @return \Iterator<array<int, string>>
+     * @return \Iterator<array{string}>
      */
     public static function getInvalid(): \Iterator
     {
@@ -43,7 +43,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * @return \Iterator<(array<int, null> | array<int, string>)>
+     * @return \Iterator<array{?string}>
      */
     public static function getValidSequentially(): \Iterator
     {
@@ -53,7 +53,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * @return \Iterator<array<int, string>>
+     * @return \Iterator<array{string, string}>
      */
     public static function getInvalidSequentially(): \Iterator
     {
@@ -63,7 +63,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * @return \Iterator<array<int, (array<mixed> | null)>>
+     * @return \Iterator<array{?list<string>}>
      */
     public static function getValidAll(): \Iterator
     {
@@ -73,7 +73,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * @return \Iterator<(array<int, array<int, string>> | array<int, string>)>
+     * @return \Iterator<array{list<string>, string}>
      */
     public static function getInvalidAll(): \Iterator
     {
@@ -139,7 +139,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(new ConstraintViolation('minMessage', 'minMessage', [], $value, '', $value, null, AtLeastOneOfAlias::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertEquals(self::violation('minMessage', $value, $constraint), $violations->get(0));
     }
 
     #[DataProvider('getInvalidSequentially')]
@@ -157,7 +157,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOfAlias::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertEquals(self::violation($message, $value, $constraint), $violations->get(0));
     }
 
     /**
@@ -178,7 +178,7 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(new ConstraintViolation($message, $message, [], $value, '', $value, null, AtLeastOneOfAlias::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertEquals(self::violation($message, $value, $constraint), $violations->get(0));
     }
 
     public function testCustomMessage(): void
@@ -196,7 +196,10 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $violations = $validator->validate($value, $constraint);
 
         self::assertCount(1, $violations);
-        self::assertEquals(new ConstraintViolation('customMessage', 'customMessage', [], $value, '', $value, null, AtLeastOneOfAlias::AT_LEAST_ONE_OF_ERROR, $constraint), $violations->get(0));
+        self::assertEquals(
+            self::violation('customMessage', $value, $constraint),
+            $violations->get(0)
+        );
     }
 
     public function testValidateFailsWithOtherConstraint(): void
@@ -204,5 +207,23 @@ final class AtLeastOneOfValidatorTest extends ConstraintValidatorTestCase
         $this->expectException(UnexpectedTypeException::class);
 
         $this->validator->validate('value', new NotBlank());
+    }
+
+    private static function violation(
+        string $message,
+        mixed $value,
+        AtLeastOneOf $constraint,
+    ): ConstraintViolation {
+        return new ConstraintViolation(
+            $message,
+            $message,
+            [],
+            $value,
+            '',
+            $value,
+            null,
+            BaseAtLeastOneOf::AT_LEAST_ONE_OF_ERROR,
+            $constraint
+        );
     }
 }

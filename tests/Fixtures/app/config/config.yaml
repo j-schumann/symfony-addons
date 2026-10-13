@@ -1,3 +1,82 @@
+api_platform:
+  defaults:
+    extra_properties:
+      rfc_7807_compliant_errors: true
+      skip_deprecated_exception_normalizers: true
+      standard_put: true
+  # order matters: the first format is the default
+  formats:
+    json: [ 'application/json' ]
+    jsonld: [ 'application/ld+json' ]
+    multipart: [ 'multipart/form-data' ]
+    form: [ 'application/x-www-form-urlencoded' ]
+  handle_symfony_errors: true
+  mapping:
+    paths: ['%kernel.project_dir%/../Entity']
+  use_symfony_listeners: false
+
+doctrine:
+  dbal:
+    # DBAL 4 maps jsonb columns to the json type with the deprecated "jsonb" platform option when it
+    # reads the schema, e.g. for updateSchema()
+    # @todo remove when support for DBAL 4 is dropped, DBAL 5 maps them to the jsonb type
+    mapping_types:
+      jsonb: jsonb
+    url: '%env(resolve:DATABASE_URL)%'
+  orm:
+    dql:
+      string_functions:
+        CAST: Vrok\DoctrineAddons\ORM\Query\AST\CastFunction
+        CONTAINS: Vrok\DoctrineAddons\ORM\Query\AST\ContainsFunction
+        JSON_CONTAINS_ALL_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAllTextFunction
+        JSON_CONTAINS_ANY_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAnyTextFunction
+    mappings:
+      Fixtures:
+        alias: Fixtures
+        dir: '%kernel.project_dir%/../Entity'
+        is_bundle: false
+        prefix: 'Vrok\SymfonyAddons\Tests\Fixtures\Entity'
+        type: attribute
+
+framework:
+  handle_all_throwables: true
+  mailer:
+    dsn: null://null
+  messenger:
+    routing:
+      Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity: async
+    transports:
+      async:
+        dsn: 'doctrine://default'
+        options:
+          auto_setup: true
+  php_errors:
+    log: false
+  property_info:
+    with_constructor_extractor: false
+  validation:
+    email_validation_mode: html5
+  workflows:
+    demo:
+      initial_marking: draft
+      marking_store:
+        property: state
+        type: method
+      places:
+        - draft
+        - published
+        - reviewed
+      supports:
+        - Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity
+      transitions:
+        publish:
+          from: reviewed
+          to: published
+        review:
+          from: draft
+          to: reviewed
+      type: 'state_machine'
+
 parameters:
   env(DATABASE_URL): sqlite:///%kernel.project_dir%/var/data.db
   #env(DATABASE_URL): pgsql://db_test:db_test@pgsql/db_test?serverVersion=18
@@ -5,87 +84,8 @@ parameters:
   #env(DATABASE_URL): mysql://db_test:db_test@mysql:3306/db_test?serverVersion=9.0&charset=utf8mb4
   #env(DATABASE_URL): sqlsrv://sa:StrongP-ssw0rd!@mssql-symfony:1433/db_test?serverVersion=16&charset=utf-8&driverOptions[Encrypt]=0
 
-framework:
-  handle_all_throwables: true
-  mailer:
-    dsn: null://null
-  messenger:
-    transports:
-      async:
-        dsn: 'doctrine://default'
-        options:
-          auto_setup: true
-    routing:
-      Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity: async
-  php_errors:
-    log: false
-  property_info:
-    with_constructor_extractor: false
-  validation:
-    email_validation_mode: html5
-
-  workflows:
-    demo:
-      type: 'state_machine'
-      marking_store:
-        type: method
-        property: state
-      supports:
-        - Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity
-      initial_marking: draft
-      places:
-        - draft
-        - reviewed
-        - published
-      transitions:
-        review:
-          from: draft
-          to: reviewed
-        publish:
-          from: reviewed
-          to: published
-
 services:
   _defaults:
     autoconfigure: true
 
   Vrok\SymfonyAddons\Tests\Fixtures\TestFixtures: ~
-
-doctrine:
-  dbal:
-    url: '%env(resolve:DATABASE_URL)%'
-    # DBAL 4 maps jsonb columns to the json type with the deprecated "jsonb" platform option when it
-    # reads the schema, e.g. for updateSchema()
-    # @todo remove when support for DBAL 4 is dropped, DBAL 5 maps them to the jsonb type
-    mapping_types:
-      jsonb: jsonb
-  orm:
-    mappings:
-      Fixtures:
-        is_bundle: false
-        dir: '%kernel.project_dir%/../Entity'
-        prefix: 'Vrok\SymfonyAddons\Tests\Fixtures\Entity'
-        alias: Fixtures
-        type: attribute
-    dql:
-      string_functions:
-        CAST: Vrok\DoctrineAddons\ORM\Query\AST\CastFunction
-        CONTAINS: Vrok\DoctrineAddons\ORM\Query\AST\ContainsFunction
-        JSON_CONTAINS_ALL_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAllTextFunction
-        JSON_CONTAINS_ANY_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAnyTextFunction
-
-api_platform:
-  handle_symfony_errors: true
-  use_symfony_listeners: false
-  mapping:
-    paths: ['%kernel.project_dir%/../Entity']
-  defaults:
-    extra_properties:
-      rfc_7807_compliant_errors: true
-      skip_deprecated_exception_normalizers: true
-      standard_put: true
-  formats:
-    json: [ 'application/json' ]
-    jsonld: [ 'application/ld+json' ]
-    multipart: [ 'multipart/form-data' ]
-    form: [ 'application/x-www-form-urlencoded' ]

@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * With JOINED inheritance each child has its own table, but its primary key is a foreign key to the
- * root and not auto-increment, although the children inherit generatorType = IDENTITY,.
+ * root and not auto-increment, although the children inherit generatorType = IDENTITY.
  *
  * @see ORM\ClassMetadataFactory::inheritIdGeneratorMapping()
  */

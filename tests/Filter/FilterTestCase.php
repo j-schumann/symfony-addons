@@ -12,7 +12,9 @@ use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 abstract class FilterTestCase extends ApiPlatformTestCase
 {
     /**
-     * Returns the found records.
+     * @param array<array<mixed>> $createdLogs
+     *
+     * @return list<array<string, mixed>>
      */
     protected function search(string $query, array $createdLogs = []): array
     {

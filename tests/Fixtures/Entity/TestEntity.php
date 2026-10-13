@@ -32,7 +32,6 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                     description: 'Search in the text and varchar column',
                     properties: ['textColumn', 'varcharColumn'],
                 ),
-                // nested property
                 'childName'        => new QueryParameter(
                     filter: new SimpleSearchFilter(),
                     properties: ['children.varcharColumn'],

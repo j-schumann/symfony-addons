@@ -10,24 +10,24 @@ use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
 final class ApiPlatformTestCaseTest extends KernelTestCase
 {
     /**
-     * @return \Iterator<array<array<int, array<mixed>>, mixed>>
+     * @return \Iterator<string, array{array<mixed>, array<mixed>}>
      */
     public static function hasKeysSuccessProvider(): \Iterator
     {
         $data = [
-            'simple' => 1,
             'nested' => [
-                'value' => 2,
                 'deep'  => [
                     'value' => 3,
                 ],
                 'empty' => null,
+                'value' => 2,
             ],
+            'simple' => 1,
         ];
-        yield [$data, ['simple']];
-        yield [$data, ['simple', 'nested']];
-        yield [$data, ['nested' => ['deep' => 'value']]];
-        yield [$data, ['nested' => ['empty']]];
+        yield 'simple key' => [$data, ['simple']];
+        yield 'multiple keys' => [$data, ['simple', 'nested']];
+        yield 'nested key' => [$data, ['nested' => ['deep' => 'value']]];
+        yield 'nested key with null value' => [$data, ['nested' => ['empty']]];
     }
 
     /**
@@ -41,18 +41,26 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
     }
 
     /**
-     * @return \Iterator<array<array<int, mixed>, mixed>>
+     * @return \Iterator<string, array{array<mixed>, array<mixed>, string}>
      */
     public static function hasKeysThrowsProvider(): \Iterator
     {
-        // key not found
-        yield [[], ['fail1'], 'Dataset does not have key [fail1]!'];
-        // not all keys found
-        yield [['nested' => ['value']], ['simple', 'nested'], 'Dataset does not have key [simple]!'];
-        // nested key's parent is no array
-        yield [['nested' => 'string'], ['nested' => ['deep']], 'Key [nested] is expected to be an array!'];
-        // nested key not found
-        yield [['nested' => ['value']], ['nested' => ['deep']], 'Dataset does not have key [nested][deep]!'];
+        yield 'key not found' => [[], ['fail1'], 'Dataset does not have key [fail1]!'];
+        yield 'not all keys found' => [
+            ['nested' => ['value']],
+            ['simple', 'nested'],
+            'Dataset does not have key [simple]!',
+        ];
+        yield 'parent of the nested key is no array' => [
+            ['nested' => 'string'],
+            ['nested' => ['deep']],
+            'Key [nested] is expected to be an array!',
+        ];
+        yield 'nested key not found' => [
+            ['nested' => ['value']],
+            ['nested' => ['deep']],
+            'Dataset does not have key [nested][deep]!',
+        ];
     }
 
     /**
@@ -68,17 +76,29 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
     }
 
     /**
-     * @return \Iterator<array<array<int, array<mixed>>, mixed>>
+     * @return \Iterator<string, array{array<mixed>, array<mixed>}>
      */
     public static function notHasKeysSuccessProvider(): \Iterator
     {
-        yield [['irrelevant' => 1], ['simple']];
-        yield [['simple'], ['simple']];
-        yield [['simple'], ['simple', 'nested']];
-        yield [['nested' => ['deep' => ['irrelevant' => 1]]], ['nested' => ['deep' => 'value']]];
-        yield [['nested' => ['deep' => null]], ['nested' => ['deep' => 'value']]];
-        yield [['nested' => []], ['nested' => ['deep' => 'value']]];
-        yield [['irrelevant' => 1], ['simple', 'nested' => ['deep' => 'value']]];
+        yield 'key not found' => [['irrelevant' => 1], ['simple']];
+        yield 'value instead of key' => [['simple'], ['simple']];
+        yield 'values instead of keys' => [['simple'], ['simple', 'nested']];
+        yield 'nested key not found' => [
+            ['nested' => ['deep' => ['irrelevant' => 1]]],
+            ['nested' => ['deep' => 'value']],
+        ];
+        yield 'parent of the nested key is null' => [
+            ['nested' => ['deep' => null]],
+            ['nested' => ['deep' => 'value']],
+        ];
+        yield 'parent of the nested key is empty' => [
+            ['nested' => []],
+            ['nested' => ['deep' => 'value']],
+        ];
+        yield 'parent of the nested key not found' => [
+            ['irrelevant' => 1],
+            ['simple', 'nested' => ['deep' => 'value']],
+        ];
     }
 
     /**
@@ -92,15 +112,26 @@ final class ApiPlatformTestCaseTest extends KernelTestCase
     }
 
     /**
-     * @return \Iterator<array<array<int, mixed>, mixed>>
+     * @return \Iterator<string, array{array<mixed>, array<mixed>, string}>
      */
     public static function notHasKeysThrowsProvider(): \Iterator
     {
-        yield [['fail1' => true], ['fail1'], 'Dataset should not have key [fail1]!'];
-        yield [['nested' => ['value']], ['simple', 'nested'], 'Dataset should not have key [nested]!'];
-        yield [['nested' => 'string'], ['nested' => ['deep']], 'Key [nested] is expected to be an array or null!'];
-        // nested key not found
-        yield [['nested' => ['deep' => 'value']], ['nested' => ['deep']], 'Dataset should not have key [nested][deep]!'];
+        yield 'key found' => [['fail1' => true], ['fail1'], 'Dataset should not have key [fail1]!'];
+        yield 'one of the keys found' => [
+            ['nested' => ['value']],
+            ['simple', 'nested'],
+            'Dataset should not have key [nested]!',
+        ];
+        yield 'parent of the nested key is no array' => [
+            ['nested' => 'string'],
+            ['nested' => ['deep']],
+            'Key [nested] is expected to be an array or null!',
+        ];
+        yield 'nested key found' => [
+            ['nested' => ['deep' => 'value']],
+            ['nested' => ['deep']],
+            'Dataset should not have key [nested][deep]!',
+        ];
     }
 
     /**
