@@ -957,3 +957,6 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
   dropped, DBAL 5 maps jsonb columns to the jsonb type itself
 * `testOperation()`: a parameter for finding the user by another field than `email`, e.g.
   `user: ['username' => 'alice']`, with `email` deprecated
+* a normalizer for the `Length` constraint that strips HTML tags and decodes entities, to
+  validate the real text length of HTML fields. Replaces `NormalizerHelper::stripHtml()` of
+  vrok/doctrine-addons, which is removed in its 4.0 (fcp-api uses it 17 times)
