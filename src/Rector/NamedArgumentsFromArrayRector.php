@@ -88,7 +88,11 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         }
 
         $firstArg = $node->args[0];
-        if (!$firstArg instanceof Arg || !$firstArg->value instanceof Array_) {
+        if (
+            !$firstArg instanceof Arg
+            || null !== $firstArg->name
+            || !$firstArg->value instanceof Array_
+        ) {
             return null;
         }
 
@@ -137,7 +141,8 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
         // string targets are function calls
         return array_any(
             $this->targets,
-            static fn (array|string $target): bool => $target === $functionName,
+            static fn (array|string $target): bool => \is_string($target)
+                && 0 === strcasecmp($target, $functionName),
         );
     }
 
@@ -158,7 +163,7 @@ final class NamedArgumentsFromArrayRector extends AbstractRector implements Conf
                 [$targetClass, $targetMethod] = $target;
 
                 if (
-                    $targetMethod === $methodName
+                    0 === strcasecmp($targetMethod, $methodName)
                     && $this->isObjectType($object, new ObjectType($targetClass))
                 ) {
                     return true;

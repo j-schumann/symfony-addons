@@ -24,6 +24,8 @@ function run(MyChild $obj, OtherClass $other, $unknown, string $method): void
     $other->instanceMethod(['p' => 1]);
     $unknown->instanceMethod(['p' => 1]);
     $obj->$method(['p' => 1, 'q' => 2]);
+    $obj->InstanceMethod(['p' => 1, 'q' => 2]);
+    $obj->instanceMethod(p: ['p' => 1]);
 }
 
 ?>
@@ -54,6 +56,8 @@ function run(MyChild $obj, OtherClass $other, $unknown, string $method): void
     $other->instanceMethod(['p' => 1]);
     $unknown->instanceMethod(['p' => 1]);
     $obj->$method(['p' => 1, 'q' => 2]);
+    $obj->InstanceMethod(p: 1, q: 2);
+    $obj->instanceMethod(p: ['p' => 1]);
 }
 
 ?>

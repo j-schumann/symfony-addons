@@ -2,6 +2,7 @@
 
 namespace Vrok\SymfonyAddons\Tests\PHPUnit;
 
+use ApiPlatform\Test\Client;
 use Monolog\Level;
 use PHPUnit\Framework\AssertionFailedError;
 use Vrok\SymfonyAddons\PHPUnit\ApiPlatformTestCase;
@@ -13,6 +14,13 @@ use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
  */
 final class OperationTest extends ApiPlatformTestCase
 {
+    /**
+     * Default options for the client, like an app with only JSON-LD gets a default content type.
+     *
+     * @var array<string, mixed>
+     */
+    private static array $clientDefaults = [];
+
     private ?string $jwt = null;
 
     // region Request options
@@ -44,6 +52,23 @@ final class OperationTest extends ApiPlatformTestCase
             'Bearer token',
             self::getClient()->getRequest()->headers->get('Authorization')
         );
+    }
+
+    public function testTestOperationKeepsClientDefaultsWithJwt(): void
+    {
+        self::$clientDefaults = ['headers' => ['content-type' => 'application/ld+json']];
+        $this->jwt = 'token';
+
+        $this->testOperation(
+            uri: '/test',
+            email: 'test@example.com',
+            method: 'POST',
+            requestOptions: ['json' => ['name' => 'value']],
+        );
+
+        $request = self::getClient()->getRequest();
+        self::assertSame('Bearer token', $request->headers->get('Authorization'));
+        self::assertSame('application/ld+json', $request->headers->get('content-type'));
     }
 
     public function testTestOperationSendsJwtAsFormParameter(): void
@@ -311,6 +336,20 @@ final class OperationTest extends ApiPlatformTestCase
         $this->testOperation(uri: '/test', dispatchedMessages: [[\stdClass::class]]);
     }
     // endregion
+
+    protected function tearDown(): void
+    {
+        self::$clientDefaults = [];
+
+        parent::tearDown();
+    }
+
+    protected static function createClient(
+        array $kernelOptions = [],
+        array $defaultOptions = [],
+    ): Client {
+        return parent::createClient($kernelOptions, $defaultOptions + self::$clientDefaults);
+    }
 
     protected function getJWT(array $findUserBy): string
     {
