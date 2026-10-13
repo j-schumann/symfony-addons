@@ -48,8 +48,8 @@
   </groups>
 
   <source
+          ignoreIndirectDeprecations="true"
           ignoreSuppressionOfDeprecations="true"
-          restrictDeprecations="true"
           restrictNotices="true"
           restrictWarnings="true"
   >
