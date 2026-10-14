@@ -239,6 +239,8 @@ jobs:
       mssql:
         env:
           ACCEPT_EULA: "Y"
+          # the image only creates MSSQL_DATABASE when MSSQL_USER and MSSQL_PASSWORD are set, the
+          # tests connect as sa to be allowed to drop and create the database
           MSSQL_DATABASE: dbtest
           MSSQL_PASSWORD: dbtest
           MSSQL_SA_PASSWORD: "StrongP-ssw0rd!"
@@ -303,6 +305,9 @@ jobs:
 
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --no-progress
+
+      - name: Audit the dependencies
+        run: composer audit
 
   php-cs-fixer:
     name: PHP CS Fixer

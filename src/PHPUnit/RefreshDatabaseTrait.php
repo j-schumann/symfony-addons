@@ -31,10 +31,10 @@ use Symfony\Component\HttpKernel\KernelInterface;
  * The cleanup method for the database can be overridden by setting the ENV DB_CLEANUP_METHOD (e.g.
  * in phpunit.xml.dist).
  *
- * "purge" will update the DB schema once and afterward only purges all tables, may require
- * Vrok\DoctrineAddons\DBAL\Platforms\PostgreSQLTestPlatform to cascade the purge. On SQLServer the
- * tables are always emptied with DELETE, as TRUNCATE does not work there with foreign keys; on
- * MySQL/MariaDB DELETE is only the default and DB_PURGE_MODE switches back to TRUNCATE.
+ * "purge" will update the DB schema once and afterward only purges all tables and resets the
+ * identities. On SQLServer the tables are always emptied with DELETE, as TRUNCATE does not work there
+ * with foreign keys; on MySQL/MariaDB DELETE is only the default and DB_PURGE_MODE switches back to
+ * TRUNCATE.
  *
  * "dropSchema" will drop all tables (and indices) and recreate them before each test, use this when
  * a test requires a genuinely fresh schema.
@@ -375,8 +375,7 @@ trait RefreshDatabaseTrait
         }
 
         if ($platform instanceof PostgreSQLPlatform) {
-            // TRUNCATE keeps the sequences, only "TRUNCATE ... RESTART IDENTITY" would reset them,
-            // @see Vrok\DoctrineAddons\DBAL\Platforms\PostgreSQLTestPlatform
+            // TRUNCATE keeps the sequences, only "TRUNCATE ... RESTART IDENTITY" would reset them
             foreach ($identityTables as $table => $meta) {
                 // is_called = false lets the next record use the value itself. The table name is
                 // passed quoted, as pg_get_serial_sequence treats its first argument as a

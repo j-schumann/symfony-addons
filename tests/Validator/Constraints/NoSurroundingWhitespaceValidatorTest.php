@@ -143,7 +143,7 @@ final class NoSurroundingWhitespaceValidatorTest extends ConstraintValidatorTest
             ->addYamlMapping(__DIR__.'/../../Fixtures/Validator/constraints.yaml')
             ->getValidator()
             ->getMetadataFor(TestEntity::class);
-        \assert($metadata instanceof ClassMetadata);
+        self::assertInstanceOf(ClassMetadata::class, $metadata);
         $constraints = array_values(array_filter(
             $metadata->getPropertyMetadata('varcharColumn')[0]->getConstraints(),
             static fn (Constraint $c): bool => $c instanceof NoSurroundingWhitespace,
