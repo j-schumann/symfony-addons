@@ -21,6 +21,19 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertCount(0, $this->search('?pattern=drei'));
     }
 
+    public function testSearchWithUppercaseUmlaut(): void
+    {
+        self::assertCount(1, $this->search('?pattern=%C3%9CBUNG'));
+    }
+
+    public function testSearchWithWildcardCharacters(): void
+    {
+        self::assertCount(0, $this->search('?pattern=_'));
+        self::assertCount(0, $this->search('?pattern=%25'));
+        self::assertCount(0, $this->search('?pattern=!'));
+        self::assertCount(1, $this->search('?jsonSearch=admin_blog'));
+    }
+
     public function testSearchWithNestedProperty(): void
     {
         self::assertCount(2, $this->search('?childName=child'));

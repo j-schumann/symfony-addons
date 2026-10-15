@@ -24,7 +24,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface
                 ['jsonColumn' => ['CHILD_ZWEI'], 'varcharColumn' => 'child ZWEI'],
             ],
             'jsonColumn'    => [2, 'ROLE_ADMIN_BLOG'],
-            'textColumn'    => 'record ZWEI text',
+            'textColumn'    => 'record ZWEI text Übung',
             'varcharColumn' => 'record ZWEI varchar',
         ],
     ];

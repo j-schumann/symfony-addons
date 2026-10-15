@@ -20,6 +20,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * `JsonExistsFilter` and `SimpleSearchFilter` ignore and log values that are no valid UTF-8 or
   contain a null character, instead of causing a database error or ignoring the rest of the value
 * `ContainsFilter`, `JsonExistsFilter` and `SimpleSearchFilter` support API Platform's `OrFilter`
+* `SimpleSearchFilter` matches `%` and `_` in the search term literally instead of as wildcards and
+  ignores the case of non-ASCII letters like umlauts, except on SQLite
 
 ## [4.0.0] - 2026-10-13
 All BC breaks are explained in UPGRADE.md.

@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -49,8 +50,8 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
             return;
         }
 
-        $isPostgres = $queryBuilder->getEntityManager()->getConnection()->getDatabasePlatform()
-            instanceof PostgreSQLPlatform;
+        $platform = $queryBuilder->getEntityManager()->getConnection()->getDatabasePlatform();
+        $isPostgres = $platform instanceof PostgreSQLPlatform;
         $nestedPropertiesInfo = $parameter->getExtraProperties()['nested_properties_info'] ?? [];
         $parameterName = $queryNameGenerator->generateParameterName($parameter->getKey() ?? '');
 
@@ -72,16 +73,26 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
                 ? "CAST($alias.$field, 'text')"
                 : "$alias.$field";
 
-            $orExp->add($queryBuilder->expr()->like("LOWER($expression)", ":$parameterName"));
+            // "!" instead of the default backslash, which MySQL also treats as escape in literals
+            $orExp->add("LOWER($expression) LIKE :$parameterName ESCAPE '!'");
         }
 
         if (0 === $orExp->count()) {
             return;
         }
 
+        // SQLite's LOWER() only lowercases ASCII, mb_strtolower() would turn "Ü" into "ü", which
+        // never matches the unchanged "Ü" in the column
+        $term = $platform instanceof SQLitePlatform
+            ? strtolower((string) $value)
+            : mb_strtolower((string) $value);
+
+        // % and _ match literally
+        $term = strtr($term, ['!' => '!!', '%' => '!%', '_' => '!_']);
+
         $queryBuilder
             ->{$context['whereClause'] ?? 'andWhere'}("($orExp)")
-            ->setParameter($parameterName, '%'.strtolower((string) $value).'%');
+            ->setParameter($parameterName, "%$term%");
     }
 
     /**

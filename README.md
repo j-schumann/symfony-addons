@@ -692,7 +692,8 @@ its condition with OR instead of AND. Invalid values are ignored and logged as n
 Selects entities where the search term is found (case insensitive) in at least one of the specified
 properties. The properties can also be of relations, e.g. `child.name`. All specified properties
 must be string types (varchar, text etc.) or JSON fields (Postgres only), in that case the JSON is
-cast to string first.
+cast to string first. `%` and `_` in the search term match literally. On SQLite, only ASCII letters
+are case insensitive.
 
 ```php
 #[GetCollection(parameters: [
