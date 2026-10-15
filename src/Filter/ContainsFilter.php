@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Common\Filter\LoggerAwareInterface;
 use ApiPlatform\Doctrine\Common\Filter\OpenApiFilterTrait;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
@@ -13,7 +14,8 @@ use Doctrine\ORM\QueryBuilder;
 
 /**
  * Filters entities by their jsonb (Postgres-only) fields, if they contain the search parameter,
- * using the @> operator.
+ * using the @> operator. Multiple values are combined with AND (default) or OR, see
+ * $combination.
  *
  * @see https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
  */
@@ -21,6 +23,27 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
 {
     use FilterTrait;
     use OpenApiFilterTrait;
+
+    /**
+     * Records must contain all the values.
+     */
+    public const string AND = 'and';
+
+    /**
+     * Records must contain at least one of the values.
+     */
+    public const string OR = 'or';
+
+    /**
+     * @param string $combination How multiple values are combined, self::AND or self::OR
+     */
+    public function __construct(
+        private readonly string $combination = self::AND,
+    ) {
+        if (self::AND !== $combination && self::OR !== $combination) {
+            throw new InvalidArgumentException(\sprintf('Invalid "combination" parameter "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
+        }
+    }
 
     /**
      * @param array<string, mixed> $context
@@ -47,8 +70,7 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
 
         [$alias, $field] = $resolved;
 
-        // @todo one condition per value, could a single @> with a JSON array of all values replace
-        //       them?
+        $conditions = [];
         foreach ((array) $parameter->getValue() as $singleValue) {
             // @> requires JSON: keep numbers, quoted strings etc., encode plain strings like ROLE_A
             $json = \is_string($singleValue) && json_validate($singleValue)
@@ -56,9 +78,19 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
                 : json_encode($singleValue, \JSON_THROW_ON_ERROR);
             $valueParameter = $queryNameGenerator->generateParameterName($field);
 
-            $queryBuilder
-                ->andWhere(\sprintf('CONTAINS(%s.%s, :%s) = true', $alias, $field, $valueParameter))
-                ->setParameter($valueParameter, $json);
+            $conditions[] = \sprintf(
+                'CONTAINS(%s.%s, :%s) = true',
+                $alias,
+                $field,
+                $valueParameter
+            );
+            $queryBuilder->setParameter($valueParameter, $json);
         }
+
+        $queryBuilder->andWhere(
+            self::OR === $this->combination
+                ? $queryBuilder->expr()->orX(...$conditions)
+                : $queryBuilder->expr()->andX(...$conditions)
+        );
     }
 }

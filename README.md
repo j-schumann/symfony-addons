@@ -32,6 +32,17 @@ of requiring something like "must contain at least one uppercase & one digit & o
 Allows to set a `minStrength` to vary the requirements. See
 `Vrok\SymfonyAddons\Helper\PasswordStrength` for details on the calculation.
 
+### HtmlUtil::stripHtml
+Normalizer for the `Length` and `NotBlank` constraints, to validate the real text length of HTML
+fields: strips the tags, decodes the entities and trims the result. `<p>&nbsp;</p>` has a length of
+one, `<p><br></p>` is blank.
+
+```php
+#[Assert\NotBlank(normalizer: [HtmlUtil::class, 'stripHtml'])]
+#[Assert\Length(max: 500, normalizer: [HtmlUtil::class, 'stripHtml'])]
+public string $description = '';
+```
+
 ## PHPUnit helpers
 
 ### Using the ApiPlatformTestCase
@@ -709,9 +720,20 @@ the `@>` operator. For example for filtering for numbers or strings in an array.
 valid JSON are used as they are (`?numbers=5` finds the number 5, `?roles="5"` the string "5"),
 other values are searched as strings (`?roles=ROLE_ADMIN`).
 
+Multiple values (e.g. `?numbers[]=1&numbers[]=5`) are combined with AND by default, a record must
+contain all values. Set `combination` to `ContainsFilter::OR` to match records that contain at least
+one of the values.
+
 ```php
 #[GetCollection(parameters: [
-    'numbers' => new QueryParameter(filter: new ContainsFilter()),
+    // records with at least one of the given numbers
+    'anyNumber' => new QueryParameter(
+        filter: new ContainsFilter(combination: ContainsFilter::OR),
+        property: 'numbers',
+    ),
+
+    // records with all the given numbers
+    'numbers'   => new QueryParameter(filter: new ContainsFilter()),
 ])]
 ```
 
@@ -951,12 +973,7 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
-* ContainsFilter: option to match records that contain at least one of the values (OR), like
-  the `combination` of the JsonExistsFilter
 * remove the `jsonb` `mapping_types` from the test config when support for doctrine/dbal 4 is
   dropped, DBAL 5 maps jsonb columns to the jsonb type itself
 * `testOperation()`: a parameter for finding the user by another field than `email`, e.g.
   `user: ['username' => 'alice']`, with `email` deprecated
-* a normalizer for the `Length` constraint that strips HTML tags and decodes entities, to
-  validate the real text length of HTML fields. Replaces `NormalizerHelper::stripHtml()` of
-  vrok/doctrine-addons, which is removed in its 4.0 (fcp-api uses it 17 times)

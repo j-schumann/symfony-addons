@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-10-15
+
+### Added
+* `ContainsFilter` matches records that contain at least one of multiple values with
+  `combination: ContainsFilter::OR`, see README.md for details
+* `HtmlUtil::stripHtml()` as normalizer for the `Length` and `NotBlank` constraints, to validate the
+  text length of HTML fields, replaces `NormalizerHelper::stripHtml()` of `vrok/doctrine-addons`
+
 ## [4.0.0] - 2026-10-13
 All BC breaks are explained in UPGRADE.md.
 

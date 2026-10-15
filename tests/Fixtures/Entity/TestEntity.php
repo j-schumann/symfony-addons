@@ -63,6 +63,10 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                     filter: new ContainsFilter(),
                     property: 'jsonColumn',
                 ),
+                'containsAny'      => new QueryParameter(
+                    filter: new ContainsFilter(combination: ContainsFilter::OR),
+                    property: 'jsonColumn',
+                ),
                 'hasAnyKey'        => new QueryParameter(
                     filter: new JsonExistsFilter(combination: JsonExistsFilter::OR),
                     property: 'jsonColumn',

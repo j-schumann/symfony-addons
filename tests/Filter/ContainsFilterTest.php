@@ -4,6 +4,9 @@
 
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
+use ApiPlatform\Metadata\Exception\InvalidArgumentException;
+use Vrok\SymfonyAddons\Filter\ContainsFilter;
+
 final class ContainsFilterTest extends FilterTestCase
 {
     public function testFilter(): void
@@ -24,13 +27,21 @@ final class ContainsFilterTest extends FilterTestCase
         self::assertCount(0, $this->search('?contains='));
     }
 
-    public function testFilterMultipleValues(): void
+    public function testFilterMultipleValuesWithAndByDefault(): void
     {
         $this->skipUnlessPostgres();
 
-        // records must contain all values
         self::assertCount(1, $this->search('?contains[]=1&contains[]=5'));
         self::assertCount(0, $this->search('?contains[]=2&contains[]=5'));
+    }
+
+    public function testFilterMultipleValuesWithOr(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(2, $this->search('?containsAny[]=2&containsAny[]=5'));
+        self::assertCount(1, $this->search('?containsAny[]=ROLE_ADMIN&containsAny[]=3'));
+        self::assertCount(0, $this->search('?containsAny[]=3&containsAny[]=4'));
     }
 
     public function testFilterNestedProperty(): void
@@ -50,8 +61,16 @@ final class ContainsFilterTest extends FilterTestCase
     {
         $parameters = $this->getOpenApiParameters();
 
-        foreach (['contains', 'contains[]'] as $name) {
+        foreach (['contains', 'contains[]', 'containsAny', 'containsAny[]'] as $name) {
             self::assertArrayHasKey($name, $parameters);
         }
+    }
+
+    public function testConstructFailsWithInvalidCombination(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageIsOrContains('Invalid "combination" parameter "xor"');
+
+        new ContainsFilter(combination: 'xor');
     }
 }
