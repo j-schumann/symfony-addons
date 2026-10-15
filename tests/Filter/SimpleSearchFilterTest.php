@@ -11,6 +11,7 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 
 final class SimpleSearchFilterTest extends FilterTestCase
 {
+    // region Searching
     public function testSearch(): void
     {
         self::assertCount(2, $this->search('?pattern=RECORD'));
@@ -41,7 +42,9 @@ final class SimpleSearchFilterTest extends FilterTestCase
     {
         self::assertCount(2, $this->search('?pattern=eins&orPattern=zwei'));
     }
+    // endregion
 
+    // region Ignored values
     public function testSearchSkipsUnmappedProperty(): void
     {
         self::assertCount(1, $this->search('?searchUnmapped=eins'));
@@ -61,7 +64,9 @@ final class SimpleSearchFilterTest extends FilterTestCase
 
         self::assertCount(2, $result);
     }
+    // endregion
 
+    // region OpenAPI documentation
     public function testParametersAreDocumented(): void
     {
         $parameters = $this->getOpenApiParameters();
@@ -84,4 +89,5 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertSame('q', $parameter->getName());
         self::assertSame('query', $parameter->getIn());
     }
+    // endregion
 }

@@ -11,6 +11,7 @@ use Vrok\SymfonyAddons\Filter\ContainsFilter;
 
 final class ContainsFilterTest extends FilterTestCase
 {
+    // region Filtering
     public function testFilter(): void
     {
         $this->skipUnlessPostgres();
@@ -75,19 +76,21 @@ final class ContainsFilterTest extends FilterTestCase
         self::assertCount(0, $this->search('?contains=%229e12345%22'));
         self::assertCount(0, $this->search('?contains=1e400'));
     }
+    // endregion
 
+    // region Ignored values
     /**
      * @return array<string, array{string}>
      */
     public static function invalidValueProvider(): array
     {
         return [
-            'invalid UTF-8'        => ['?contains=%FF'],
-            'null character'       => ['?contains=%00'],
             'escaped null in JSON' => ['?contains=%22%5Cu0000%22'],
+            'invalid UTF-8'        => ['?contains=%FF'],
+            'nested number'        => ['?contains=%5B1e-1000000%5D'],
+            'null character'       => ['?contains=%00'],
             'number too large'     => ['?contains=1e131072'],
             'number too small'     => ['?contains=1e-16384'],
-            'nested number'        => ['?contains=%5B1e-1000000%5D'],
             'one invalid value'    => ['?contains[]=5&contains[]=%FF'],
         ];
     }
@@ -104,7 +107,9 @@ final class ContainsFilterTest extends FilterTestCase
     {
         self::assertCount(2, $this->search('?containsUnmapped=5'));
     }
+    // endregion
 
+    // region Filter definition
     public function testParametersAreDocumented(): void
     {
         $parameters = $this->getOpenApiParameters();
@@ -121,4 +126,5 @@ final class ContainsFilterTest extends FilterTestCase
 
         new ContainsFilter(combination: 'xor');
     }
+    // endregion
 }
