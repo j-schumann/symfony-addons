@@ -19,5 +19,19 @@ final class HtmlUtilTest extends TestCase
         self::assertSame('I <3 PHP', HtmlUtil::stripHtml('<p>I <3 PHP</p>'));
         self::assertSame('11<12', HtmlUtil::stripHtml('11<12'));
         self::assertSame('äü', HtmlUtil::stripHtml('ä&uuml;'));
+        self::assertSame('Title text', HtmlUtil::stripHtml('<title>Title</title> text'));
+        self::assertSame('ab', HtmlUtil::stripHtml('a</body></html><p>b</p>'));
+    }
+
+    public function testStripHtmlKeepsTextBelowNestingLimit(): void
+    {
+        $html = str_repeat('<div>', 300).'text';
+
+        self::assertSame('text', HtmlUtil::stripHtml($html));
+    }
+
+    public function testStripHtmlKeepsInvalidUtf8(): void
+    {
+        self::assertSame("<p>Gr\xFC</p>", HtmlUtil::stripHtml("<p>Gr\xFC</p>"));
     }
 }

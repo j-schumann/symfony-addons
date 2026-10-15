@@ -62,6 +62,13 @@ final class ContainsFilterTest extends FilterTestCase
         self::assertCount(2, $this->search('?contains=5&orContains=2'));
     }
 
+    public function testFilterWithOtherParameter(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(0, $this->search('?pattern=zwei&contains=5'));
+    }
+
     public function testFilterWithEscapedNullCharacter(): void
     {
         $this->skipUnlessPostgres();
@@ -87,6 +94,8 @@ final class ContainsFilterTest extends FilterTestCase
         return [
             'escaped null in JSON' => ['?contains=%22%5Cu0000%22'],
             'invalid UTF-8'        => ['?contains=%FF'],
+            'long fraction'        => ['?contains=0.'.str_repeat('0', 6384).'1e-9999'],
+            'long string'          => ['?contains=%5B%22'.str_repeat('a', 8200).'%22,1e-16384%5D'],
             'nested number'        => ['?contains=%5B1e-1000000%5D'],
             'null character'       => ['?contains=%00'],
             'number too large'     => ['?contains=1e131072'],

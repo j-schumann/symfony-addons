@@ -85,15 +85,15 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
     }
 
     /**
-     * Only a single search term is supported, arrays (e.g. ?pattern[]=foo) are ignored and logged,
-     * like API Platform does for invalid filter values.
+     * Only a single valid search term is supported, arrays (e.g. ?pattern[]=foo) are ignored and
+     * logged, like API Platform does for invalid filter values.
      */
     private function isValidValue(mixed $value, string $parameterName): bool
     {
-        if (!\is_scalar($value)) {
+        if (!\is_scalar($value) || !$this->isValidText((string) $value)) {
             $this->getLogger()->notice('Invalid filter ignored', [
                 'exception' => new InvalidArgumentException(\sprintf(
-                    'Invalid value for "%s" parameter, only a single search term is supported',
+                    'Invalid value for "%s" parameter, only a single valid search term is supported',
                     $parameterName,
                 )),
             ]);

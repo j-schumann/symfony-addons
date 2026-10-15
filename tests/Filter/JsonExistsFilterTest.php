@@ -6,10 +6,12 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use Monolog\Level;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Vrok\SymfonyAddons\Filter\JsonExistsFilter;
 
 final class JsonExistsFilterTest extends FilterTestCase
 {
+    // region Filtering
     public function testFilter(): void
     {
         $this->skipUnlessPostgres();
@@ -53,16 +55,37 @@ final class JsonExistsFilterTest extends FilterTestCase
         self::assertCount(2, $this->search('?hasKey=ROLE_EDITOR&orHasKey=ROLE_ADMIN_BLOG'));
     }
 
-    public function testFilterIgnoresNestedValues(): void
+    public function testFilterWithOtherParameter(): void
     {
-        $result = $this->search(
-            '?hasKey[0][]=ROLE_ADMIN',
-            [['Invalid filter ignored', Level::Notice]]
-        );
+        $this->skipUnlessPostgres();
+
+        self::assertCount(0, $this->search('?pattern=zwei&hasKey=ROLE_EDITOR'));
+    }
+    // endregion
+
+    // region Ignored values
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function invalidValueProvider(): array
+    {
+        return [
+            'invalid UTF-8'  => ['?hasKey=%FF'],
+            'nested values'  => ['?hasKey[0][]=ROLE_ADMIN'],
+            'null character' => ['?hasKey[]=ROLE_ADMIN&hasKey[]=%00'],
+        ];
+    }
+
+    #[DataProvider('invalidValueProvider')]
+    public function testFilterIgnoresInvalidValue(string $query): void
+    {
+        $result = $this->search($query, [['Invalid filter ignored', Level::Notice]]);
 
         self::assertCount(2, $result);
     }
+    // endregion
 
+    // region Filter definition
     public function testParametersAreDocumented(): void
     {
         $parameters = $this->getOpenApiParameters();
@@ -79,4 +102,5 @@ final class JsonExistsFilterTest extends FilterTestCase
 
         new JsonExistsFilter(combination: 'xor');
     }
+    // endregion
 }

@@ -100,4 +100,12 @@ trait FilterTrait
 
         return [$alias, $queryField, $metadata->getFieldMapping($field)->type];
     }
+
+    /**
+     * Postgres rejects invalid UTF-8 and cuts text at a null character.
+     */
+    protected function isValidText(string $text): bool
+    {
+        return mb_check_encoding($text, 'UTF-8') && !str_contains($text, "\0");
+    }
 }

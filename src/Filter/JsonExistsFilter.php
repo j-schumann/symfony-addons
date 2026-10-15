@@ -86,16 +86,16 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
      */
     protected function normalizeValue(mixed $value, string $property): ?array
     {
-        if (\is_scalar($value)) {
-            return [(string) $value];
-        }
-
+        $values = \is_scalar($value) ? [$value] : $value;
         if (
-            \is_array($value)
-            && [] !== $value
-            && array_all($value, static fn (mixed $item): bool => \is_scalar($item))
+            \is_array($values)
+            && [] !== $values
+            && array_all(
+                $values,
+                fn (mixed $item): bool => \is_scalar($item) && $this->isValidText((string) $item)
+            )
         ) {
-            return array_values(array_unique(array_map(strval(...), $value)));
+            return array_values(array_unique(array_map(strval(...), $values)));
         }
 
         $this->getLogger()->notice('Invalid filter ignored', [

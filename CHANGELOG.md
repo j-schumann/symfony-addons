@@ -11,11 +11,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * `HtmlUtil::stripHtml()` as normalizer for the `Length` and `NotBlank` constraints, to validate the
   text length of HTML fields, requires `ext-dom`. Replaces `NormalizerHelper::stripHtml()` of
   `vrok/doctrine-addons`. Unlike that, it accepts no `null`, keeps text like `I <3 PHP` that
-  `strip_tags()` removes, decodes HTML5 entities and also trims non-breaking spaces
+  `strip_tags()` removes and also trims non-breaking spaces
 
 ### Fixed
 * `ContainsFilter` ignores and logs values that are no valid UTF-8, contain a null character or a
-  number with an exponent of five or more digits, instead of causing a database error
+  number with an exponent of five or more digits or a run of 5000 or more digits, instead of
+  causing a database error
+* `JsonExistsFilter` and `SimpleSearchFilter` ignore and log values that are no valid UTF-8 or
+  contain a null character, instead of causing a database error or ignoring the rest of the value
 * `ContainsFilter`, `JsonExistsFilter` and `SimpleSearchFilter` support API Platform's `OrFilter`
 
 ## [4.0.0] - 2026-10-13

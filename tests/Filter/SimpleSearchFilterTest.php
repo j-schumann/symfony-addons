@@ -7,6 +7,7 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Parameter;
 use Monolog\Level;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
 
 final class SimpleSearchFilterTest extends FilterTestCase
@@ -38,6 +39,11 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertCount(1, $this->search('?childJsonSearch=CHILD_EINS'));
     }
 
+    public function testSearchWithOtherParameter(): void
+    {
+        self::assertCount(0, $this->search('?pattern=eins&childName=zwei'));
+    }
+
     public function testSearchWithOrFilter(): void
     {
         self::assertCount(2, $this->search('?pattern=eins&orPattern=zwei'));
@@ -55,12 +61,22 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertCount(2, $this->search('?onlyUnmapped=eins'));
     }
 
-    public function testSearchIgnoresArrayValue(): void
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function invalidValueProvider(): array
     {
-        $result = $this->search(
-            '?pattern[]=eins',
-            [['Invalid filter ignored', Level::Notice]]
-        );
+        return [
+            'array'          => ['?pattern[]=eins'],
+            'invalid UTF-8'  => ['?pattern=%FF'],
+            'null character' => ['?pattern=%00'],
+        ];
+    }
+
+    #[DataProvider('invalidValueProvider')]
+    public function testSearchIgnoresInvalidValue(string $query): void
+    {
+        $result = $this->search($query, [['Invalid filter ignored', Level::Notice]]);
 
         self::assertCount(2, $result);
     }

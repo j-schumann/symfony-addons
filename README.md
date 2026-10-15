@@ -34,7 +34,7 @@ Allows to set a `minStrength` to vary the requirements. See
 
 ### HtmlUtil::stripHtml
 Normalizer for the `Length` and `NotBlank` constraints, to validate the real text length of HTML
-fields: returns the text a browser displays, trimmed. `<p>&nbsp;</p>` is blank, `I <3 PHP` keeps
+fields: returns the text content of the HTML, trimmed. `<p>&nbsp;</p>` is blank, `I <3 PHP` keeps
 its `<3`. The normalized length does not limit the size of the stored HTML, add a separate `Length`
 for that.
 
@@ -946,7 +946,8 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 ## Developer Doc
 ### composer.json require
 
-* _ext-dom_ provides the HTML5 parser `Dom\HTMLDocument` for `HtmlUtil::stripHtml()`
+* _ext-dom_ provides the HTML parser `DOMDocument` for `HtmlUtil::stripHtml()`
+* _symfony/polyfill-mbstring_ >= 1.31 provides `mb_trim()` without ext-mbstring
 * _symfony/yaml_ is required for loading the bundle & test config
 
 ### composer.json dev

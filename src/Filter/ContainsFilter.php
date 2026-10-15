@@ -90,17 +90,8 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
                 ? $singleValue
                 : json_encode($singleValue);
 
-            // false for invalid UTF-8; jsonb rejects \u0000 (unless the backslash is escaped) and
-            // numbers beyond the numeric range, e.g. 1e131072 or 1e-16384: exponents with five or
-            // more digits outside the strings are rejected
-            if (
-                false === $json
-                || 1 === preg_match('/(?<!\\\\)(?:\\\\\\\\)*\\\\u0000/', $json)
-                || 1 === preg_match(
-                    '/[eE][+-]?0*[1-9]\\d{4,}/',
-                    (string) preg_replace('/"(?:[^"\\\\]|\\\\.)*"/', '', $json)
-                )
-            ) {
+            // false for invalid UTF-8
+            if (false === $json || !$this->isAcceptedByJsonb($json)) {
                 $values = [];
                 break;
             }
@@ -119,5 +110,23 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
         }
 
         return $values;
+    }
+
+    /**
+     * PCRE errors, e.g. from the JIT stack limit, count as rejected.
+     */
+    private function isAcceptedByJsonb(string $json): bool
+    {
+        // jsonb rejects \u0000, unless its backslash is escaped
+        if (0 !== preg_match('/(?<!\\\\)(?:\\\\\\\\)*+\\\\u0000/', $json)) {
+            return false;
+        }
+
+        // numeric allows 131072 digits before and 16383 after the decimal point, exponents below
+        // 10000 and digit runs below 5000 always fit
+        $numbers = preg_replace('/"(?:[^"\\\\]++|\\\\.)*+"/', '', $json);
+
+        return null !== $numbers
+            && 0 === preg_match('/[eE][+-]?0*[1-9]\\d{4,}|\\d{5000,}/', $numbers);
     }
 }
