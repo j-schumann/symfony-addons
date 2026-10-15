@@ -683,7 +683,8 @@ class MyEventSubscriber implements EventSubscriberInterface
 The filters are used with the `#[QueryParameter]` attribute, the legacy `#[ApiFilter]` attribute
 is not supported. The parameter names the property to filter, nested properties, e.g.
 `children.content`, are supported. Without `property`, API Platform uses the key of the parameter
-if it matches a property of the resource.
+if it matches a property of the resource. Wrapped in API Platform's `OrFilter`, a filter combines
+its condition with OR instead of AND. Invalid values are ignored and logged as notice.
 
 ### SimpleSearchFilter
 

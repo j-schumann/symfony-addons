@@ -5,6 +5,8 @@
 namespace Vrok\SymfonyAddons\Tests\Filter;
 
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
+use Monolog\Level;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Vrok\SymfonyAddons\Filter\ContainsFilter;
 
 final class ContainsFilterTest extends FilterTestCase
@@ -50,6 +52,42 @@ final class ContainsFilterTest extends FilterTestCase
 
         self::assertCount(1, $this->search('?childContains=CHILD_EINS'));
         self::assertCount(0, $this->search('?childContains=CHILD'));
+    }
+
+    public function testFilterWithOrFilter(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(2, $this->search('?contains=5&orContains=2'));
+    }
+
+    public function testFilterWithEscapedNullCharacter(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(0, $this->search('?contains=%22%5C%5Cu0000%22'));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function invalidValueProvider(): array
+    {
+        return [
+            'invalid UTF-8'        => ['?contains=%FF'],
+            'null character'       => ['?contains=%00'],
+            'escaped null in JSON' => ['?contains=%22%5Cu0000%22'],
+            'number out of range'  => ['?contains=1e1000000'],
+            'one invalid value'    => ['?contains[]=5&contains[]=%FF'],
+        ];
+    }
+
+    #[DataProvider('invalidValueProvider')]
+    public function testFilterIgnoresInvalidValue(string $query): void
+    {
+        $result = $this->search($query, [['Invalid filter ignored', Level::Notice]]);
+
+        self::assertCount(2, $result);
     }
 
     public function testFilterIgnoresUnmappedProperty(): void

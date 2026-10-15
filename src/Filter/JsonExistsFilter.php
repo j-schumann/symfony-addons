@@ -87,7 +87,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
         $valueParameter = $queryNameGenerator->generateParameterName($field);
 
         $queryBuilder
-            ->andWhere(
+            ->{$context['whereClause'] ?? 'andWhere'}(
                 \sprintf(
                     '%s(%s.%s, :%s) = true',
                     self::FUNCTIONS[$this->combination],

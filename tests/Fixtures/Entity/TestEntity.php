@@ -2,6 +2,7 @@
 
 namespace Vrok\SymfonyAddons\Tests\Fixtures\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -82,6 +83,20 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                 'childHasKey'      => new QueryParameter(
                     filter: new JsonExistsFilter(),
                     property: 'children.jsonColumn',
+                ),
+                // OrFilter combines the condition with OR instead of AND, the parameters must
+                // follow those they are combined with
+                'orPattern'        => new QueryParameter(
+                    filter: new OrFilter(new SimpleSearchFilter()),
+                    properties: ['varcharColumn'],
+                ),
+                'orContains'       => new QueryParameter(
+                    filter: new OrFilter(new ContainsFilter()),
+                    property: 'jsonColumn',
+                ),
+                'orHasKey'         => new QueryParameter(
+                    filter: new OrFilter(new JsonExistsFilter()),
+                    property: 'jsonColumn',
                 ),
             ],
         ),

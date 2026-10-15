@@ -62,9 +62,15 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
         ?Operation $operation = null,
         array $context = [],
     ): void {
+        $property = $parameter->getProperty() ?? $parameter->getKey() ?? '';
+        $values = $this->normalizeValue($parameter->getValue(), $property);
+        if (null === $values) {
+            return;
+        }
+
         $nestedPropertiesInfo = $parameter->getExtraProperties()['nested_properties_info'] ?? [];
         $resolved = $this->resolveField(
-            $parameter->getProperty() ?? $parameter->getKey() ?? '',
+            $property,
             reset($nestedPropertiesInfo) ?: null,
             $parameter,
             $queryBuilder,
@@ -77,11 +83,7 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
         [$alias, $field] = $resolved;
 
         $conditions = [];
-        foreach ((array) $parameter->getValue() as $singleValue) {
-            // @> requires JSON: keep numbers, quoted strings etc., encode plain strings like ROLE_A
-            $json = \is_string($singleValue) && json_validate($singleValue)
-                ? $singleValue
-                : json_encode($singleValue, \JSON_THROW_ON_ERROR);
+        foreach ($values as $json) {
             $valueParameter = $queryNameGenerator->generateParameterName($field);
 
             $conditions[] = \sprintf(
@@ -93,15 +95,51 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
             $queryBuilder->setParameter($valueParameter, $json);
         }
 
-        // an empty composite would render a dangling WHERE
-        if ([] === $conditions) {
-            return;
-        }
-
-        $queryBuilder->andWhere(
+        $queryBuilder->{$context['whereClause'] ?? 'andWhere'}(
             self::OR === $this->combination
                 ? $queryBuilder->expr()->orX(...$conditions)
                 : $queryBuilder->expr()->andX(...$conditions)
         );
+    }
+
+    /**
+     * Returns the values as list of JSON strings or NULL if the value is invalid.
+     *
+     * @return non-empty-list<string>|null
+     */
+    protected function normalizeValue(mixed $value, string $property): ?array
+    {
+        $values = [];
+        foreach ((array) $value as $singleValue) {
+            // @> requires JSON: keep numbers, quoted strings etc., encode plain strings like ROLE_A
+            $json = \is_string($singleValue) && json_validate($singleValue)
+                ? $singleValue
+                : json_encode($singleValue);
+
+            // false for invalid UTF-8; jsonb rejects \u0000 (unless the backslash is escaped) and
+            // numbers beyond its range, PHP decodes them to INF, which it cannot encode again
+            if (
+                false === $json
+                || 1 === preg_match('/(?<!\\\\)(?:\\\\\\\\)*\\\\u0000/', $json)
+                || false === json_encode(json_decode($json, true))
+            ) {
+                $values = [];
+                break;
+            }
+
+            $values[] = $json;
+        }
+
+        if ([] === $values) {
+            $this->getLogger()->notice('Invalid filter ignored', [
+                'exception' => new InvalidArgumentException(
+                    \sprintf('Invalid value for "%s" property', $property)
+                ),
+            ]);
+
+            return null;
+        }
+
+        return $values;
     }
 }

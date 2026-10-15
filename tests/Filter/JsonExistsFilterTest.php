@@ -46,6 +46,13 @@ final class JsonExistsFilterTest extends FilterTestCase
         self::assertCount(0, $this->search('?childHasKey=CHILD'));
     }
 
+    public function testFilterWithOrFilter(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(2, $this->search('?hasKey=ROLE_EDITOR&orHasKey=ROLE_ADMIN_BLOG'));
+    }
+
     public function testFilterIgnoresNestedValues(): void
     {
         $result = $this->search(

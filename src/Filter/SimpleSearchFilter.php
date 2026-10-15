@@ -80,7 +80,7 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
         }
 
         $queryBuilder
-            ->andWhere("($orExp)")
+            ->{$context['whereClause'] ?? 'andWhere'}("($orExp)")
             ->setParameter($parameterName, '%'.strtolower((string) $value).'%');
     }
 

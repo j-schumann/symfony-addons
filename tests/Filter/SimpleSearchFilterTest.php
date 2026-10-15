@@ -37,6 +37,11 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertCount(1, $this->search('?childJsonSearch=CHILD_EINS'));
     }
 
+    public function testSearchWithOrFilter(): void
+    {
+        self::assertCount(2, $this->search('?pattern=eins&orPattern=zwei'));
+    }
+
     public function testSearchSkipsUnmappedProperty(): void
     {
         self::assertCount(1, $this->search('?searchUnmapped=eins'));
