@@ -9,7 +9,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 * `ContainsFilter` matches records that contain at least one of multiple values with
   `combination: ContainsFilter::OR`, see README.md for details
 * `HtmlUtil::stripHtml()` as normalizer for the `Length` and `NotBlank` constraints, to validate the
-  text length of HTML fields, replaces `NormalizerHelper::stripHtml()` of `vrok/doctrine-addons`
+  text length of HTML fields. Replaces `NormalizerHelper::stripHtml()` of `vrok/doctrine-addons`,
+  unlike that it accepts no `null`, decodes HTML5 entities and also trims non-breaking spaces
 
 ## [4.0.0] - 2026-10-13
 All BC breaks are explained in UPGRADE.md.

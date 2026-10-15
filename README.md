@@ -34,12 +34,13 @@ Allows to set a `minStrength` to vary the requirements. See
 
 ### HtmlUtil::stripHtml
 Normalizer for the `Length` and `NotBlank` constraints, to validate the real text length of HTML
-fields: strips the tags, decodes the entities and trims the result. `<p>&nbsp;</p>` has a length of
-one, `<p><br></p>` is blank.
+fields: strips the tags, decodes the entities and trims the result, `<p>&nbsp;</p>` is blank. The
+normalized length does not limit the size of the stored HTML, add a separate `Length` for that.
 
 ```php
 #[Assert\NotBlank(normalizer: [HtmlUtil::class, 'stripHtml'])]
 #[Assert\Length(max: 500, normalizer: [HtmlUtil::class, 'stripHtml'])]
+#[Assert\Length(max: 5000)]
 public string $description = '';
 ```
 

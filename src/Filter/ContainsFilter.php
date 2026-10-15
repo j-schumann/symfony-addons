@@ -35,14 +35,20 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
     public const string OR = 'or';
 
     /**
+     * Not promoted with readonly, so subclasses with their own constructor keep the default.
+     */
+    private string $combination = self::AND;
+
+    /**
      * @param string $combination How multiple values are combined, self::AND or self::OR
      */
-    public function __construct(
-        private readonly string $combination = self::AND,
-    ) {
+    public function __construct(string $combination = self::AND)
+    {
         if (self::AND !== $combination && self::OR !== $combination) {
             throw new InvalidArgumentException(\sprintf('Invalid "combination" parameter "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
         }
+
+        $this->combination = $combination;
     }
 
     /**
@@ -85,6 +91,11 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
                 $valueParameter
             );
             $queryBuilder->setParameter($valueParameter, $json);
+        }
+
+        // an empty composite would render a dangling WHERE
+        if ([] === $conditions) {
+            return;
         }
 
         $queryBuilder->andWhere(

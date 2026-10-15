@@ -5,13 +5,14 @@ namespace Vrok\SymfonyAddons\Util;
 class HtmlUtil
 {
     /**
-     * Returns the text content of the given HTML: strips the tags, decodes the entities and trims
-     * the result. Used as normalizer for the Length and NotBlank constraints, to validate the real
-     * text length of HTML fields.
+     * Used as normalizer for the Length and NotBlank constraints, to validate the real text length
+     * of HTML fields.
      */
     public static function stripHtml(string $html): string
     {
-        // strip_tags keeps entities like &nbsp; which would count as multiple characters
-        return trim(html_entity_decode(strip_tags($html)));
+        // mb_trim also removes &nbsp; decoded to U+00A0, e.g. in "<p>&nbsp;</p>" of empty editors
+        return mb_trim(
+            html_entity_decode(strip_tags($html), \ENT_QUOTES | \ENT_SUBSTITUTE | \ENT_HTML5)
+        );
     }
 }
