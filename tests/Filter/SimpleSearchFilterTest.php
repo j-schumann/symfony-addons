@@ -9,6 +9,8 @@ use ApiPlatform\OpenApi\Model\Parameter;
 use Monolog\Level;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
+use Vrok\SymfonyAddons\Tests\Fixtures\Entity\TestEntity;
+use Vrok\SymfonyAddons\Tests\Fixtures\TestFixtures;
 
 final class SimpleSearchFilterTest extends FilterTestCase
 {
@@ -23,6 +25,8 @@ final class SimpleSearchFilterTest extends FilterTestCase
 
     public function testSearchWithUppercaseUmlaut(): void
     {
+        $this->setTextOfRecordZwei('record ZWEI Übung');
+
         self::assertCount(1, $this->search('?pattern=%C3%9CBUNG'));
     }
 
@@ -32,6 +36,12 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertCount(0, $this->search('?pattern=%25'));
         self::assertCount(0, $this->search('?pattern=!'));
         self::assertCount(1, $this->search('?jsonSearch=admin_blog'));
+
+        $this->setTextOfRecordZwei('record ZWEI 50% !');
+
+        self::assertCount(1, $this->search('?pattern=%25'));
+        self::assertCount(1, $this->search('?pattern=!'));
+        self::assertCount(0, $this->search('?pattern=_'));
     }
 
     public function testSearchWithNestedProperty(): void
@@ -119,4 +129,17 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertSame('query', $parameter->getIn());
     }
     // endregion
+
+    private function setTextOfRecordZwei(string $text): void
+    {
+        self::getContainer()->get('doctrine')->getManager()
+            ->createQuery(\sprintf(
+                'UPDATE %s e SET e.textColumn = :text WHERE e.varcharColumn = :varchar',
+                TestEntity::class,
+            ))
+            ->execute([
+                'text'    => $text,
+                'varchar' => TestFixtures::RECORDS['zwei']['varcharColumn'],
+            ]);
+    }
 }
