@@ -10,9 +10,10 @@ class HtmlUtil
      */
     public static function stripHtml(string $html): string
     {
-        // mb_trim also removes &nbsp; decoded to U+00A0, e.g. in "<p>&nbsp;</p>" of empty editors
-        return mb_trim(
-            html_entity_decode(strip_tags($html), \ENT_QUOTES | \ENT_SUBSTITUTE | \ENT_HTML5)
-        );
+        // the HTML5 parser keeps text like "<3" that strip_tags() would remove, mb_trim also
+        // removes &nbsp; decoded to U+00A0, e.g. in "<p>&nbsp;</p>" of empty editors
+        $document = \Dom\HTMLDocument::createFromString($html, \LIBXML_NOERROR, 'UTF-8');
+
+        return mb_trim($document->body->textContent ?? '');
     }
 }
