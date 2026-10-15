@@ -68,6 +68,14 @@ final class ContainsFilterTest extends FilterTestCase
         self::assertCount(0, $this->search('?contains=%22%5C%5Cu0000%22'));
     }
 
+    public function testFilterWithValidExponent(): void
+    {
+        $this->skipUnlessPostgres();
+
+        self::assertCount(0, $this->search('?contains=%229e12345%22'));
+        self::assertCount(0, $this->search('?contains=1e400'));
+    }
+
     /**
      * @return array<string, array{string}>
      */
@@ -77,7 +85,9 @@ final class ContainsFilterTest extends FilterTestCase
             'invalid UTF-8'        => ['?contains=%FF'],
             'null character'       => ['?contains=%00'],
             'escaped null in JSON' => ['?contains=%22%5Cu0000%22'],
-            'number out of range'  => ['?contains=1e1000000'],
+            'number too large'     => ['?contains=1e131072'],
+            'number too small'     => ['?contains=1e-16384'],
+            'nested number'        => ['?contains=%5B1e-1000000%5D'],
             'one invalid value'    => ['?contains[]=5&contains[]=%FF'],
         ];
     }

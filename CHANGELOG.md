@@ -14,7 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 * `ContainsFilter` ignores and logs values that are no valid UTF-8, contain a null character or a
-  number beyond the range of a float, instead of causing a database error
+  number with an exponent of five or more digits, instead of causing a database error
 * `ContainsFilter`, `JsonExistsFilter` and `SimpleSearchFilter` support API Platform's `OrFilter`
 
 ## [4.0.0] - 2026-10-13

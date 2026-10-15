@@ -117,11 +117,15 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
                 : json_encode($singleValue);
 
             // false for invalid UTF-8; jsonb rejects \u0000 (unless the backslash is escaped) and
-            // numbers beyond its range, PHP decodes them to INF, which it cannot encode again
+            // numbers beyond the numeric range, e.g. 1e131072 or 1e-16384: exponents with five or
+            // more digits outside the strings are rejected
             if (
                 false === $json
                 || 1 === preg_match('/(?<!\\\\)(?:\\\\\\\\)*\\\\u0000/', $json)
-                || false === json_encode(json_decode($json, true))
+                || 1 === preg_match(
+                    '/[eE][+-]?0*[1-9]\\d{4,}/',
+                    (string) preg_replace('/"(?:[^"\\\\]|\\\\.)*"/', '', $json)
+                )
             ) {
                 $values = [];
                 break;
