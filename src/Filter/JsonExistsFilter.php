@@ -21,18 +21,9 @@ use Doctrine\ORM\QueryBuilder;
  */
 class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApiParameterFilterInterface
 {
+    use CombinationTrait;
     use FilterTrait;
     use OpenApiFilterTrait;
-
-    /**
-     * Records must contain all the values.
-     */
-    public const string AND = 'and';
-
-    /**
-     * Records must contain at least one of the values.
-     */
-    public const string OR = 'or';
 
     /**
      * DQL functions of vrok/doctrine-addons per combination.
@@ -41,17 +32,6 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
         self::AND => 'JSON_CONTAINS_ALL_TEXT',
         self::OR  => 'JSON_CONTAINS_ANY_TEXT',
     ];
-
-    /**
-     * @param string $combination How multiple values are combined, self::AND or self::OR
-     */
-    public function __construct(
-        private readonly string $combination = self::AND,
-    ) {
-        if (!isset(self::FUNCTIONS[$combination])) {
-            throw new InvalidArgumentException(\sprintf('Invalid "combination" parameter "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
-        }
-    }
 
     /**
      * @param array<string, mixed> $context
