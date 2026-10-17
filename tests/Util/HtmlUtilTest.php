@@ -30,7 +30,7 @@ final class HtmlUtilTest extends TestCase
         self::assertSame("x\0yy", HtmlUtil::stripHtml("<p>x</p>\0<p>yy"));
     }
 
-    public function testStripHtmlTrimsInvisibleCharacters(): void
+    public function testStripHtmlWithInvisibleCharacters(): void
     {
         self::assertSame('', HtmlUtil::stripHtml("<p><span>\u{feff}</span><br></p>"));
         self::assertSame('', HtmlUtil::stripHtml("<p>\u{200b}\u{2060}&shy;</p>"));
@@ -43,7 +43,7 @@ final class HtmlUtilTest extends TestCase
         self::assertSame('ok text', HtmlUtil::stripHtml($html));
     }
 
-    public function testStripHtmlKeepsInvalidUtf8(): void
+    public function testStripHtmlWithInvalidUtf8(): void
     {
         self::assertSame("<p>Gr\xFC</p>", HtmlUtil::stripHtml("<p>Gr\xFC</p>"));
     }

@@ -40,7 +40,7 @@ final class JsonExistsFilterTest extends FilterTestCase
         self::assertCount(1, $this->search('?hasAnyKey[]=ROLE_ADMIN&hasAnyKey[]=ROLE_NONE'));
     }
 
-    public function testFilterNestedProperty(): void
+    public function testFilterWithNestedProperty(): void
     {
         $this->skipUnlessPostgres();
 
@@ -77,7 +77,7 @@ final class JsonExistsFilterTest extends FilterTestCase
     }
 
     #[DataProvider('invalidValueProvider')]
-    public function testFilterIgnoresInvalidValue(string $query): void
+    public function testFilterWithInvalidValue(string $query): void
     {
         $result = $this->search($query, [['Invalid filter ignored', Level::Notice]]);
 

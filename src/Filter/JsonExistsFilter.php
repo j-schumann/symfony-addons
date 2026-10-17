@@ -80,8 +80,6 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
     }
 
     /**
-     * Returns the values as list of unique strings or NULL if the value is invalid.
-     *
      * @return list<string>|null
      */
     protected function normalizeValue(mixed $value, string $property): ?array

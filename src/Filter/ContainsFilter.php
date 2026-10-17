@@ -77,15 +77,13 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
     }
 
     /**
-     * Returns the values as list of JSON strings or NULL if the value is invalid.
-     *
      * @return non-empty-list<string>|null
      */
     protected function normalizeValue(mixed $value, string $property): ?array
     {
         $values = [];
         foreach ((array) $value as $singleValue) {
-            // @> requires JSON: keep numbers, quoted strings etc., encode plain strings like ROLE_A
+            // @> requires JSON, plain strings like ROLE_A are encoded
             $json = \is_string($singleValue) && json_validate($singleValue)
                 ? $singleValue
                 : json_encode($singleValue);
@@ -113,7 +111,7 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
     }
 
     /**
-     * PCRE errors, e.g. from the JIT stack limit, count as rejected.
+     * PCRE errors count as rejected.
      */
     private function isAcceptedByJsonb(string $json): bool
     {
@@ -122,8 +120,8 @@ class ContainsFilter implements FilterInterface, LoggerAwareInterface, OpenApiPa
             return false;
         }
 
-        // numeric allows 131072 digits before and 16383 after the decimal point, exponents below
-        // 10000 and digit runs below 5000 always fit
+        // numeric allows 131072 digits before and 16383 after the decimal point, so exponents
+        // below 10000 and digit runs below 5000 always fit
         $numbers = preg_replace('/"(?:[^"\\\\]++|\\\\.)*+"/', '', $json);
 
         return null !== $numbers

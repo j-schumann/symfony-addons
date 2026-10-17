@@ -43,7 +43,7 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertCount(1, $this->search('?pattern=!'));
         self::assertCount(0, $this->search('?pattern=_'));
 
-        // a character class on SQL Server
+        // character class on SQL Server
         self::assertCount(1, $this->search('?pattern=[x]'));
         self::assertCount(0, $this->search('?pattern=[a-z]'));
     }
@@ -83,12 +83,12 @@ final class SimpleSearchFilterTest extends FilterTestCase
     // endregion
 
     // region Ignored values
-    public function testSearchSkipsUnmappedProperty(): void
+    public function testSearchWithUnmappedProperty(): void
     {
         self::assertCount(1, $this->search('?searchUnmapped=eins'));
     }
 
-    public function testSearchIgnoresParameterWithOnlyUnmappedProperties(): void
+    public function testSearchWithOnlyUnmappedProperties(): void
     {
         self::assertCount(2, $this->search('?onlyUnmapped=eins'));
     }
@@ -106,7 +106,7 @@ final class SimpleSearchFilterTest extends FilterTestCase
     }
 
     #[DataProvider('invalidValueProvider')]
-    public function testSearchIgnoresInvalidValue(string $query): void
+    public function testSearchWithInvalidValue(string $query): void
     {
         $result = $this->search($query, [['Invalid filter ignored', Level::Notice]]);
 

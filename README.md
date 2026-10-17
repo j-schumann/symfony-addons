@@ -33,10 +33,10 @@ Allows to set a `minStrength` to vary the requirements. See
 `Vrok\SymfonyAddons\Helper\PasswordStrength` for details on the calculation.
 
 ### HtmlUtil::stripHtml
-Normalizer for the `Length` and `NotBlank` constraints, to validate the real text length of HTML
-fields: removes tags and comments, decodes entities and trims whitespace and invisible characters
-like zero width spaces. `<p>&nbsp;</p>` is blank, `I <3 PHP` keeps its `<3`. The normalized length does not limit the size of the stored HTML, add a separate `Length`
-for that.
+Normalizer for the `Length` and `NotBlank` constraints, to validate the text length of HTML fields:
+removes tags and comments, decodes entities and trims whitespace and invisible characters.
+`<p>&nbsp;</p>` is blank, `I <3 PHP` keeps its `<3`. Limit the size of the stored HTML with a
+separate `Length`.
 
 ```php
 #[Assert\NotBlank(normalizer: [HtmlUtil::class, 'stripHtml'])]
@@ -239,9 +239,8 @@ asserts that the received status code matches
 <tr>
 <td>contentType</td>
 <td>
-asserts that the received content type header matches exactly, the constants
-`ApiPlatformTestCase::JSON_MEDIA_TYPE`, `LD_JSON_MEDIA_TYPE` and `PROBLEM_MEDIA_TYPE` hold the
-common values
+asserts that the received content type header matches exactly, e.g.
+`ApiPlatformTestCase::JSON_MEDIA_TYPE`, `LD_JSON_MEDIA_TYPE` or `PROBLEM_MEDIA_TYPE`
 </td>
 <td>
 
@@ -726,9 +725,8 @@ the `@>` operator. For example for filtering for numbers or strings in an array.
 valid JSON are used as they are (`?numbers=5` finds the number 5, `?roles="5"` the string "5"),
 other values are searched as strings (`?roles=ROLE_ADMIN`).
 
-Multiple values (e.g. `?numbers[]=1&numbers[]=5`) are combined with AND by default, a record must
-contain all values. Set `combination` to `ContainsFilter::OR` to match records that contain at least
-one of the values.
+Multiple values (e.g. `?numbers[]=1&numbers[]=5`) must all be contained, with
+`combination: ContainsFilter::OR` at least one of them.
 
 ```php
 #[GetCollection(parameters: [

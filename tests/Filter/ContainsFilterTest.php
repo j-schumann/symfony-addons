@@ -48,7 +48,7 @@ final class ContainsFilterTest extends FilterTestCase
         self::assertCount(0, $this->search('?containsAny[]=3&containsAny[]=4'));
     }
 
-    public function testFilterNestedProperty(): void
+    public function testFilterWithNestedProperty(): void
     {
         $this->skipUnlessPostgres();
 
@@ -106,14 +106,14 @@ final class ContainsFilterTest extends FilterTestCase
     }
 
     #[DataProvider('invalidValueProvider')]
-    public function testFilterIgnoresInvalidValue(string $query): void
+    public function testFilterWithInvalidValue(string $query): void
     {
         $result = $this->search($query, [['Invalid filter ignored', Level::Notice]]);
 
         self::assertCount(2, $result);
     }
 
-    public function testFilterIgnoresUnmappedProperty(): void
+    public function testFilterWithUnmappedProperty(): void
     {
         self::assertCount(2, $this->search('?containsUnmapped=5'));
     }
@@ -137,9 +137,9 @@ final class ContainsFilterTest extends FilterTestCase
         new ContainsFilter(combination: 'xor');
     }
 
-    public function testCombinationTraitCanBeReflected(): void
+    public function testReflectCombinationTrait(): void
     {
-        // Symfony reflects the traits of services to detect changes for the container cache
+        // Symfony reflects the traits of services for the container cache
         $defaults = new \ReflectionClass(CombinationTrait::class)->getDefaultProperties();
 
         self::assertSame(ContainsFilter::AND, $defaults['combination']);

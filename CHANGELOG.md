@@ -3,14 +3,14 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.1.0] - 2026-10-15
+## [4.1.0] - 2026-10-17
 
 ### Added
 * `ApiPlatformTestCase::JSON_MEDIA_TYPE` and `ApiPlatformTestCase::LD_JSON_MEDIA_TYPE` for the
   `contentType` argument of `testOperation()`
 * `ParameterFilterTrait` as base for custom filters used with `#[QueryParameter]`
 * `ContainsFilter` matches records that contain at least one of multiple values with
-  `combination: ContainsFilter::OR`, see README.md for details
+  `combination: ContainsFilter::OR`
 * `HtmlUtil::stripHtml()` as normalizer for the `Length` and `NotBlank` constraints, to validate the
   text length of HTML fields. Replaces `NormalizerHelper::stripHtml()` of `vrok/doctrine-addons`.
   Unlike that, it accepts no `null`, keeps text like `I <3 PHP` that `strip_tags()` removes, decodes

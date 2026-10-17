@@ -89,8 +89,7 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                     filter: new JsonExistsFilter(),
                     property: 'children.jsonColumn',
                 ),
-                // OrFilter combines the condition with OR instead of AND, the parameters must
-                // follow those they are combined with
+                // OrFilter ORs with the conditions of the parameters declared before
                 'orPattern'        => new QueryParameter(
                     filter: new OrFilter(new SimpleSearchFilter()),
                     properties: ['varcharColumn'],

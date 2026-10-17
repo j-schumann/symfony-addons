@@ -10,7 +10,7 @@ use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 /**
- * Adds the field resolution of the parameter-based filters to ParameterFilterTrait.
+ * Field resolution for the filters of this bundle.
  *
  * @internal
  */
