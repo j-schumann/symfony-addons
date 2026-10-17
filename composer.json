@@ -7,7 +7,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "ext-dom": "*",
         "symfony/framework-bundle":  "^7.4.10|^8.0.0",
         "symfony/polyfill-mbstring": "^1.31.0",
         "symfony/yaml": "^7.4.10|^8.0.0"

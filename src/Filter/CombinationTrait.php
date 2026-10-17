@@ -22,9 +22,10 @@ trait CombinationTrait
     public const string OR = 'or';
 
     /**
-     * Not promoted with readonly, so subclasses with their own constructor keep the default.
+     * Not promoted with readonly, so subclasses with their own constructor keep the default. A
+     * literal, because reflecting the trait fails on a trait constant as property default.
      */
-    private string $combination = self::AND;
+    private string $combination = 'and';
 
     /**
      * @param string $combination How multiple values are combined, self::AND or self::OR

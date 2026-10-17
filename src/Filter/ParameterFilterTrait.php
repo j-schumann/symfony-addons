@@ -26,8 +26,13 @@ trait ParameterFilterTrait
         ?Operation $operation = null,
         array $context = [],
     ): void {
+        $parameter = $context['parameter'] ?? null;
+        if (!$parameter instanceof Parameter) {
+            throw new \LogicException(\sprintf('%s supports only #[QueryParameter], not #[ApiFilter].', static::class));
+        }
+
         $this->filterParameter(
-            $context['parameter'],
+            $parameter,
             $queryBuilder,
             $queryNameGenerator,
             $resourceClass,

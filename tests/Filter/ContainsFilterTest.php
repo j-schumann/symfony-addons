@@ -7,6 +7,7 @@ namespace Vrok\SymfonyAddons\Tests\Filter;
 use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use Monolog\Level;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Vrok\SymfonyAddons\Filter\CombinationTrait;
 use Vrok\SymfonyAddons\Filter\ContainsFilter;
 
 final class ContainsFilterTest extends FilterTestCase
@@ -134,6 +135,14 @@ final class ContainsFilterTest extends FilterTestCase
         $this->expectExceptionMessageIsOrContains('Invalid "combination" parameter "xor"');
 
         new ContainsFilter(combination: 'xor');
+    }
+
+    public function testCombinationTraitCanBeReflected(): void
+    {
+        // Symfony reflects the traits of services to detect changes for the container cache
+        $defaults = new \ReflectionClass(CombinationTrait::class)->getDefaultProperties();
+
+        self::assertSame(ContainsFilter::AND, $defaults['combination']);
     }
     // endregion
 }

@@ -11,7 +11,6 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
-use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -53,7 +52,10 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
         $platform = $queryBuilder->getEntityManager()->getConnection()->getDatabasePlatform();
         $isPostgres = $platform instanceof PostgreSQLPlatform;
         $nestedPropertiesInfo = $parameter->getExtraProperties()['nested_properties_info'] ?? [];
-        $parameterName = $queryNameGenerator->generateParameterName($parameter->getKey() ?? '');
+
+        // % and _ (and [ on SQL Server) match literally, "!" instead of the default backslash,
+        // which MySQL also treats as escape in literals
+        $pattern = '%'.$platform->escapeStringForLike((string) $value, '!').'%';
 
         $orExp = $queryBuilder->expr()->orX();
         foreach ($parameter->getProperties() ?? [] as $property) {
@@ -73,26 +75,17 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
                 ? "CAST($alias.$field, 'text')"
                 : "$alias.$field";
 
-            // "!" instead of the default backslash, which MySQL also treats as escape in literals
-            $orExp->add("LOWER($expression) LIKE :$parameterName ESCAPE '!'");
+            // both sides lowercased by the database, so the case mapping is the same
+            $parameterName = $queryNameGenerator->generateParameterName($field);
+            $orExp->add("LOWER($expression) LIKE LOWER(:$parameterName) ESCAPE '!'");
+            $queryBuilder->setParameter($parameterName, $pattern);
         }
 
         if (0 === $orExp->count()) {
             return;
         }
 
-        // SQLite's LOWER() only lowercases ASCII, mb_strtolower() would turn "Ü" into "ü", which
-        // never matches the unchanged "Ü" in the column
-        $term = $platform instanceof SQLitePlatform
-            ? strtolower((string) $value)
-            : mb_strtolower((string) $value);
-
-        // % and _ match literally
-        $term = strtr($term, ['!' => '!!', '%' => '!%', '_' => '!_']);
-
-        $queryBuilder
-            ->{$context['whereClause'] ?? 'andWhere'}("($orExp)")
-            ->setParameter($parameterName, "%$term%");
+        $queryBuilder->{$context['whereClause'] ?? 'andWhere'}("($orExp)");
     }
 
     /**

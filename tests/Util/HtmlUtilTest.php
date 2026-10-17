@@ -21,13 +21,26 @@ final class HtmlUtilTest extends TestCase
         self::assertSame('äü', HtmlUtil::stripHtml('ä&uuml;'));
         self::assertSame('Title text', HtmlUtil::stripHtml('<title>Title</title> text'));
         self::assertSame('ab', HtmlUtil::stripHtml('a</body></html><p>b</p>'));
+        self::assertSame('<3 PHP', HtmlUtil::stripHtml('<3 PHP'));
+        self::assertSame('a < b > c', HtmlUtil::stripHtml('a < b > c'));
+        self::assertSame("a\tb", HtmlUtil::stripHtml('a&Tab;b'));
+        self::assertSame('ab', HtmlUtil::stripHtml('a<!-- <p>c</p> -->b'));
+        self::assertSame('a', HtmlUtil::stripHtml('a<!-- unclosed'));
+        self::assertSame('x', HtmlUtil::stripHtml('<!DOCTYPE html><html><body>x</body></html>'));
+        self::assertSame("x\0yy", HtmlUtil::stripHtml("<p>x</p>\0<p>yy"));
     }
 
-    public function testStripHtmlKeepsTextBelowNestingLimit(): void
+    public function testStripHtmlTrimsInvisibleCharacters(): void
     {
-        $html = str_repeat('<div>', 300).'text';
+        self::assertSame('', HtmlUtil::stripHtml("<p><span>\u{feff}</span><br></p>"));
+        self::assertSame('', HtmlUtil::stripHtml("<p>\u{200b}\u{2060}&shy;</p>"));
+    }
 
-        self::assertSame('text', HtmlUtil::stripHtml($html));
+    public function testStripHtmlWithDeeplyNestedTags(): void
+    {
+        $html = 'ok '.str_repeat('<b>', 100_000).'text'.str_repeat('</i>', 100_000);
+
+        self::assertSame('ok text', HtmlUtil::stripHtml($html));
     }
 
     public function testStripHtmlKeepsInvalidUtf8(): void

@@ -46,6 +46,11 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                     filter: new SimpleSearchFilter(),
                     properties: ['children.jsonColumn'],
                 ),
+                // not a valid DQL parameter name
+                'search-term'      => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['varcharColumn'],
+                ),
                 // unmapped properties are skipped
                 'searchUnmapped'   => new QueryParameter(
                     filter: new SimpleSearchFilter(),

@@ -37,11 +37,20 @@ final class SimpleSearchFilterTest extends FilterTestCase
         self::assertCount(0, $this->search('?pattern=!'));
         self::assertCount(1, $this->search('?jsonSearch=admin_blog'));
 
-        $this->setTextOfRecordZwei('record ZWEI 50% !');
+        $this->setTextOfRecordZwei('record ZWEI 50% ! [x]');
 
         self::assertCount(1, $this->search('?pattern=%25'));
         self::assertCount(1, $this->search('?pattern=!'));
         self::assertCount(0, $this->search('?pattern=_'));
+
+        // a character class on SQL Server
+        self::assertCount(1, $this->search('?pattern=[x]'));
+        self::assertCount(0, $this->search('?pattern=[a-z]'));
+    }
+
+    public function testSearchWithDashInParameterKey(): void
+    {
+        self::assertCount(1, $this->search('?search-term=eins'));
     }
 
     public function testSearchWithNestedProperty(): void
