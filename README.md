@@ -73,7 +73,7 @@ class AuthApiTest extends ApiPlatformTestCase
             method: 'POST',
             requestOptions: ['json' => ['username' => 'fakeuser']],
             responseCode: 400,
-            contentType: 'application/json',
+            contentType: ApiPlatformTestCase::JSON_MEDIA_TYPE,
             json: [
                 'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
                 'title'  => 'An error occurred',
@@ -239,11 +239,13 @@ asserts that the received status code matches
 <tr>
 <td>contentType</td>
 <td>
-asserts that the received content type header matches exactly
+asserts that the received content type header matches exactly, the constants
+`ApiPlatformTestCase::JSON_MEDIA_TYPE`, `LD_JSON_MEDIA_TYPE` and `PROBLEM_MEDIA_TYPE` hold the
+common values
 </td>
 <td>
 
-`contentType: 'application/ld+json'`
+`contentType: ApiPlatformTestCase::LD_JSON_MEDIA_TYPE`
 
 </td>
 </tr>
@@ -789,6 +791,37 @@ doctrine:
 
         # for JsonExistsFilter::OR
         JSON_CONTAINS_ANY_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAnyTextFunction
+```
+
+### ParameterFilterTrait
+
+Base for custom Doctrine ORM filters used with `#[QueryParameter]`: implement `filterParameter()`,
+it receives the `Parameter` holding the request value. The trait implements `apply()` and the
+deprecated `getDescription()` of `FilterInterface`.
+
+```php
+use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Parameter;
+use Doctrine\ORM\QueryBuilder;
+use Vrok\SymfonyAddons\Filter\ParameterFilterTrait;
+
+final class CurrentUserFilter implements FilterInterface
+{
+    use ParameterFilterTrait;
+
+    protected function filterParameter(
+        Parameter $parameter,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
+        // ...
+    }
+}
 ```
 
 ## MultipartDecoder

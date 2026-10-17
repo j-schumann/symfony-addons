@@ -26,6 +26,16 @@ abstract class ApiPlatformTestCase extends ApiTestCase
     protected static string $userClass = 'App\Entity\User';
 
     /**
+     * Media type of plain JSON responses.
+     */
+    public const JSON_MEDIA_TYPE = 'application/json';
+
+    /**
+     * Media type of JSON-LD responses, the default format of API Platform.
+     */
+    public const LD_JSON_MEDIA_TYPE = 'application/ld+json';
+
+    /**
      * Media type of RFC 7807 compliant error responses.
      */
     public const PROBLEM_MEDIA_TYPE = 'application/problem+json';

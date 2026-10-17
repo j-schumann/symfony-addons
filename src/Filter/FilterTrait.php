@@ -5,55 +5,20 @@ namespace Vrok\SymfonyAddons\Filter;
 use ApiPlatform\Doctrine\Common\Filter\LoggerAwareTrait;
 use ApiPlatform\Doctrine\Orm\NestedPropertyHelperTrait;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Metadata\BackwardCompatibleFilterDescriptionTrait;
-use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 /**
- * Dispatches apply() for a #[QueryParameter] to filterParameter() and resolves the queried fields,
- * like API Platform's own parameter-based filters.
+ * Adds the field resolution of the parameter-based filters to ParameterFilterTrait.
  *
  * @internal
  */
 trait FilterTrait
 {
-    use BackwardCompatibleFilterDescriptionTrait;
     use LoggerAwareTrait;
     use NestedPropertyHelperTrait;
-
-    /**
-     * @param array<string, mixed> $context
-     */
-    public function apply(
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        ?Operation $operation = null,
-        array $context = [],
-    ): void {
-        $parameter = $context['parameter'] ?? null;
-        if ($parameter instanceof Parameter) {
-            $this->filterParameter(
-                $parameter,
-                $queryBuilder,
-                $queryNameGenerator,
-                $resourceClass,
-                $operation,
-                $context,
-            );
-        }
-    }
-
-    abstract protected function filterParameter(
-        Parameter $parameter,
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        ?Operation $operation = null,
-        array $context = [],
-    ): void;
+    use ParameterFilterTrait;
 
     /**
      * Joins the associations of a nested property and returns the alias, the field and the field's
