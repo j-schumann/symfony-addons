@@ -49,10 +49,15 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
             return;
         }
 
-        $isPostgres = $queryBuilder->getEntityManager()->getConnection()->getDatabasePlatform()
-            instanceof PostgreSQLPlatform;
+        $platform = $queryBuilder->getEntityManager()->getConnection()->getDatabasePlatform();
+        $isPostgres = $platform instanceof PostgreSQLPlatform;
         $nestedPropertiesInfo = $parameter->getExtraProperties()['nested_properties_info'] ?? [];
-        $parameterName = $queryNameGenerator->generateParameterName($parameter->getKey() ?? '');
+
+        // not the backslash, MySQL also treats it as escape in string literals
+        $pattern = '%'.$platform->escapeStringForLike((string) $value, '!').'%';
+
+        // not the key, it can contain characters invalid in DQL, like "-"
+        $parameterName = $queryNameGenerator->generateParameterName('search');
 
         $orExp = $queryBuilder->expr()->orX();
         foreach ($parameter->getProperties() ?? [] as $property) {
@@ -72,7 +77,8 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
                 ? "CAST($alias.$field, 'text')"
                 : "$alias.$field";
 
-            $orExp->add($queryBuilder->expr()->like("LOWER($expression)", ":$parameterName"));
+            // not lowercased in PHP, its case mapping differs from the database's
+            $orExp->add("LOWER($expression) LIKE LOWER(:$parameterName) ESCAPE '!'");
         }
 
         if (0 === $orExp->count()) {
@@ -80,17 +86,16 @@ class SimpleSearchFilter implements FilterInterface, LoggerAwareInterface, OpenA
         }
 
         $queryBuilder
-            ->andWhere("($orExp)")
-            ->setParameter($parameterName, '%'.strtolower((string) $value).'%');
+            ->{$context['whereClause'] ?? 'andWhere'}("($orExp)")
+            ->setParameter($parameterName, $pattern);
     }
 
     /**
-     * Only a single search term is supported, arrays (e.g. ?pattern[]=foo) are ignored and logged,
-     * like API Platform does for invalid filter values.
+     * Arrays and invalid text are ignored and logged, like API Platform does for invalid values.
      */
     private function isValidValue(mixed $value, string $parameterName): bool
     {
-        if (!\is_scalar($value)) {
+        if (!\is_scalar($value) || !$this->isValidText((string) $value)) {
             $this->getLogger()->notice('Invalid filter ignored', [
                 'exception' => new InvalidArgumentException(\sprintf(
                     'Invalid value for "%s" parameter, only a single search term is supported',

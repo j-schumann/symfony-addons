@@ -32,6 +32,19 @@ of requiring something like "must contain at least one uppercase & one digit & o
 Allows to set a `minStrength` to vary the requirements. See
 `Vrok\SymfonyAddons\Helper\PasswordStrength` for details on the calculation.
 
+### HtmlUtil::stripHtml
+Normalizer for the `Length` and `NotBlank` constraints, to validate the text length of HTML fields:
+removes tags and comments, decodes entities and trims whitespace and invisible characters.
+`<p>&nbsp;</p>` is blank, `I <3 PHP` keeps its `<3`. Limit the size of the stored HTML with a
+separate `Length`.
+
+```php
+#[Assert\NotBlank(normalizer: [HtmlUtil::class, 'stripHtml'])]
+#[Assert\Length(max: 500, normalizer: [HtmlUtil::class, 'stripHtml'])]
+#[Assert\Length(max: 5000)]
+public string $description = '';
+```
+
 ## PHPUnit helpers
 
 ### Using the ApiPlatformTestCase
@@ -60,7 +73,7 @@ class AuthApiTest extends ApiPlatformTestCase
             method: 'POST',
             requestOptions: ['json' => ['username' => 'fakeuser']],
             responseCode: 400,
-            contentType: 'application/json',
+            contentType: ApiPlatformTestCase::JSON_MEDIA_TYPE,
             json: [
                 'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
                 'title'  => 'An error occurred',
@@ -226,11 +239,12 @@ asserts that the received status code matches
 <tr>
 <td>contentType</td>
 <td>
-asserts that the received content type header matches exactly
+asserts that the received content type header matches exactly, e.g.
+`ApiPlatformTestCase::JSON_MEDIA_TYPE`, `LD_JSON_MEDIA_TYPE` or `PROBLEM_MEDIA_TYPE`
 </td>
 <td>
 
-`contentType: 'application/ld+json'`
+`contentType: ApiPlatformTestCase::LD_JSON_MEDIA_TYPE`
 
 </td>
 </tr>
@@ -671,14 +685,16 @@ class MyEventSubscriber implements EventSubscriberInterface
 The filters are used with the `#[QueryParameter]` attribute, the legacy `#[ApiFilter]` attribute
 is not supported. The parameter names the property to filter, nested properties, e.g.
 `children.content`, are supported. Without `property`, API Platform uses the key of the parameter
-if it matches a property of the resource.
+if it matches a property of the resource. Wrapped in API Platform's `OrFilter`, a filter combines
+its condition with OR instead of AND. Invalid values are ignored and logged as notice.
 
 ### SimpleSearchFilter
 
 Selects entities where the search term is found (case insensitive) in at least one of the specified
 properties. The properties can also be of relations, e.g. `child.name`. All specified properties
 must be string types (varchar, text etc.) or JSON fields (Postgres only), in that case the JSON is
-cast to string first.
+cast to string first. `%` and `_` in the search term match literally. On SQLite, only ASCII letters
+are case insensitive.
 
 ```php
 #[GetCollection(parameters: [
@@ -709,9 +725,19 @@ the `@>` operator. For example for filtering for numbers or strings in an array.
 valid JSON are used as they are (`?numbers=5` finds the number 5, `?roles="5"` the string "5"),
 other values are searched as strings (`?roles=ROLE_ADMIN`).
 
+Multiple values (e.g. `?numbers[]=1&numbers[]=5`) must all be contained, with
+`combination: ContainsFilter::OR` at least one of them.
+
 ```php
 #[GetCollection(parameters: [
-    'numbers' => new QueryParameter(filter: new ContainsFilter()),
+    // records with at least one of the given numbers
+    'anyNumber' => new QueryParameter(
+        filter: new ContainsFilter(combination: ContainsFilter::OR),
+        property: 'numbers',
+    ),
+
+    // records with all the given numbers
+    'numbers'   => new QueryParameter(filter: new ContainsFilter()),
 ])]
 ```
 
@@ -763,6 +789,37 @@ doctrine:
 
         # for JsonExistsFilter::OR
         JSON_CONTAINS_ANY_TEXT: Vrok\DoctrineAddons\ORM\Query\AST\JsonContainsAnyTextFunction
+```
+
+### ParameterFilterTrait
+
+Base for custom Doctrine ORM filters used with `#[QueryParameter]`: implement `filterParameter()`,
+it receives the `Parameter` holding the request value. The trait implements `apply()` and the
+deprecated `getDescription()` of `FilterInterface`.
+
+```php
+use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Parameter;
+use Doctrine\ORM\QueryBuilder;
+use Vrok\SymfonyAddons\Filter\ParameterFilterTrait;
+
+final class CurrentUserFilter implements FilterInterface
+{
+    use ParameterFilterTrait;
+
+    protected function filterParameter(
+        Parameter $parameter,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
+        // ...
+    }
+}
 ```
 
 ## MultipartDecoder
@@ -921,6 +978,7 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 ## Developer Doc
 ### composer.json require
 
+* _symfony/polyfill-mbstring_ >= 1.31 provides `mb_trim()` without ext-mbstring
 * _symfony/yaml_ is required for loading the bundle & test config
 
 ### composer.json dev
@@ -951,12 +1009,7 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * _api-platform/core_ and _vrok/doctrine-addons_ are required for testing the ApiPlatform filters
 
 ### Open ToDos
-* ContainsFilter: option to match records that contain at least one of the values (OR), like
-  the `combination` of the JsonExistsFilter
 * remove the `jsonb` `mapping_types` from the test config when support for doctrine/dbal 4 is
   dropped, DBAL 5 maps jsonb columns to the jsonb type itself
 * `testOperation()`: a parameter for finding the user by another field than `email`, e.g.
   `user: ['username' => 'alice']`, with `email` deprecated
-* a normalizer for the `Length` constraint that strips HTML tags and decodes entities, to
-  validate the real text length of HTML fields. Replaces `NormalizerHelper::stripHtml()` of
-  vrok/doctrine-addons, which is removed in its 4.0 (fcp-api uses it 17 times)

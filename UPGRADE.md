@@ -27,8 +27,9 @@
   every test class sharing the property.
 * If you extended the internal `BaseApiTestCase`, extend `ApiPlatform\Test\ApiTestCase` instead.
 * Replace the `#[ApiFilter]` attribute for the `SimpleSearchFilter`, `ContainsFilter` and
-  `JsonExistsFilter` with `#[QueryParameter]`, see README.md. Requests to a parameter of such an
-  `#[ApiFilter]` are no longer filtered: they return all records, without an error or a log entry.
+  `JsonExistsFilter` with `#[QueryParameter]`, see README.md. Such an `#[ApiFilter]` no longer
+  filters: in 4.0 its parameter returns all records without an error or a log entry, 4.1 and later
+  throw a `LogicException` on every request to the operation.
 * The filters lost their constructor arguments `managerRegistry`, `logger`, `nameConverter` and
   `properties`, only the `combination` of the `JsonExistsFilter` remains. Name the properties to
   search with the `properties` of the `#[QueryParameter]` instead of the `SimpleSearchFilter`'s

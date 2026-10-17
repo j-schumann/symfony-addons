@@ -3,6 +3,35 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-10-17
+
+### Added
+* `ApiPlatformTestCase::JSON_MEDIA_TYPE` and `ApiPlatformTestCase::LD_JSON_MEDIA_TYPE` for the
+  `contentType` argument of `testOperation()`
+* `ParameterFilterTrait` as base for custom filters used with `#[QueryParameter]`
+* `ContainsFilter` matches records that contain at least one of multiple values with
+  `combination: ContainsFilter::OR`
+* `HtmlUtil::stripHtml()` as normalizer for the `Length` and `NotBlank` constraints, to validate the
+  text length of HTML fields. Replaces `NormalizerHelper::stripHtml()` of `vrok/doctrine-addons`.
+  Unlike that, it accepts no `null`, keeps text like `I <3 PHP` that `strip_tags()` removes, decodes
+  HTML5 entities and also trims non-breaking spaces and invisible characters like zero width spaces
+
+### Changed
+* `SimpleSearchFilter`, `ContainsFilter` and `JsonExistsFilter` used through the unsupported
+  `#[ApiFilter]` attribute throw a `LogicException` on every request to the operation, instead of
+  returning all records
+
+### Fixed
+* `ContainsFilter` ignores and logs values that are no valid UTF-8, contain a null character or a
+  number with an exponent of five or more digits or a run of 5000 or more digits, instead of
+  causing a database error
+* `JsonExistsFilter` and `SimpleSearchFilter` ignore and log values that are no valid UTF-8 or
+  contain a null character, instead of causing a database error or ignoring the rest of the value
+* `ContainsFilter`, `JsonExistsFilter` and `SimpleSearchFilter` support API Platform's `OrFilter`
+* `SimpleSearchFilter` matches `%` and `_` (and `[` on SQL Server) in the search term literally
+  instead of as wildcards, ignores the case of non-ASCII letters like umlauts, except on SQLite, and
+  supports parameter keys with characters like `-`
+
 ## [4.0.0] - 2026-10-13
 All BC breaks are explained in UPGRADE.md.
 

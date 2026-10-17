@@ -2,6 +2,7 @@
 
 namespace Vrok\SymfonyAddons\Tests\Fixtures\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -45,6 +46,11 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                     filter: new SimpleSearchFilter(),
                     properties: ['children.jsonColumn'],
                 ),
+                // not a valid DQL parameter name
+                'search-term'      => new QueryParameter(
+                    filter: new SimpleSearchFilter(),
+                    properties: ['varcharColumn'],
+                ),
                 // unmapped properties are skipped
                 'searchUnmapped'   => new QueryParameter(
                     filter: new SimpleSearchFilter(),
@@ -63,6 +69,10 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                     filter: new ContainsFilter(),
                     property: 'jsonColumn',
                 ),
+                'containsAny'      => new QueryParameter(
+                    filter: new ContainsFilter(combination: ContainsFilter::OR),
+                    property: 'jsonColumn',
+                ),
                 'hasAnyKey'        => new QueryParameter(
                     filter: new JsonExistsFilter(combination: JsonExistsFilter::OR),
                     property: 'jsonColumn',
@@ -78,6 +88,19 @@ use Vrok\SymfonyAddons\Filter\SimpleSearchFilter;
                 'childHasKey'      => new QueryParameter(
                     filter: new JsonExistsFilter(),
                     property: 'children.jsonColumn',
+                ),
+                // OrFilter ORs with the conditions of the parameters declared before
+                'orPattern'        => new QueryParameter(
+                    filter: new OrFilter(new SimpleSearchFilter()),
+                    properties: ['varcharColumn'],
+                ),
+                'orContains'       => new QueryParameter(
+                    filter: new OrFilter(new ContainsFilter()),
+                    property: 'jsonColumn',
+                ),
+                'orHasKey'         => new QueryParameter(
+                    filter: new OrFilter(new JsonExistsFilter()),
+                    property: 'jsonColumn',
                 ),
             ],
         ),

@@ -21,18 +21,9 @@ use Doctrine\ORM\QueryBuilder;
  */
 class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApiParameterFilterInterface
 {
+    use CombinationTrait;
     use FilterTrait;
     use OpenApiFilterTrait;
-
-    /**
-     * Records must contain all the values.
-     */
-    public const string AND = 'and';
-
-    /**
-     * Records must contain at least one of the values.
-     */
-    public const string OR = 'or';
 
     /**
      * DQL functions of vrok/doctrine-addons per combination.
@@ -41,17 +32,6 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
         self::AND => 'JSON_CONTAINS_ALL_TEXT',
         self::OR  => 'JSON_CONTAINS_ANY_TEXT',
     ];
-
-    /**
-     * @param string $combination How multiple values are combined, self::AND or self::OR
-     */
-    public function __construct(
-        private readonly string $combination = self::AND,
-    ) {
-        if (!isset(self::FUNCTIONS[$combination])) {
-            throw new InvalidArgumentException(\sprintf('Invalid "combination" parameter "%s", use "%s" or "%s"', $combination, self::AND, self::OR));
-        }
-    }
 
     /**
      * @param array<string, mixed> $context
@@ -87,7 +67,7 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
         $valueParameter = $queryNameGenerator->generateParameterName($field);
 
         $queryBuilder
-            ->andWhere(
+            ->{$context['whereClause'] ?? 'andWhere'}(
                 \sprintf(
                     '%s(%s.%s, :%s) = true',
                     self::FUNCTIONS[$this->combination],
@@ -100,22 +80,20 @@ class JsonExistsFilter implements FilterInterface, LoggerAwareInterface, OpenApi
     }
 
     /**
-     * Returns the values as list of unique strings or NULL if the value is invalid.
-     *
      * @return list<string>|null
      */
     protected function normalizeValue(mixed $value, string $property): ?array
     {
-        if (\is_scalar($value)) {
-            return [(string) $value];
-        }
-
+        $values = \is_scalar($value) ? [$value] : $value;
         if (
-            \is_array($value)
-            && [] !== $value
-            && array_all($value, static fn (mixed $item): bool => \is_scalar($item))
+            \is_array($values)
+            && [] !== $values
+            && array_all(
+                $values,
+                fn (mixed $item): bool => \is_scalar($item) && $this->isValidText((string) $item)
+            )
         ) {
-            return array_values(array_unique(array_map(strval(...), $value)));
+            return array_values(array_unique(array_map(strval(...), $values)));
         }
 
         $this->getLogger()->notice('Invalid filter ignored', [
