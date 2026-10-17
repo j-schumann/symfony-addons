@@ -5,55 +5,20 @@ namespace Vrok\SymfonyAddons\Filter;
 use ApiPlatform\Doctrine\Common\Filter\LoggerAwareTrait;
 use ApiPlatform\Doctrine\Orm\NestedPropertyHelperTrait;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Metadata\BackwardCompatibleFilterDescriptionTrait;
-use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 /**
- * Dispatches apply() for a #[QueryParameter] to filterParameter() and resolves the queried fields,
- * like API Platform's own parameter-based filters.
+ * Field resolution for the filters of this bundle.
  *
  * @internal
  */
 trait FilterTrait
 {
-    use BackwardCompatibleFilterDescriptionTrait;
     use LoggerAwareTrait;
     use NestedPropertyHelperTrait;
-
-    /**
-     * @param array<string, mixed> $context
-     */
-    public function apply(
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        ?Operation $operation = null,
-        array $context = [],
-    ): void {
-        $parameter = $context['parameter'] ?? null;
-        if ($parameter instanceof Parameter) {
-            $this->filterParameter(
-                $parameter,
-                $queryBuilder,
-                $queryNameGenerator,
-                $resourceClass,
-                $operation,
-                $context,
-            );
-        }
-    }
-
-    abstract protected function filterParameter(
-        Parameter $parameter,
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        ?Operation $operation = null,
-        array $context = [],
-    ): void;
+    use ParameterFilterTrait;
 
     /**
      * Joins the associations of a nested property and returns the alias, the field and the field's
@@ -99,5 +64,13 @@ trait FilterTrait
         );
 
         return [$alias, $queryField, $metadata->getFieldMapping($field)->type];
+    }
+
+    /**
+     * Postgres rejects invalid UTF-8 and cuts text at a null character.
+     */
+    protected function isValidText(string $text): bool
+    {
+        return mb_check_encoding($text, 'UTF-8') && !str_contains($text, "\0");
     }
 }
