@@ -67,7 +67,7 @@ jobs:
           POSTGRES_DB: db_test
           POSTGRES_PASSWORD: db_test
           POSTGRES_USER: db_test
-        image: postgres:18@sha256:edb0c08dc33befd0262ab3b5cf1c4f3f8cfd8b09e88c05b45adee29d6761ddb6
+        image: postgres:18@sha256:979bccfde35445db618c65107d27d08c6c21339d8dc3ad4c830c6633947be0e4
         options: >-
           --health-cmd="pg_isready"
           --health-interval=10s
@@ -171,7 +171,7 @@ jobs:
           POSTGRES_DB: db_test
           POSTGRES_PASSWORD: db_test
           POSTGRES_USER: db_test
-        image: postgres:18@sha256:edb0c08dc33befd0262ab3b5cf1c4f3f8cfd8b09e88c05b45adee29d6761ddb6
+        image: postgres:18@sha256:979bccfde35445db618c65107d27d08c6c21339d8dc3ad4c830c6633947be0e4
         options: >-
           --tmpfs /var/lib/postgresql/18/docker:rw,size=1g
           --health-cmd="pg_isready"
