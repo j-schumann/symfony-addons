@@ -86,7 +86,7 @@ jobs:
           MYSQL_PASSWORD: dbtest
           MYSQL_ROOT_PASSWORD: root
           MYSQL_USER: dbtest
-        image: mysql:lts@sha256:ef50288bcf1daa57ea9f7cb8ad48ea077c30c5dfbef2ae3aee8dae0f1eef205c
+        image: mysql:lts@sha256:b055723a00649bde974d2e3d3ba486725f279c4a4bb4d24d69f36b11fafa7b79
         options: >-
           --tmpfs /var/lib/mysql:rw,size=1g
           --health-cmd="mysqladmin ping"
