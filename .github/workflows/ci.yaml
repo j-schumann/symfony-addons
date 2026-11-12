@@ -29,7 +29,7 @@ jobs:
           MARIADB_MYSQL_LOCALHOST_USER: 1
           MARIADB_PASSWORD: dbtest
           MARIADB_USER: dbtest
-        image: mariadb:13@sha256:df4b8eebac39ef3630d7e20f9dae623d0b2d7cb41888ee0ea80db995a4a43e36
+        image: mariadb:13@sha256:54f493ea0d60b621a5bff84e5b20100f8b86b6efa6b79158e04756c5194a5e4d
         options: >-
           --tmpfs /var/lib/mysql:rw,size=1g
           --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized"
