@@ -995,8 +995,9 @@ specification of `method_argument_space` and `array_indentation` (or rulesets co
 * _symfony/doctrine-messenger_ is required for tests of the `messageCount` of the
   ApiPlatformTestCase
 * _symfony/monolog-bundle_ is required for tests of the MonologAssertsTrait
-* _phpstan/phpstan_ and _phpstan/phpstan-deprecation-rules_ run the static analysis
-  (`composer phpstan`), also in CI
+* _phpstan/phpstan_, _phpstan/phpstan-deprecation-rules_ and _phpstan/phpstan-doctrine_ run the
+  static analysis (`composer phpstan`), also in CI. phpstan-doctrine checks the Doctrine code and
+  the test entities against the mapping, `tests/Fixtures/app/object-manager.php` loads it
 * _symfony/clock_ provides `DatePoint` for fixed dates in the tests
 * _symfony/error-handler_ >= 7.4.17 / 8.1.5 restores the exception handler it registers, older
   versions make the kernel tests risky

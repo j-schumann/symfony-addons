@@ -13,6 +13,9 @@ class Child
     #[ORM\Column]
     public ?int $id = null;
 
+    /**
+     * @var array<mixed>
+     */
     #[ORM\Column(type: Types::JSONB)]
     public array $jsonColumn = [];
 

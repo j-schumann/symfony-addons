@@ -3,8 +3,10 @@
 /** @noinspection PhpIllegalPsrClassPathInspection */
 
 use ApiPlatform\Symfony\Bundle\ApiPlatformBundle;
+use Composer\InstalledVersions;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle;
+use Doctrine\ORM\Configuration as OrmConfiguration;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\MonologBundle\MonologBundle;
@@ -57,6 +59,18 @@ class AppKernel extends Kernel
         // @todo remove when Symfony 7.4 support is dropped
         if (Kernel::VERSION_ID < 80000) {
             $profiler['collect_serializer_data'] = true;
+        }
+
+        // doctrine/orm 3.8 deprecates not using the schema editor API, DoctrineBundle 3.4 adds the
+        // option
+        // @todo remove the check when doctrine/orm < 3.8 support is dropped
+        if (
+            method_exists(OrmConfiguration::class, 'setUseSchemaEditorApi')
+            && version_compare(InstalledVersions::getVersion('doctrine/doctrine-bundle') ?? '', '3.4', '>=')
+        ) {
+            $container->prependExtensionConfig('doctrine', [
+                'orm' => ['use_schema_editor_api' => true],
+            ]);
         }
 
         $container->prependExtensionConfig('framework', [

@@ -36,6 +36,7 @@ trait FilterTrait
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
     ): ?array {
+        /** @var class-string $class */
         $class = $nestedInfo['leaf_class'] ?? $queryBuilder->getRootEntities()[0];
         $field = $nestedInfo['leaf_property']
             ?? $parameter->getExtraProperties()['query_property']
