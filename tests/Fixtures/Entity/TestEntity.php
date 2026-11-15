@@ -114,6 +114,9 @@ class TestEntity
     #[ORM\Column]
     public ?int $id = null;
 
+    /**
+     * @var array<mixed>
+     */
     #[ORM\Column(type: Types::JSONB)]
     public array $jsonColumn = [];
 
@@ -124,7 +127,7 @@ class TestEntity
     public string $varcharColumn = '';
 
     /**
-     * @var Collection<int, Child>|Child[]
+     * @var Collection<int, Child>
      */
     #[ORM\OneToMany(
         targetEntity: Child::class,

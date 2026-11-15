@@ -1,7 +1,12 @@
 includes:
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-doctrine/rules.neon
 
 parameters:
     level: 8
     paths:
         - src
+        - tests/Fixtures/Entity
+    doctrine:
+        objectManagerLoader: tests/Fixtures/app/object-manager.php

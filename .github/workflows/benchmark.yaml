@@ -38,7 +38,7 @@ jobs:
           MARIADB_PASSWORD: db_test
           MARIADB_ROOT_PASSWORD: root
           MARIADB_USER: db_test
-        image: mariadb:13@sha256:0e4bb0f339feba125d1154fbacd36c16ec8518f52e44e1f82ecec7d6771caf39
+        image: mariadb:13@sha256:54f493ea0d60b621a5bff84e5b20100f8b86b6efa6b79158e04756c5194a5e4d
         options: >-
           --health-cmd="healthcheck.sh --connect --innodb_initialized"
           --health-interval=10s
@@ -53,7 +53,7 @@ jobs:
           MYSQL_PASSWORD: db_test
           MYSQL_ROOT_PASSWORD: root
           MYSQL_USER: db_test
-        image: mysql:lts@sha256:1257504944c538da4aedd8ab06f0e280c8716b72ba16ac38fe134b9eb8145168
+        image: mysql:lts@sha256:1954314de304d70fe85c67204d4676891ffa11dcd7caedaf5e9bc50b5f6be446
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval=10s
@@ -67,7 +67,7 @@ jobs:
           POSTGRES_DB: db_test
           POSTGRES_PASSWORD: db_test
           POSTGRES_USER: db_test
-        image: postgres:18@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
+        image: postgres:18@sha256:2ea8630df176ad090ec92136dee850397c5af8781e4bcf2e4162593691c61bbc
         options: >-
           --health-cmd="pg_isready"
           --health-interval=10s
@@ -140,7 +140,7 @@ jobs:
           MARIADB_PASSWORD: db_test
           MARIADB_ROOT_PASSWORD: root
           MARIADB_USER: db_test
-        image: mariadb:13@sha256:0e4bb0f339feba125d1154fbacd36c16ec8518f52e44e1f82ecec7d6771caf39
+        image: mariadb:13@sha256:54f493ea0d60b621a5bff84e5b20100f8b86b6efa6b79158e04756c5194a5e4d
         options: >-
           --tmpfs /var/lib/mysql:rw,size=1g
           --health-cmd="healthcheck.sh --connect --innodb_initialized"
@@ -156,7 +156,7 @@ jobs:
           MYSQL_PASSWORD: db_test
           MYSQL_ROOT_PASSWORD: root
           MYSQL_USER: db_test
-        image: mysql:lts@sha256:1257504944c538da4aedd8ab06f0e280c8716b72ba16ac38fe134b9eb8145168
+        image: mysql:lts@sha256:1954314de304d70fe85c67204d4676891ffa11dcd7caedaf5e9bc50b5f6be446
         options: >-
           --tmpfs /var/lib/mysql:rw,size=1g
           --health-cmd="mysqladmin ping"
@@ -171,7 +171,7 @@ jobs:
           POSTGRES_DB: db_test
           POSTGRES_PASSWORD: db_test
           POSTGRES_USER: db_test
-        image: postgres:18@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
+        image: postgres:18@sha256:2ea8630df176ad090ec92136dee850397c5af8781e4bcf2e4162593691c61bbc
         options: >-
           --tmpfs /var/lib/postgresql/18/docker:rw,size=1g
           --health-cmd="pg_isready"
